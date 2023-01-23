@@ -1,0 +1,24 @@
+[package]
+name = "ow-mod-man"
+description = "A CLI Interface For Managing OWML Mods"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+opener = "0.5.0"
+clap = { version = "4.1.1", features = ["derive"] }
+wild = "2.1.0"
+directories = "4.0.1"
+reqwest = { version = "0.11.14", features = ["blocking"] }
+glob = "0.3.1"
+colored = "2.0.0"
+zip-extract = "0.1.1"
+copy_dir = "0.1.2"
+tokio = { version = "1.24.2", features = ["full"] }
+indicatif = { version = "0.17.3", features = ["improved_unicode", "tokio"] }
+version-compare = "0.1.1"
+async-recursion = "1.0.2"

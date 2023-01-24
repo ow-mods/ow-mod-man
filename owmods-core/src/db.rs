@@ -21,9 +21,17 @@ pub struct LocalDatabase {
 
 impl RemoteDatabase {
     pub fn get_mod(&self, unique_name: &str) -> Option<&RemoteMod> {
-        self.releases
-            .iter()
-            .find(|&remote_mod| remote_mod.unique_name == unique_name)
+        let found_mod = self.releases.iter().find(|&remote_mod| remote_mod.unique_name == unique_name);
+        if let Some(found_mod) = found_mod {
+            // Skip OWML, the old manager treated this like a mod but the new one won't
+            if found_mod.unique_name == "Alek.OWML" {
+                None
+            } else {
+                Some(found_mod)
+            }
+        } else {
+            None
+        }
     }
 }
 

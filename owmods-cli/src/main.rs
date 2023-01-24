@@ -10,7 +10,12 @@ use owmods_core as core;
 struct BaseCli {
     #[command(subcommand)]
     command: Commands,
-    #[arg(short = 'r', long = "recursive")]
+    #[arg(
+        global = true,
+        short = 'r',
+        long = "recursive",
+        help = "Apply the action recursively (to all dependencies)"
+    )]
     recursive: bool,
 }
 
@@ -24,32 +29,40 @@ enum Commands {
     Alert,
     #[command(about = "Updates all mods")]
     Update,
-    #[command(about = "List local (installed) or remote (in the database) mods")]
+    #[command(
+        about = "List local (installed) or remote (in the database) mods",
+        alias = "ls"
+    )]
     List {
         #[command(subcommand)]
         mod_type: Option<ModListTypes>,
     },
-    Info {
-        unique_name: String,
-    },
-    #[command(about = "Enable a mod (use -r to enable dependencies too)")]
-    Enable {
-        unique_name: String,
-    },
-    #[command(about = "Disable a mod (use -r to disable dependencies too)")]
-    Disable {
-        unique_name: String,
-    },
-    #[command(about = "Install a mod (use -r to auto-install dependencies)")]
-    Install {
-        unique_name: String,
-    },
+    #[command(about = "View info about a specific mod")]
+    Info { unique_name: String },
+    #[command(
+        about = "Enable a mod (use -r to enable dependencies too)",
+        alias = "e"
+    )]
+    Enable { unique_name: String },
+    #[command(
+        about = "Disable a mod (use -r to disable dependencies too)",
+        alias = "d"
+    )]
+    Disable { unique_name: String },
+    #[command(
+        about = "Install a mod (use -r to auto-install dependencies)",
+        alias = "i"
+    )]
+    Install { unique_name: String },
     #[command(
         about = "Install a mod from a .zip file, useful for workflow results (-r not supported)"
     )]
-    InstallZip {
-        zip_path: PathBuf,
-    },
+    InstallZip { zip_path: PathBuf },
+    #[command(
+        about = "Uninstall a mod (use -r to uninstall dependencies too)",
+        alias = "remove"
+    )]
+    Uninstall { unique_name: String },
     #[command(about = "Export enabled mods to stdout as JSON")]
     Export,
     #[command(
@@ -57,7 +70,11 @@ enum Commands {
     )]
     Import {
         file_path: PathBuf,
-        #[arg(short = 'd', long = "disable-missing")]
+        #[arg(
+            short = 'd',
+            long = "disable-missing",
+            help = "Disable mods that aren't present in the file"
+        )]
         disable_missing: bool,
     },
 }
@@ -210,6 +227,21 @@ async fn main() -> Result<(), Box<dyn Error>> {
             println!("Extracting...");
             core::download::install_from_zip(&config, zip_path)?;
             println!("Installed!");
+        }
+        Commands::Uninstall { unique_name } => {
+            let db = core::db::fetch_local_db(&config)?;
+            let local_mod = db.get_mod(&unique_name);
+            if let Some(local_mod) = local_mod {
+                println!(
+                    "Uninstalling {}{}...",
+                    unique_name,
+                    if r { " and dependencies" } else { "" }
+                );
+                core::remove::remove_mod(&local_mod, &db, r)?;
+                println!("Success");
+            } else {
+                println!("Mod {} Is Not Installed", unique_name);
+            }
         }
         Commands::Export => {
             let local_db = core::db::fetch_local_db(&config)?;

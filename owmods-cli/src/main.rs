@@ -53,9 +53,13 @@ enum Commands {
         about = "Install a mod (use -r to auto-install dependencies)",
         alias = "i"
     )]
-    Install { unique_name: String },
+    Install { 
+        unique_name: String,
+        #[arg(short='o', long="overwrite", help="Overwrite existing installation")]
+        overwrite: bool
+     },
     #[command(
-        about = "Install a mod from a .zip file, useful for workflow results (-r not supported)"
+        about = "Install a mod from a .zip file, useful for workflow results (-r not supported)",
     )]
     InstallZip { zip_path: PathBuf },
     #[command(
@@ -214,11 +218,21 @@ async fn main() -> Result<(), Box<dyn Error>> {
                 }
             }
         }
-        Commands::Install { unique_name } => {
+        Commands::Install { unique_name , overwrite} => {
             let remote_db = core::db::fetch_remote_db(&config).await?;
             let local_db = core::db::fetch_local_db(&config)?;
             if let Some(remote_mod) = remote_db.get_mod(unique_name) {
-                core::download::download_mod(&config, &local_db, &remote_db, remote_mod, r).await?;
+                let local_mod = local_db.get_mod(unique_name);
+                if *overwrite && local_mod.is_some() {
+                    println!("Overriding {}", unique_name);
+                    core::download::download_mod(&config, &local_db, &remote_db, remote_mod, r).await?;
+                } else {
+                    if let Some(local_mod) = local_db.get_mod(unique_name) {
+                        println!("{} is already installed at {}, use -o to overwrite", unique_name, local_mod.mod_path);
+                    } else {
+                        core::download::download_mod(&config, &local_db, &remote_db, remote_mod, r).await?;
+                    }
+                }
             } else {
                 println!("Mod {unique_name} Not Found, Enter The Unique Name Of The Mod You Wish To Install (run `list remote` for a list)");
             }

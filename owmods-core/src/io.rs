@@ -1,4 +1,4 @@
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 
 use crate::utils::file::deserialize_from_json;
 
@@ -24,10 +24,10 @@ pub async fn import_mods(
     config: &Config,
     local_db: &LocalDatabase,
     remote_db: &RemoteDatabase,
-    file_path: &PathBuf,
+    file_path: &Path,
     disable_missing: bool,
 ) -> Result<(), anyhow::Error> {
-    let unique_names: Vec<String> = deserialize_from_json(&file_path)?;
+    let unique_names: Vec<String> = deserialize_from_json(file_path)?;
 
     if disable_missing {
         for local_mod in local_db.mods.iter() {

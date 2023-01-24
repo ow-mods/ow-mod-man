@@ -47,16 +47,16 @@ pub async fn fetch_remote_db(conf: &Config) -> Result<RemoteDatabase, anyhow::Er
     Ok(db)
 }
 
-pub fn read_local_mod(manifest_path: &PathBuf) -> Result<LocalMod, anyhow::Error> {
+pub fn read_local_mod(manifest_path: &Path) -> Result<LocalMod, anyhow::Error> {
     let folder_path = manifest_path.parent();
     if folder_path.is_none() {
         return Err(anyhow::Error::msg("Mod Path Not Found"));
     }
     let folder_path = folder_path.unwrap(); // <- Unwrap is safe, .is_none() check is above
-    fix_json(&manifest_path).ok();
-    let manifest: ModManifest = deserialize_from_json(&manifest_path)?;
+    fix_json(manifest_path).ok();
+    let manifest: ModManifest = deserialize_from_json(manifest_path)?;
     Ok(LocalMod {
-        enabled: get_mod_enabled(&folder_path)?,
+        enabled: get_mod_enabled(folder_path)?,
         manifest,
         mod_path: String::from(folder_path.to_str().unwrap()),
         errors: vec![],
@@ -75,9 +75,14 @@ fn get_local_mods(conf: &Config) -> Result<Vec<LocalMod>, anyhow::Error> {
     )?;
     for entry in glob_matches {
         let entry = entry?;
-        let local_mod = read_local_mod(&entry)
-            .map_err(|e| anyhow::Error::msg(format!("Can't Load Mod {}: {:?}", entry.to_str().unwrap(), e)))?;
-        mods.push(local_mod); 
+        let local_mod = read_local_mod(&entry).map_err(|e| {
+            anyhow::Error::msg(format!(
+                "Can't Load Mod {}: {:?}",
+                entry.to_str().unwrap(),
+                e
+            ))
+        })?;
+        mods.push(local_mod);
     }
     Ok(mods)
 }

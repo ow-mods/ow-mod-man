@@ -13,7 +13,7 @@ pub mod file {
     where
         for<'a> T: Deserialize<'a>,
     {
-        let file = File::open(&file_path)?;
+        let file = File::open(file_path)?;
         let buffer = BufReader::new(file);
         let result = serde_json::from_reader(buffer)?;
         Ok(result)
@@ -32,7 +32,7 @@ pub mod file {
                 create_dir_all(parent_path)?;
             }
         }
-        let file = File::create(&out_path)?;
+        let file = File::create(out_path)?;
         let buffer = BufWriter::new(file);
         serde_json::to_writer_pretty(buffer, obj)?;
         Ok(())
@@ -47,21 +47,21 @@ pub mod file {
     }
 
     pub fn fix_json(path: &Path) -> Result<(), anyhow::Error> {
-        let mut file = File::open(&path)?;
+        let mut file = File::open(path)?;
         let mut buffer = String::new();
 
         file.read_to_string(&mut buffer)?;
 
         // BOMs are really really annoying
         buffer = buffer
-            .strip_prefix("\u{FEFF}")
+            .strip_prefix('\u{FEFF}')
             .unwrap_or(&buffer)
             .to_string();
         // Some mods' default-config.json do "true" instead of true for some reason, fix that.
         buffer = buffer.replace("\"true\"", "true");
         buffer = buffer.replace("\"false\"", "false");
 
-        let mut file = File::create(&path)?;
+        let mut file = File::create(path)?;
         write!(file, "{}", buffer)?;
 
         Ok(())

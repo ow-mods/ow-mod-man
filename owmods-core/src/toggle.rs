@@ -3,7 +3,7 @@ use std::path::{Path, PathBuf};
 use serde::{Deserialize, Serialize};
 use serde_json::Map;
 
-use crate::utils::file::{deserialize_from_json, serialize_to_json, fix_json};
+use crate::utils::file::{deserialize_from_json, fix_json, serialize_to_json};
 
 use super::db::{read_local_mod, LocalDatabase};
 
@@ -15,12 +15,12 @@ struct ModStubConfig {
 }
 
 fn read_config(config_path: &Path) -> Result<ModStubConfig, anyhow::Error> {
-    fix_json(&config_path).ok();
-    deserialize_from_json(&config_path)
+    fix_json(config_path).ok();
+    deserialize_from_json(config_path)
 }
 
 fn write_config(conf: &ModStubConfig, config_path: &Path) -> Result<(), anyhow::Error> {
-    serialize_to_json(&conf, &config_path, false)?;
+    serialize_to_json(&conf, config_path, false)?;
     Ok(())
 }
 

@@ -31,7 +31,7 @@ pub async fn check_for_updates(
     config: &Config,
     local_db: &LocalDatabase,
     remote_db: &RemoteDatabase,
-) {
+) -> Result<(), anyhow::Error> {
     let mut needs_updates: Vec<&RemoteMod> = vec![];
 
     println!("Checking For Updates...");
@@ -58,13 +58,14 @@ pub async fn check_for_updates(
     if !needs_updates.is_empty() {
         for update_mod in needs_updates.iter() {
             if update_mod.unique_name == "Alek.OWML" {
-                download_owml(config, update_mod).await;
+                download_owml(config, update_mod).await?;
             } else {
-                download_mod(config, local_db, remote_db, update_mod, false).await;
+                download_mod(config, local_db, remote_db, update_mod, false).await?;
             }
         }
         println!("Update Complete!");
     } else {
         println!("No Updates Available!");
     }
+    Ok(())
 }

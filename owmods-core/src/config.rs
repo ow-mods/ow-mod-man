@@ -1,8 +1,7 @@
-use directories::ProjectDirs;
 use serde::{Deserialize, Serialize};
-use std::fs::{create_dir_all, File};
-use std::io::{Read, Write};
 use std::path::PathBuf;
+
+use crate::utils::file::{deserialize_from_json, get_app_path, serialize_to_json};
 
 #[derive(Serialize, Deserialize, Clone)]
 pub struct Config {
@@ -12,30 +11,12 @@ pub struct Config {
     pub alert_url: String,
 }
 
-pub fn get_app_path() -> PathBuf {
-    ProjectDirs::from("com", "ow-mods", "ow-mod-man")
-        .expect("Couldn't Find App Data Directory")
-        .data_dir()
-        .to_path_buf()
+pub fn config_path() -> Result<PathBuf, anyhow::Error> {
+    let app_path = get_app_path()?;
+    Ok(app_path.join("settings.json"))
 }
 
-pub fn config_path() -> PathBuf {
-    get_app_path().join("settings.json")
-}
-
-fn config_exists() -> bool {
-    config_path().is_file()
-}
-
-fn read_config() -> Config {
-    let mut file = File::open(config_path()).expect("Couldn't Open Settings File");
-    let mut raw = String::new();
-    file.read_to_string(&mut raw)
-        .expect("Couldn't Read Settings File");
-    serde_json::from_str(&raw).expect("Couldn't Parse Settings Data")
-}
-
-pub fn generate_default_config() -> Config {
+pub fn generate_default_config() -> Result<Config, anyhow::Error> {
     let default_config = Config {
         owml_path: String::from(""),
         log_socket: Some(0),
@@ -46,11 +27,11 @@ pub fn generate_default_config() -> Config {
             "https://raw.githubusercontent.com/ow-mods/ow-mod-db/source/alert.json",
         ),
     };
-    write_config(&default_config);
-    default_config
+    write_config(&default_config)?;
+    Ok(default_config)
 }
 
-pub fn get_config() -> Config {
+pub fn get_config() -> Result<Config, anyhow::Error> {
     if config_exists() {
         read_config()
     } else {
@@ -58,12 +39,18 @@ pub fn get_config() -> Config {
     }
 }
 
-pub fn write_config(conf: &Config) {
-    let serialized =
-        serde_json::to_string_pretty(&conf).expect("Couldn't serialize settings data.");
-    let path = config_path();
-    create_dir_all(path.parent().unwrap()).expect("Couldn't Create Settings Data");
-    let mut file = File::create(&path).expect("Couldn't Create Settings Data");
-    file.write_all(serialized.as_bytes())
-        .expect("Couldn't Write Settings Data");
+pub fn write_config(conf: &Config) -> Result<(), anyhow::Error> {
+    serialize_to_json(&conf, &config_path()?, true)
+}
+
+fn config_exists() -> bool {
+    let config_path = config_path();
+    match config_path {
+        Ok(config_path) => config_path.is_file(),
+        Err(_) => false,
+    }
+}
+
+fn read_config() -> Result<Config, anyhow::Error> {
+    deserialize_from_json(&config_path()?)
 }

@@ -1,7 +1,8 @@
-use std::path::PathBuf;
+use std::{error::Error, path::PathBuf};
 
 use clap::{Parser, Subcommand};
 
+use colored::Colorize;
 use owmods_core as core;
 
 #[derive(Parser)]
@@ -57,64 +58,94 @@ enum ModListTypes {
 }
 
 #[tokio::main]
-async fn main() {
+async fn main() -> Result<(), Box<dyn Error>> {
     let cli = BaseCli::parse();
 
     let r = cli.recursive;
 
-    let config = core::config::get_config();
+    let config = core::config::get_config()?;
 
     match &cli.command {
         Commands::Version => {
             println!(env!("CARGO_PKG_VERSION"));
         }
         Commands::Setup => {
-            let db = core::db::fetch_remote_db(&config).await;
+            let db = core::db::fetch_remote_db(&config).await?;
             let owml = db.get_mod("Alek.OWML").expect("OWML Not found");
-            core::download::download_owml(&config, owml).await;
+            core::download::download_owml(&config, owml).await?;
         }
         Commands::List { mod_type } => match mod_type {
             Some(ModListTypes::Local) | None => {
-                println!("{}", core::db::local_mod_list_str(&config))
+                let db = core::db::fetch_local_db(&config)?;
+                let mut output = String::new();
+                output += &format!(
+                    "Found {} Installed Mods at {}:\n(+): Enabled\n(-): Disabled\n\n",
+                    db.mods.len(),
+                    config.owml_path
+                );
+                for local_mod in db.mods.iter() {
+                    output += &format!(
+                        "{} {} by {} ({})\n",
+                        if local_mod.enabled { "+" } else { "-" },
+                        local_mod.manifest.name,
+                        local_mod.manifest.author,
+                        &local_mod.manifest.unique_name.to_string().bold()
+                    );
+                }
+                println!("{}", output);
             }
             Some(ModListTypes::Remote) => {
-                println!("{}", core::db::remote_mod_list_str(&config).await)
+                let db = core::db::fetch_remote_db(&config).await?;
+                let mut output = String::new();
+                output += &format!("Found {} Remote Mods:\n", db.releases.len());
+                for remote_mod in db.releases.iter() {
+                    output += &format!(
+                        "- {} by {} ({})\n",
+                        remote_mod.name,
+                        remote_mod
+                            .author_display
+                            .as_ref()
+                            .unwrap_or(&remote_mod.author),
+                        &remote_mod.unique_name.to_string().bold()
+                    )
+                }
+                println!("{}", output);
             }
         },
         Commands::Install { unique_name } => {
-            let remote_db = core::db::fetch_remote_db(&config).await;
-            let local_db = core::db::fetch_local_db(&config);
+            let remote_db = core::db::fetch_remote_db(&config).await?;
+            let local_db = core::db::fetch_local_db(&config)?;
             if let Some(remote_mod) = remote_db.get_mod(unique_name) {
-                core::download::download_mod(&config, &local_db, &remote_db, remote_mod, r).await;
+                core::download::download_mod(&config, &local_db, &remote_db, remote_mod, r).await?;
             } else {
                 println!("Mod {unique_name} Not Found, Enter The Unique Name Of The Mod You Wish To Install (run `list remote` for a list)");
             }
         }
         Commands::InstallZip { zip_path } => {
             println!("Extracting...");
-            core::download::install_from_zip(&config, zip_path);
+            core::download::install_from_zip(&config, zip_path)?;
             println!("Installed!");
         }
         Commands::Export => {
-            let local_db = core::db::fetch_local_db(&config);
-            println!("{}", core::io::export_mods(&local_db));
+            let local_db = core::db::fetch_local_db(&config)?;
+            println!("{}", core::io::export_mods(&local_db)?);
         }
         Commands::Import {
             file_path,
             disable_missing,
         } => {
-            let remote_db = core::db::fetch_remote_db(&config).await;
-            let local_db = core::db::fetch_local_db(&config);
+            let remote_db = core::db::fetch_remote_db(&config).await?;
+            let local_db = core::db::fetch_local_db(&config)?;
             core::io::import_mods(&config, &local_db, &remote_db, file_path, *disable_missing)
-                .await;
+                .await?;
         }
         Commands::Update => {
-            let remote_db = core::db::fetch_remote_db(&config).await;
-            let local_db = core::db::fetch_local_db(&config);
-            core::updates::check_for_updates(&config, &local_db, &remote_db).await;
+            let remote_db = core::db::fetch_remote_db(&config).await?;
+            let local_db = core::db::fetch_local_db(&config)?;
+            core::updates::check_for_updates(&config, &local_db, &remote_db).await?;
         }
         Commands::Enable { unique_name } | Commands::Disable { unique_name } => {
-            let db = core::db::fetch_local_db(&config);
+            let db = core::db::fetch_local_db(&config)?;
             let enable = matches!(cli.command, Commands::Enable { unique_name: _ });
             if unique_name == "*" || unique_name == "all" {
                 for local_mod in db.mods.iter() {
@@ -123,12 +154,17 @@ async fn main() {
                         &db,
                         enable,
                         false,
-                    );
+                    )?;
                 }
             } else {
                 let mod_path = db.get_mod_path(unique_name);
-                core::toggle::toggle_mod(&mod_path, &db, enable, r);
+                if let Some(mod_path) = mod_path {
+                    core::toggle::toggle_mod(&mod_path, &db, enable, r)?;
+                } else {
+                    println!("Mod {} is not installed", unique_name);
+                }
             }
         }
     }
+    Ok(())
 }

@@ -5,3 +5,5 @@ pub mod io;
 pub mod mods;
 pub mod toggle;
 pub mod updates;
+
+mod utils;

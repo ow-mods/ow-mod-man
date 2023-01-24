@@ -2,7 +2,7 @@ use std::path::PathBuf;
 
 use clap::{Parser, Subcommand};
 
-mod core;
+use owmods_core as core;
 
 #[derive(Parser)]
 #[command(author, version, about, long_about = None)]
@@ -26,11 +26,6 @@ enum Commands {
         #[command(subcommand)]
         mod_type: Option<ModListTypes>,
     },
-    #[command(about = "Access the CLI's config")]
-    Config {
-        #[command(subcommand)]
-        command: ConfigSubcommands,
-    },
     #[command(about = "Enable a mod (use -r to enable dependencies too)")]
     Enable { unique_name: String },
     #[command(about = "Disable a mod (use -r to disable dependencies too)")]
@@ -51,16 +46,6 @@ enum Commands {
         #[arg(short = 'd', long = "disable-missing")]
         disable_missing: bool,
     },
-}
-
-#[derive(Subcommand)]
-enum ConfigSubcommands {
-    #[command(about = "Show the config")]
-    Show,
-    #[command(about = "Reset the config")]
-    Reset,
-    #[command(about = "Open the config in the OS's default program")]
-    Open,
 }
 
 #[derive(Subcommand)]
@@ -128,17 +113,6 @@ async fn main() {
             let local_db = core::db::fetch_local_db(&config);
             core::updates::check_for_updates(&config, &local_db, &remote_db).await;
         }
-        Commands::Config { command } => match command {
-            ConfigSubcommands::Show => {
-                println!("{}", serde_json::to_string_pretty(&config).unwrap());
-            }
-            ConfigSubcommands::Reset => {
-                core::config::generate_default_config();
-            }
-            ConfigSubcommands::Open => {
-                opener::open(core::config::config_path()).expect("Unable To Open Config");
-            }
-        },
         Commands::Enable { unique_name } | Commands::Disable { unique_name } => {
             let db = core::db::fetch_local_db(&config);
             let enable = matches!(cli.command, Commands::Enable { unique_name: _ });

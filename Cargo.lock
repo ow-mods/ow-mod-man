@@ -112,9 +112,9 @@ checksum = "baf1de4339761588bc0619e3cbc0120ee582ebb74b53b4efbf79117bd2da40fd"
 
 [[package]]
 name = "clap"
-version = "4.1.1"
+version = "4.1.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "4ec7a4128863c188deefe750ac1d1dfe66c236909f845af04beed823638dc1b2"
+checksum = "0e638668a62aced2c9fb72b5135a33b4a500485ccf2a0e402e09aa04ab2fc115"
 dependencies = [
  "bitflags",
  "clap_derive",
@@ -763,11 +763,19 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "9b7820b9daea5457c9f21c69448905d723fbd21136ccf521748f23fd49e723ee"
 
 [[package]]
-name = "ow-mod-man"
+name = "owmods-cli"
+version = "0.1.0"
+dependencies = [
+ "clap",
+ "owmods-core",
+ "tokio",
+]
+
+[[package]]
+name = "owmods-core"
 version = "0.1.0"
 dependencies = [
  "async-recursion",
- "clap",
  "colored",
  "copy_dir",
  "directories",
@@ -777,9 +785,7 @@ dependencies = [
  "reqwest",
  "serde",
  "serde_json",
- "tokio",
  "version-compare",
- "wild",
  "zip-extract",
 ]
 
@@ -1426,15 +1432,6 @@ checksum = "bcda906d8be16e728fd5adc5b729afad4e444e106ab28cd1c7256e54fa61510f"
 dependencies = [
  "js-sys",
  "wasm-bindgen",
-]
-
-[[package]]
-name = "wild"
-version = "2.1.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "05b116685a6be0c52f5a103334cbff26db643826c7b3735fc0a3ba9871310a74"
-dependencies = [
- "glob",
 ]
 
 [[package]]

@@ -20,6 +20,8 @@ enum Commands {
     Version,
     #[command(about = "Install/Update OWML (default installs to %APPDATA%/ow-mod-man/OWML)")]
     Setup,
+    #[command(about = "View the current database alert (if there is one)")]
+    Alert,
     #[command(about = "Updates all mods")]
     Update,
     #[command(about = "List local (installed) or remote (in the database) mods")]
@@ -73,6 +75,18 @@ async fn main() -> Result<(), Box<dyn Error>> {
             let db = core::db::fetch_remote_db(&config).await?;
             let owml = db.get_mod("Alek.OWML").expect("OWML Not found");
             core::download::download_owml(&config, owml).await?;
+        }
+        Commands::Alert => {
+            let alert = core::alerts::fetch_alert(&config).await?;
+            if alert.enabled {
+                println!(
+                    "[{}] {}",
+                    alert.severity.to_ascii_uppercase(),
+                    alert.message
+                )
+            } else {
+                println!("No alert");
+            }
         }
         Commands::List { mod_type } => match mod_type {
             Some(ModListTypes::Local) | None => {

@@ -29,6 +29,7 @@ enum Commands {
         #[command(subcommand)]
         mod_type: Option<ModListTypes>,
     },
+    Info { unique_name: String },
     #[command(about = "Enable a mod (use -r to enable dependencies too)")]
     Enable { unique_name: String },
     #[command(about = "Disable a mod (use -r to disable dependencies too)")]
@@ -126,6 +127,36 @@ async fn main() -> Result<(), Box<dyn Error>> {
                 println!("{}", output);
             }
         },
+        Commands::Info { unique_name } => {
+            let remote_db = core::db::fetch_remote_db(&config).await?;
+            let local_db = core::db::fetch_local_db(&config)?;
+            let local_mod = local_db.get_mod(&unique_name);
+            let remote_mod = remote_db.get_mod(&unique_name);
+            let installed = local_mod.is_some();
+            let has_remote = local_mod.is_some();
+            if !installed && !has_remote {
+                println!("Mod not found in local or remote db: {}", unique_name);
+            } else {
+                let name = if installed { &local_mod.unwrap().manifest.name } else { &remote_mod.unwrap().name };
+                let author = if installed { &local_mod.unwrap().manifest.author } else { &remote_mod.unwrap().author_display.unwrap_or("Can't Fetch".to_string()) };
+                println!("=== {} ===", unique_name);
+                println!("Name: {}", name);
+                println!("Author(s): {}", author);
+                println!("Installed: {}", if installed { "Yes" } else { "No" });
+                if installed {
+                    let local_mod = local_mod.unwrap();
+                    println!("Installed At: {}", local_mod.mod_path);
+                    println!("Enabled: {}", if local_mod.enabled { "Yes" } else { "No" });
+                    println!("Installed Version: {}", local_mod.manifest.version);
+                    // TODO: Deps and Conflicts.
+                }
+                println!("In Database: {}", if has_remote { "Yes" } else { "No" });
+                if has_remote {
+                    let remote_mod = remote_mod.unwrap();
+                    println!("Remote Version: {}", remote_mod.version);
+                }
+            }
+        }
         Commands::Install { unique_name } => {
             let remote_db = core::db::fetch_remote_db(&config).await?;
             let local_db = core::db::fetch_local_db(&config)?;

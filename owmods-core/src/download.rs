@@ -12,7 +12,7 @@ use super::{
     config::{write_config, Config},
     db::{fetch_local_db, read_local_mod, LocalDatabase, RemoteDatabase},
     mods::RemoteMod,
-    toggle::copy_default_config,
+    toggle::generate_config,
     utils::file::get_app_path,
 };
 
@@ -217,7 +217,7 @@ pub async fn download_mod(
         restore_preserve(target_path, &paths_to_preserve)?
     } else {
         download_zip(url, &target_path, &remote_mod.name).await?;
-        copy_default_config(&target_path)?;
+        generate_config(&target_path)?;
     }
     if recursive {
         download_deps(config, local_db, remote_db, remote_mod).await?;

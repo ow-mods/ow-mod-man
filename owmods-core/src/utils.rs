@@ -58,8 +58,8 @@ pub mod file {
             .unwrap_or(&buffer)
             .to_string();
         // Some mods' default-config.json do "true" instead of true for some reason, fix that.
-        buffer = buffer.replace("\"true\"", "true");
-        buffer = buffer.replace("\"false\"", "false");
+        // buffer = buffer.replace("\"true\"", "true");
+        // buffer = buffer.replace("\"false\"", "false");
 
         let mut file = File::create(path)?;
         write!(file, "{}", buffer)?;

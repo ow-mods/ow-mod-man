@@ -24,19 +24,13 @@ fn write_config(conf: &ModStubConfig, config_path: &Path) -> Result<(), anyhow::
     Ok(())
 }
 
-pub fn copy_default_config(mod_path: &Path) -> Result<(), anyhow::Error> {
-    let default_config_path = mod_path.join("default-config.json");
-    if default_config_path.is_file() {
-        let default_config = read_config(&default_config_path)?;
-        let config_path = mod_path.join("config.json");
-        write_config(&default_config, &config_path)?;
-        Ok(())
-    } else {
-        Err(anyhow::Error::msg(format!(
-            "Can't Load Default Config From {}",
-            default_config_path.to_str().unwrap()
-        )))
-    }
+// OWML will copy settings for us, so no need to read from default-config.json, just generate an empty config
+pub fn generate_config(mod_path: &Path) -> Result<(), anyhow::Error> {
+    let new_config = ModStubConfig {
+        enabled: true,
+        settings: None,
+    };
+    serialize_to_json(&new_config, &mod_path.join("config.json"), false)
 }
 
 pub fn get_mod_enabled(mod_path: &Path) -> Result<bool, anyhow::Error> {
@@ -61,7 +55,7 @@ pub fn toggle_mod(
         config.enabled = enabled;
         write_config(&config, &config_path)?;
     } else {
-        copy_default_config(mod_path)?;
+        generate_config(mod_path)?;
         toggle_mod(mod_path, local_db, enabled, recursive)?;
     }
     if recursive {

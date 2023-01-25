@@ -17,6 +17,12 @@ struct BaseCli {
         help = "Apply the action recursively (to all dependencies)"
     )]
     recursive: bool,
+    #[arg(
+        global = true,
+        long = "settings",
+        help = "Override the settings file"
+    )]
+    settings_path: Option<PathBuf>,
 }
 
 #[derive(Subcommand)]
@@ -103,7 +109,11 @@ async fn main() -> Result<(), Box<dyn Error>> {
 
     let r = cli.recursive;
 
-    let config = core::config::get_config()?;
+    let config = if let Some(override_config) = cli.settings_path {
+        core::config::read_config(&override_config)?
+    } else {
+        core::config::get_config()?
+    };
 
     if config.owml_path.is_empty() && !matches!(&cli.command, Commands::Setup { owml_path: _ }) {
         println!(

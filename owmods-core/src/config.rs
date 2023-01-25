@@ -1,5 +1,5 @@
 use serde::{Deserialize, Serialize};
-use std::path::PathBuf;
+use std::path::{PathBuf, Path};
 
 use crate::utils::file::{deserialize_from_json, get_app_path, serialize_to_json};
 
@@ -33,7 +33,7 @@ pub fn generate_default_config() -> Result<Config, anyhow::Error> {
 
 pub fn get_config() -> Result<Config, anyhow::Error> {
     if config_exists() {
-        read_config()
+        read_config(&config_path()?)
     } else {
         generate_default_config()
     }
@@ -43,14 +43,14 @@ pub fn write_config(conf: &Config) -> Result<(), anyhow::Error> {
     serialize_to_json(&conf, &config_path()?, true)
 }
 
+pub fn read_config(path: &Path) -> Result<Config, anyhow::Error> {
+    deserialize_from_json(&path)
+}
+
 fn config_exists() -> bool {
     let config_path = config_path();
     match config_path {
         Ok(config_path) => config_path.is_file(),
         Err(_) => false,
     }
-}
-
-fn read_config() -> Result<Config, anyhow::Error> {
-    deserialize_from_json(&config_path()?)
 }

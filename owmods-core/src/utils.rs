@@ -67,3 +67,11 @@ pub mod file {
         Ok(())
     }
 }
+
+pub fn fix_version(version: &String) -> String {
+    let mut str = version.clone();
+    while str.starts_with("v") {
+        str = str.strip_prefix("v").unwrap_or(&str).to_string();
+    }
+    str
+}

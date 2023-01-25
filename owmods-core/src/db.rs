@@ -21,7 +21,10 @@ pub struct LocalDatabase {
 
 impl RemoteDatabase {
     pub fn get_mod(&self, unique_name: &str) -> Option<&RemoteMod> {
-        let found_mod = self.releases.iter().find(|&remote_mod| remote_mod.unique_name == unique_name);
+        let found_mod = self
+            .releases
+            .iter()
+            .find(|&remote_mod| remote_mod.unique_name == unique_name);
         if let Some(found_mod) = found_mod {
             // Skip OWML, the old manager treated this like a mod but the new one won't
             if found_mod.unique_name == "Alek.OWML" {
@@ -33,6 +36,12 @@ impl RemoteDatabase {
             None
         }
     }
+
+    pub fn get_owml(&self) -> Option<&RemoteMod> {
+        self.releases
+            .iter()
+            .find(|&remote_mod| remote_mod.unique_name == "Alek.OWML")
+    }
 }
 
 impl LocalDatabase {
@@ -40,6 +49,18 @@ impl LocalDatabase {
         self.mods
             .iter()
             .find(|&local_mod| local_mod.manifest.unique_name == unique_name)
+    }
+
+    pub fn get_owml(&self, config: &Config) -> Option<LocalMod> {
+        let manifest_path = PathBuf::from(&config.owml_path).join("OWML.Manifest.json");
+        fix_json(&manifest_path).ok();
+        let owml_manifest: ModManifest = deserialize_from_json(&manifest_path).ok()?;
+        Some(LocalMod {
+            enabled: true,
+            manifest: owml_manifest,
+            mod_path: "".to_string(), // <-- Empty bc the config already has it and also borrow checker angry
+            errors: vec![],
+        })
     }
 
     pub fn get_mod_path(&self, unique_name: &str) -> Option<PathBuf> {

@@ -11,14 +11,15 @@ fn check_mod_needs_update<'a>(
     local_mod: &'a LocalMod,
     remote_db: &'a RemoteDatabase,
 ) -> (bool, Option<&'a RemoteMod>) {
-    let remote_mod = remote_db.get_mod(&local_mod.manifest.unique_name);
+    let remote_mod = if local_mod.manifest.unique_name == "Alek.OWML" {
+        remote_db.get_owml()
+    } else {
+        remote_db.get_mod(&local_mod.manifest.unique_name)
+    };
     if let Some(remote_mod) = remote_mod {
         (
-            version_compare::compare(
-                remote_mod.version.replace('v', ""),
-                local_mod.manifest.version.replace('v', ""),
-            )
-            .unwrap_or(Cmp::Eq)
+            version_compare::compare(remote_mod.get_version(), local_mod.get_version())
+                .unwrap_or(Cmp::Eq)
                 == Cmp::Gt,
             Some(remote_mod),
         )
@@ -35,20 +36,45 @@ pub async fn check_for_updates(
     let mut needs_updates: Vec<&RemoteMod> = vec![];
 
     println!("Checking For Updates...");
+
+    let owml_local = local_db.get_owml(&config);
+    if owml_local.is_some() {
+        let (owml_update, owml_remote) =
+            check_mod_needs_update(&owml_local.as_ref().unwrap(), &remote_db);
+        if owml_update {
+            println!(
+                "- OWML (v{}->v{})",
+                owml_local.as_ref().unwrap().get_version(),
+                owml_remote.unwrap().get_version()
+            );
+            needs_updates.push(&owml_remote.unwrap());
+        } else if let Some(owml_remote) = owml_remote {
+            println!(
+                "- Skipping OWML (v{} >= v{})",
+                owml_local.as_ref().unwrap().get_version(),
+                owml_remote.get_version()
+            );
+        } else {
+            println!("- Skipping OWML (No Remote) (What!?)")
+        }
+    }
+
     for local_mod in local_db.mods.iter() {
-        let (update, new_mod) = check_mod_needs_update(local_mod, remote_db);
+        let (update, new_mod) = check_mod_needs_update(&local_mod, remote_db);
         if update {
             println!(
-                "- {} (v{} -> {})",
+                "- {} (v{} -> v{})",
                 local_mod.manifest.name,
-                local_mod.manifest.version,
-                new_mod.as_ref().unwrap().version
+                local_mod.get_version(),
+                new_mod.as_ref().unwrap().get_version()
             );
             needs_updates.push(new_mod.unwrap());
         } else if let Some(new_mod) = new_mod {
             println!(
-                "- Skipping {} (v{} >= {})",
-                local_mod.manifest.name, local_mod.manifest.version, new_mod.version
+                "- Skipping {} (v{} >= v{})",
+                local_mod.manifest.name,
+                local_mod.get_version(),
+                new_mod.get_version()
             );
         } else {
             println!("- Skipping {} (No Remote)", local_mod.manifest.name);

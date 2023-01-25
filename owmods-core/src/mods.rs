@@ -2,6 +2,8 @@ use std::path::{Path, PathBuf};
 
 use serde::{Deserialize, Serialize};
 
+use crate::utils::fix_version;
+
 use super::config::Config;
 
 pub fn get_mods_dir(conf: &Config) -> PathBuf {
@@ -30,6 +32,10 @@ impl RemoteMod {
     pub fn get_author(&self) -> &String {
         &self.author_display.as_ref().unwrap_or(&self.author)
     }
+
+    pub fn get_version(&self) -> String {
+        fix_version(&self.version)
+    }
 }
 
 #[derive(Serialize, Deserialize)]
@@ -39,6 +45,7 @@ pub struct ModPrerelease {
     pub version: String,
 }
 
+#[derive(Clone)]
 pub struct LocalMod {
     pub enabled: bool,
     pub errors: Vec<String>,
@@ -46,7 +53,13 @@ pub struct LocalMod {
     pub manifest: ModManifest,
 }
 
-#[derive(Serialize, Deserialize)]
+impl LocalMod {
+    pub fn get_version(&self) -> String {
+        fix_version(&self.manifest.version)
+    }
+}
+
+#[derive(Serialize, Deserialize, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct ModManifest {
     pub unique_name: String,

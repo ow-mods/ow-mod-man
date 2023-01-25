@@ -24,7 +24,9 @@ enum Commands {
     #[command(about = "Print Version")]
     Version,
     #[command(about = "Install/Update OWML (default installs to %APPDATA%/ow-mod-man/OWML)")]
-    Setup,
+    Setup {
+        owml_path: Option<PathBuf>
+    },
     #[command(about = "View the current database alert (if there is one)")]
     Alert,
     #[command(about = "Updates all mods")]
@@ -53,13 +55,17 @@ enum Commands {
         about = "Install a mod (use -r to auto-install dependencies)",
         alias = "i"
     )]
-    Install { 
+    Install {
         unique_name: String,
-        #[arg(short='o', long="overwrite", help="Overwrite existing installation")]
-        overwrite: bool
-     },
+        #[arg(
+            short = 'o',
+            long = "overwrite",
+            help = "Overwrite existing installation"
+        )]
+        overwrite: bool,
+    },
     #[command(
-        about = "Install a mod from a .zip file, useful for workflow results (-r not supported)",
+        about = "Install a mod from a .zip file, useful for workflow results (-r not supported)"
     )]
     InstallZip { zip_path: PathBuf },
     #[command(
@@ -81,6 +87,8 @@ enum Commands {
         )]
         disable_missing: bool,
     },
+    #[command(about = "Run the game")]
+    Run
 }
 
 #[derive(Subcommand)]
@@ -99,14 +107,35 @@ async fn main() -> Result<(), Box<dyn Error>> {
 
     let config = core::config::get_config()?;
 
+    if config.owml_path == "" && !matches!(&cli.command, Commands::Setup { owml_path: _ }) {
+        println!("Welcome to the Outer Wild Mods CLI! In order to continue you'll need to setup OWML.");
+        println!("To do this, run `owmods setup {{PATH_TO_OWML}}`. Or, run with no path to auto-install it.");
+        println!("This message will display so long as owml_path is empty in %APPDATA%/ow-mod-man/settings.json.");
+        return Ok(());
+    }
+
     match &cli.command {
         Commands::Version => {
             println!(env!("CARGO_PKG_VERSION"));
         }
-        Commands::Setup => {
-            let db = core::db::fetch_remote_db(&config).await?;
-            let owml = db.get_mod("Alek.OWML").expect("OWML Not found");
-            core::download::download_owml(&config, owml).await?;
+        Commands::Setup { owml_path } => {
+            if let Some(owml_path) = owml_path {
+                if owml_path.is_dir() && owml_path.join("OWML.Manifest.json").is_file() {
+                    println!("Path to OWML is valid! Updating config...");
+                    let mut new_config = config.clone();
+                    new_config.owml_path = owml_path.to_str().unwrap().to_string();
+                    core::config::write_config(&new_config)?;
+                    println!("Done! Happy Modding!");
+                } else {
+                    println!("Error: OWML.Manifest.json Not Found In {}", owml_path.to_str().unwrap());
+                }
+            } else {
+                let db = core::db::fetch_remote_db(&config).await?;
+                let owml = db.get_owml().ok_or(anyhow::Error::msg("OWML not found, is the database URL correct?"))?;
+                core::download::download_owml(&config, owml).await?;
+                println!("Done! Happy Modding!");
+            }
+            
         }
         Commands::Alert => {
             let alert = core::alerts::fetch_alert(&config).await?;
@@ -186,7 +215,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
                     let local_mod = local_mod.unwrap();
                     println!("Installed At: {}", local_mod.mod_path);
                     println!("Enabled: {}", if local_mod.enabled { "Yes" } else { "No" });
-                    println!("Installed Version: {}", local_mod.manifest.version);
+                    println!("Installed Version: {}", local_mod.get_version());
                     if let Some(owml_version) = &local_mod.manifest.owml_version {
                         println!("Expected OWML Version: {}", owml_version);
                     }
@@ -208,7 +237,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
                     if let Some(tags) = &remote_mod.tags {
                         println!("Tags: {}", tags.join(", "));
                     }
-                    println!("Remote Version: {}", remote_mod.version);
+                    println!("Remote Version: {}", remote_mod.get_version());
                     if let Some(prerelease) = &remote_mod.prerelease {
                         println!(
                             "Prerelease Version: {} ({})",
@@ -218,19 +247,27 @@ async fn main() -> Result<(), Box<dyn Error>> {
                 }
             }
         }
-        Commands::Install { unique_name , overwrite} => {
+        Commands::Install {
+            unique_name,
+            overwrite,
+        } => {
             let remote_db = core::db::fetch_remote_db(&config).await?;
             let local_db = core::db::fetch_local_db(&config)?;
             if let Some(remote_mod) = remote_db.get_mod(unique_name) {
                 let local_mod = local_db.get_mod(unique_name);
                 if *overwrite && local_mod.is_some() {
                     println!("Overriding {}", unique_name);
-                    core::download::download_mod(&config, &local_db, &remote_db, remote_mod, r).await?;
+                    core::download::download_mod(&config, &local_db, &remote_db, remote_mod, r)
+                        .await?;
                 } else {
                     if let Some(local_mod) = local_db.get_mod(unique_name) {
-                        println!("{} is already installed at {}, use -o to overwrite", unique_name, local_mod.mod_path);
+                        println!(
+                            "{} is already installed at {}, use -o to overwrite",
+                            unique_name, local_mod.mod_path
+                        );
                     } else {
-                        core::download::download_mod(&config, &local_db, &remote_db, remote_mod, r).await?;
+                        core::download::download_mod(&config, &local_db, &remote_db, remote_mod, r)
+                            .await?;
                     }
                 }
             } else {
@@ -295,6 +332,10 @@ async fn main() -> Result<(), Box<dyn Error>> {
                     println!("Mod {} is not installed", unique_name);
                 }
             }
+        }
+        Commands::Run => {
+            println!("Attempting to launch game...");
+            core::game::launch_game(&config, None)?;
         }
     }
     Ok(())

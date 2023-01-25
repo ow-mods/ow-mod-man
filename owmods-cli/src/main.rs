@@ -24,9 +24,7 @@ enum Commands {
     #[command(about = "Print Version")]
     Version,
     #[command(about = "Install/Update OWML (default installs to %APPDATA%/ow-mod-man/OWML)")]
-    Setup {
-        owml_path: Option<PathBuf>
-    },
+    Setup { owml_path: Option<PathBuf> },
     #[command(about = "View the current database alert (if there is one)")]
     Alert,
     #[command(about = "Updates all mods")]
@@ -88,7 +86,7 @@ enum Commands {
         disable_missing: bool,
     },
     #[command(about = "Run the game")]
-    Run
+    Run,
 }
 
 #[derive(Subcommand)]
@@ -107,8 +105,10 @@ async fn main() -> Result<(), Box<dyn Error>> {
 
     let config = core::config::get_config()?;
 
-    if config.owml_path == "" && !matches!(&cli.command, Commands::Setup { owml_path: _ }) {
-        println!("Welcome to the Outer Wild Mods CLI! In order to continue you'll need to setup OWML.");
+    if config.owml_path.is_empty() && !matches!(&cli.command, Commands::Setup { owml_path: _ }) {
+        println!(
+            "Welcome to the Outer Wild Mods CLI! In order to continue you'll need to setup OWML."
+        );
         println!("To do this, run `owmods setup {{PATH_TO_OWML}}`. Or, run with no path to auto-install it.");
         println!("This message will display so long as owml_path is empty in %APPDATA%/ow-mod-man/settings.json.");
         return Ok(());
@@ -127,15 +127,19 @@ async fn main() -> Result<(), Box<dyn Error>> {
                     core::config::write_config(&new_config)?;
                     println!("Done! Happy Modding!");
                 } else {
-                    println!("Error: OWML.Manifest.json Not Found In {}", owml_path.to_str().unwrap());
+                    println!(
+                        "Error: OWML.Manifest.json Not Found In {}",
+                        owml_path.to_str().unwrap()
+                    );
                 }
             } else {
                 let db = core::db::fetch_remote_db(&config).await?;
-                let owml = db.get_owml().ok_or(anyhow::Error::msg("OWML not found, is the database URL correct?"))?;
+                let owml = db.get_owml().ok_or(anyhow::Error::msg(
+                    "OWML not found, is the database URL correct?",
+                ))?;
                 core::download::download_owml(&config, owml).await?;
                 println!("Done! Happy Modding!");
             }
-            
         }
         Commands::Alert => {
             let alert = core::alerts::fetch_alert(&config).await?;
@@ -190,8 +194,8 @@ async fn main() -> Result<(), Box<dyn Error>> {
         Commands::Info { unique_name } => {
             let remote_db = core::db::fetch_remote_db(&config).await?;
             let local_db = core::db::fetch_local_db(&config)?;
-            let local_mod = local_db.get_mod(&unique_name);
-            let remote_mod = remote_db.get_mod(&unique_name);
+            let local_mod = local_db.get_mod(unique_name);
+            let remote_mod = remote_db.get_mod(unique_name);
             let installed = local_mod.is_some();
             let has_remote = remote_mod.is_some();
             if (!installed) && (!has_remote) {
@@ -205,7 +209,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
                 let author = if installed {
                     &local_mod.unwrap().manifest.author
                 } else {
-                    &remote_mod.unwrap().get_author()
+                    remote_mod.unwrap().get_author()
                 };
                 println!("========== {} ==========", unique_name);
                 println!("Name: {}", name);
@@ -259,16 +263,14 @@ async fn main() -> Result<(), Box<dyn Error>> {
                     println!("Overriding {}", unique_name);
                     core::download::download_mod(&config, &local_db, &remote_db, remote_mod, r)
                         .await?;
+                } else if let Some(local_mod) = local_db.get_mod(unique_name) {
+                    println!(
+                        "{} is already installed at {}, use -o to overwrite",
+                        unique_name, local_mod.mod_path
+                    );
                 } else {
-                    if let Some(local_mod) = local_db.get_mod(unique_name) {
-                        println!(
-                            "{} is already installed at {}, use -o to overwrite",
-                            unique_name, local_mod.mod_path
-                        );
-                    } else {
-                        core::download::download_mod(&config, &local_db, &remote_db, remote_mod, r)
-                            .await?;
-                    }
+                    core::download::download_mod(&config, &local_db, &remote_db, remote_mod, r)
+                        .await?;
                 }
             } else {
                 println!("Mod {unique_name} Not Found, Enter The Unique Name Of The Mod You Wish To Install (run `list remote` for a list)");
@@ -281,14 +283,14 @@ async fn main() -> Result<(), Box<dyn Error>> {
         }
         Commands::Uninstall { unique_name } => {
             let db = core::db::fetch_local_db(&config)?;
-            let local_mod = db.get_mod(&unique_name);
+            let local_mod = db.get_mod(unique_name);
             if let Some(local_mod) = local_mod {
                 println!(
                     "Uninstalling {}{}...",
                     unique_name,
                     if r { " and dependencies" } else { "" }
                 );
-                core::remove::remove_mod(&local_mod, &db, r)?;
+                core::remove::remove_mod(local_mod, &db, r)?;
                 println!("Success");
             } else {
                 println!("Mod {} Is Not Installed", unique_name);

@@ -37,17 +37,17 @@ pub async fn check_for_updates(
 
     println!("Checking For Updates...");
 
-    let owml_local = local_db.get_owml(&config);
+    let owml_local = local_db.get_owml(config);
     if owml_local.is_some() {
         let (owml_update, owml_remote) =
-            check_mod_needs_update(&owml_local.as_ref().unwrap(), &remote_db);
+            check_mod_needs_update(owml_local.as_ref().unwrap(), remote_db);
         if owml_update {
             println!(
                 "- OWML (v{}->v{})",
                 owml_local.as_ref().unwrap().get_version(),
                 owml_remote.unwrap().get_version()
             );
-            needs_updates.push(&owml_remote.unwrap());
+            needs_updates.push(owml_remote.unwrap());
         } else if let Some(owml_remote) = owml_remote {
             println!(
                 "- Skipping OWML (v{} >= v{})",
@@ -60,7 +60,7 @@ pub async fn check_for_updates(
     }
 
     for local_mod in local_db.mods.iter() {
-        let (update, new_mod) = check_mod_needs_update(&local_mod, remote_db);
+        let (update, new_mod) = check_mod_needs_update(local_mod, remote_db);
         if update {
             println!(
                 "- {} (v{} -> v{})",

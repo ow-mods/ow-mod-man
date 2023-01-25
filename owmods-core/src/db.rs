@@ -25,16 +25,8 @@ impl RemoteDatabase {
             .releases
             .iter()
             .find(|&remote_mod| remote_mod.unique_name == unique_name);
-        if let Some(found_mod) = found_mod {
-            // Skip OWML, the old manager treated this like a mod but the new one won't
-            if found_mod.unique_name == "Alek.OWML" {
-                None
-            } else {
-                Some(found_mod)
-            }
-        } else {
-            None
-        }
+        // Don't treat OWML as a normal mod
+        found_mod.filter(|&found_mod| found_mod.unique_name != "Alek.OWML")
     }
 
     pub fn get_owml(&self) -> Option<&RemoteMod> {

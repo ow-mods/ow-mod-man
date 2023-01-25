@@ -30,7 +30,7 @@ pub struct RemoteMod {
 
 impl RemoteMod {
     pub fn get_author(&self) -> &String {
-        &self.author_display.as_ref().unwrap_or(&self.author)
+        self.author_display.as_ref().unwrap_or(&self.author)
     }
 
     pub fn get_version(&self) -> String {

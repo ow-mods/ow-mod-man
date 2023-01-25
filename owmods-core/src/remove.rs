@@ -15,9 +15,9 @@ pub fn remove_mod(
         let empty: &Vec<String> = &vec![];
         let deps = local_mod.manifest.dependencies.as_ref().unwrap_or(empty);
         for dep in deps.iter() {
-            let dep = db.get_mod(&dep);
+            let dep = db.get_mod(dep);
             if let Some(dep) = dep {
-                remove_mod(&dep, &db, true)?;
+                remove_mod(dep, db, true)?;
             }
         }
     }

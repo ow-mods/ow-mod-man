@@ -17,11 +17,7 @@ struct BaseCli {
         help = "Apply the action recursively (to all dependencies)"
     )]
     recursive: bool,
-    #[arg(
-        global = true,
-        long = "settings",
-        help = "Override the settings file"
-    )]
+    #[arg(global = true, long = "settings", help = "Override the settings file")]
     settings_path: Option<PathBuf>,
 }
 

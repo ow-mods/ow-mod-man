@@ -1,5 +1,5 @@
 use serde::{Deserialize, Serialize};
-use std::path::{PathBuf, Path};
+use std::path::{Path, PathBuf};
 
 use crate::utils::file::{deserialize_from_json, get_app_path, serialize_to_json};
 
@@ -44,7 +44,7 @@ pub fn write_config(conf: &Config) -> Result<(), anyhow::Error> {
 }
 
 pub fn read_config(path: &Path) -> Result<Config, anyhow::Error> {
-    deserialize_from_json(&path)
+    deserialize_from_json(path)
 }
 
 fn config_exists() -> bool {

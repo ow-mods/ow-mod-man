@@ -18,6 +18,7 @@ pub struct RemoteMod {
     pub version: String,
     pub name: String,
     pub unique_name: String,
+    pub readme: Option<ModReadMe>,
     required: Option<bool>,
     pub repo: String,
     pub author: String,
@@ -43,6 +44,13 @@ impl RemoteMod {
 pub struct ModPrerelease {
     pub download_url: String,
     pub version: String,
+}
+
+#[derive(Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ModReadMe {
+    pub html_url: String,
+    pub download_url: String,
 }
 
 #[derive(Clone)]

@@ -89,6 +89,13 @@ enum Commands {
     },
     #[command(about = "Run the game")]
     Run,
+    #[command(about = "Quickly open something")]
+    Open {
+        #[arg(help = "db, owml, owml_docs, website, or a mod's unique name")]
+        identifier: String,
+    },
+    #[command(about = "Open the readme for a mod", alias = "man")]
+    Readme { unique_name: String },
 }
 
 #[derive(Subcommand)]
@@ -344,6 +351,16 @@ async fn main() -> Result<(), Box<dyn Error>> {
         Commands::Run => {
             println!("Attempting to launch game...");
             core::game::launch_game(&config, None)?;
+        }
+        Commands::Open { identifier } => {
+            println!("Opening {}", identifier);
+            let local_db = core::db::fetch_local_db(&config)?;
+            core::open::open_shortcut(&identifier, &config, &local_db)?;
+        }
+        Commands::Readme { unique_name } => {
+            println!("Opening README for {}", unique_name);
+            let remote_db = core::db::fetch_remote_db(&config).await?;
+            core::open::open_readme(&unique_name, &remote_db)?;
         }
     }
     Ok(())

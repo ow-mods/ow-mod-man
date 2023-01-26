@@ -355,12 +355,12 @@ async fn main() -> Result<(), Box<dyn Error>> {
         Commands::Open { identifier } => {
             println!("Opening {}", identifier);
             let local_db = core::db::fetch_local_db(&config)?;
-            core::open::open_shortcut(&identifier, &config, &local_db)?;
+            core::open::open_shortcut(identifier, &config, &local_db)?;
         }
         Commands::Readme { unique_name } => {
             println!("Opening README for {}", unique_name);
             let remote_db = core::db::fetch_remote_db(&config).await?;
-            core::open::open_readme(&unique_name, &remote_db)?;
+            core::open::open_readme(unique_name, &remote_db)?;
         }
     }
     Ok(())

@@ -16,13 +16,13 @@ pub fn open_shortcut(
         _ => "",
     };
 
-    if target == "" {
+    if target.is_empty() {
         let local_mod = local_db
-            .get_mod_path(&identifier)
+            .get_mod_path(identifier)
             .ok_or(anyhow::Error::msg(format!("Mod {} not found", identifier)))?;
-        opener::open(&local_mod)?;
+        opener::open(local_mod)?;
     } else {
-        opener::open(&target)?;
+        opener::open(target)?;
     }
 
     Ok(())
@@ -30,7 +30,7 @@ pub fn open_shortcut(
 
 pub fn open_readme(unique_name: &str, db: &RemoteDatabase) -> Result<(), anyhow::Error> {
     let remote_mod = db
-        .get_mod(&unique_name)
+        .get_mod(unique_name)
         .ok_or(anyhow::Error::msg(format!("Mod {} not found", unique_name)))?;
     let mod_readme = remote_mod
         .readme

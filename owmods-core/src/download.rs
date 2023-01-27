@@ -4,6 +4,7 @@ use std::{
     path::{Path, PathBuf},
 };
 
+use anyhow::anyhow;
 use async_recursion::async_recursion;
 use indicatif::{ProgressBar, ProgressStyle};
 use reqwest::header;
@@ -34,10 +35,7 @@ async fn download_zip(
                 .and_then(|ct_len| ct_len.parse().ok())
                 .unwrap_or(0))
         } else {
-            Err(anyhow::Error::msg(format!(
-                "Couldn't Fetch File, Error {}",
-                resp.status()
-            )))
+            Err(anyhow!("Couldn't Fetch File, Error {}", resp.status()))
         }
     }?;
 
@@ -71,7 +69,7 @@ async fn download_zip(
 pub fn install_from_zip(config: &Config, zip_path: &PathBuf) -> Result<(), anyhow::Error> {
     let target_name = &zip_path
         .file_name()
-        .ok_or(anyhow::Error::msg("Invalid zip Path"))?
+        .ok_or(anyhow!("Invalid zip Path"))?
         .to_str()
         .unwrap()
         .replace(".zip", "");
@@ -117,7 +115,7 @@ fn restore_preserve(base_path: &Path, paths: &[String]) -> Result<(), anyhow::Er
         remove_dir_all(preserve_path)?;
         Ok(())
     } else {
-        Err(anyhow::Error::msg(
+        Err(anyhow!(
             "Preserve Path No Longer Exists, Unable To Restore pathsToPreserve",
         ))
     }

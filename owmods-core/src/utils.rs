@@ -6,6 +6,7 @@ pub mod file {
         path::{Path, PathBuf},
     };
 
+    use anyhow::anyhow;
     use directories::ProjectDirs;
     use serde::{Deserialize, Serialize};
 
@@ -42,7 +43,7 @@ pub mod file {
         let app_data_path = ProjectDirs::from("com", "ow-mods", "ow-mod-man");
         match app_data_path {
             Some(app_data_path) => Ok(app_data_path.data_dir().to_path_buf()),
-            None => Err(anyhow::Error::msg("Can't find user's app data dir")),
+            None => Err(anyhow!("Can't find user's app data dir")),
         }
     }
 

@@ -1,5 +1,6 @@
 use std::{error::Error, path::PathBuf};
 
+use anyhow::anyhow;
 use clap::{Parser, Subcommand};
 
 use colored::Colorize;
@@ -147,9 +148,9 @@ async fn main() -> Result<(), Box<dyn Error>> {
                 }
             } else {
                 let db = core::db::fetch_remote_db(&config).await?;
-                let owml = db.get_owml().ok_or(anyhow::Error::msg(
-                    "OWML not found, is the database URL correct?",
-                ))?;
+                let owml = db
+                    .get_owml()
+                    .ok_or(anyhow!("OWML not found, is the database URL correct?"))?;
                 core::download::download_owml(&config, owml).await?;
                 println!("Done! Happy Modding!");
             }

@@ -1,5 +1,6 @@
 use std::path::{Path, PathBuf};
 
+use anyhow::anyhow;
 use glob::glob;
 use serde::Deserialize;
 
@@ -71,7 +72,7 @@ pub async fn fetch_remote_db(conf: &Config) -> Result<RemoteDatabase, anyhow::Er
 pub fn read_local_mod(manifest_path: &Path) -> Result<LocalMod, anyhow::Error> {
     let folder_path = manifest_path.parent();
     if folder_path.is_none() {
-        return Err(anyhow::Error::msg("Mod Path Not Found"));
+        return Err(anyhow!("Mod Path Not Found"));
     }
     let folder_path = folder_path.unwrap(); // <- Unwrap is safe, .is_none() check is above
     fix_json(manifest_path).ok();
@@ -96,13 +97,8 @@ fn get_local_mods(conf: &Config) -> Result<Vec<LocalMod>, anyhow::Error> {
     )?;
     for entry in glob_matches {
         let entry = entry?;
-        let local_mod = read_local_mod(&entry).map_err(|e| {
-            anyhow::Error::msg(format!(
-                "Can't Load Mod {}: {:?}",
-                entry.to_str().unwrap(),
-                e
-            ))
-        })?;
+        let local_mod = read_local_mod(&entry)
+            .map_err(|e| anyhow!("Can't Load Mod {}: {:?}", entry.to_str().unwrap(), e))?;
         mods.push(local_mod);
     }
     Ok(mods)

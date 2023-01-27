@@ -69,7 +69,7 @@ async fn download_zip(
 pub fn install_from_zip(config: &Config, zip_path: &PathBuf) -> Result<(), anyhow::Error> {
     let target_name = &zip_path
         .file_name()
-        .ok_or(anyhow!("Invalid zip Path"))?
+        .ok_or_else(|| anyhow!("Invalid zip Path"))?
         .to_str()
         .unwrap()
         .replace(".zip", "");

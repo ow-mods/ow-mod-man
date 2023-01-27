@@ -150,7 +150,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
                 let db = core::db::fetch_remote_db(&config).await?;
                 let owml = db
                     .get_owml()
-                    .ok_or(anyhow!("OWML not found, is the database URL correct?"))?;
+                    .ok_or_else(|| anyhow!("OWML not found, is the database URL correct?"))?;
                 core::download::download_owml(&config, owml).await?;
                 println!("Done! Happy Modding!");
             }

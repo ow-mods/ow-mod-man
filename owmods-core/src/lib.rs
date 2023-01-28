@@ -9,5 +9,6 @@ pub mod open;
 pub mod remove;
 pub mod toggle;
 pub mod updates;
+pub mod validate;
 
 mod utils;

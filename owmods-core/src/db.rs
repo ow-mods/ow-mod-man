@@ -60,6 +60,10 @@ impl LocalDatabase {
         let local_mod = self.get_mod(unique_name)?;
         Some(PathBuf::from(&local_mod.mod_path))
     }
+
+    pub fn active(&self) -> Vec<&LocalMod> {
+        self.mods.iter().filter(|m| m.enabled).collect()
+    }
 }
 
 pub async fn fetch_remote_db(conf: &Config) -> Result<RemoteDatabase, anyhow::Error> {

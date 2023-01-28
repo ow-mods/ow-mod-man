@@ -71,7 +71,7 @@ enum Commands {
     InstallUrl { url: String },
     #[command(
         about = "Uninstall a mod (use -r to uninstall dependencies too)",
-        alias = "remove"
+        alias = "rm"
     )]
     Uninstall { unique_name: String },
     #[command(about = "Export enabled mods to stdout as JSON")]
@@ -89,7 +89,14 @@ enum Commands {
         disable_missing: bool,
     },
     #[command(about = "Run the game")]
-    Run,
+    Run {
+        #[arg(
+            short = 'f',
+            long = "force",
+            help = "Force the game to run even if there's conflicting mods or missing dependencies"
+        )]
+        force: bool,
+    },
     #[command(about = "Quickly open something")]
     Open {
         #[arg(help = "db, owml, owml_docs, website, or a mod's unique name")]
@@ -97,6 +104,14 @@ enum Commands {
     },
     #[command(about = "Open the readme for a mod", alias = "man")]
     Readme { unique_name: String },
+    #[command(
+        about = "Validate local mods for missing dependencies and conflicts",
+        alias = "check"
+    )]
+    Validate {
+        #[arg(short = 'f', long = "fix-deps", help = "Try to fix dependency issues")]
+        fix_deps: bool,
+    },
 }
 
 #[derive(Subcommand)]
@@ -355,8 +370,17 @@ async fn main() -> Result<(), Box<dyn Error>> {
                 }
             }
         }
-        Commands::Run => {
+        Commands::Run { force } => {
             println!("Attempting to launch game...");
+            if !*force {
+                let local_db = core::db::fetch_local_db(&config)?;
+                if core::validate::has_errors(&local_db) {
+                    println!("Errors found, refusing to launch");
+                    println!("Run `owmods validate` to see issues");
+                    println!("...or run with -f to launch anyway");
+                    return Ok(());
+                }
+            }
             core::game::launch_game(&config, None)?;
         }
         Commands::Open { identifier } => {
@@ -368,6 +392,38 @@ async fn main() -> Result<(), Box<dyn Error>> {
             println!("Opening README for {}", unique_name);
             let remote_db = core::db::fetch_remote_db(&config).await?;
             core::open::open_readme(unique_name, &remote_db)?;
+        }
+        Commands::Validate { fix_deps } => {
+            let local_db = core::db::fetch_local_db(&config)?;
+            println!("Checking For Issues...");
+            let mut flag = false;
+            if *fix_deps {
+                let remote_db = core::db::fetch_remote_db(&config).await?;
+                core::validate::fix_deps(&config, &local_db, &remote_db).await?;
+            }
+            for local_mod in local_db.active().iter() {
+                let name = &local_mod.manifest.name;
+                if !*fix_deps {
+                    let (missing, disabled) = core::validate::check_deps(&local_mod, &local_db);
+                    for missing in missing.iter() {
+                        println!("{}: Missing Dependency {}", name, missing);
+                        flag = true;
+                    }
+                    for disabled in disabled.iter() {
+                        println!("{}: Disabled Dependency {}", name, disabled.manifest.name);
+                        flag = true;
+                    }
+                }
+                for conflicting in core::validate::check_conflicts(&local_mod, &local_db).iter() {
+                    println!("{}: Conflicts With {}", name, conflicting);
+                    flag = true;
+                }
+            }
+            if flag {
+                println!("Issues found, run with -f to fix dependency issues, or disable conflicting mods");
+            } else {
+                println!("No issues found!");
+            }
         }
     }
     Ok(())

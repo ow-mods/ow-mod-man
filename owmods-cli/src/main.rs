@@ -404,7 +404,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
             for local_mod in local_db.active().iter() {
                 let name = &local_mod.manifest.name;
                 if !*fix_deps {
-                    let (missing, disabled) = core::validate::check_deps(&local_mod, &local_db);
+                    let (missing, disabled) = core::validate::check_deps(local_mod, &local_db);
                     for missing in missing.iter() {
                         println!("{}: Missing Dependency {}", name, missing);
                         flag = true;
@@ -414,7 +414,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
                         flag = true;
                     }
                 }
-                for conflicting in core::validate::check_conflicts(&local_mod, &local_db).iter() {
+                for conflicting in core::validate::check_conflicts(local_mod, &local_db).iter() {
                     println!("{}: Conflicts With {}", name, conflicting);
                     flag = true;
                 }

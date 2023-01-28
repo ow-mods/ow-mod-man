@@ -17,7 +17,7 @@ pub fn check_deps<'a>(
     let mut disabled: Vec<&LocalMod> = vec![];
     if let Some(deps) = &local_mod.manifest.dependencies {
         for unique_name in deps {
-            if let Some(dep_mod) = db.get_mod(&unique_name) {
+            if let Some(dep_mod) = db.get_mod(unique_name) {
                 if !dep_mod.enabled {
                     disabled.push(dep_mod);
                 }
@@ -39,13 +39,13 @@ pub async fn fix_deps(
         for disabled in disabled.iter() {
             toggle_mod(
                 &PathBuf::from(disabled.mod_path.to_owned()),
-                &db,
+                db,
                 true,
                 true,
             )?;
         }
         for missing in missing.iter() {
-            install_mod_from_db(&missing, &config, &remote_db, &db, true).await?;
+            install_mod_from_db(missing, config, remote_db, db, true).await?;
         }
     }
     Ok(())
@@ -71,8 +71,8 @@ pub fn check_conflicts<'a>(local_mod: &'a LocalMod, db: &'a LocalDatabase) -> Ve
 /// Simply check if mods have conflicts, no details
 pub fn has_errors(db: &LocalDatabase) -> bool {
     for local_mod in db.active().iter() {
-        let (missing, disabled) = check_deps(&local_mod, &db);
-        let conflicts = check_conflicts(&local_mod, &db);
+        let (missing, disabled) = check_deps(local_mod, db);
+        let conflicts = check_conflicts(local_mod, db);
         if !missing.is_empty() || !disabled.is_empty() || !conflicts.is_empty() {
             return true;
         }

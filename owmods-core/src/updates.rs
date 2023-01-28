@@ -88,14 +88,8 @@ pub async fn check_for_updates(
             if update_mod.unique_name == "Alek.OWML" {
                 download_and_install_owml(config, update_mod).await?;
             } else {
-                install_mod_from_db(
-                    &update_mod.unique_name,
-                    &config,
-                    &remote_db,
-                    &local_db,
-                    false,
-                )
-                .await?;
+                install_mod_from_db(&update_mod.unique_name, config, remote_db, local_db, false)
+                    .await?;
             }
         }
         println!("Update Complete!");

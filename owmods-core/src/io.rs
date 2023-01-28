@@ -46,14 +46,8 @@ pub async fn import_mods(
         } else {
             let remote_mod = remote_db.get_mod(name);
             if let Some(remote_mod) = remote_mod {
-                install_mod_from_db(
-                    &remote_mod.unique_name,
-                    &config,
-                    &remote_db,
-                    &local_db,
-                    false,
-                )
-                .await?;
+                install_mod_from_db(&remote_mod.unique_name, config, remote_db, local_db, false)
+                    .await?;
             } else {
                 println!("{} Not Found In Database, Skipping...", name);
             }

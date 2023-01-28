@@ -31,11 +31,11 @@ const PROGRESS_CHARS: &str = "=>-";
 async fn download_zip(url: &str, target_path: &Path) -> Result<(), anyhow::Error> {
     let client = reqwest::Client::new();
 
-    let zip_name = get_end_of_url(&url);
+    let zip_name = get_end_of_url(url);
 
     let request = client.get(url);
 
-    let mut stream = File::create(&target_path)?;
+    let mut stream = File::create(target_path)?;
     let mut download = request.send().await?;
 
     let file_size = download.content_length().unwrap_or(0);
@@ -66,7 +66,7 @@ async fn download_zip(url: &str, target_path: &Path) -> Result<(), anyhow::Error
 // Do I really care? No.
 // You want a better one make it pls thx.
 fn get_manifest_path_from_zip(zip_path: &PathBuf) -> Result<(String, PathBuf), anyhow::Error> {
-    let file = File::open(&zip_path)?;
+    let file = File::open(zip_path)?;
     let mut archive = ZipArchive::new(file)?;
 
     for index in 0..archive.len() {
@@ -75,7 +75,7 @@ fn get_manifest_path_from_zip(zip_path: &PathBuf) -> Result<(String, PathBuf), a
 
         if let Some(path) = path {
             let name = path.file_name();
-            if name == Some(&OsStr::new("manifest.json")) {
+            if name == Some(OsStr::new("manifest.json")) {
                 return Ok((
                     zip_file.name().to_string(),
                     zip_file
@@ -92,13 +92,13 @@ fn get_manifest_path_from_zip(zip_path: &PathBuf) -> Result<(String, PathBuf), a
 fn extract_zip(zip_path: &PathBuf, target_path: &PathBuf) -> Result<(), anyhow::Error> {
     let file = File::open(zip_path)?;
     let mut archive = ZipArchive::new(file)?;
-    archive.extract(&target_path)?;
+    archive.extract(target_path)?;
     Ok(())
 }
 
 fn get_unique_name_from_zip(zip_path: &PathBuf) -> Result<String, anyhow::Error> {
-    let (manifest_name, _) = get_manifest_path_from_zip(&zip_path)?;
-    let file = File::open(&zip_path)?;
+    let (manifest_name, _) = get_manifest_path_from_zip(zip_path)?;
+    let file = File::open(zip_path)?;
     let mut archive = ZipArchive::new(file)?;
     let mut manifest = archive.by_name(&manifest_name)?;
     let mut buf = String::new();
@@ -110,14 +110,14 @@ fn get_unique_name_from_zip(zip_path: &PathBuf) -> Result<String, anyhow::Error>
 
 fn extract_mod_zip(
     zip_path: &PathBuf,
-    target_path: &PathBuf,
+    target_path: &Path,
     exclude_paths: Vec<PathBuf>,
 ) -> Result<(), anyhow::Error> {
-    let (_, manifest_path) = get_manifest_path_from_zip(&zip_path)?;
-    let parent_path = manifest_path.parent().unwrap_or(&Path::new(""));
+    let (_, manifest_path) = get_manifest_path_from_zip(zip_path)?;
+    let parent_path = manifest_path.parent().unwrap_or_else(|| Path::new(""));
     let zip_name = zip_path.file_name().unwrap().to_str().unwrap();
 
-    let file = File::open(&zip_path)?;
+    let file = File::open(zip_path)?;
     let mut archive = ZipArchive::new(file)?;
 
     let pb = ProgressBar::new(archive.len().try_into().unwrap());
@@ -135,20 +135,20 @@ fn extract_mod_zip(
             let file_path = zip_file
                 .enclosed_name()
                 .ok_or_else(|| anyhow!("Can't Read Zip File"))?;
-            if file_path.starts_with(&parent_path) {
+            if file_path.starts_with(parent_path) {
                 // Unwrap is safe bc we know it's a file and OsStr.to_str shouldn't fail
                 let file_name = file_path.file_name().unwrap().to_str().unwrap();
                 pb.set_message(format!("Extracting {}", file_name));
                 // Unwrap is safe bc we just checked if it starts with the parent path
-                let rel_path = file_path.strip_prefix(&parent_path).unwrap();
-                if !check_file_matches_paths(&rel_path.to_path_buf(), &exclude_paths) {
+                let rel_path = file_path.strip_prefix(parent_path).unwrap();
+                if !check_file_matches_paths(rel_path, &exclude_paths) {
                     let output_path = target_path.join(rel_path);
                     create_all_parents(&output_path)?;
                     let out_file = File::create(&output_path)?;
                     let reader = BufReader::new(zip_file);
                     let mut writer = BufWriter::new(out_file);
                     for byte in reader.bytes() {
-                        writer.write(&[byte?])?;
+                        writer.write_all(&[byte?])?;
                     }
                 }
             }
@@ -201,7 +201,7 @@ pub fn install_mod_from_zip(
 
     let paths_to_preserve = get_paths_to_preserve(local_mod);
 
-    extract_mod_zip(&zip_path, &target_path, paths_to_preserve)?;
+    extract_mod_zip(zip_path, &target_path, paths_to_preserve)?;
     if local_mod.is_none() {
         // First install, generate config
         generate_config(&target_path)?;
@@ -221,8 +221,8 @@ pub async fn install_mod_from_url(
     let temp_dir = TempDir::new("owmods")?;
     let download_path = temp_dir.path().join(format!("{}.zip", zip_name));
 
-    download_zip(&url, &download_path).await?;
-    let new_mod = install_mod_from_zip(&download_path, &config, &local_db)?;
+    download_zip(url, &download_path).await?;
+    let new_mod = install_mod_from_zip(&download_path, config, local_db)?;
 
     Ok(new_mod)
 }
@@ -242,14 +242,14 @@ pub async fn install_mod_from_db(
         )
     })?;
 
-    let new_mod = install_mod_from_url(&remote_mod.download_url, &config, &local_db).await?;
+    let new_mod = install_mod_from_url(&remote_mod.download_url, config, local_db).await?;
 
     // Not the **best** way to do recursive installs.
     // This should only re-build the local database when the mod has deps though,
     // and nested deps aren't really done too much fo performance overhead should be negligible
     if recursive {
         if let Some(deps) = &new_mod.manifest.dependencies {
-            let local_db = fetch_local_db(&config)?;
+            let local_db = fetch_local_db(config)?;
             let local_mods: Vec<String> = local_db
                 .mods
                 .iter()
@@ -257,7 +257,7 @@ pub async fn install_mod_from_db(
                 .collect();
             for dep in deps.iter() {
                 if !local_mods.contains(dep) {
-                    install_mod_from_db(&dep, &config, &remote_db, &local_db, true).await?;
+                    install_mod_from_db(dep, config, remote_db, &local_db, true).await?;
                 }
             }
         }

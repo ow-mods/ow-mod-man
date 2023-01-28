@@ -162,9 +162,9 @@ async fn main() -> Result<(), Box<dyn Error>> {
                     "[{}] {}",
                     alert
                         .severity
-                        .unwrap_or("info".to_string())
+                        .unwrap_or_else(|| "info".to_string())
                         .to_ascii_uppercase(),
-                    alert.message.unwrap_or("No message".to_string())
+                    alert.message.unwrap_or_else(|| "No message".to_string())
                 )
             } else {
                 println!("No alert");
@@ -288,18 +288,18 @@ async fn main() -> Result<(), Box<dyn Error>> {
             }
 
             if flag {
-                core::download::install_mod_from_db(&unique_name, &config, &remote_db, &local_db, r)
+                core::download::install_mod_from_db(unique_name, &config, &remote_db, &local_db, r)
                     .await?
             }
         }
         Commands::InstallZip { zip_path } => {
             let local_db = core::db::fetch_local_db(&config)?;
-            core::download::install_mod_from_zip(&zip_path, &config, &local_db)?;
+            core::download::install_mod_from_zip(zip_path, &config, &local_db)?;
         }
         Commands::InstallUrl { url } => {
             let local_db = core::db::fetch_local_db(&config)?;
             println!("Installing {}", url);
-            core::download::install_mod_from_url(&url, &config, &local_db).await?;
+            core::download::install_mod_from_url(url, &config, &local_db).await?;
         }
         Commands::Uninstall { unique_name } => {
             let db = core::db::fetch_local_db(&config)?;

@@ -1,4 +1,4 @@
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 
 pub mod file {
 
@@ -68,14 +68,14 @@ pub mod file {
 
     pub fn create_all_parents(file_path: &Path) -> Result<(), anyhow::Error> {
         if let Some(parent_path) = file_path.parent() {
-            create_dir_all(&parent_path)?;
+            create_dir_all(parent_path)?;
         }
         Ok(())
     }
 }
 
 pub fn fix_bom(str: &mut String) -> String {
-    str.strip_prefix('\u{FEFF}').unwrap_or(&str).to_string()
+    str.strip_prefix('\u{FEFF}').unwrap_or(str).to_string()
 }
 
 pub fn fix_version(version: &str) -> String {
@@ -90,7 +90,7 @@ pub fn get_end_of_url(url: &str) -> &str {
     url.split('/').last().unwrap_or(url)
 }
 
-pub fn check_file_matches_paths(path: &PathBuf, to_check: &Vec<PathBuf>) -> bool {
+pub fn check_file_matches_paths(path: &Path, to_check: &[PathBuf]) -> bool {
     for check in to_check.iter() {
         if check.file_name().unwrap_or(check.as_os_str())
             == path.file_name().unwrap_or(path.as_os_str())

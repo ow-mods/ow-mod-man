@@ -1,11 +1,10 @@
 use std::path::{Path, PathBuf};
 
-use crate::utils::file::deserialize_from_json;
+use crate::{download::install_mod_from_db, utils::file::deserialize_from_json};
 
 use super::{
     config::Config,
     db::{LocalDatabase, RemoteDatabase},
-    download::download_mod,
     toggle::{get_mod_enabled, toggle_mod},
 };
 
@@ -47,7 +46,14 @@ pub async fn import_mods(
         } else {
             let remote_mod = remote_db.get_mod(name);
             if let Some(remote_mod) = remote_mod {
-                download_mod(config, local_db, remote_db, remote_mod, false).await?;
+                install_mod_from_db(
+                    &remote_mod.unique_name,
+                    &config,
+                    &remote_db,
+                    &local_db,
+                    false,
+                )
+                .await?;
             } else {
                 println!("{} Not Found In Database, Skipping...", name);
             }

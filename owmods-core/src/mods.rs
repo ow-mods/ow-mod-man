@@ -67,6 +67,20 @@ impl LocalMod {
     }
 }
 
+pub fn get_paths_to_preserve(local_mod: Option<&LocalMod>) -> Vec<PathBuf> {
+    if let Some(local_mod) = local_mod {
+        let mut paths: Vec<PathBuf> =
+            vec![PathBuf::from("config.json"), PathBuf::from("save.json")];
+        if let Some(raw_paths) = local_mod.manifest.paths_to_preserve.to_owned() {
+            for path in raw_paths.iter() {
+                paths.push(PathBuf::from(path));
+            }
+        }
+        return paths;
+    }
+    vec![]
+}
+
 #[derive(Serialize, Deserialize, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct ModManifest {

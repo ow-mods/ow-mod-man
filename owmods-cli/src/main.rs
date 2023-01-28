@@ -65,10 +65,10 @@ enum Commands {
         )]
         overwrite: bool,
     },
-    #[command(
-        about = "Install a mod from a .zip file, useful for workflow results (-r not supported)"
-    )]
+    #[command(about = "Install a mod from a .zip file (-r not supported)")]
     InstallZip { zip_path: PathBuf },
+    #[command(about = "Install a mod from a URL (-r not supported)")]
+    InstallUrl { url: String },
     #[command(
         about = "Uninstall a mod (use -r to uninstall dependencies too)",
         alias = "remove"
@@ -151,7 +151,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
                 let owml = db
                     .get_owml()
                     .ok_or_else(|| anyhow!("OWML not found, is the database URL correct?"))?;
-                core::download::download_owml(&config, owml).await?;
+                core::download::download_and_install_owml(&config, owml).await?;
                 println!("Done! Happy Modding!");
             }
         }
@@ -160,8 +160,11 @@ async fn main() -> Result<(), Box<dyn Error>> {
             if alert.enabled {
                 println!(
                     "[{}] {}",
-                    alert.severity.to_ascii_uppercase(),
-                    alert.message
+                    alert
+                        .severity
+                        .unwrap_or("info".to_string())
+                        .to_ascii_uppercase(),
+                    alert.message.unwrap_or("No message".to_string())
                 )
             } else {
                 println!("No alert");
@@ -178,7 +181,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
                 );
                 for local_mod in db.mods.iter() {
                     output += &format!(
-                        "{} {} by {} ({})\n",
+                        "({}) {} by {} ({})\n",
                         if local_mod.enabled { "+" } else { "-" },
                         local_mod.manifest.name,
                         local_mod.manifest.author,
@@ -271,29 +274,32 @@ async fn main() -> Result<(), Box<dyn Error>> {
         } => {
             let remote_db = core::db::fetch_remote_db(&config).await?;
             let local_db = core::db::fetch_local_db(&config)?;
-            if let Some(remote_mod) = remote_db.get_mod(unique_name) {
-                let local_mod = local_db.get_mod(unique_name);
-                if *overwrite && local_mod.is_some() {
-                    println!("Overriding {}", unique_name);
-                    core::download::download_mod(&config, &local_db, &remote_db, remote_mod, r)
-                        .await?;
-                } else if let Some(local_mod) = local_db.get_mod(unique_name) {
-                    println!(
-                        "{} is already installed at {}, use -o to overwrite",
-                        unique_name, local_mod.mod_path
-                    );
-                } else {
-                    core::download::download_mod(&config, &local_db, &remote_db, remote_mod, r)
-                        .await?;
-                }
-            } else {
-                println!("Mod {unique_name} Not Found, Enter The Unique Name Of The Mod You Wish To Install (run `list remote` for a list)");
+            let local_mod = local_db.get_mod(unique_name);
+            let mut flag = true;
+
+            if *overwrite && local_mod.is_some() {
+                println!("Overriding {}", unique_name);
+            } else if let Some(local_mod) = local_db.get_mod(unique_name) {
+                println!(
+                    "{} is already installed at {}, use -o to overwrite",
+                    unique_name, local_mod.mod_path
+                );
+                flag = false;
+            }
+
+            if flag {
+                core::download::install_mod_from_db(&unique_name, &config, &remote_db, &local_db, r)
+                    .await?
             }
         }
         Commands::InstallZip { zip_path } => {
-            println!("Extracting...");
-            core::download::install_from_zip(&config, zip_path)?;
-            println!("Installed!");
+            let local_db = core::db::fetch_local_db(&config)?;
+            core::download::install_mod_from_zip(&zip_path, &config, &local_db)?;
+        }
+        Commands::InstallUrl { url } => {
+            let local_db = core::db::fetch_local_db(&config)?;
+            println!("Installing {}", url);
+            core::download::install_mod_from_url(&url, &config, &local_db).await?;
         }
         Commands::Uninstall { unique_name } => {
             let db = core::db::fetch_local_db(&config)?;

@@ -5,8 +5,8 @@ use crate::config::Config;
 #[derive(Deserialize)]
 pub struct Alert {
     pub enabled: bool,
-    pub severity: String,
-    pub message: String,
+    pub severity: Option<String>,
+    pub message: Option<String>,
 }
 
 pub async fn fetch_alert(config: &Config) -> Result<Alert, anyhow::Error> {

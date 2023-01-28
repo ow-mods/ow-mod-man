@@ -1,9 +1,11 @@
 use version_compare::Cmp;
 
+use crate::download::install_mod_from_db;
+
 use super::{
     config::Config,
     db::{LocalDatabase, RemoteDatabase},
-    download::{download_mod, download_owml},
+    download::download_and_install_owml,
     mods::{LocalMod, RemoteMod},
 };
 
@@ -84,9 +86,16 @@ pub async fn check_for_updates(
     if !needs_updates.is_empty() {
         for update_mod in needs_updates.iter() {
             if update_mod.unique_name == "Alek.OWML" {
-                download_owml(config, update_mod).await?;
+                download_and_install_owml(config, update_mod).await?;
             } else {
-                download_mod(config, local_db, remote_db, update_mod, false).await?;
+                install_mod_from_db(
+                    &update_mod.unique_name,
+                    &config,
+                    &remote_db,
+                    &local_db,
+                    false,
+                )
+                .await?;
             }
         }
         println!("Update Complete!");

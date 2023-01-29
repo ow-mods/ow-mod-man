@@ -52,7 +52,7 @@ pub fn launch_game(config: &Config, _log_port: Option<u32>) -> Result<(), anyhow
         io::stdin().read_line(&mut answer)?;
 
         if answer.trim().to_ascii_lowercase() == "y" {
-            setup_wine_prefix(&config)?;
+            setup_wine_prefix(config)?;
         } else {
             println!("Alright then! Run `owmods run` if you want to get back to this dialog");
         }
@@ -80,10 +80,10 @@ fn setup_wine_prefix(config: &Config) -> Result<(), anyhow::Error> {
 
     let ow_rel_dir = Path::new("Steam/steamapps/common/Outer Wilds");
 
-    let ow_dir = app_data.join(&ow_rel_dir);
+    let ow_dir = app_data.join(ow_rel_dir);
     let link_path = prefix_path
         .join("drive_c/Program Files (x86)")
-        .join(&ow_rel_dir);
+        .join(ow_rel_dir);
 
     let pb = ProgressBar::new(0);
     pb.set_style(ProgressStyle::default_spinner());

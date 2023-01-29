@@ -61,11 +61,11 @@ macro_rules! log {
 
 impl Logger {
     pub fn new(backend: Box<dyn LoggerBackend>) -> Logger {
-        Logger { backend: backend }
+        Logger { backend }
     }
 
-    pub fn start_progress<'a>(
-        &'a self,
+    pub fn start_progress(
+        &self,
         progress_type: ProgressType,
         msg: &str,
         len: u64,
@@ -79,38 +79,3 @@ impl Logger {
     log_msg!(Log::Warning, warning);
     log_msg!(Log::Error, error);
 }
-
-// impl ProgressLogger<'_> {
-//     pub fn new<'a>(id: &'a str, backend: &'a Box<dyn LoggerBackend>) -> ProgressLogger<'a> {
-//         ProgressLogger {
-//             id: id.to_string(),
-//             backend: backend,
-//         }
-//     }
-
-//     pub fn increment(&self, amount: u64) {
-//         let payload = ProgressAction::Increment {
-//             id: self.id.clone(),
-//             amount: amount,
-//         };
-//         self.backend.handle_progress(payload);
-//     }
-
-//     pub fn change_message(&self, new_message: &str) {
-//         let payload = ProgressAction::Message {
-//             id: self.id.clone(),
-//             message: new_message.to_string(),
-//         };
-//         self.backend.handle_progress(payload);
-//     }
-
-//     // Takes ownership and drops bc it shouldn't be used anymore
-//     pub fn finish(&self, msg: &str) {
-//         let payload = ProgressAction::Finish {
-//             id: self.id.clone(),
-//             message: msg.to_string(),
-//         };
-//         self.backend.handle_progress(payload);
-//         drop(self);
-//     }
-// }

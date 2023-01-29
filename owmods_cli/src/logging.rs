@@ -26,7 +26,7 @@ pub struct ConsoleProgressHandler {
 impl ConsoleLogBackend {
     pub fn new(debug: bool) -> ConsoleLogBackend {
         ConsoleLogBackend {
-            debug: debug,
+            debug,
             multi_progress: MultiProgress::new(),
         }
     }
@@ -34,7 +34,7 @@ impl ConsoleLogBackend {
 
 impl ConsoleProgressHandler {
     pub fn new(pb: ProgressBar) -> ConsoleProgressHandler {
-        ConsoleProgressHandler { pb: pb }
+        ConsoleProgressHandler { pb }
     }
 }
 
@@ -96,6 +96,6 @@ impl ProgressHandler for ConsoleProgressHandler {
 
     fn finish(&self, msg: &str) {
         self.pb
-            .finish_with_message(format!("✓ {}", msg.to_string()));
+            .finish_with_message(format!("✓ {}", msg));
     }
 }

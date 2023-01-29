@@ -484,7 +484,7 @@ async fn main() {
     let log_backend: Box<dyn core::logging::LoggerBackend> =
         Box::new(ConsoleLogBackend::new(cli.debug));
     let logger = &core::logging::Logger::new(log_backend);
-    let res = run_from_cli(cli, &logger).await;
+    let res = run_from_cli(cli, logger).await;
     match res {
         Ok(_) => {}
         Err(e) => {

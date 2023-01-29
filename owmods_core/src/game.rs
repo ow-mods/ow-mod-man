@@ -96,7 +96,7 @@ pub fn setup_wine_prefix(log: &Logger, config: &Config) -> Result<(), anyhow::Er
     let progress = log.start_progress(ProgressType::Indefinite, "Creating Symlink To OW...", 0);
 
     create_all_parents(&link_path)?;
-    symlink(&ow_dir, &link_path)?;
+    symlink(ow_dir, &link_path)?;
 
     progress.finish("Symlink Created!");
 

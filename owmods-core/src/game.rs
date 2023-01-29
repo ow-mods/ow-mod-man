@@ -9,7 +9,7 @@ pub fn launch_game(config: &Config, log_port: Option<u32>) -> Result<(), anyhow:
     let child = Command::new("./OWML.Launcher.exe")
         .current_dir(PathBuf::from(&config.owml_path))
         .spawn();
-    child.wait();
+    child.wait()?;
     Ok(())
 }
 

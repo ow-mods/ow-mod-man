@@ -1,20 +1,19 @@
 use crate::config::Config;
 
-use anyhow::anyhow;
-
 use std::{path::PathBuf, process::Command};
 
 #[cfg(windows)]
-pub fn launch_game(config: &Config, log_port: Option<u32>) -> Result<(), anyhow::Error> {
-    let child = Command::new("./OWML.Launcher.exe")
+pub fn launch_game(config: &Config) -> Result<(), anyhow::Error> {
+    let mut child = Command::new("./OWML.Launcher.exe")
         .current_dir(PathBuf::from(&config.owml_path))
-        .spawn();
+        .spawn()?;
     child.wait()?;
     Ok(())
 }
 
 #[cfg(not(windows))]
-pub fn launch_game(config: &Config, _log_port: Option<u32>) -> Result<(), anyhow::Error> {
+pub fn launch_game(config: &Config) -> Result<(), anyhow::Error> {
+    use anyhow::anyhow;
     use std::{io, process::Stdio, thread, time::Duration};
 
     if let Some(wine_prefix) = &config.wine_prefix {
@@ -63,6 +62,7 @@ pub fn launch_game(config: &Config, _log_port: Option<u32>) -> Result<(), anyhow
 
 #[cfg(not(windows))]
 fn setup_wine_prefix(config: &Config) -> Result<(), anyhow::Error> {
+    use anyhow::anyhow;
     use directories::BaseDirs;
     use indicatif::{ProgressBar, ProgressStyle};
     use std::{os::unix::fs::symlink, path::Path, process::Stdio, time::Duration};

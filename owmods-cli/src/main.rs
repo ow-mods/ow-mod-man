@@ -28,7 +28,10 @@ enum Commands {
     Version,
     #[command(about = "Install/Update OWML (default installs to %APPDATA%/ow-mod-man/OWML)")]
     Setup { owml_path: Option<PathBuf> },
-    #[command(about = "View the current database alert (if there is one)")]
+    #[command(
+        about = "View the current database alert (if there is one)",
+        alias = "alerts"
+    )]
     Alert,
     #[command(about = "Updates all mods")]
     Update,
@@ -65,9 +68,12 @@ enum Commands {
         )]
         overwrite: bool,
     },
-    #[command(about = "Install a mod from a .zip file (-r not supported)")]
+    #[command(
+        about = "Install a mod from a .zip file (-r not supported)",
+        alias = "iz"
+    )]
     InstallZip { zip_path: PathBuf },
-    #[command(about = "Install a mod from a URL (-r not supported)")]
+    #[command(about = "Install a mod from a URL (-r not supported)", alias = "iu")]
     InstallUrl { url: String },
     #[command(
         about = "Uninstall a mod (use -r to uninstall dependencies too)",
@@ -383,7 +389,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
                     return Ok(());
                 }
             }
-            core::game::launch_game(&config, None)?;
+            core::game::launch_game(&config)?;
         }
         Commands::Open { identifier } => {
             println!("Opening {}", identifier);

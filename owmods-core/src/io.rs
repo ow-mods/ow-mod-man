@@ -9,12 +9,17 @@ use super::{
 };
 
 pub fn export_mods(db: &LocalDatabase) -> Result<String, anyhow::Error> {
-    let mut enabled_mods: Vec<&String> = vec![];
-    for local_mod in db.mods.iter() {
-        if get_mod_enabled(&PathBuf::from(&local_mod.mod_path))? {
-            enabled_mods.push(&local_mod.manifest.unique_name);
-        }
-    }
+    let enabled_mods: Vec<&String> = db
+        .active()
+        .iter()
+        .filter_map(|m| {
+            if m.enabled {
+                Some(&m.manifest.unique_name)
+            } else {
+                None
+            }
+        })
+        .collect();
     let result = serde_json::to_string_pretty(&enabled_mods)?;
     Ok(result)
 }

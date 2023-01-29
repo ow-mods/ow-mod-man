@@ -1,7 +1,11 @@
 use serde::{Deserialize, Serialize};
 use std::path::{Path, PathBuf};
 
-use crate::utils::file::{deserialize_from_json, get_app_path, serialize_to_json};
+use crate::{
+    log,
+    logging::Logger,
+    utils::file::{deserialize_from_json, get_app_path, serialize_to_json},
+};
 
 #[derive(Serialize, Deserialize, Clone)]
 pub struct Config {
@@ -17,7 +21,7 @@ pub fn config_path() -> Result<PathBuf, anyhow::Error> {
     Ok(app_path.join("settings.json"))
 }
 
-pub fn generate_default_config() -> Result<Config, anyhow::Error> {
+pub fn generate_default_config(log: &Logger) -> Result<Config, anyhow::Error> {
     let default_config = Config {
         owml_path: String::from(""),
         wine_prefix: None,
@@ -29,23 +33,30 @@ pub fn generate_default_config() -> Result<Config, anyhow::Error> {
             "https://raw.githubusercontent.com/ow-mods/ow-mod-db/source/alert.json",
         ),
     };
-    write_config(&default_config)?;
+    write_config(log, &default_config)?;
     Ok(default_config)
 }
 
-pub fn get_config() -> Result<Config, anyhow::Error> {
+pub fn get_config(log: &Logger) -> Result<Config, anyhow::Error> {
     if config_exists() {
-        read_config(&config_path()?)
+        read_config(log, &config_path()?)
     } else {
-        generate_default_config()
+        generate_default_config(log)
     }
 }
 
-pub fn write_config(conf: &Config) -> Result<(), anyhow::Error> {
+pub fn write_config(log: &Logger, conf: &Config) -> Result<(), anyhow::Error> {
+    log!(
+        log,
+        debug,
+        "Writing Config To {}",
+        config_path()?.to_str().unwrap()
+    );
     serialize_to_json(&conf, &config_path()?, true)
 }
 
-pub fn read_config(path: &Path) -> Result<Config, anyhow::Error> {
+pub fn read_config(log: &Logger, path: &Path) -> Result<Config, anyhow::Error> {
+    log!(log, debug, "Reading Config From {}", path.to_str().unwrap());
     deserialize_from_json(path)
 }
 

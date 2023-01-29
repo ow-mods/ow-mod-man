@@ -4,6 +4,7 @@ pub mod db;
 pub mod download;
 pub mod game;
 pub mod io;
+pub mod logging;
 pub mod mods;
 pub mod open;
 pub mod remove;

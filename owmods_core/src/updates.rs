@@ -1,6 +1,6 @@
 use version_compare::Cmp;
 
-use crate::download::install_mod_from_db;
+use crate::{download::install_mod_from_db, log, logging::Logger};
 
 use super::{
     config::Config,
@@ -31,40 +31,47 @@ fn check_mod_needs_update<'a>(
 }
 
 pub async fn check_for_updates(
+    log: &Logger,
     config: &Config,
     local_db: &LocalDatabase,
     remote_db: &RemoteDatabase,
 ) -> Result<(), anyhow::Error> {
     let mut needs_updates: Vec<&RemoteMod> = vec![];
 
-    println!("Checking For Updates...");
+    log.info("Checking For Updates...");
 
     let owml_local = local_db.get_owml(config);
     if owml_local.is_some() {
         let (owml_update, owml_remote) =
             check_mod_needs_update(owml_local.as_ref().unwrap(), remote_db);
         if owml_update {
-            println!(
+            log!(
+                log,
+                info,
                 "- OWML (v{}->v{})",
                 owml_local.as_ref().unwrap().get_version(),
                 owml_remote.unwrap().get_version()
             );
             needs_updates.push(owml_remote.unwrap());
         } else if let Some(owml_remote) = owml_remote {
-            println!(
+            log!(
+                log,
+                info,
                 "- Skipping OWML (v{} >= v{})",
                 owml_local.as_ref().unwrap().get_version(),
                 owml_remote.get_version()
             );
         } else {
-            println!("- Skipping OWML (No Remote) (What!?)")
+            log.info("- Skipping OWML (No Remote)... (Guh??)")
         }
     }
 
     for local_mod in local_db.mods.iter() {
         let (update, new_mod) = check_mod_needs_update(local_mod, remote_db);
         if update {
-            println!(
+            log!(
+                log,
+                info,
                 "- {} (v{} -> v{})",
                 local_mod.manifest.name,
                 local_mod.get_version(),
@@ -72,29 +79,43 @@ pub async fn check_for_updates(
             );
             needs_updates.push(new_mod.unwrap());
         } else if let Some(new_mod) = new_mod {
-            println!(
+            log!(
+                log,
+                info,
                 "- Skipping {} (v{} >= v{})",
                 local_mod.manifest.name,
                 local_mod.get_version(),
                 new_mod.get_version()
             );
         } else {
-            println!("- Skipping {} (No Remote)", local_mod.manifest.name);
+            log!(
+                log,
+                info,
+                "- Skipping {} (No Remote)",
+                local_mod.manifest.name
+            );
         }
     }
 
     if !needs_updates.is_empty() {
         for update_mod in needs_updates.iter() {
             if update_mod.unique_name == "Alek.OWML" {
-                download_and_install_owml(config, update_mod).await?;
+                download_and_install_owml(log, config, update_mod).await?;
             } else {
-                install_mod_from_db(&update_mod.unique_name, config, remote_db, local_db, false)
-                    .await?;
+                install_mod_from_db(
+                    log,
+                    &update_mod.unique_name,
+                    config,
+                    remote_db,
+                    local_db,
+                    false,
+                )
+                .await?;
             }
         }
-        println!("Update Complete!");
+        log.success("Update Complete!");
     } else {
-        println!("No Updates Available!");
+        log.success("No Updates Available");
     }
     Ok(())
 }

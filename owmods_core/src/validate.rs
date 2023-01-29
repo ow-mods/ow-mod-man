@@ -4,6 +4,7 @@ use crate::{
     config::Config,
     db::{LocalDatabase, RemoteDatabase},
     download::install_mod_from_db,
+    logging::Logger,
     mods::LocalMod,
     toggle::toggle_mod,
 };
@@ -30,6 +31,7 @@ pub fn check_deps<'a>(
 }
 
 pub async fn fix_deps(
+    log: &Logger,
     config: &Config,
     db: &LocalDatabase,
     remote_db: &RemoteDatabase,
@@ -37,10 +39,16 @@ pub async fn fix_deps(
     for local_mod in db.active().iter() {
         let (missing, disabled) = check_deps(local_mod, db);
         for disabled in disabled.iter() {
-            toggle_mod(&PathBuf::from(disabled.mod_path.to_owned()), db, true, true)?;
+            toggle_mod(
+                log,
+                &PathBuf::from(disabled.mod_path.to_owned()),
+                db,
+                true,
+                true,
+            )?;
         }
         for missing in missing.iter() {
-            install_mod_from_db(missing, config, remote_db, db, true).await?;
+            install_mod_from_db(log, missing, config, remote_db, db, true).await?;
         }
     }
     Ok(())
@@ -63,7 +71,7 @@ pub fn check_conflicts<'a>(local_mod: &'a LocalMod, db: &'a LocalDatabase) -> Ve
     conflicting
 }
 
-/// Simply check if mods have conflicts, no details
+/// Simply check if there's errors, no details
 pub fn has_errors(db: &LocalDatabase) -> bool {
     for local_mod in db.active().iter() {
         let (missing, disabled) = check_deps(local_mod, db);

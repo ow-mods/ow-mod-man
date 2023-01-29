@@ -1,8 +1,8 @@
 [workspace]
 
 members = [
-  "owmods-core",
-  "owmods-cli"
+  "owmods_core",
+  "owmods_cli"
 ]
 
 [profile.release]

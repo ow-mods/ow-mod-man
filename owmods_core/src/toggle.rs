@@ -3,7 +3,10 @@ use std::path::{Path, PathBuf};
 use serde::{Deserialize, Serialize};
 use serde_json::Map;
 
-use crate::utils::file::{deserialize_from_json, fix_json, serialize_to_json};
+use crate::{
+    logging::Logger,
+    utils::file::{deserialize_from_json, fix_json, serialize_to_json},
+};
 
 use super::db::{read_local_mod, LocalDatabase};
 
@@ -44,6 +47,7 @@ pub fn get_mod_enabled(mod_path: &Path) -> Result<bool, anyhow::Error> {
 }
 
 pub fn toggle_mod(
+    log: &Logger,
     mod_path: &Path,
     local_db: &LocalDatabase,
     enabled: bool,
@@ -56,15 +60,16 @@ pub fn toggle_mod(
         write_config(&config, &config_path)?;
     } else {
         generate_config(mod_path)?;
-        toggle_mod(mod_path, local_db, enabled, recursive)?;
+        toggle_mod(log, mod_path, local_db, enabled, recursive)?;
     }
     if recursive {
-        let local_mod = read_local_mod(&mod_path.join("manifest.json"))?;
+        let local_mod = read_local_mod(log, &mod_path.join("manifest.json"))?;
         if let Some(deps) = local_mod.manifest.dependencies {
             for dep in deps.iter() {
                 let dep_mod = local_db.get_mod(dep);
                 if let Some(dep_mod) = dep_mod {
                     toggle_mod(
+                        log,
                         &PathBuf::from(&dep_mod.mod_path),
                         local_db,
                         enabled,

@@ -1,6 +1,6 @@
 use std::path::{Path, PathBuf};
 
-use crate::{download::install_mod_from_db, utils::file::deserialize_from_json};
+use crate::{download::install_mod_from_db, logging::Logger, utils::file::deserialize_from_json};
 
 use super::{
     config::Config,
@@ -25,6 +25,7 @@ pub fn export_mods(db: &LocalDatabase) -> Result<String, anyhow::Error> {
 }
 
 pub async fn import_mods(
+    log: &Logger,
     config: &Config,
     local_db: &LocalDatabase,
     remote_db: &RemoteDatabase,
@@ -37,7 +38,7 @@ pub async fn import_mods(
         for local_mod in local_db.mods.iter() {
             let mod_path = &PathBuf::from(&local_mod.mod_path);
             if get_mod_enabled(&PathBuf::from(&mod_path))? {
-                toggle_mod(mod_path, local_db, false, false)?;
+                toggle_mod(log, mod_path, local_db, false, false)?;
             }
         }
     }
@@ -46,13 +47,20 @@ pub async fn import_mods(
         if let Some(local_mod) = local_mod {
             let mod_path = &PathBuf::from(&local_mod.mod_path);
             if !get_mod_enabled(&PathBuf::from(&mod_path))? {
-                toggle_mod(mod_path, local_db, true, false)?;
+                toggle_mod(log, mod_path, local_db, true, false)?;
             }
         } else {
             let remote_mod = remote_db.get_mod(name);
             if let Some(remote_mod) = remote_mod {
-                install_mod_from_db(&remote_mod.unique_name, config, remote_db, local_db, false)
-                    .await?;
+                install_mod_from_db(
+                    log,
+                    &remote_mod.unique_name,
+                    config,
+                    remote_db,
+                    local_db,
+                    false,
+                )
+                .await?;
             } else {
                 println!("{} Not Found In Database, Skipping...", name);
             }

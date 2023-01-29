@@ -1,15 +1,16 @@
 [package]
-name = "owmods-cli"
+name = "owmods_cli"
 description = "A CLI Tool To Manage OWML Mods"
 version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-owmods-core = {path = "../owmods-core"}
+owmods_core = {path = "../owmods_core"}
 clap = { version = "4.1.1", features = ["derive"] }
 tokio = { version = "1.24.2", features = ["full"] }
 colored = "2.0.0"
 anyhow = "1.0.68"
+indicatif = { version = "0.17.3", features = ["improved_unicode", "tokio"] }
 
 [[bin]]
 name = "owmods"

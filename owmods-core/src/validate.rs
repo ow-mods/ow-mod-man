@@ -37,12 +37,7 @@ pub async fn fix_deps(
     for local_mod in db.active().iter() {
         let (missing, disabled) = check_deps(local_mod, db);
         for disabled in disabled.iter() {
-            toggle_mod(
-                &PathBuf::from(disabled.mod_path.to_owned()),
-                db,
-                true,
-                true,
-            )?;
+            toggle_mod(&PathBuf::from(disabled.mod_path.to_owned()), db, true, true)?;
         }
         for missing in missing.iter() {
             install_mod_from_db(missing, config, remote_db, db, true).await?;

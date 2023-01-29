@@ -6,6 +6,7 @@ use crate::utils::file::{deserialize_from_json, get_app_path, serialize_to_json}
 #[derive(Serialize, Deserialize, Clone)]
 pub struct Config {
     pub owml_path: String,
+    pub wine_prefix: Option<String>,
     pub log_socket: Option<u32>,
     pub database_url: String,
     pub alert_url: String,
@@ -19,6 +20,7 @@ pub fn config_path() -> Result<PathBuf, anyhow::Error> {
 pub fn generate_default_config() -> Result<Config, anyhow::Error> {
     let default_config = Config {
         owml_path: String::from(""),
+        wine_prefix: None,
         log_socket: Some(0),
         database_url: String::from(
             "https://raw.githubusercontent.com/ow-mods/ow-mod-db/master/database.json",

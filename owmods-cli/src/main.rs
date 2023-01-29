@@ -134,7 +134,9 @@ async fn main() -> Result<(), Box<dyn Error>> {
         core::config::get_config()?
     };
 
-    if config.owml_path.is_empty() && !matches!(&cli.command, Commands::Setup { owml_path: _ }) {
+    let ran_setup = matches!(&cli.command, Commands::Setup { owml_path: _ });
+
+    if config.owml_path.is_empty() && !ran_setup {
         println!(
             "Welcome to the Outer Wild Mods CLI! In order to continue you'll need to setup OWML."
         );

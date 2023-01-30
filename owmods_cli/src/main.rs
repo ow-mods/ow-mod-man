@@ -40,7 +40,7 @@ enum Commands {
         alias = "alerts"
     )]
     Alert,
-    #[command(about = "Updates all mods")]
+    #[command(about = "Updates all mods", alias = "up")]
     Update,
     #[command(
         about = "List local (installed) or remote (in the database) mods",

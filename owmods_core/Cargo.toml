@@ -1,7 +1,10 @@
 [package]
 name = "owmods_core"
+authors = ["Bwc9876 <bwc9876@gmail.com>"]
+description = "The core library for the Outer Wilds Mod Manager"
 version = "0.1.0"
 edition = "2021"
+readme = "./README.md"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 

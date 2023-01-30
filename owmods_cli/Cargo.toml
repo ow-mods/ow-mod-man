@@ -5,6 +5,7 @@ description = "A CLI Tool To Manage OWML Mods"
 version = "0.1.0"
 edition = "2021"
 readme = "./README.md"
+repository = "https://github.com/Bwc9876/ow-mod-man/"
 
 [dependencies]
 owmods_core = {path = "../owmods_core"}

@@ -6,6 +6,8 @@ members = [
 ]
 
 [profile.release]
-strip = true
-lto = true
+panic = "abort"
 codegen-units = 1
+lto = true
+opt-level = "s"
+strip = true

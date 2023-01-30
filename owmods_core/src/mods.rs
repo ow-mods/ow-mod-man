@@ -102,13 +102,16 @@ pub struct ModStubConfig {
     pub settings: Option<Map<String, serde_json::Value>>,
 }
 
+// Have to allow non_snake_case here because OWML's config uses incrementalGC, which isn't proper camelCase
 #[derive(Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
+#[allow(non_snake_case)]
 pub struct OWMLConfig {
     pub game_path: String,
     debug_mode: bool,
     pub force_exe: bool,
-    incremental_gc: bool,
-    owml_path: String,
+    incremental_GC: bool,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    owml_path: Option<String>,
     socket_port: u32,
 }

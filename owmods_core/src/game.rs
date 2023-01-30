@@ -25,7 +25,22 @@ pub fn launch_game(log: &Logger, config: &Config) -> Result<(), anyhow::Error> {
     use anyhow::anyhow;
     use std::{process::Stdio, thread, time::Duration};
 
+    use crate::{
+        mods::OWMLConfig,
+        utils::file::{deserialize_from_json, serialize_to_json},
+    };
+
     if let Some(wine_prefix) = &config.wine_prefix {
+        let owml_path = PathBuf::from(&config.owml_path);
+        let mut owml_config: OWMLConfig =
+            deserialize_from_json(&owml_path.join("OWML.Config.json")).unwrap_or(
+                deserialize_from_json(&owml_path.join("OWML.DefaultConfig.json"))?,
+            );
+        owml_config.force_exe = true;
+        owml_config.game_path =
+            "C:/Program Files (x86)/Steam/steamapps/common/Outer Wilds".to_string();
+        serialize_to_json(&owml_config, &owml_path.join("OWML.Config.json"), false)?;
+
         let mut child = Command::new("wine")
             .stderr(Stdio::null())
             .env("WINEPREFIX", wine_prefix)
@@ -64,8 +79,7 @@ pub fn setup_wine_prefix(log: &Logger, config: &Config) -> Result<Config, anyhow
     use crate::{
         config::write_config,
         logging::ProgressType,
-        mods::OWMLConfig,
-        utils::file::{create_all_parents, deserialize_from_json, get_app_path, serialize_to_json},
+        utils::file::{create_all_parents, get_app_path},
     };
 
     // SETUP
@@ -130,24 +144,6 @@ pub fn setup_wine_prefix(log: &Logger, config: &Config) -> Result<Config, anyhow
     }
 
     progress.finish(".NET 4.8 Installed!");
-
-    // OWML Config
-
-    let progress = log.start_progress(ProgressType::Indefinite, "Updating OWML Config...", 0);
-
-    let owml_path = PathBuf::from(&config.owml_path);
-    let mut owml_config: OWMLConfig = deserialize_from_json(&owml_path.join("OWML.Config.json"))
-        .unwrap_or(deserialize_from_json(
-            &owml_path.join("OWML.DefaultConfig.json"),
-        )?);
-
-    // We handle launching the game on linux and the steam protocol gives an error, so:
-    owml_config.force_exe = true;
-    owml_config.game_path = "C:/Program Files (x86)/Steam/steamapps/common/Outer Wilds".to_string();
-
-    serialize_to_json(&owml_config, &owml_path.join("OWML.Config.json"), false)?;
-
-    progress.finish("OWML Config Updated!");
 
     let mut new_config = config.clone();
     new_config.wine_prefix = Some(prefix_str.to_string());

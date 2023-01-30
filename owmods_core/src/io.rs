@@ -35,7 +35,7 @@ pub async fn import_mods(
     let unique_names: Vec<String> = deserialize_from_json(file_path)?;
 
     if disable_missing {
-        for local_mod in local_db.mods.values().into_iter() {
+        for local_mod in local_db.mods.values() {
             let mod_path = &PathBuf::from(&local_mod.mod_path);
             if get_mod_enabled(&PathBuf::from(&mod_path))? {
                 toggle_mod(log, mod_path, local_db, false, false)?;

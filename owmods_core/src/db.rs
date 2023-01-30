@@ -85,7 +85,7 @@ impl LocalDatabase {
 }
 
 pub async fn fetch_remote_db(conf: &Config) -> Result<RemoteDatabase, anyhow::Error> {
-    Ok(RemoteDatabase::fetch(&conf).await?)
+    RemoteDatabase::fetch(conf).await
 }
 
 pub fn read_local_mod(log: &Logger, manifest_path: &Path) -> Result<LocalMod, anyhow::Error> {

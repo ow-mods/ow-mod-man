@@ -1,6 +1,7 @@
 use std::path::{Path, PathBuf};
 
 use serde::{Deserialize, Serialize};
+use serde_json::Map;
 
 use crate::utils::fix_version;
 
@@ -10,7 +11,7 @@ pub fn get_mods_dir(conf: &Config) -> PathBuf {
     Path::new(&conf.owml_path).join("Mods")
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct RemoteMod {
     pub download_url: String,
@@ -39,14 +40,14 @@ impl RemoteMod {
     }
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct ModPrerelease {
     pub download_url: String,
     pub version: String,
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct ModReadMe {
     pub html_url: String,
@@ -95,11 +96,18 @@ pub struct ModManifest {
 }
 
 #[derive(Serialize, Deserialize)]
+pub struct ModStubConfig {
+    pub enabled: bool,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub settings: Option<Map<String, serde_json::Value>>,
+}
+
+#[derive(Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct OWMLConfig {
-    game_path: String,
+    pub game_path: String,
     debug_mode: bool,
-    force_exe: bool,
+    pub force_exe: bool,
     incremental_gc: bool,
     owml_path: String,
     socket_port: u32,

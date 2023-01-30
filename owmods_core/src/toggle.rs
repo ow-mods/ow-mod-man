@@ -1,21 +1,12 @@
 use std::path::{Path, PathBuf};
 
-use serde::{Deserialize, Serialize};
-use serde_json::Map;
-
 use crate::{
     logging::Logger,
+    mods::ModStubConfig,
     utils::file::{deserialize_from_json, fix_json, serialize_to_json},
 };
 
 use super::db::{read_local_mod, LocalDatabase};
-
-#[derive(Serialize, Deserialize)]
-struct ModStubConfig {
-    enabled: bool,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    settings: Option<Map<String, serde_json::Value>>,
-}
 
 fn read_config(config_path: &Path) -> Result<ModStubConfig, anyhow::Error> {
     fix_json(config_path).ok();

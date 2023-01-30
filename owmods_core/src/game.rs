@@ -64,7 +64,8 @@ pub fn setup_wine_prefix(log: &Logger, config: &Config) -> Result<Config, anyhow
     use crate::{
         config::write_config,
         logging::ProgressType,
-        utils::file::{create_all_parents, get_app_path},
+        mods::OWMLConfig,
+        utils::file::{create_all_parents, deserialize_from_json, get_app_path, serialize_to_json},
     };
 
     // SETUP
@@ -105,6 +106,7 @@ pub fn setup_wine_prefix(log: &Logger, config: &Config) -> Result<Config, anyhow
     let progress = log.start_progress(ProgressType::Indefinite, "Creating Symlink To OW...", 0);
 
     create_all_parents(&link_path)?;
+    // Only link Outer Wilds to minimize destruction should the user accidentally delete while following symlinks
     symlink(ow_dir, &link_path)?;
 
     progress.finish("Symlink Created!");
@@ -128,6 +130,24 @@ pub fn setup_wine_prefix(log: &Logger, config: &Config) -> Result<Config, anyhow
     }
 
     progress.finish(".NET 4.8 Installed!");
+
+    // OWML Config
+
+    let progress = log.start_progress(ProgressType::Indefinite, "Updating OWML Config...", 0);
+
+    let owml_path = PathBuf::from(&config.owml_path);
+    let mut owml_config: OWMLConfig = deserialize_from_json(&owml_path.join("OWML.Config.json"))
+        .unwrap_or(deserialize_from_json(
+            &owml_path.join("OWML.DefaultConfig.json"),
+        )?);
+
+    // We handle launching the game on linux and the steam protocol gives an error, so:
+    owml_config.force_exe = true;
+    owml_config.game_path = "C:/Program Files (x86)/Steam/steamapps/common/Outer Wilds".to_string();
+
+    serialize_to_json(&owml_config, &owml_path.join("OWML.Config.json"), false)?;
+
+    progress.finish("OWML Config Updated!");
 
     let mut new_config = config.clone();
     new_config.wine_prefix = Some(prefix_str.to_string());

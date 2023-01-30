@@ -212,7 +212,7 @@ async fn run_from_cli(cli: BaseCli, logger: &core::logging::Logger) -> Result<()
                     db.mods.len(),
                     config.owml_path
                 );
-                for local_mod in db.mods.iter() {
+                for local_mod in db.mods.values().into_iter() {
                     output += &format!(
                         "({}) {} by {} ({})\n",
                         if local_mod.enabled { "+" } else { "-" },
@@ -226,8 +226,8 @@ async fn run_from_cli(cli: BaseCli, logger: &core::logging::Logger) -> Result<()
             Some(ModListTypes::Remote) => {
                 let db = core::db::fetch_remote_db(&config).await?;
                 let mut output = String::new();
-                output += &format!("Found {} Remote Mods:\n", db.releases.len());
-                for remote_mod in db.releases.iter() {
+                output += &format!("Found {} Remote Mods:\n", db.mods.values().len());
+                for remote_mod in db.mods.values().into_iter() {
                     output += &format!(
                         "- {} by {} ({})\n",
                         remote_mod.name,
@@ -395,7 +395,7 @@ async fn run_from_cli(cli: BaseCli, logger: &core::logging::Logger) -> Result<()
             let db = core::db::fetch_local_db(logger, &config)?;
             let enable = matches!(cli.command, Commands::Enable { unique_name: _ });
             if unique_name == "*" || unique_name == "all" {
-                for local_mod in db.mods.iter() {
+                for local_mod in db.mods.values().into_iter() {
                     core::toggle::toggle_mod(
                         logger,
                         &PathBuf::from(&local_mod.mod_path),

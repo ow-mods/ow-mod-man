@@ -1,3 +1,4 @@
+use std::collections::HashMap;
 use std::path::{Path, PathBuf};
 
 use anyhow::anyhow;
@@ -14,36 +15,47 @@ use super::toggle::get_mod_enabled;
 
 #[derive(Deserialize)]
 #[serde(rename_all = "camelCase")]
-pub struct RemoteDatabase {
+struct RawRemoteDatabase {
     pub releases: Vec<RemoteMod>,
 }
 
+pub struct RemoteDatabase {
+    pub mods: HashMap<String, RemoteMod>,
+}
+
 pub struct LocalDatabase {
-    pub mods: Vec<LocalMod>,
+    pub mods: HashMap<String, LocalMod>,
 }
 
 impl RemoteDatabase {
+    pub async fn fetch(conf: &Config) -> Result<RemoteDatabase, anyhow::Error> {
+        let resp = reqwest::get(&conf.database_url).await?;
+        let raw = resp.text().await?;
+        let raw_db: RawRemoteDatabase = serde_json::from_str(&raw)?;
+        Ok(RemoteDatabase {
+            mods: raw_db
+                .releases
+                .iter()
+                .map(|m| (m.unique_name.to_owned(), m.to_owned()))
+                .collect::<HashMap<_, _>>(),
+        })
+    }
+
     pub fn get_mod(&self, unique_name: &str) -> Option<&RemoteMod> {
-        let found_mod = self
-            .releases
-            .iter()
-            .find(|&remote_mod| remote_mod.unique_name == unique_name);
-        // Don't treat OWML as a normal mod
-        found_mod.filter(|&found_mod| found_mod.unique_name != "Alek.OWML")
+        if unique_name == "Alek.OWML" {
+            return None;
+        }
+        self.mods.get(unique_name)
     }
 
     pub fn get_owml(&self) -> Option<&RemoteMod> {
-        self.releases
-            .iter()
-            .find(|&remote_mod| remote_mod.unique_name == "Alek.OWML")
+        self.mods.get("Alek.OWML")
     }
 }
 
 impl LocalDatabase {
     pub fn get_mod(&self, unique_name: &str) -> Option<&LocalMod> {
-        self.mods
-            .iter()
-            .find(|&local_mod| local_mod.manifest.unique_name == unique_name)
+        self.mods.get(unique_name)
     }
 
     pub fn get_owml(&self, config: &Config) -> Option<LocalMod> {
@@ -64,15 +76,16 @@ impl LocalDatabase {
     }
 
     pub fn active(&self) -> Vec<&LocalMod> {
-        self.mods.iter().filter(|m| m.enabled).collect()
+        self.mods
+            .values()
+            .into_iter()
+            .filter(|m| m.enabled)
+            .collect()
     }
 }
 
 pub async fn fetch_remote_db(conf: &Config) -> Result<RemoteDatabase, anyhow::Error> {
-    let resp = reqwest::get(&conf.database_url).await?;
-    let raw = resp.text().await?;
-    let db = serde_json::from_str(&raw)?;
-    Ok(db)
+    Ok(RemoteDatabase::fetch(&conf).await?)
 }
 
 pub fn read_local_mod(log: &Logger, manifest_path: &Path) -> Result<LocalMod, anyhow::Error> {
@@ -97,8 +110,8 @@ pub fn read_local_mod(log: &Logger, manifest_path: &Path) -> Result<LocalMod, an
     })
 }
 
-fn get_local_mods(log: &Logger, conf: &Config) -> Result<Vec<LocalMod>, anyhow::Error> {
-    let mut mods: Vec<LocalMod> = vec![];
+fn get_local_mods(log: &Logger, conf: &Config) -> Result<HashMap<String, LocalMod>, anyhow::Error> {
+    let mut mods: HashMap<String, LocalMod> = HashMap::new();
     let glob_matches = glob(
         Path::new(&conf.owml_path)
             .join("Mods")
@@ -111,7 +124,7 @@ fn get_local_mods(log: &Logger, conf: &Config) -> Result<Vec<LocalMod>, anyhow::
         let entry = entry?;
         let local_mod = read_local_mod(log, &entry);
         if let Ok(local_mod) = local_mod {
-            mods.push(local_mod);
+            mods.insert(local_mod.manifest.unique_name.to_owned(), local_mod);
         } else {
             log!(
                 log,
@@ -132,6 +145,8 @@ pub fn fetch_local_db(log: &Logger, conf: &Config) -> Result<LocalDatabase, anyh
             mods: get_local_mods(log, conf)?,
         }
     } else {
-        LocalDatabase { mods: vec![] }
+        LocalDatabase {
+            mods: HashMap::new(),
+        }
     })
 }

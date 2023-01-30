@@ -66,7 +66,7 @@ pub async fn check_for_updates(
         }
     }
 
-    for local_mod in local_db.mods.iter() {
+    for local_mod in local_db.mods.values().into_iter() {
         let (update, new_mod) = check_mod_needs_update(local_mod, remote_db);
         if update {
             log!(

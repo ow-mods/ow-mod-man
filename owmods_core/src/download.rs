@@ -284,7 +284,8 @@ pub async fn install_mod_from_db(
             let local_db = fetch_local_db(log, config)?;
             let local_mods: Vec<String> = local_db
                 .mods
-                .iter()
+                .values()
+                .into_iter()
                 .map(|m| m.manifest.unique_name.clone())
                 .collect();
             for dep in deps.iter() {

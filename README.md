@@ -6,7 +6,7 @@ This is the monorepo for the new [Outer Wilds](https://www.mobiusdigitalgames.co
 
 - [owmods_core](owmods_core): The core library, shared between the CLI and the GUI
 - [owmods_cli](owmods_cli): The CLI interface for the manager, made with Clap
-- owmods-gui (**Coming soon!**): The GUI interface for the manager
+- [owmods_gui](#) (**Coming soon!**): The GUI interface for the manager
 
 ## Platform Support
 

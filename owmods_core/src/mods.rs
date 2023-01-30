@@ -93,3 +93,14 @@ pub struct ModManifest {
     pub conflicts: Option<Vec<String>>,
     pub paths_to_preserve: Option<Vec<String>>,
 }
+
+#[derive(Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct OWMLConfig {
+    game_path: String,
+    debug_mode: bool,
+    force_exe: bool,
+    incremental_gc: bool,
+    owml_path: String,
+    socket_port: u32,
+}

@@ -3,12 +3,19 @@ use crate::{config::Config, logging::Logger};
 use std::{path::PathBuf, process::Command};
 
 #[cfg(windows)]
-pub fn launch_game(config: &Config) -> Result<(), anyhow::Error> {
-    let mut child = Command::new("./OWML.Launcher.exe")
-        .current_dir(PathBuf::from(&config.owml_path))
+pub fn launch_game(log: &Logger, config: &Config) -> Result<(), anyhow::Error> {
+    let owml_path = PathBuf::from(&config.owml_path);
+    let mut child = Command::new(&owml_path.join("OWML.Launcher.exe").to_str().unwrap())
+        .current_dir(PathBuf::from(&owml_path))
         .spawn()?;
     child.wait()?;
+    log.info("Quit Game");
     Ok(())
+}
+
+#[cfg(windows)]
+pub fn setup_wine_prefix(_log: &Logger, config: &Config) -> Result<Config, anyhow::Error> {
+    Ok(config.clone()) // Never reached so idc
 }
 
 #[cfg(not(windows))]
@@ -36,6 +43,7 @@ pub fn launch_game(log: &Logger, config: &Config) -> Result<(), anyhow::Error> {
                 log.debug("Actually Starting Game Now...");
                 opener::open("steam://rungameid/753640")?;
                 child.wait()?;
+                log.info("Quit Game");
             }
         }
     } else {
@@ -46,7 +54,7 @@ pub fn launch_game(log: &Logger, config: &Config) -> Result<(), anyhow::Error> {
 }
 
 #[cfg(not(windows))]
-pub fn setup_wine_prefix(log: &Logger, config: &Config) -> Result<(), anyhow::Error> {
+pub fn setup_wine_prefix(log: &Logger, config: &Config) -> Result<Config, anyhow::Error> {
     use anyhow::anyhow;
     use directories::BaseDirs;
     use std::{os::unix::fs::symlink, path::Path, process::Stdio};
@@ -124,5 +132,5 @@ pub fn setup_wine_prefix(log: &Logger, config: &Config) -> Result<(), anyhow::Er
     let mut new_config = config.clone();
     new_config.wine_prefix = Some(prefix_str.to_string());
     write_config(log, &new_config)?;
-    Ok(())
+    Ok(new_config)
 }

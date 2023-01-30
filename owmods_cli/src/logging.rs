@@ -95,7 +95,6 @@ impl ProgressHandler for ConsoleProgressHandler {
     }
 
     fn finish(&self, msg: &str) {
-        self.pb
-            .finish_with_message(format!("✓ {}", msg));
+        self.pb.finish_with_message(format!("✓ {}", msg));
     }
 }

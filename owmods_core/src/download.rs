@@ -13,6 +13,7 @@ use zip::ZipArchive;
 use crate::{
     config::{write_config, Config},
     db::{fetch_local_db, read_local_mod, LocalDatabase, RemoteDatabase},
+    log,
     logging::{Logger, ProgressType},
     mods::{get_paths_to_preserve, LocalMod, ModManifest, RemoteMod},
     toggle::generate_config,
@@ -24,6 +25,13 @@ use crate::{
 };
 
 async fn download_zip(log: &Logger, url: &str, target_path: &Path) -> Result<(), anyhow::Error> {
+    log!(
+        log,
+        debug,
+        "Begin download of {} to {}",
+        url,
+        target_path.to_str().unwrap()
+    );
     let client = reqwest::Client::new();
     let zip_name = get_end_of_url(url);
     let request = client.get(url);
@@ -82,10 +90,23 @@ fn get_manifest_path_from_zip(zip_path: &PathBuf) -> Result<(String, PathBuf), a
     Err(anyhow!("Manifest not found in zip archive"))
 }
 
-fn extract_zip(zip_path: &PathBuf, target_path: &PathBuf) -> Result<(), anyhow::Error> {
+fn extract_zip(
+    log: &Logger,
+    zip_path: &PathBuf,
+    target_path: &PathBuf,
+) -> Result<(), anyhow::Error> {
+    log!(
+        log,
+        debug,
+        "Begin extraction of {} to {}",
+        zip_path.to_str().unwrap(),
+        target_path.to_str().unwrap()
+    );
+    let progress = log.start_progress(ProgressType::Indefinite, "Extracting...", 0);
     let file = File::open(zip_path)?;
     let mut archive = ZipArchive::new(file)?;
     archive.extract(target_path)?;
+    progress.finish("Extracted!");
     Ok(())
 }
 
@@ -107,7 +128,20 @@ fn extract_mod_zip(
     target_path: &Path,
     exclude_paths: Vec<PathBuf>,
 ) -> Result<(), anyhow::Error> {
+    log!(
+        log,
+        debug,
+        "Begin extraction of {} to {}",
+        zip_path.to_str().unwrap(),
+        target_path.to_str().unwrap()
+    );
     let (_, manifest_path) = get_manifest_path_from_zip(zip_path)?;
+    log!(
+        log,
+        debug,
+        "Found manifest at {} in zip, extracting siblings",
+        manifest_path.to_str().unwrap()
+    );
     let parent_path = manifest_path.parent().unwrap_or_else(|| Path::new(""));
     let zip_name = zip_path.file_name().unwrap().to_str().unwrap();
 
@@ -168,7 +202,7 @@ pub async fn download_and_install_owml(
     let temp_dir = TempDir::new("owmods")?;
     let download_path = temp_dir.path().join("OWML.zip");
     download_zip(log, url, &download_path).await?;
-    extract_zip(&download_path, &target_path)?;
+    extract_zip(log, &download_path, &target_path)?;
 
     if config.owml_path.is_empty() {
         let mut new_config = config.clone();
@@ -218,6 +252,8 @@ pub async fn install_mod_from_url(
 
     download_zip(log, url, &download_path).await?;
     let new_mod = install_mod_from_zip(log, &download_path, config, local_db)?;
+
+    temp_dir.close()?;
 
     Ok(new_mod)
 }

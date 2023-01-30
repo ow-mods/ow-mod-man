@@ -424,7 +424,29 @@ async fn run_from_cli(cli: BaseCli, logger: &core::logging::Logger) -> Result<()
                     return Ok(());
                 }
             }
-            core::game::launch_game(logger, &config)?;
+            if cfg!(windows) || config.wine_prefix.is_some() {
+                core::game::launch_game(logger, &config)?;
+            } else {
+                logger.info(
+                    "Hey there! Before you can run the game we'll need to setup a wine prefix.",
+                );
+                logger.info(
+                    "You can either set wine_prefix in ~/.local/share/ow-mod-man/settings.json.",
+                );
+                logger.info(
+                    "Or we can set one up for you, you'll need wine and winetricks installed.",
+                );
+                println!("Set up a wine prefix now? (y/n)");
+                let mut answer = String::new();
+                std::io::stdin().read_line(&mut answer)?;
+                if answer.trim().to_ascii_lowercase() == "y" {
+                    logger.info("Alright! We'll need about 10 minutes to set up, during setup dialog boxes will appear so make sure to go through them.");
+                    logger.debug("Begin creating wine prefix");
+                    let new_conf = core::game::setup_wine_prefix(&logger, &config)?;
+                    logger.success("Success! Launching the game now...");
+                    core::game::launch_game(&logger, &new_conf)?;
+                }
+            }
         }
         Commands::Open { identifier } => {
             log!(logger, info, "Opening {}", identifier);

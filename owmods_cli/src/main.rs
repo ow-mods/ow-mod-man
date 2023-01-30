@@ -442,9 +442,9 @@ async fn run_from_cli(cli: BaseCli, logger: &core::logging::Logger) -> Result<()
                 if answer.trim().to_ascii_lowercase() == "y" {
                     logger.info("Alright! We'll need about 10 minutes to set up, during setup dialog boxes will appear so make sure to go through them.");
                     logger.debug("Begin creating wine prefix");
-                    let new_conf = core::game::setup_wine_prefix(&logger, &config)?;
+                    let new_conf = core::game::setup_wine_prefix(logger, &config)?;
                     logger.success("Success! Launching the game now...");
-                    core::game::launch_game(&logger, &new_conf)?;
+                    core::game::launch_game(logger, &new_conf)?;
                 }
             }
         }

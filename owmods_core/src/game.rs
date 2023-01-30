@@ -14,7 +14,9 @@ pub fn launch_game(log: &Logger, config: &Config) -> Result<(), anyhow::Error> {
 }
 
 #[cfg(windows)]
-pub fn setup_wine_prefix(_log: &Logger, config: &Config) -> Result<Config, anyhow::Error> {
+pub fn setup_wine_prefix(log: &Logger, config: &Config) -> Result<Config, anyhow::Error> {
+    log.error("How in the ever-loving FUCK did you get here");
+    log.error("...report this please");
     Ok(config.clone()) // Never reached so idc
 }
 
@@ -100,7 +102,6 @@ pub fn setup_wine_prefix(log: &Logger, config: &Config) -> Result<Config, anyhow
     progress.finish("Wine Prefix Created!");
 
     // SYMLINK
-
     let progress = log.start_progress(ProgressType::Indefinite, "Creating Symlink To OW...", 0);
 
     create_all_parents(&link_path)?;
@@ -109,8 +110,7 @@ pub fn setup_wine_prefix(log: &Logger, config: &Config) -> Result<Config, anyhow
     progress.finish("Symlink Created!");
 
     // .NET 4.8
-
-    let progress = log.start_progress(ProgressType::Indefinite, "Installing .NET 4.8", 0);
+    let progress = log.start_progress(ProgressType::Indefinite, "Installing .NET 4.8...", 0);
 
     let out = Command::new("winetricks")
         .stdout(Stdio::null())

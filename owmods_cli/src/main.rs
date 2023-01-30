@@ -441,6 +441,7 @@ async fn run_from_cli(cli: BaseCli, logger: &core::logging::Logger) -> Result<()
                 std::io::stdin().read_line(&mut answer)?;
                 if answer.trim().to_ascii_lowercase() == "y" {
                     logger.info("Alright! We'll need about 10 minutes to set up, during setup dialog boxes will appear so make sure to go through them.");
+                    logger.info("When prompted to restart, select \"Restart Later\"");
                     logger.debug("Begin creating wine prefix");
                     let new_conf = core::game::setup_wine_prefix(logger, &config)?;
                     logger.success("Success! Launching the game now...");

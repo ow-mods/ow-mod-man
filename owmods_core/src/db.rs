@@ -31,14 +31,13 @@ impl RemoteDatabase {
     pub async fn fetch(conf: &Config) -> Result<RemoteDatabase, anyhow::Error> {
         let resp = reqwest::get(&conf.database_url).await?;
         let raw = resp.text().await?;
-        let raw_db: RawRemoteDatabase = serde_json::from_str(&raw)?;
-        Ok(RemoteDatabase {
-            mods: raw_db
-                .releases
-                .iter()
-                .map(|m| (m.unique_name.to_owned(), m.to_owned()))
-                .collect::<HashMap<_, _>>(),
-        })
+        let mut raw_db: RawRemoteDatabase = serde_json::from_str(&raw)?;
+        let mut map = HashMap::new();
+        while let Some(r_mod) = raw_db.releases.pop() {
+            // Clones the string but at least not the entire mod
+            map.insert(r_mod.unique_name.to_owned(), r_mod);
+        }
+        Ok(RemoteDatabase { mods: map })
     }
 
     pub fn get_mod(&self, unique_name: &str) -> Option<&RemoteMod> {
@@ -65,7 +64,7 @@ impl LocalDatabase {
         Some(LocalMod {
             enabled: true,
             manifest: owml_manifest,
-            mod_path: "".to_string(), // <-- Empty bc the config already has it and also borrow checker angry
+            mod_path: "".to_string(), // <-- Empty bc the config already has it and also less copies
             errors: vec![],
         })
     }

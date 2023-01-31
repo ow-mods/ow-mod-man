@@ -31,13 +31,18 @@ impl RemoteDatabase {
     pub async fn fetch(conf: &Config) -> Result<RemoteDatabase, anyhow::Error> {
         let resp = reqwest::get(&conf.database_url).await?;
         let raw = resp.text().await?;
-        let mut raw_db: RawRemoteDatabase = serde_json::from_str(&raw)?;
-        let mut map = HashMap::new();
-        while let Some(r_mod) = raw_db.releases.pop() {
-            // Clones the string but at least not the entire mod
-            map.insert(r_mod.unique_name.to_owned(), r_mod);
-        }
-        Ok(RemoteDatabase { mods: map })
+        let raw_db: RawRemoteDatabase = serde_json::from_str(&raw)?;
+        // Creating a hash map is O(N) but access is O(1).
+        // In a cli context this doesn't rly matter since we usually only get one or two mods.
+        // But I'm guessing for the GUI this will help out with performance.
+        // Same thing for the local DB.
+        Ok(RemoteDatabase {
+            mods: raw_db
+                .releases
+                .into_iter()
+                .map(|m| (m.unique_name.to_owned(), m))
+                .collect::<HashMap<_, _>>(),
+        })
     }
 
     pub fn get_mod(&self, unique_name: &str) -> Option<&RemoteMod> {

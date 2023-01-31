@@ -21,3 +21,4 @@ async-recursion = "1.0.2"
 anyhow = "1.0.68"
 zip = { version = "0.6.3", default-features = false, features = [ "deflate", "zstd", "bzip2" ] }
 tempdir = "0.3.7"
+futures = "0.3.26"

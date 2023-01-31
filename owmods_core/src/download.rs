@@ -6,13 +6,13 @@ use std::{
 };
 
 use anyhow::anyhow;
-use async_recursion::async_recursion;
+use futures::{stream::FuturesUnordered, StreamExt};
 use tempdir::TempDir;
 use zip::ZipArchive;
 
 use crate::{
     config::{write_config, Config},
-    db::{fetch_local_db, read_local_mod, LocalDatabase, RemoteDatabase},
+    db::{read_local_mod, LocalDatabase, RemoteDatabase},
     log,
     logging::{Logger, ProgressType},
     mods::{get_paths_to_preserve, LocalMod, ModManifest, RemoteMod},
@@ -258,7 +258,6 @@ pub async fn install_mod_from_url(
     Ok(new_mod)
 }
 
-#[async_recursion]
 pub async fn install_mod_from_db(
     log: &Logger,
     unique_name: &String,
@@ -267,34 +266,60 @@ pub async fn install_mod_from_db(
     local_db: &LocalDatabase,
     recursive: bool,
 ) -> Result<(), anyhow::Error> {
-    let remote_mod = remote_db.get_mod(unique_name).ok_or_else(|| {
-        anyhow!(
-            "Mod {} not found, run `owmods list remote` to view a list.",
-            unique_name
-        )
-    })?;
+    if !recursive {
+        let remote_mod = remote_db.get_mod(unique_name).ok_or_else(|| {
+            anyhow!(
+                "Mod {} not found, run `owmods list remote` to view a list.",
+                unique_name
+            )
+        })?;
+        install_mod_from_url(log, &remote_mod.download_url, config, local_db).await?;
+        log!(log, success, "Installed {}!", unique_name);
+        return Ok(());
+    }
 
-    let new_mod = install_mod_from_url(log, &remote_mod.download_url, config, local_db).await?;
+    let mut to_install: Vec<String> = vec![unique_name.clone()];
+    let mut installed: Vec<String> = local_db
+        .active()
+        .iter()
+        .filter_map(|m| {
+            if m.manifest.unique_name == *unique_name {
+                None
+            } else {
+                Some(m.manifest.unique_name.clone())
+            }
+        })
+        .collect();
 
-    // Not the **best** way to do recursive installs.
-    // This should only re-build the local database when the mod has deps though,
-    // and nested deps aren't really done too much so performance overhead should be negligible
-    if recursive {
-        if let Some(deps) = &new_mod.manifest.dependencies {
-            let local_db = fetch_local_db(log, config)?;
-            let local_mods: Vec<String> = local_db
-                .mods
-                .values()
-                .into_iter()
-                .map(|m| m.manifest.unique_name.clone())
-                .collect();
-            for dep in deps.iter() {
-                if !local_mods.contains(dep) {
-                    install_mod_from_db(log, dep, config, remote_db, &local_db, true).await?;
+    while !to_install.is_empty() {
+        let mut set = FuturesUnordered::new();
+
+        for name in to_install.drain(..) {
+            if installed.contains(&name) {
+                log!(log, info, "{} Already installed, continuing...", name);
+                continue;
+            }
+
+            let remote_mod = remote_db
+                .get_mod(&name)
+                .ok_or_else(|| anyhow!("Mod {} not found.", name))?;
+
+            let task = install_mod_from_url(log, &remote_mod.download_url, config, local_db);
+            set.push(task);
+        }
+
+        while let Some(res) = set.next().await {
+            let m = res?;
+            installed.push(m.manifest.unique_name.to_owned());
+            if let Some(deps) = m.manifest.dependencies {
+                for dep in deps {
+                    to_install.push(dep.to_owned());
                 }
             }
         }
     }
+
+    log!(log, success, "Installed {} and dependencies!", unique_name);
 
     Ok(())
 }

@@ -28,12 +28,14 @@ pub struct LocalDatabase {
 }
 
 impl RemoteDatabase {
-    pub async fn fetch(conf: &Config) -> Result<RemoteDatabase, anyhow::Error> {
+    pub async fn fetch(log: &Logger, conf: &Config) -> Result<RemoteDatabase, anyhow::Error> {
+        log!(log, debug, "Fetching Remote DB At {}", conf.database_url);
         let resp = reqwest::get(&conf.database_url).await?;
         let raw = resp.text().await?;
         let raw_db: RawRemoteDatabase = serde_json::from_str(&raw)?;
+        log.debug("Success, Constructing Mod Map");
         // Creating a hash map is O(N) but access is O(1).
-        // In a cli context this doesn't rly matter since we usually only get one or two mods.
+        // In a cli context this doesn't rly matter since we usually only get one or two mods in the entire run of the program.
         // But I'm guessing for the GUI this will help out with performance.
         // Same thing for the local DB.
         Ok(RemoteDatabase {
@@ -88,8 +90,8 @@ impl LocalDatabase {
     }
 }
 
-pub async fn fetch_remote_db(conf: &Config) -> Result<RemoteDatabase, anyhow::Error> {
-    RemoteDatabase::fetch(conf).await
+pub async fn fetch_remote_db(log: &Logger, conf: &Config) -> Result<RemoteDatabase, anyhow::Error> {
+    RemoteDatabase::fetch(log, conf).await
 }
 
 pub fn read_local_mod(log: &Logger, manifest_path: &Path) -> Result<LocalMod, anyhow::Error> {

@@ -3,7 +3,7 @@ use std::path::PathBuf;
 use crate::{
     config::Config,
     db::{LocalDatabase, RemoteDatabase},
-    download::install_mod_from_db,
+    download::install_mods_parallel,
     logging::Logger,
     mods::LocalMod,
     toggle::toggle_mod,
@@ -47,9 +47,14 @@ pub async fn fix_deps(
                 true,
             )?;
         }
-        for missing in missing.iter() {
-            install_mod_from_db(log, missing, config, remote_db, db, true).await?;
-        }
+        install_mods_parallel(
+            log,
+            missing.into_iter().cloned().collect(),
+            config,
+            remote_db,
+            db,
+        )
+        .await?;
     }
     Ok(())
 }

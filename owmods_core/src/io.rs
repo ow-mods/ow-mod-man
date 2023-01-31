@@ -1,6 +1,6 @@
 use std::path::{Path, PathBuf};
 
-use crate::{download::install_mod_from_db, logging::Logger, utils::file::deserialize_from_json};
+use crate::{download::install_mods_parallel, logging::Logger, utils::file::deserialize_from_json};
 
 use super::{
     config::Config,
@@ -33,6 +33,7 @@ pub async fn import_mods(
     disable_missing: bool,
 ) -> Result<(), anyhow::Error> {
     let unique_names: Vec<String> = deserialize_from_json(file_path)?;
+    let mut needed_install: Vec<String> = vec![];
 
     if disable_missing {
         for local_mod in local_db.mods.values() {
@@ -50,21 +51,11 @@ pub async fn import_mods(
                 toggle_mod(log, mod_path, local_db, true, false)?;
             }
         } else {
-            let remote_mod = remote_db.get_mod(name);
-            if let Some(remote_mod) = remote_mod {
-                install_mod_from_db(
-                    log,
-                    &remote_mod.unique_name,
-                    config,
-                    remote_db,
-                    local_db,
-                    false,
-                )
-                .await?;
-            } else {
-                println!("{} Not Found In Database, Skipping...", name);
-            }
+            needed_install.push(name.to_string());
         }
     }
+
+    install_mods_parallel(log, needed_install, config, remote_db, local_db).await?;
+
     Ok(())
 }

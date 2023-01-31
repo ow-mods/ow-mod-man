@@ -14,7 +14,7 @@ use crate::{
     config::{write_config, Config},
     db::{read_local_mod, LocalDatabase, RemoteDatabase},
     log,
-    logging::{Logger, ProgressType},
+    logging::{Logger, ProgressAction, ProgressType},
     mods::{get_paths_to_preserve, LocalMod, ModManifest, RemoteMod},
     toggle::generate_config,
     utils::{
@@ -49,6 +49,7 @@ async fn download_zip(log: &Logger, url: &str, target_path: &Path) -> Result<(),
 
     let progress = log.start_progress(
         progress_type,
+        ProgressAction::Download,
         &format!("Downloading {}", zip_name),
         file_size,
     );
@@ -102,7 +103,12 @@ fn extract_zip(
         zip_path.to_str().unwrap(),
         target_path.to_str().unwrap()
     );
-    let progress = log.start_progress(ProgressType::Indefinite, "Extracting...", 0);
+    let progress = log.start_progress(
+        ProgressType::Indefinite,
+        ProgressAction::Extract,
+        "Extracting...",
+        0,
+    );
     let file = File::open(zip_path)?;
     let mut archive = ZipArchive::new(file)?;
     archive.extract(target_path)?;
@@ -150,6 +156,7 @@ fn extract_mod_zip(
 
     let progress = log.start_progress(
         ProgressType::Definite,
+        ProgressAction::Extract,
         &format!("Extracting {}", zip_name),
         archive.len().try_into().unwrap(),
     );
@@ -258,6 +265,30 @@ pub async fn install_mod_from_url(
     Ok(new_mod)
 }
 
+pub async fn install_mods_parallel(
+    log: &Logger,
+    unique_names: Vec<String>,
+    config: &Config,
+    remote_db: &RemoteDatabase,
+    local_db: &LocalDatabase,
+) -> Result<Vec<LocalMod>, anyhow::Error> {
+    let mut set = FuturesUnordered::new();
+    let mut installed: Vec<LocalMod> = vec![];
+    for name in unique_names.iter() {
+        let remote_mod = remote_db
+            .get_mod(name)
+            .ok_or_else(|| anyhow!("Mod {} not found in database.", name))?;
+
+        let task = install_mod_from_url(log, &remote_mod.download_url, config, local_db);
+        set.push(task);
+    }
+    while let Some(res) = set.next().await {
+        let m = res?;
+        installed.push(m);
+    }
+    Ok(installed)
+}
+
 pub async fn install_mod_from_db(
     log: &Logger,
     unique_name: &String,
@@ -274,7 +305,6 @@ pub async fn install_mod_from_db(
             )
         })?;
         install_mod_from_url(log, &remote_mod.download_url, config, local_db).await?;
-        log!(log, success, "Installed {}!", unique_name);
         return Ok(());
     }
 
@@ -291,35 +321,42 @@ pub async fn install_mod_from_db(
         })
         .collect();
 
+    let mut count = 1;
+
     while !to_install.is_empty() {
-        let mut set = FuturesUnordered::new();
-
-        for name in to_install.drain(..) {
-            if installed.contains(&name) {
-                log!(log, info, "{} Already installed, continuing...", name);
-                continue;
+        log!(
+            log,
+            debug,
+            "Begin round {} of install with {} dependencies",
+            count,
+            installed.len()
+        );
+        let newly_installed = install_mods_parallel(
+            log,
+            to_install
+                .drain(..)
+                .filter(|m| !installed.contains(m))
+                .collect(),
+            config,
+            remote_db,
+            local_db,
+        )
+        .await?;
+        installed.append(
+            &mut newly_installed
+                .iter()
+                .map(|m| m.manifest.unique_name.to_owned())
+                .collect(),
+        );
+        for new_mod in newly_installed.into_iter() {
+            if let Some(mut deps) = new_mod.manifest.dependencies {
+                to_install.append(&mut deps);
             }
-
-            let remote_mod = remote_db
-                .get_mod(&name)
-                .ok_or_else(|| anyhow!("Mod {} not found.", name))?;
-
-            let task = install_mod_from_url(log, &remote_mod.download_url, config, local_db);
-            set.push(task);
         }
-
-        while let Some(res) = set.next().await {
-            let m = res?;
-            installed.push(m.manifest.unique_name.to_owned());
-            if let Some(deps) = m.manifest.dependencies {
-                for dep in deps {
-                    to_install.push(dep.to_owned());
-                }
-            }
-        }
+        count += 1;
     }
 
-    log!(log, success, "Installed {} and dependencies!", unique_name);
+    log!(log, success, "Installed {}!", unique_name);
 
     Ok(())
 }

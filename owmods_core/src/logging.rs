@@ -3,6 +3,12 @@ pub enum ProgressType {
     Indefinite,
 }
 
+pub enum ProgressAction {
+    Download,
+    Extract,
+    Wine,
+}
+
 pub struct LogMessage {
     pub message: String,
 }
@@ -29,6 +35,7 @@ pub trait LoggerBackend: Send + Sync {
         &self,
         msg: &str,
         progress_type: ProgressType,
+        action_type: ProgressAction,
         len: u64,
     ) -> Box<dyn ProgressHandler>;
 }
@@ -67,10 +74,12 @@ impl Logger {
     pub fn start_progress(
         &self,
         progress_type: ProgressType,
+        action_type: ProgressAction,
         msg: &str,
         len: u64,
     ) -> Box<dyn ProgressHandler> {
-        self.backend.create_progress(msg, progress_type, len)
+        self.backend
+            .create_progress(msg, progress_type, action_type, len)
     }
 
     log_msg!(Log::Debug, debug);

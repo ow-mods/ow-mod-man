@@ -78,7 +78,7 @@ pub fn setup_wine_prefix(log: &Logger, config: &Config) -> Result<Config, anyhow
 
     use crate::{
         config::write_config,
-        logging::ProgressType,
+        logging::{ProgressAction, ProgressType},
         utils::file::{create_all_parents, get_app_path},
     };
 
@@ -97,7 +97,12 @@ pub fn setup_wine_prefix(log: &Logger, config: &Config) -> Result<Config, anyhow
         .join(ow_rel_dir);
 
     // WINE PREFIX
-    let progress = log.start_progress(ProgressType::Indefinite, "Setting Up Wine Prefix...", 0);
+    let progress = log.start_progress(
+        ProgressType::Indefinite,
+        ProgressAction::Wine,
+        "Setting Up Wine Prefix...",
+        0,
+    );
 
     let out = Command::new("wine")
         .stdout(Stdio::null()) // Wine uses stderr, so stdout not needed
@@ -117,7 +122,12 @@ pub fn setup_wine_prefix(log: &Logger, config: &Config) -> Result<Config, anyhow
     progress.finish("Wine Prefix Created!");
 
     // SYMLINK
-    let progress = log.start_progress(ProgressType::Indefinite, "Creating Symlink To OW...", 0);
+    let progress = log.start_progress(
+        ProgressType::Indefinite,
+        ProgressAction::Wine,
+        "Creating Symlink To OW...",
+        0,
+    );
 
     create_all_parents(&link_path)?;
     // Only link Outer Wilds to minimize destruction should the user accidentally delete while following symlinks
@@ -126,7 +136,12 @@ pub fn setup_wine_prefix(log: &Logger, config: &Config) -> Result<Config, anyhow
     progress.finish("Symlink Created!");
 
     // .NET 4.8
-    let progress = log.start_progress(ProgressType::Indefinite, "Installing .NET 4.8...", 0);
+    let progress = log.start_progress(
+        ProgressType::Indefinite,
+        ProgressAction::Wine,
+        "Installing .NET 4.8...",
+        0,
+    );
 
     let out = Command::new("winetricks")
         .stdout(Stdio::null())

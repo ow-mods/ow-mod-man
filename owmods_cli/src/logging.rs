@@ -2,7 +2,7 @@ use std::time::Duration;
 
 use colored::Colorize;
 use indicatif::{MultiProgress, ProgressBar, ProgressStyle};
-use owmods_core::logging::{Log, LoggerBackend, ProgressHandler, ProgressType};
+use owmods_core::logging::{Log, LoggerBackend, ProgressAction, ProgressHandler, ProgressType};
 
 const PROGRESS_TEMPLATE: &str = "{spinner} {wide_msg} [{bar:100.green/cyan}]";
 const PROGRESS_CHARS: &str = "=>-";
@@ -65,6 +65,7 @@ impl LoggerBackend for ConsoleLogBackend {
         &self,
         msg: &str,
         progress_type: ProgressType,
+        action_type: ProgressAction,
         len: u64,
     ) -> Box<dyn ProgressHandler> {
         let pb = ProgressBar::hidden();
@@ -80,7 +81,12 @@ impl LoggerBackend for ConsoleLogBackend {
         pb.set_style(style);
         pb.set_message(msg.to_string());
         pb.enable_steady_tick(Duration::from_millis(100));
-        let pb = self.multi_progress.add(pb);
+        // Try to make downloads and extracts a bit organized
+        let pb = match action_type {
+            ProgressAction::Download => self.multi_progress.insert(0, pb),
+            ProgressAction::Extract => self.multi_progress.insert_from_back(0, pb),
+            _ => self.multi_progress.add(pb),
+        };
         Box::new(ConsoleProgressHandler::new(pb))
     }
 }

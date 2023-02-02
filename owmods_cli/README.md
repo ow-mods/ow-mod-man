@@ -50,6 +50,6 @@ Some command shortcuts exist for convenience
 - `list` -> `ls`
 - `update` -> `up`
 - `enable` -> `e`
-- `disable` -> `r`
+- `disable` -> `d`
 - `uninstall` -> `rm`
 - `readme` -> `man`

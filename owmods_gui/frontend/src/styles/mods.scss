@@ -1,0 +1,36 @@
+.mod-list {
+    margin-top: 1em;
+    display: grid;
+    grid-auto-flow: row;
+}
+
+.mod-header {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    grid-template-areas: "heading actions expand";
+}
+
+.mod-header:focus {
+    color: var(--primary);
+}
+
+.mod-header::after {
+    grid-area: expand;
+}
+
+.mod-heading {
+    grid-area: heading;
+}
+
+.mod-name {
+    margin-right: 0.3em;
+    font-weight: bold;
+}
+
+.mod-actions {
+    display: grid;
+    grid-auto-flow: column;
+    grid-area: actions;
+    justify-self: right;
+    column-gap: 0.5em;
+}

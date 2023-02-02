@@ -1,0 +1,43 @@
+// Manages *just* the theming for the app, use styles.scss for actual classes and such
+@import "@picocss/pico/scss/pico";
+
+// Colors
+// Just as notes for later, cool colors include:
+// - white
+// - skyblue
+// - pink
+// - lightgreen
+// - rgb(235, 235, 173) (desaturated yellow)
+// - #ffab8a (mods website orange)
+// - #94a0cc (nomai tech blurple)
+
+
+$primary: rgb(235, 235, 173); // #94a0cc;
+
+// Sizing/Spacing
+$nav-spacing: 0.4em;
+$mod-actions-spacing: 0.4em;
+$main-nav-icon-size: 3em;
+
+// Mixes
+$primary-dark: mix($primary, black, 80%);
+$primary-light: mix($primary, white, 80%);
+$primary-really-light: mix($primary, white, 10%);
+$primary-hover: $primary-dark;
+$bg: mix($primary, black, 10%);
+$accent-bg: mix($primary, $bg, 10%);
+$accent-bg-darker: mix($accent-bg, black, 40%);
+$active-bg: mix($primary, $bg, 20%);
+
+:root {
+    --primary: #{$primary};
+    --primary-hover: #{$primary-hover};
+    --color: #{$primary-really-light};
+    --h4-color: #{$primary-really-light};
+    --background-color: #{$bg};
+    --card-background-color: #{$accent-bg};
+    --card-sectionning-background-color: #{$accent-bg};
+    --switch-color: #{$primary-really-light};
+    --switch-background-color: #{$accent-bg};
+    --accordion-open-summary-color: #{$primary};
+}

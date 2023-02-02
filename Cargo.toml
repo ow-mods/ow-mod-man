@@ -2,7 +2,8 @@
 
 members = [
   "owmods_core",
-  "owmods_cli"
+  "owmods_cli",
+  "owmods_gui/backend"
 ]
 
 [profile.release]

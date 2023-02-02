@@ -1,0 +1,65 @@
+@import "theme.scss";
+
+html,
+body,
+#root,
+.container {
+    height: 100vh;
+}
+
+// .fix-icons {
+//     display: grid;
+//     grid-auto-flow: column;
+//     align-items: center;
+//     align-content: center;
+//     justify-content: center;
+//     column-gap: 0.2em;
+// }
+
+// .fix-icons svg {
+//     justify-self: end;
+// }
+
+svg:hover {
+    cursor: pointer;
+}
+
+.nav-icon {
+    width: auto;
+    margin-left: $nav-spacing;
+    margin-right: $nav-spacing;
+    height: 1em;
+}
+
+.main-icon {
+    height: $main-nav-icon-size;
+    width: auto;
+}
+
+.tabs {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: 1fr;
+    grid-column-gap: 15px;
+    grid-row-gap: 0px;
+    align-items: center;
+}
+
+.tab {
+    color: var(--primary);
+    cursor: pointer;
+    text-align: center;
+    vertical-align: middle;
+    transition: background-color 0.2s;
+}
+
+.tab:target {
+    background-color: $active-bg;
+}
+
+.tab:hover {
+    color: $primary-hover;
+    text-decoration: underline;
+}
+
+@import "mods.scss";

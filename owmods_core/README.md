@@ -41,7 +41,6 @@ To do this call `owmods_core::game::setup_wine_prefix`. **Note that while althou
 
 It's recommended to only setup the prefix if the wine_prefix setting is `None`, also if you intend for user to use your program you may want to explain what's happening.
 
-
 ## Modules
 
 - alerts.rs: Manages fetching and showing alerts
@@ -62,7 +61,7 @@ It's recommended to only setup the prefix if the wine_prefix setting is `None`, 
 
 ## Vocab
 
-**Local Mod**: A mod that is installed locally
-**Remote Mod**: A mod that's in the database
-**Local DB**: A compilation of all local mods
-**Remote DB**: A compilation of all remote mods
+**Local Mod**: A mod that is installed locally  
+**Remote Mod**: A mod that's in the database  
+**Local DB**: A compilation of all local mods  
+**Remote DB**: A compilation of all remote mods  

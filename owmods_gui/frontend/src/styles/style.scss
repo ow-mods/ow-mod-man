@@ -4,21 +4,20 @@ html,
 body,
 #root,
 .container {
-    height: 100vh;
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    right: 0;
+    left: 0;
+    overflow-y: hidden;
+    overflow-x: hidden;
 }
 
-// .fix-icons {
-//     display: grid;
-//     grid-auto-flow: column;
-//     align-items: center;
-//     align-content: center;
-//     justify-content: center;
-//     column-gap: 0.2em;
-// }
-
-// .fix-icons svg {
-//     justify-self: end;
-// }
+.fix-icons {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
 
 svg:hover {
     cursor: pointer;
@@ -26,9 +25,8 @@ svg:hover {
 
 .nav-icon {
     width: auto;
-    margin-left: $nav-spacing;
-    margin-right: $nav-spacing;
-    height: 1em;
+    margin: 0 $margin-lg;
+    height: $margin-lg;
 }
 
 .main-icon {
@@ -36,30 +34,5 @@ svg:hover {
     width: auto;
 }
 
-.tabs {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    grid-template-rows: 1fr;
-    grid-column-gap: 15px;
-    grid-row-gap: 0px;
-    align-items: center;
-}
-
-.tab {
-    color: var(--primary);
-    cursor: pointer;
-    text-align: center;
-    vertical-align: middle;
-    transition: background-color 0.2s;
-}
-
-.tab:target {
-    background-color: $active-bg;
-}
-
-.tab:hover {
-    color: $primary-hover;
-    text-decoration: underline;
-}
-
+@import "tabs.scss";
 @import "mods.scss";

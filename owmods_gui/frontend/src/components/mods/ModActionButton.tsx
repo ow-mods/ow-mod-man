@@ -7,13 +7,15 @@ export interface ModActionButtonProps {
 }
 
 export default (props: ModActionButtonProps) => {
-
     return (
         <a
             data-tooltip={props.ariaLabel}
             data-placement="top"
             className="fix-icons"
-            onClick={(e) => { e.preventDefault(); props.onClick?.(); }}
+            onClick={(e) => {
+                e.preventDefault();
+                props.onClick?.();
+            }}
             aria-label={props.ariaLabel}
         >
             {props.children}

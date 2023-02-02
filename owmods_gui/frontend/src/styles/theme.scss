@@ -11,8 +11,10 @@
 // - #ffab8a (mods website orange)
 // - #94a0cc (nomai tech blurple)
 
+$primary: skyblue; // #94a0cc;
 
-$primary: rgb(235, 235, 173); // #94a0cc;
+$margin: 0.4em;
+$margin-lg: 1em;
 
 // Sizing/Spacing
 $nav-spacing: 0.4em;
@@ -21,12 +23,15 @@ $main-nav-icon-size: 3em;
 
 // Mixes
 $primary-dark: mix($primary, black, 80%);
+$primary-really-dark: mix($primary, black, 50%);
 $primary-light: mix($primary, white, 80%);
 $primary-really-light: mix($primary, white, 10%);
 $primary-hover: $primary-dark;
 $bg: mix($primary, black, 10%);
 $accent-bg: mix($primary, $bg, 10%);
 $accent-bg-darker: mix($accent-bg, black, 40%);
+$accent-bg-lighter: mix($accent-bg, white, 80%);
+$accent-bg-lightest: mix($accent-bg, white, 50%);
 $active-bg: mix($primary, $bg, 20%);
 
 :root {
@@ -39,5 +44,7 @@ $active-bg: mix($primary, $bg, 20%);
     --card-sectionning-background-color: #{$accent-bg};
     --switch-color: #{$primary-really-light};
     --switch-background-color: #{$accent-bg};
+    --switch-checked-background-color: #{$primary-really-dark};
     --accordion-open-summary-color: #{$primary};
+    --accordion-border-color: #{$accent-bg};
 }

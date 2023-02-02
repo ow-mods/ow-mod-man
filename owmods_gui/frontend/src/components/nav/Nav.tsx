@@ -10,23 +10,23 @@ export default () => {
         <IconContext.Provider value={{ className: "nav-icon" }}>
             <nav>
                 <ul>
-                    <NavButton ariaLabel="Downloads">
+                    <NavButton labelPlacement="right" ariaLabel="Downloads">
                         <FaArrowDown />
                     </NavButton>
-                    <NavButton ariaLabel="Refresh">
+                    <NavButton labelPlacement="bottom" ariaLabel="Refresh">
                         <TbRefresh />
                     </NavButton>
                 </ul>
                 <ul>
-                    <NavButton ariaLabel="Run Game">
+                    <NavButton labelPlacement="bottom" ariaLabel="Run Game">
                         <FaPlay />
                     </NavButton>
                 </ul>
                 <ul>
-                    <NavButton ariaLabel="Help">
+                    <NavButton labelPlacement="bottom" ariaLabel="Help">
                         <FaQuestion />
                     </NavButton>
-                    <NavButton ariaLabel="More">
+                    <NavButton labelPlacement="left" ariaLabel="More">
                         <HiDotsVertical />
                     </NavButton>
                 </ul>

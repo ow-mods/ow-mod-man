@@ -1,0 +1,57 @@
+.tabs {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: 1fr;
+    grid-column-gap: $margin;
+    grid-row-gap: 0px;
+    align-items: center;
+    border-bottom: 0.05em solid $accent-bg;
+}
+
+$tab-border-rad: 0.2em;
+
+.tab {
+    color: $primary;
+    background-color: $accent-bg-darker;
+    cursor: pointer;
+    text-align: center;
+    transition: background-color 0.2s, color 0.2s;
+    border-top-left-radius: $tab-border-rad;
+    border-top-right-radius: $tab-border-rad;
+}
+
+.tab.shown {
+    color: $primary-light;
+    background-color: $accent-bg;
+}
+
+.tab:hover {
+    color: $primary-light;
+    background-color: $accent-bg-lighter;
+}
+
+.tab-icon {
+    margin-right: $margin;
+}
+
+.sections {
+    position: relative;
+    height: calc(100% - 6em);
+    width: 100%;
+    overflow: hidden;
+}
+
+.section {
+    display: none;
+    position: absolute;
+    top: 0;
+    right: 0;
+    left: 0;
+    bottom: $margin;
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+
+.section.shown {
+    display: initial;
+}

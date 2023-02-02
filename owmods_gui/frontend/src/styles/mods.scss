@@ -1,5 +1,5 @@
 .mod-list {
-    margin-top: 1em;
+    margin-top: $margin-lg;
     display: grid;
     grid-auto-flow: row;
 }
@@ -11,11 +11,12 @@
 }
 
 .mod-header:focus {
-    color: var(--primary);
+    color: $primary;
 }
 
 .mod-header::after {
     grid-area: expand;
+    margin-right: $margin;
 }
 
 .mod-heading {
@@ -32,5 +33,5 @@
     grid-auto-flow: column;
     grid-area: actions;
     justify-self: right;
-    column-gap: 0.5em;
+    column-gap: $margin;
 }

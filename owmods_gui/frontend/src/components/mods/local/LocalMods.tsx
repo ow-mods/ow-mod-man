@@ -15,6 +15,36 @@ const LocalMods = () => {
             />
             <LocalMod name="Time Saver" description={lorem} authors="Bwc9876" enabled={true} />
             <LocalMod name="Slate Simulator" description={lorem} authors="Bwc9876" enabled={true} />
+            <LocalMod name="Slate Simulator" description={lorem} authors="Bwc9876" enabled={true} />
+            <LocalMod name="Slate Simulator" description={lorem} authors="Bwc9876" enabled={true} />
+            <LocalMod name="Slate Simulator" description={lorem} authors="Bwc9876" enabled={true} />
+            <LocalMod name="Slate Simulator" description={lorem} authors="Bwc9876" enabled={true} />
+            <LocalMod name="Slate Simulator" description={lorem} authors="Bwc9876" enabled={true} />
+            <LocalMod name="Slate Simulator" description={lorem} authors="Bwc9876" enabled={true} />
+            <LocalMod name="Slate Simulator" description={lorem} authors="Bwc9876" enabled={true} />
+            <LocalMod name="Slate Simulator" description={lorem} authors="Bwc9876" enabled={true} />
+            <LocalMod name="Slate Simulator" description={lorem} authors="Bwc9876" enabled={true} />
+            <LocalMod name="Slate Simulator" description={lorem} authors="Bwc9876" enabled={true} />
+            <LocalMod name="Slate Simulator" description={lorem} authors="Bwc9876" enabled={true} />
+            <LocalMod name="Slate Simulator" description={lorem} authors="Bwc9876" enabled={true} />
+            <LocalMod name="Slate Simulator" description={lorem} authors="Bwc9876" enabled={true} />
+            <LocalMod name="Slate Simulator" description={lorem} authors="Bwc9876" enabled={true} />
+            <LocalMod name="Slate Simulator" description={lorem} authors="Bwc9876" enabled={true} />
+            <LocalMod name="Slate Simulator" description={lorem} authors="Bwc9876" enabled={true} />
+            <LocalMod name="Slate Simulator" description={lorem} authors="Bwc9876" enabled={true} />
+            <LocalMod name="Slate Simulator" description={lorem} authors="Bwc9876" enabled={true} />
+            <LocalMod name="Slate Simulator" description={lorem} authors="Bwc9876" enabled={true} />
+            <LocalMod name="Slate Simulator" description={lorem} authors="Bwc9876" enabled={true} />
+            <LocalMod name="Slate Simulator" description={lorem} authors="Bwc9876" enabled={true} />
+            <LocalMod name="Slate Simulator" description={lorem} authors="Bwc9876" enabled={true} />
+            <LocalMod name="Slate Simulator" description={lorem} authors="Bwc9876" enabled={true} />
+            <LocalMod name="Slate Simulator" description={lorem} authors="Bwc9876" enabled={true} />
+            <LocalMod name="Slate Simulator" description={lorem} authors="Bwc9876" enabled={true} />
+            <LocalMod name="Slate Simulator" description={lorem} authors="Bwc9876" enabled={true} />
+            <LocalMod name="Slate Simulator" description={lorem} authors="Bwc9876" enabled={true} />
+            <LocalMod name="Slate Simulator" description={lorem} authors="Bwc9876" enabled={true} />
+            <LocalMod name="Slate Simulator" description={lorem} authors="Bwc9876" enabled={true} />
+            <LocalMod name="Slate Simulator" description={lorem} authors="Bwc9876" enabled={true} />            
         </div>
     );
 };

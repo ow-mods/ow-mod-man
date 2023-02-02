@@ -1,17 +1,14 @@
 import { ReactNode } from "react";
 
 export interface TabProps {
+    selected: boolean;
     children: ReactNode;
-    hash: string;
+    onClick?: () => void;
 }
 
 export default (props: TabProps) => {
-    const onClick = () => {
-        window.location.hash = props.hash;
-    };
-
     return (
-        <div onClick={onClick} id={props.hash} className="tab">
+        <div onClick={() => props.onClick?.()} className={`tab${props.selected ? " shown" : ""}`}>
             <div className="fix-icons">{props.children}</div>
         </div>
     );

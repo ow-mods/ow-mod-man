@@ -1,10 +1,12 @@
 # owmods_gui
 
+> **CURRENTLY A WORK IN PROGRESS!!**
+
 The GUI Version Of The Manager. Created with Tauri, React, Vite, TypeScript, and Pico CSS.
 
 ## Installation
 
-Check out the [mods website](#) for instructions.
+Check out the [mods website](https://outerwildsmods.com/mod-manager/) for instructions.
 
 ## Building
 

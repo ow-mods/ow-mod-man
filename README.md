@@ -1,6 +1,6 @@
 # Outer Wilds Mod Manager
 
-> **CURRENT A WORK IN PROGRESS!!**
+> **CURRENTLY A WORK IN PROGRESS!!**
 
 This is the monorepo for the new [Outer Wilds](https://www.mobiusdigitalgames.com/outer-wilds.html) Mod Manager, completely re-implemented in Rust/Tauri.
 
@@ -19,7 +19,6 @@ This is the monorepo for the new [Outer Wilds](https://www.mobiusdigitalgames.co
 | **Deck**     | ❓             |
 | **MacOS**    | 😐             |
   
-
 ## Release Profile
 
 To reduce binary sizes, some features have been enabled that will slow down release compile time, but make a significantly smaller binary.

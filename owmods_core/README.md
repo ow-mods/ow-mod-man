@@ -1,26 +1,26 @@
 # owmods-core
 
-The core library for the outer wilds mod manager, this package is responsible for basically everything from fetching the db to downloading mods.  
-The other two packages in this repo act as a frontend to this package.
+The core library for the Outer Wilds mod manager, this package is responsible for basically everything from fetching the db to downloading mods.  
+The other two packages in this repo act as frontends to this package.
 
 ## Usage
 
 Before getting started your program needs to handle two things:
 
-1. Implementing a LoggerBackend and ProgressHandler and creating a logger
+1. Implementing a LoggerBackend and ProgressHandler and creating a Logger
 2. Loading the config
 
 These will need to be passed to nearly any function in the library
 
 ### Implementing Traits
 
-Implement `LoggerBackend` and `ProgressHandler`, these willl handle outputting data about what the library is doing while it's working.
+Implement `LoggerBackend` and `ProgressHandler`, these will handle outputting data about what the library is doing while it's working.
 
 Then, create a new logger `owmods_core::logging::Logger::new(Box::new(myLoggerBackend));`.
 
 ### Loading Config
 
-Call `owmods_core::config::get_config(&logger)`;
+Call `owmods_core::config::get_config(&logger);`
 
 ### Errors
 
@@ -35,7 +35,7 @@ log!(logger, error, "{:?}", theError);
 
 ### On Linux
 
-On Linux the wine_prefix config variable must be set before running `owmods_core::game:launch_game`.
+On Linux the wine_prefix config variable must be set before running `owmods_core::game::launch_game`.
 
 To do this call `owmods_core::game::setup_wine_prefix`. **Note that while although this method exists for windows builds, you should not call it (it'll just log an error but still).**
 
@@ -49,7 +49,7 @@ It's recommended to only setup the prefix if the wine_prefix setting is `None`, 
 - db.rs: Manages fetching and compiling the local and remote database
 - download.rs: Manages downloading and installing mods and OWML
 - game.rs: Manages running the game and setting up a wine prefix on linux
-- io.rs: Manages importing and exorting the list of mods
+- io.rs: Manages importing and exporting the list of mods
 - lib.rs: Exports stuff
 - logging.rs: Creates traits that dependents are expected to implement for logging
 - mods.rs: Hols the structs that represent local and remote mods and some utility functions

@@ -6,7 +6,7 @@ The CLI interface for the mod manager, built using clap.
 
 This is just the output of `owmods help`, but im guessing if you're here you can't use it for some reason.
 
-```
+```txt
 A CLI Tool To Manage OWML Mods
 
 Usage: owmods [OPTIONS] <COMMAND>

@@ -13,7 +13,7 @@ Check out the [mods website](https://outerwildsmods.com/mod-manager/) for instru
 You'll need the tauri CLI installed, so run:
 
 ```sh
-cargo install tauri_cli
+cargo install tauri-cli
 ```
 
 Clone the repo:

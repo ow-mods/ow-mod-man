@@ -6,10 +6,12 @@ export interface TabProps {
     onClick?: () => void;
 }
 
-export default (props: TabProps) => {
+const Tab = (props: TabProps) => {
     return (
         <div onClick={() => props.onClick?.()} className={`tab${props.selected ? " shown" : ""}`}>
             <div className="fix-icons">{props.children}</div>
         </div>
     );
 };
+
+export default Tab;

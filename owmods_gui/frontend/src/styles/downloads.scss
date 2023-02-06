@@ -1,0 +1,44 @@
+.download-badge {
+    position: absolute;
+    top: -$margin-md;
+    right: $margin;
+    color: $primary-dark;
+    padding: 2px 6px;
+    font-size: small;
+    border-radius: 50px;
+}
+
+.downloads-popout {
+    z-index: 99;
+    position: absolute;
+    top: 80%;
+    left: 1%;
+    right: auto;
+    bottom: auto;
+    width: 1000%;
+    max-width: 60vw;
+    max-height: 35vh;
+    padding: 0;
+    overflow-y: scroll;
+    border-radius: 5px;
+    border: 1px solid $accent-bg;
+    background-color: $accent-bg-darker;
+}
+
+.downloads-popout p {
+    margin: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.downloads-row {
+    padding: $margin;
+    border-bottom: 1px solid $accent-bg;
+}
+
+.no-downloads {
+    padding: $margin-xl;
+    text-align: center;
+    color: $primary-dark;
+}

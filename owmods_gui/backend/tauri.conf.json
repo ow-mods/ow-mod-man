@@ -15,7 +15,7 @@
     },
     "bundle": {
       "active": true,
-      "category": "DeveloperTool",
+      "category": "Game",
       "copyright": "",
       "deb": {
         "depends": []
@@ -29,7 +29,7 @@
         "icons/icon.ico"
       ],
       "identifier": "com.bwc9876.owmods_gui",
-      "longDescription": "",
+      "longDescription": "A manager for Outer Wilds mods",
       "macOS": {
         "entitlements": null,
         "exceptionDomain": "",
@@ -47,7 +47,7 @@
       }
     },
     "security": {
-      "csp": null
+      "csp": "default-src 'self'"
     },
     "updater": {
       "active": false
@@ -56,9 +56,11 @@
       {
         "fullscreen": false,
         "height": 600,
+        "minHeight": 240,
         "resizable": true,
         "title": "Outer Wilds Mod Manager",
-        "width": 800
+        "width": 800,
+        "minWidth": 475
       }
     ]
   }

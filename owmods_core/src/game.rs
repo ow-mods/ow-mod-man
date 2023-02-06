@@ -98,6 +98,7 @@ pub fn setup_wine_prefix(log: &Logger, config: &Config) -> Result<Config, anyhow
 
     // WINE PREFIX
     let progress = log.start_progress(
+        "PREFIX",
         ProgressType::Indefinite,
         ProgressAction::Wine,
         "Setting Up Wine Prefix...",
@@ -123,6 +124,7 @@ pub fn setup_wine_prefix(log: &Logger, config: &Config) -> Result<Config, anyhow
 
     // SYMLINK
     let progress = log.start_progress(
+        "SYMLINK",
         ProgressType::Indefinite,
         ProgressAction::Wine,
         "Creating Symlink To OW...",
@@ -137,6 +139,7 @@ pub fn setup_wine_prefix(log: &Logger, config: &Config) -> Result<Config, anyhow
 
     // .NET 4.8
     let progress = log.start_progress(
+        ".NET",
         ProgressType::Indefinite,
         ProgressAction::Wine,
         "Installing .NET 4.8...",

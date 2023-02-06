@@ -19,6 +19,7 @@ pub struct RemoteMod {
     pub version: String,
     pub name: String,
     pub unique_name: String,
+    pub description: String,
     pub readme: Option<ModReadMe>,
     required: Option<bool>,
     pub repo: String,

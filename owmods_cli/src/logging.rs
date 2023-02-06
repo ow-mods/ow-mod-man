@@ -63,6 +63,7 @@ impl LoggerBackend for ConsoleLogBackend {
 
     fn create_progress(
         &self,
+        _id: &str,
         msg: &str,
         progress_type: ProgressType,
         action_type: ProgressAction,

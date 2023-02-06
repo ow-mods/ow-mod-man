@@ -6,11 +6,11 @@ export interface ModActionButtonProps {
     onClick?: () => void;
 }
 
-export default (props: ModActionButtonProps) => {
+const ModActionButton = (props: ModActionButtonProps) => {
     return (
         <a
             data-tooltip={props.ariaLabel}
-            data-placement="top"
+            data-placement="left" /* Avoid letting the tooltips go out of the window */
             className="fix-icons"
             onClick={(e) => {
                 e.preventDefault();
@@ -22,3 +22,5 @@ export default (props: ModActionButtonProps) => {
         </a>
     );
 };
+
+export default ModActionButton;

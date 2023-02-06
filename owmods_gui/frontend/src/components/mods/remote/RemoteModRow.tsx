@@ -1,27 +1,25 @@
+import Icon from "@components/Icon";
 import ModActionButton from "@components/mods/ModActionButton";
 import ModHeader from "@components/mods/ModHeader";
+import { memo } from "react";
 import { FaArrowDown, FaGlobe } from "react-icons/fa";
+import { RemoteMod } from "src/types";
 
-export interface RemoteModProps {
-    name: string;
-    authors: string;
-    description: string;
-    downloads: number;
-}
-
-export default (props: RemoteModProps) => {
+const RemoteModRow = memo((props: RemoteMod) => {
     return (
         <details>
             <ModHeader {...props}>
-                <small>{props.downloads}</small>
+                <small>{props.downloadCount}</small>
                 <ModActionButton ariaLabel="Install With Dependencies">
-                    <FaArrowDown />
+                    <Icon iconType={FaArrowDown} />
                 </ModActionButton>
                 <ModActionButton ariaLabel="View On Website">
-                    <FaGlobe />
+                    <Icon iconType={FaGlobe} />
                 </ModActionButton>
             </ModHeader>
             <small>{props.description}</small>
         </details>
     );
-};
+});
+
+export default RemoteModRow;

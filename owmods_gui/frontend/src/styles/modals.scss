@@ -1,0 +1,30 @@
+dialog article {
+    width: 80%;
+    max-height: 70%;
+    background-color: $bg;
+    display: flex;
+    flex-direction: column;
+}
+
+dialog article header {
+    margin-bottom: $margin-xl;
+    padding: $margin-lg;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+}
+
+dialog article div.modal-body {
+    flex-grow: 1;
+}
+
+dialog article footer {
+    background-color: $bg;
+    padding: $margin;
+    margin-top: $margin-lg;
+}
+
+dialog article footer a {
+    margin-right: $margin-sm;
+}

@@ -7,6 +7,7 @@ import { useState } from "react";
 import LocalMods from "@components/mods/local/LocalMods";
 import { IconContext } from "react-icons";
 import RemoteMods from "@components/mods/remote/RemoteMods";
+import Icon from "@components/Icon";
 
 enum SectionType {
     Local,
@@ -25,19 +26,19 @@ const Tabs = () => {
                         selected={shownSection == SectionType.Local}
                         onClick={() => setShownSection(SectionType.Local)}
                     >
-                        <MdMonitor /> Installed Mods
+                        <Icon iconType={MdMonitor} label="Installed Mods" />
                     </Tab>
                     <Tab
                         selected={shownSection == SectionType.Remote}
                         onClick={() => setShownSection(SectionType.Remote)}
                     >
-                        <FaGlobeAmericas /> Get Mods
+                        <Icon iconType={FaGlobeAmericas} label="Get Mods" />
                     </Tab>
                     <Tab
                         selected={shownSection == SectionType.Updates}
                         onClick={() => setShownSection(SectionType.Updates)}
                     >
-                        <FaArrowAltCircleUp /> Updates
+                        <Icon iconType={FaArrowAltCircleUp} label="Updates" />
                     </Tab>
                 </div>
             </IconContext.Provider>

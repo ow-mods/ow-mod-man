@@ -48,6 +48,7 @@ async fn download_zip(log: &Logger, url: &str, target_path: &Path) -> Result<(),
     };
 
     let progress = log.start_progress(
+        target_path.to_str().unwrap(),
         progress_type,
         ProgressAction::Download,
         &format!("Downloading {}", zip_name),
@@ -104,6 +105,7 @@ fn extract_zip(
         target_path.to_str().unwrap()
     );
     let progress = log.start_progress(
+        zip_path.to_str().unwrap(),
         ProgressType::Indefinite,
         ProgressAction::Extract,
         "Extracting...",
@@ -155,6 +157,7 @@ fn extract_mod_zip(
     let mut archive = ZipArchive::new(file)?;
 
     let progress = log.start_progress(
+        zip_path.to_str().unwrap(),
         ProgressType::Definite,
         ProgressAction::Extract,
         &format!("Extracting {}", zip_name),

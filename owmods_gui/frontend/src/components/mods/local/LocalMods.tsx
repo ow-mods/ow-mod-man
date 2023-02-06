@@ -1,50 +1,25 @@
-import LocalMod from "@components/mods/local/LocalMod";
+import LocalModRow from "@components/mods/local/LocalModRow";
+import { LocalMod } from "src/types";
 
 const LocalMods = () => {
-    const lorem =
-        "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint.";
+    const mods: LocalMod[] = [
+        {
+            enabled: true,
+            modPath: "C:/",
+            manifest: {
+                uniqueName: "Bwc9876.TimeSaver",
+                author: "Bwc9876",
+                name: "Time Saver",
+                version: "0.0.1"
+            }
+        }
+    ];
 
     return (
         <div className="mod-list">
-            <LocalMod name="New Horizons" description={lorem} authors="xen" enabled={true} />
-            <LocalMod
-                name="New Horizons 2"
-                description="Because NH Is Done!!!!!!!!!!!"
-                authors="xen"
-                enabled={true}
-            />
-            <LocalMod name="Time Saver" description={lorem} authors="Bwc9876" enabled={true} />
-            <LocalMod name="Slate Simulator" description={lorem} authors="Bwc9876" enabled={true} />
-            <LocalMod name="Slate Simulator" description={lorem} authors="Bwc9876" enabled={true} />
-            <LocalMod name="Slate Simulator" description={lorem} authors="Bwc9876" enabled={true} />
-            <LocalMod name="Slate Simulator" description={lorem} authors="Bwc9876" enabled={true} />
-            <LocalMod name="Slate Simulator" description={lorem} authors="Bwc9876" enabled={true} />
-            <LocalMod name="Slate Simulator" description={lorem} authors="Bwc9876" enabled={true} />
-            <LocalMod name="Slate Simulator" description={lorem} authors="Bwc9876" enabled={true} />
-            <LocalMod name="Slate Simulator" description={lorem} authors="Bwc9876" enabled={true} />
-            <LocalMod name="Slate Simulator" description={lorem} authors="Bwc9876" enabled={true} />
-            <LocalMod name="Slate Simulator" description={lorem} authors="Bwc9876" enabled={true} />
-            <LocalMod name="Slate Simulator" description={lorem} authors="Bwc9876" enabled={true} />
-            <LocalMod name="Slate Simulator" description={lorem} authors="Bwc9876" enabled={true} />
-            <LocalMod name="Slate Simulator" description={lorem} authors="Bwc9876" enabled={true} />
-            <LocalMod name="Slate Simulator" description={lorem} authors="Bwc9876" enabled={true} />
-            <LocalMod name="Slate Simulator" description={lorem} authors="Bwc9876" enabled={true} />
-            <LocalMod name="Slate Simulator" description={lorem} authors="Bwc9876" enabled={true} />
-            <LocalMod name="Slate Simulator" description={lorem} authors="Bwc9876" enabled={true} />
-            <LocalMod name="Slate Simulator" description={lorem} authors="Bwc9876" enabled={true} />
-            <LocalMod name="Slate Simulator" description={lorem} authors="Bwc9876" enabled={true} />
-            <LocalMod name="Slate Simulator" description={lorem} authors="Bwc9876" enabled={true} />
-            <LocalMod name="Slate Simulator" description={lorem} authors="Bwc9876" enabled={true} />
-            <LocalMod name="Slate Simulator" description={lorem} authors="Bwc9876" enabled={true} />
-            <LocalMod name="Slate Simulator" description={lorem} authors="Bwc9876" enabled={true} />
-            <LocalMod name="Slate Simulator" description={lorem} authors="Bwc9876" enabled={true} />
-            <LocalMod name="Slate Simulator" description={lorem} authors="Bwc9876" enabled={true} />
-            <LocalMod name="Slate Simulator" description={lorem} authors="Bwc9876" enabled={true} />
-            <LocalMod name="Slate Simulator" description={lorem} authors="Bwc9876" enabled={true} />
-            <LocalMod name="Slate Simulator" description={lorem} authors="Bwc9876" enabled={true} />
-            <LocalMod name="Slate Simulator" description={lorem} authors="Bwc9876" enabled={true} />
-            <LocalMod name="Slate Simulator" description={lorem} authors="Bwc9876" enabled={true} />
-            <LocalMod name="Slate Simulator" description={lorem} authors="Bwc9876" enabled={true} />            
+            {mods.map((c) => (
+                <LocalModRow key={c.manifest.uniqueName} {...c} />
+            ))}
         </div>
     );
 };

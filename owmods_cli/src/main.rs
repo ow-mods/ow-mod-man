@@ -293,6 +293,7 @@ async fn run_from_cli(cli: BaseCli, logger: &core::logging::Logger) -> Result<()
                 log!(logger, info, "In Database: {}", yesno(has_remote));
                 if has_remote {
                     let remote_mod = remote_mod.unwrap();
+                    log!(logger, info, "Description: {}", remote_mod.description);
                     log!(logger, info, "GitHub Repo URL: {}", remote_mod.repo);
                     log!(logger, info, "Downloads: {}", remote_mod.download_count);
                     if let Some(parent) = &remote_mod.parent {

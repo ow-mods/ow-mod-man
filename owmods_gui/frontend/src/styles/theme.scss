@@ -10,18 +10,21 @@
 // - rgb(235, 235, 173) (desaturated yellow)
 // - #ffab8a (mods website orange)
 // - #94a0cc (nomai tech blurple)
+// - rgb(51 255 204) (owlk green)
 
-$primary: skyblue; // #94a0cc;
-
-$margin: 0.4em;
-$margin-lg: 1em;
+$primary: pink; // #94a0cc;
 
 // Sizing/Spacing
-$nav-spacing: 0.4em;
-$mod-actions-spacing: 0.4em;
-$main-nav-icon-size: 3em;
+$border-size: 0.15em;
+$tab-border-rad: 0.2em;
+$margin: 0.4em;
+$margin-sm: 0.2em;
+$margin-md: 0.6em;
+$margin-lg: 1em;
+$margin-xl: 1.2em;
 
 // Mixes
+$primary-muted: mix($primary, grey, 30%);
 $primary-dark: mix($primary, black, 80%);
 $primary-really-dark: mix($primary, black, 50%);
 $primary-light: mix($primary, white, 80%);
@@ -33,11 +36,19 @@ $accent-bg-darker: mix($accent-bg, black, 40%);
 $accent-bg-lighter: mix($accent-bg, white, 80%);
 $accent-bg-lightest: mix($accent-bg, white, 50%);
 $active-bg: mix($primary, $bg, 20%);
+$button-bg: $primary-really-dark;
+$button-bg-hover: mix($button-bg, black, 90%);
+$secondary-button-bg: $accent-bg-lighter;
+$secondary-button-bg-hover: mix($accent-bg-lighter, black, 90%);
+
+// Misc
+$themed-chevron: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='#{$primary}' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
 
 :root {
     --primary: #{$primary};
     --primary-hover: #{$primary-hover};
     --color: #{$primary-really-light};
+    --muted-color: #{$primary-muted};
     --h4-color: #{$primary-really-light};
     --background-color: #{$bg};
     --card-background-color: #{$accent-bg};
@@ -47,4 +58,29 @@ $active-bg: mix($primary, $bg, 20%);
     --switch-checked-background-color: #{$primary-really-dark};
     --accordion-open-summary-color: #{$primary};
     --accordion-border-color: #{$accent-bg};
+    --tooltip-color: #{$primary-really-light};
+    --tooltip-background-color: #{$accent-bg-lighter};
+    --dropdown-color: #{$primary};
+    --dropdown-border-color: #{$accent-bg};
+    --dropdown-background-color: #{$accent-bg-darker};
+    --dropdown-hover-background-color: #{$accent-bg};
+    --form-element-background-color: #{$accent-bg};
+    --form-element-color: #{$primary-really-light};
+    --progress-background-color: #{$accent-bg};
+    --modal-overlay-background-color: #{scale-color($accent-bg-darker, $alpha: -15%)};
+    --font-size: 16px !important; // Pico resizes the font based on breakpoints, don't do that
 }
+
+// The rainbow theme (FORBIDDEN!!!!! (for now (wait 'til June (i like parenthesis))))
+// :root {
+//     animation: rainbow 2s linear infinite;
+// }
+
+// @keyframes rainbow {
+//     0% {
+//         filter: hue-rotate(0deg);
+//     }
+//     100% {
+//         filter: hue-rotate(360deg);
+//     }
+// }

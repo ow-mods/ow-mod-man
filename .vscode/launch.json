@@ -1,0 +1,11 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Launch GUI",
+            "type": "node-terminal",
+            "request": "launch",
+            "command": "cargo tauri dev",
+        }
+    ]
+}

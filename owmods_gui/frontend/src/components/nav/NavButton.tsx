@@ -2,12 +2,12 @@ import { ReactNode } from "react";
 
 export interface NavButtonProps {
     children: ReactNode;
-    labelPlacement: string;
+    labelPlacement?: string;
     ariaLabel?: string;
     onClick?: () => void;
 }
 
-export default (props: NavButtonProps) => {
+const NavButton = (props: NavButtonProps) => {
     return (
         <li>
             <a
@@ -22,3 +22,5 @@ export default (props: NavButtonProps) => {
         </li>
     );
 };
+
+export default NavButton;

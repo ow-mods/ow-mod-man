@@ -1,36 +1,65 @@
-import { FaPlay, FaQuestion, FaArrowDown, FaCog } from "react-icons/fa";
+import { FaPlay, FaQuestion, FaArrowDown, FaCog, FaInfoCircle } from "react-icons/fa";
 import { TbRefresh } from "react-icons/tb";
-import { HiDotsVertical } from "react-icons/hi";
+import { RiInstallFill } from "react-icons/ri";
+import { RxActivityLog } from "react-icons/rx";
 
 import NavButton from "@components/nav/NavButton";
 import { IconContext } from "react-icons";
+import Icon from "@components/Icon";
+import NavMore from "./NavMore";
+import { useRef } from "react";
+import SettingsModal from "@components/modals/SettingsModal";
+import InstallFromModal from "@components/modals/InstallFromModal";
+import AboutModal from "@components/modals/AboutModal";
+import DownloadsBadge from "./DownloadsBadge";
+import DownloadsPopout from "./DownloadsPopout";
+import Downloads from "../downloads/Downloads";
 
-export default () => {
+const Nav = () => {
+    const openSettings = useRef<() => void>(() => null);
+    const openInstallFrom = useRef<() => void>(() => null);
+    const openAbout = useRef<() => void>(() => null);
+
     return (
         <IconContext.Provider value={{ className: "nav-icon" }}>
+            <SettingsModal open={openSettings} />
+            <InstallFromModal open={openInstallFrom} />
+            <AboutModal open={openAbout} />
             <nav>
                 <ul>
-                    <NavButton labelPlacement="right" ariaLabel="Downloads">
-                        <FaArrowDown />
-                    </NavButton>
+                    <Downloads />
                     <NavButton labelPlacement="bottom" ariaLabel="Refresh">
-                        <TbRefresh />
+                        <Icon iconType={TbRefresh} />
                     </NavButton>
                 </ul>
                 <ul>
                     <NavButton labelPlacement="bottom" ariaLabel="Run Game">
-                        <FaPlay />
+                        <Icon iconClassName="main-icon" iconType={FaPlay} />
                     </NavButton>
                 </ul>
                 <ul>
                     <NavButton labelPlacement="bottom" ariaLabel="Help">
-                        <FaQuestion />
+                        <Icon iconType={FaQuestion} />
                     </NavButton>
-                    <NavButton labelPlacement="left" ariaLabel="More">
-                        <HiDotsVertical />
-                    </NavButton>
+                    <NavMore>
+                        {/* Dropdown uses RTL */}
+                        <NavButton onClick={() => openSettings.current?.()}>
+                            Settings <Icon iconType={FaCog} />
+                        </NavButton>
+                        <NavButton onClick={() => openInstallFrom.current?.()}>
+                            ...Install From <Icon iconType={RiInstallFill} />
+                        </NavButton>
+                        <NavButton onClick={() => openAbout.current?.()}>
+                            About <Icon iconType={FaInfoCircle} />
+                        </NavButton>
+                        <NavButton>
+                            Logs <Icon iconType={RxActivityLog} />
+                        </NavButton>
+                    </NavMore>
                 </ul>
             </nav>
         </IconContext.Provider>
     );
 };
+
+export default Nav;

@@ -16,23 +16,54 @@ body,
 .fix-icons {
     display: flex;
     align-items: center;
-    justify-content: center;
 }
 
-svg:hover {
-    cursor: pointer;
+.d-none {
+    display: none;
 }
 
-.nav-icon {
-    width: auto;
-    margin: 0 $margin-lg;
-    height: $margin-lg;
+a[role="button"],
+button {
+    background-color: $button-bg;
+    border: none;
+    padding: $margin $margin-md;
 }
 
-.main-icon {
-    height: $main-nav-icon-size;
-    width: auto;
+a[role="button"]:hover,
+button:hover {
+    background-color: $button-bg-hover;
 }
 
+input::-webkit-file-upload-button {
+    background-color: $button-bg !important;
+    border: none !important;
+    padding: $margin $margin-md !important;
+    margin-right: $margin !important;
+}
+
+input::-webkit-file-upload-button:hover {
+    background-color: $button-bg-hover !important;
+}
+
+a[role="button"].secondary,
+button.secondary {
+    background-color: $secondary-button-bg;
+}
+
+a[role="button"].secondary:hover,
+button.secondary:hover {
+    background-color: $secondary-button-bg-hover;
+}
+
+// Override Pico's STINKY, BLAND, DUMB chevron with a themed one
+details summary::after {
+    background-image: #{$themed-chevron};
+}
+
+@import "nav.scss";
 @import "tabs.scss";
 @import "mods.scss";
+@import "modals.scss";
+@import "settings.scss";
+@import "about.scss";
+@import "downloads.scss";

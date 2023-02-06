@@ -5,10 +5,8 @@
     grid-column-gap: $margin;
     grid-row-gap: 0px;
     align-items: center;
-    border-bottom: 0.05em solid $accent-bg;
+    border-bottom: $border-size solid $accent-bg;
 }
-
-$tab-border-rad: 0.2em;
 
 .tab {
     color: $primary;
@@ -18,6 +16,11 @@ $tab-border-rad: 0.2em;
     transition: background-color 0.2s, color 0.2s;
     border-top-left-radius: $tab-border-rad;
     border-top-right-radius: $tab-border-rad;
+    padding: $margin 0;
+}
+
+.tab .fix-icons {
+    justify-content: center;
 }
 
 .tab.shown {

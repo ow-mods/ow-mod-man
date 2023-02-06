@@ -1,7 +1,7 @@
 import Nav from "@components/nav/Nav";
 import Tabs from "@components/tabs/Tabs";
 
-export default () => {
+const App = () => {
     return (
         <main className="container">
             <header>
@@ -11,3 +11,5 @@ export default () => {
         </main>
     );
 };
+
+export default App;

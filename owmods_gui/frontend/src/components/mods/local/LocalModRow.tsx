@@ -1,38 +1,34 @@
+import Icon from "@components/Icon";
 import ModActionButton from "@components/mods/ModActionButton";
 import ModHeader from "@components/mods/ModHeader";
-import { useState } from "react";
+import { memo } from "react";
 import { FaFolder, FaTrash } from "react-icons/fa";
+import { LocalMod } from "src/types";
 
-export interface LocalModProps {
-    name: string;
-    authors: string;
-    description: string;
-    enabled: boolean;
-}
+const isEqual = (prev: LocalMod, next: LocalMod) =>
+    prev.manifest.uniqueName === next.manifest.uniqueName;
 
-export default (props: LocalModProps) => {
-    // Temp state for testing stuff
-    const [enabled, setEnabled] = useState(props.enabled);
-
+const LocalModRow = memo((props: LocalMod) => {
     return (
         <details>
-            <ModHeader {...props}>
+            <ModHeader {...props.manifest}>
                 <ModActionButton ariaLabel="Show Folder">
-                    <FaFolder />
+                    <Icon iconType={FaFolder} />
                 </ModActionButton>
                 <ModActionButton ariaLabel="Uninstall Mod">
-                    <FaTrash />
+                    <Icon iconType={FaTrash} />
                 </ModActionButton>
                 <input
                     className="mod-toggle"
-                    onClick={() => setEnabled(!enabled)}
                     type="checkbox"
                     aria-label="enabled"
                     role="switch"
-                    value={enabled.toString()}
+                    value={props.enabled.toString()}
                 />
             </ModHeader>
-            <small>{props.description}</small>
+            Description Not Available
         </details>
     );
-};
+}, isEqual);
+
+export default LocalModRow;

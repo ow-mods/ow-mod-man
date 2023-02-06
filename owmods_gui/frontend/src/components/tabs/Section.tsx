@@ -1,4 +1,4 @@
-import { memo, ReactNode, useMemo } from "react";
+import { ReactNode } from "react";
 
 export interface SectionProps {
     shown: boolean;

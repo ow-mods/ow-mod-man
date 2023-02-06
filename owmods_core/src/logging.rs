@@ -33,6 +33,7 @@ pub trait LoggerBackend: Send + Sync {
     fn handle_log(&self, log: Log);
     fn create_progress(
         &self,
+        id: &str,
         msg: &str,
         progress_type: ProgressType,
         action_type: ProgressAction,
@@ -73,13 +74,14 @@ impl Logger {
 
     pub fn start_progress(
         &self,
+        id: &str,
         progress_type: ProgressType,
         action_type: ProgressAction,
         msg: &str,
         len: u64,
     ) -> Box<dyn ProgressHandler> {
         self.backend
-            .create_progress(msg, progress_type, action_type, len)
+            .create_progress(id, msg, progress_type, action_type, len)
     }
 
     log_msg!(Log::Debug, debug);

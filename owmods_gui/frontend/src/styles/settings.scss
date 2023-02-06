@@ -1,0 +1,32 @@
+.settings h4 {
+    margin-bottom: $margin;
+    margin-top: $margin-md;
+    padding-bottom: $margin-sm;
+    border-bottom: 1px solid $accent-bg;
+}
+
+.settings-row > div {
+    display: grid;
+    grid-template-rows: 1fr;
+    grid-template-columns: 1fr 0.3fr;
+    column-gap: $margin-md;
+    height: 100%;
+}
+
+.settings-row input:not([type="checkbox"]),
+.settings-row button {
+    margin-bottom: $margin;
+    padding: $margin $margin-md;
+}
+
+.settings-row button {
+    justify-content: center;
+}
+
+.settings-row input {
+    border-color: $accent-bg;
+}
+
+.settings-row button svg {
+    margin: 0 $margin !important;
+}

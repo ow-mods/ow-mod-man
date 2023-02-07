@@ -4,6 +4,7 @@ import { invoke } from "@tauri-apps/api";
 
 // Refresh once to get data
 invoke("refresh_local_db");
+invoke("refresh_remote_db");
 
 const App = () => {
     return (

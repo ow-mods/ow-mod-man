@@ -6,7 +6,8 @@
 
 .mod-header {
     display: grid;
-    grid-template-columns: auto minmax(0, 1fr);
+    grid-template-columns: minmax(0, 1fr);
+    gap: $margin;
     grid-template-areas: "heading actions expand";
 }
 
@@ -21,11 +22,16 @@
 
 .mod-heading {
     grid-area: heading;
+    min-width: 0px;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
 }
 
 .mod-name {
     margin-right: $margin;
     font-weight: bold;
+    white-space: nowrap;
 }
 
 .mod-actions {

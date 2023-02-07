@@ -1,5 +1,4 @@
 import { useTauri } from "@hooks";
-import { RemoteMod } from "src/types";
 import RemoteModRow from "./RemoteModRow";
 
 const RemoteMods = () => {

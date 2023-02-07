@@ -9,7 +9,7 @@ import { RemoteMod } from "src/types";
 const RemoteModRow = memo((props: { uniqueName: string }) => {
     const [status, mod, err] = useTauri<RemoteMod, { uniqueName: string }>(
         "REMOTE-REFRESH",
-        "get_load_mod",
+        "get_remote_mod",
         { uniqueName: props.uniqueName }
     );
 

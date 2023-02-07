@@ -23,11 +23,18 @@ pub struct RemoteDatabase {
     pub mods: HashMap<String, RemoteMod>,
 }
 
+#[derive(Clone)]
 pub struct LocalDatabase {
     pub mods: HashMap<String, LocalMod>,
 }
 
 impl RemoteDatabase {
+    pub fn empty() -> RemoteDatabase {
+        RemoteDatabase {
+            mods: HashMap::new(),
+        }
+    }
+
     pub async fn fetch(log: &Logger, conf: &Config) -> Result<RemoteDatabase, anyhow::Error> {
         log!(log, debug, "Fetching Remote DB At {}", conf.database_url);
         let resp = reqwest::get(&conf.database_url).await?;
@@ -60,6 +67,12 @@ impl RemoteDatabase {
 }
 
 impl LocalDatabase {
+    pub fn empty() -> LocalDatabase {
+        LocalDatabase {
+            mods: HashMap::new(),
+        }
+    }
+
     pub fn get_mod(&self, unique_name: &str) -> Option<&LocalMod> {
         self.mods.get(unique_name)
     }

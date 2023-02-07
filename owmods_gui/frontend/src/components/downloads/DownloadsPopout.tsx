@@ -5,15 +5,17 @@ interface ActiveDownloadProps {
 }
 
 interface DownloadPayload {
-    id: string,
-    progress?: number,
-    message: string
+    id: string;
+    progress?: number;
+    message: string;
 }
 
 const ActiveDownload = (props: ActiveDownloadProps) => {
-
     // Temp state for rn, will use useSyncExternalStore later.
-    const [progress, setProgress] = useState<DownloadPayload>({id: props.id, message: "Downloading xen.NewHorizons"});
+    const [progress, setProgress] = useState<DownloadPayload>({
+        id: props.id,
+        message: "Downloading xen.NewHorizons"
+    });
 
     return (
         <div className="downloads-row">

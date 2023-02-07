@@ -1,27 +1,24 @@
+import { useTauri } from "@hooks";
 import { RemoteMod } from "src/types";
 import RemoteModRow from "./RemoteModRow";
 
 const RemoteMods = () => {
-    const mods: RemoteMod[] = [
-        {
-            uniqueName: "Bwc9876.TimeSaver",
-            downloadUrl: "google",
-            downloadCount: 50,
-            description: "abooga",
-            repo: "ff",
-            author: "Bwc9876",
-            name: "Time Saver",
-            version: "0.0.1"
-        }
-    ];
+    const [status, mods, err] = useTauri<string[], undefined>("REMOTE-REFRESH", "get_remote_mods");
 
-    return (
-        <div className="mod-list">
-            {mods.map((c) => (
-                <RemoteModRow {...c} key={c.uniqueName} />
-            ))}
-        </div>
-    );
+    if (status === "Loading") {
+        return <p>Loading...</p>;
+    } else if (status === "Error") {
+        return <p>{err}</p>;
+    } else {
+        const remote_mods = mods!;
+        return (
+            <div className="mod-list">
+                {remote_mods.map((m) => (
+                    <RemoteModRow key={m} uniqueName={m} />
+                ))}
+            </div>
+        );
+    }
 };
 
 export default RemoteMods;

@@ -1,14 +1,19 @@
+use serde::Serialize;
+
+#[derive(Clone, Serialize)]
 pub enum ProgressType {
     Definite,
     Indefinite,
 }
 
+#[derive(Clone, Serialize)]
 pub enum ProgressAction {
     Download,
     Extract,
     Wine,
 }
 
+#[derive(Clone, Serialize)]
 pub struct LogMessage {
     pub message: String,
 }
@@ -21,6 +26,7 @@ impl LogMessage {
     }
 }
 
+#[derive(Clone, Serialize)]
 pub enum Log {
     Debug(LogMessage),
     Info(LogMessage),
@@ -48,7 +54,7 @@ pub trait ProgressHandler: Send + Sync {
 }
 
 pub struct Logger {
-    backend: Box<dyn LoggerBackend>,
+    pub backend: Box<dyn LoggerBackend>,
 }
 
 macro_rules! log_msg {
@@ -89,4 +95,46 @@ impl Logger {
     log_msg!(Log::Success, success);
     log_msg!(Log::Warning, warning);
     log_msg!(Log::Error, error);
+}
+
+pub struct BasicConsoleBackend;
+struct IgnoreProgressHandler;
+
+impl LoggerBackend for BasicConsoleBackend {
+    fn handle_log(&self, log: Log) {
+        match log {
+            Log::Debug(l) => {
+                println!("[DEBUG]: {}", l.message);
+            }
+            Log::Info(l) => {
+                println!("[INFO]: {}", l.message);
+            }
+            Log::Success(l) => {
+                println!("[SUCCESS]: {}", l.message);
+            }
+            Log::Warning(l) => {
+                println!("[WARNING]: {}", l.message);
+            }
+            Log::Error(l) => {
+                println!("[ERROR]: {}", l.message);
+            }
+        };
+    }
+
+    fn create_progress(
+        &self,
+        _id: &str,
+        _msg: &str,
+        _progress_type: ProgressType,
+        _action_type: ProgressAction,
+        _len: u64,
+    ) -> Box<dyn ProgressHandler> {
+        Box::new(IgnoreProgressHandler)
+    }
+}
+
+impl ProgressHandler for IgnoreProgressHandler {
+    fn increment(&self, _amount: u64) {}
+    fn change_message(&self, _new_message: &str) {}
+    fn finish(&self, _msg: &str) {}
 }

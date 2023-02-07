@@ -2,9 +2,12 @@ lockfileVersion: 5.4
 
 specifiers:
     "@picocss/pico": ^1.5.7
+    "@tauri-apps/api": ^1.2.0
     "@types/node": ^18.11.18
     "@types/react": ^18.0.27
     "@types/react-dom": ^18.0.10
+    "@types/react-virtualized-auto-sizer": ^1.0.1
+    "@types/react-window": ^1.8.5
     "@typescript-eslint/eslint-plugin": ^5.50.0
     "@typescript-eslint/parser": ^5.50.0
     "@vitejs/plugin-react": ^3.0.1
@@ -14,20 +17,27 @@ specifiers:
     react: ^18.2.0
     react-dom: ^18.2.0
     react-icons: ^4.7.1
+    react-virtualized-auto-sizer: ^1.0.7
+    react-window: ^1.8.8
     sass: ^1.58.0
     typescript: ^4.9.5
     vite: ^4.0.4
 
 dependencies:
     "@picocss/pico": 1.5.7
+    "@tauri-apps/api": 1.2.0
     react: 18.2.0
     react-dom: 18.2.0_react@18.2.0
     react-icons: 4.7.1_react@18.2.0
+    react-virtualized-auto-sizer: 1.0.7_biqbaboplfbrettd7655fr4n2y
+    react-window: 1.8.8_biqbaboplfbrettd7655fr4n2y
 
 devDependencies:
     "@types/node": 18.11.19
     "@types/react": 18.0.27
     "@types/react-dom": 18.0.10
+    "@types/react-virtualized-auto-sizer": 1.0.1
+    "@types/react-window": 1.8.5
     "@typescript-eslint/eslint-plugin": 5.51.0_b635kmla6dsb4frxfihkw4m47e
     "@typescript-eslint/parser": 5.51.0_4vsywjlpuriuw3tl5oq6zy5a64
     "@vitejs/plugin-react": 3.1.0_vite@4.1.1
@@ -295,6 +305,16 @@ packages:
             "@babel/core": 7.20.12
             "@babel/helper-plugin-utils": 7.20.2
         dev: true
+
+    /@babel/runtime/7.20.13:
+        resolution:
+            {
+                integrity: sha512-gt3PKXs0DBoL9xCvOIIZ2NEqAGZqHjAnmVbfQtB620V0uReIQutpel14KcneZuer7UioY8ALKZ7iocavvzTNFA==
+            }
+        engines: { node: ">=6.9.0" }
+        dependencies:
+            regenerator-runtime: 0.13.11
+        dev: false
 
     /@babel/template/7.20.7:
         resolution:
@@ -747,6 +767,14 @@ packages:
             }
         dev: false
 
+    /@tauri-apps/api/1.2.0:
+        resolution:
+            {
+                integrity: sha512-lsI54KI6HGf7VImuf/T9pnoejfgkNoXveP14pVV7XarrQ46rOejIVJLFqHI9sRReJMGdh2YuCoI3cc/yCWCsrw==
+            }
+        engines: { node: ">= 14.6.0", npm: ">= 6.6.0", yarn: ">= 1.19.1" }
+        dev: false
+
     /@types/json-schema/7.0.11:
         resolution:
             {
@@ -772,6 +800,24 @@ packages:
         resolution:
             {
                 integrity: sha512-E42GW/JA4Qv15wQdqJq8DL4JhNpB3prJgjgapN3qJT9K2zO5IIAQh4VXvCEDupoqAwnz0cY4RlXeC/ajX5SFHg==
+            }
+        dependencies:
+            "@types/react": 18.0.27
+        dev: true
+
+    /@types/react-virtualized-auto-sizer/1.0.1:
+        resolution:
+            {
+                integrity: sha512-GH8sAnBEM5GV9LTeiz56r4ZhMOUSrP43tAQNSRVxNexDjcNKLCEtnxusAItg1owFUFE6k0NslV26gqVClVvong==
+            }
+        dependencies:
+            "@types/react": 18.0.27
+        dev: true
+
+    /@types/react-window/1.8.5:
+        resolution:
+            {
+                integrity: sha512-V9q3CvhC9Jk9bWBOysPGaWy/Z0lxYcTXLtLipkt2cnRj1JOSFNF7wqGpkScSXMgBwC+fnVRg/7shwgddBG5ICw==
             }
         dependencies:
             "@types/react": 18.0.27
@@ -2400,6 +2446,13 @@ packages:
             "@jridgewell/sourcemap-codec": 1.4.14
         dev: true
 
+    /memoize-one/5.2.1:
+        resolution:
+            {
+                integrity: sha512-zYiwtZUcYyXKo/np96AGZAckk+FWWsUdJ3cHGGmld7+AhvcWmQyGCYUh1hc4Q/pkOhb65dQR/pqCyK0cOaHz4Q==
+            }
+        dev: false
+
     /merge2/1.4.1:
         resolution:
             {
@@ -2757,6 +2810,36 @@ packages:
         engines: { node: ">=0.10.0" }
         dev: true
 
+    /react-virtualized-auto-sizer/1.0.7_biqbaboplfbrettd7655fr4n2y:
+        resolution:
+            {
+                integrity: sha512-Mxi6lwOmjwIjC1X4gABXMJcKHsOo0xWl3E3ugOgufB8GJU+MqrtY35aBuvCYv/razQ1Vbp7h1gWJjGjoNN5pmA==
+            }
+        engines: { node: ">8.0.0" }
+        peerDependencies:
+            react: ^15.3.0 || ^16.0.0-alpha || ^17.0.0 || ^18.0.0-rc
+            react-dom: ^15.3.0 || ^16.0.0-alpha || ^17.0.0 || ^18.0.0-rc
+        dependencies:
+            react: 18.2.0
+            react-dom: 18.2.0_react@18.2.0
+        dev: false
+
+    /react-window/1.8.8_biqbaboplfbrettd7655fr4n2y:
+        resolution:
+            {
+                integrity: sha512-D4IiBeRtGXziZ1n0XklnFGu7h9gU684zepqyKzgPNzrsrk7xOCxni+TCckjg2Nr/DiaEEGVVmnhYSlT2rB47dQ==
+            }
+        engines: { node: ">8.0.0" }
+        peerDependencies:
+            react: ^15.0.0 || ^16.0.0 || ^17.0.0 || ^18.0.0
+            react-dom: ^15.0.0 || ^16.0.0 || ^17.0.0 || ^18.0.0
+        dependencies:
+            "@babel/runtime": 7.20.13
+            memoize-one: 5.2.1
+            react: 18.2.0
+            react-dom: 18.2.0_react@18.2.0
+        dev: false
+
     /react/18.2.0:
         resolution:
             {
@@ -2776,6 +2859,13 @@ packages:
         dependencies:
             picomatch: 2.3.1
         dev: true
+
+    /regenerator-runtime/0.13.11:
+        resolution:
+            {
+                integrity: sha512-kY1AZVr2Ra+t+piVaJ4gxaFaReZVH40AKNo7UCX6W+dEwBo/2oZJzqfuN1qLq1oL45o56cPaTXELwrTh8Fpggg==
+            }
+        dev: false
 
     /regexp.prototype.flags/1.4.3:
         resolution:

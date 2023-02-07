@@ -1,27 +1,23 @@
-import LocalModRow from "@components/mods/local/LocalModRow";
-import { LocalMod } from "src/types";
+import { useTauri } from "@hooks";
+import LocalModRow from "./LocalModRow";
 
 const LocalMods = () => {
-    const mods: LocalMod[] = [
-        {
-            enabled: true,
-            modPath: "C:/",
-            manifest: {
-                uniqueName: "Bwc9876.TimeSaver",
-                author: "Bwc9876",
-                name: "Time Saver",
-                version: "0.0.1"
-            }
-        }
-    ];
+    const [status, mods, err] = useTauri<string[], undefined>("LOCAL-REFRESH", "get_local_mods");
 
-    return (
-        <div className="mod-list">
-            {mods.map((c) => (
-                <LocalModRow key={c.manifest.uniqueName} {...c} />
-            ))}
-        </div>
-    );
+    switch (status) {
+        case "Loading":
+            return <p>Loading</p>;
+        case "Done":
+            return (
+                <div className="mod-list">
+                    {mods!.map((m) => (
+                        <LocalModRow key={m} uniqueName={m} />
+                    ))}
+                </div>
+            );
+        case "Error":
+            return <div>{err!}</div>;
+    }
 };
 
 export default LocalMods;

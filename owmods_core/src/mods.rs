@@ -55,7 +55,7 @@ pub struct ModReadMe {
     pub download_url: String,
 }
 
-#[derive(Clone)]
+#[derive(Clone, Serialize)]
 pub struct LocalMod {
     pub enabled: bool,
     pub errors: Vec<String>,

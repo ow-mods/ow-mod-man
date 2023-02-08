@@ -33,7 +33,7 @@ impl TauriProgressBackend {
     pub fn new(id: &str, app: AppHandle) -> TauriProgressBackend {
         TauriProgressBackend {
             id: id.to_string(),
-            app: app,
+            app,
         }
     }
 }
@@ -57,9 +57,9 @@ impl LoggerBackend for TauriLogBackend {
                 ProgressStartPayload {
                     id: id.to_string(),
                     message: msg.to_string(),
-                    progress_type: progress_type,
+                    progress_type,
                     progress_action: action_type,
-                    len: len,
+                    len,
                 },
             )
             .ok();
@@ -74,7 +74,7 @@ impl ProgressHandler for TauriProgressBackend {
                 "PROGRESS-INCREMENT",
                 ProgressUpdatePayload::Increment {
                     id: self.id.clone(),
-                    amount: amount,
+                    amount,
                 },
             )
             .ok();

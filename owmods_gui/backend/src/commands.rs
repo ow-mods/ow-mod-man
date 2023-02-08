@@ -13,7 +13,7 @@ pub fn refresh_local_db(
 ) -> Result<(), String> {
     let log = get_logger(handle.clone());
     let conf = state.config.read().unwrap();
-    let local_db = fetch_local_db(&log, &*conf).map_err(|err| err.to_string())?;
+    let local_db = fetch_local_db(&log, &conf).map_err(|err| err.to_string())?;
     {
         let mut db = state.local_db.write().unwrap();
         *db = local_db;
@@ -40,8 +40,7 @@ pub fn get_local_mod(unique_name: &str, state: tauri::State<'_, State>) -> Optio
         .local_db
         .read()
         .unwrap()
-        .get_mod(unique_name)
-        .map(|m| m.clone())
+        .get_mod(unique_name).cloned()
 }
 
 #[tauri::command]
@@ -80,6 +79,5 @@ pub fn get_remote_mod(unique_name: &str, state: tauri::State<'_, State>) -> Opti
         .remote_db
         .read()
         .unwrap()
-        .get_mod(unique_name)
-        .map(|m| m.clone())
+        .get_mod(unique_name).cloned()
 }

@@ -68,8 +68,8 @@ pub fn get_remote_mods(state: tauri::State<'_, State>) -> Vec<String> {
     let db = state.remote_db.read().unwrap();
     let mut mods: Vec<&RemoteMod> = db.mods.values().collect();
     mods.sort_by(|a, b| b.download_count.cmp(&a.download_count));
-    mods
-        .into_iter().map(|m| m.unique_name.clone())
+    mods.into_iter()
+        .map(|m| m.unique_name.clone())
         .filter(|m| m != "Alek.OWML")
         .collect::<Vec<String>>()
 }

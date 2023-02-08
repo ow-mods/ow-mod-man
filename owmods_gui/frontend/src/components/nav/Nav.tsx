@@ -1,4 +1,4 @@
-import { FaPlay, FaQuestion, FaArrowDown, FaCog, FaInfoCircle } from "react-icons/fa";
+import { FaPlay, FaQuestion, FaCog, FaInfoCircle } from "react-icons/fa";
 import { TbRefresh } from "react-icons/tb";
 import { RiInstallFill } from "react-icons/ri";
 import { RxActivityLog } from "react-icons/rx";
@@ -11,8 +11,6 @@ import { useRef } from "react";
 import SettingsModal from "@components/modals/SettingsModal";
 import InstallFromModal from "@components/modals/InstallFromModal";
 import AboutModal from "@components/modals/AboutModal";
-import DownloadsBadge from "./DownloadsBadge";
-import DownloadsPopout from "./DownloadsPopout";
 import Downloads from "../downloads/Downloads";
 
 const Nav = () => {

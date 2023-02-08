@@ -26,12 +26,9 @@ export const useTauri = <T, P>(
     const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
-        let u = () => {};
         if (status !== "Loading") {
             console.debug(`Begin subscribe to ${eventName}`);
-            subscribeTauri(eventName)(() => setStatus("Loading")).then((unsubscribe) => {
-                u = unsubscribe;
-            });
+            subscribeTauri(eventName)(() => setStatus("Loading"));
         } else {
             console.debug(`Invoking ${commandName} with args ${commandPayload ?? "null"}`);
             getTauriSnapshot(commandName, commandPayload)()
@@ -44,7 +41,6 @@ export const useTauri = <T, P>(
                     setStatus("Error");
                 });
         }
-        return u;
     }, [status]);
 
     return [status, data, error];

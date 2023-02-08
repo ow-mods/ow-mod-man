@@ -11,11 +11,11 @@ interface DownloadPayload {
 }
 
 const ActiveDownload = (props: ActiveDownloadProps) => {
-    // Temp state for rn, will use useSyncExternalStore later.
-    const [progress, setProgress] = useState<DownloadPayload>({
+    // Temp state for rn, will use tauri later.
+    const progress = useState<DownloadPayload>({
         id: props.id,
         message: "Downloading xen.NewHorizons"
-    });
+    })[0];
 
     return (
         <div className="downloads-row">

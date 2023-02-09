@@ -6,7 +6,7 @@ const LocalMods = () => {
 
     switch (status) {
         case "Loading":
-            return <p>Loading</p>;
+            return <div aria-busy className="mod-list center-loading"></div>;
         case "Done":
             return (
                 <div className="mod-list">
@@ -16,7 +16,7 @@ const LocalMods = () => {
                 </div>
             );
         case "Error":
-            return <div>{err!}</div>;
+            return <div className="center-loading mod-list">{err!.toString()}</div>;
     }
 };
 

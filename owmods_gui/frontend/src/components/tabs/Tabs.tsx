@@ -3,11 +3,12 @@ import { FaGlobeAmericas, FaArrowAltCircleUp } from "react-icons/fa";
 
 import Tab from "@components/tabs/Tab";
 import Section from "./Section";
-import { useState } from "react";
+import { memo, useState } from "react";
 import LocalMods from "@components/mods/local/LocalMods";
 import { IconContext } from "react-icons";
 import RemoteMods from "@components/mods/remote/RemoteMods";
 import Icon from "@components/Icon";
+import { useTranslations } from "@hooks";
 
 enum SectionType {
     Local,
@@ -15,8 +16,14 @@ enum SectionType {
     Updates
 }
 
-const Tabs = () => {
+const Tabs = memo(() => {
     const [shownSection, setShownSection] = useState(SectionType.Local);
+
+    const [installedMods, getMods, updates] = useTranslations([
+        "INSTALLED_MODS",
+        "GET_MODS",
+        "UPDATES"
+    ]);
 
     return (
         <>
@@ -26,19 +33,19 @@ const Tabs = () => {
                         selected={shownSection == SectionType.Local}
                         onClick={() => setShownSection(SectionType.Local)}
                     >
-                        <Icon iconType={MdMonitor} label="Installed Mods" />
+                        <Icon iconType={MdMonitor} label={installedMods} />
                     </Tab>
                     <Tab
                         selected={shownSection == SectionType.Remote}
                         onClick={() => setShownSection(SectionType.Remote)}
                     >
-                        <Icon iconType={FaGlobeAmericas} label="Get Mods" />
+                        <Icon iconType={FaGlobeAmericas} label={getMods} />
                     </Tab>
                     <Tab
                         selected={shownSection == SectionType.Updates}
                         onClick={() => setShownSection(SectionType.Updates)}
                     >
-                        <Icon iconType={FaArrowAltCircleUp} label="Updates" />
+                        <Icon iconType={FaArrowAltCircleUp} label={updates} />
                     </Tab>
                 </div>
             </IconContext.Provider>
@@ -52,6 +59,6 @@ const Tabs = () => {
             </div>
         </>
     );
-};
+});
 
 export default Tabs;

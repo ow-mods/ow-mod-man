@@ -1,7 +1,7 @@
 import Icon from "@components/Icon";
 import ModActionButton from "@components/mods/ModActionButton";
 import ModHeader from "@components/mods/ModHeader";
-import { useTauri } from "@hooks";
+import { useTauri, useTranslations } from "@hooks";
 import { CSSProperties, memo } from "react";
 import { FaArrowDown, FaGlobe } from "react-icons/fa";
 import { RemoteMod } from "src/types";
@@ -39,22 +39,32 @@ const RemoteModRow = memo((props: { uniqueName: string; style?: CSSProperties })
         { uniqueName: props.uniqueName }
     );
 
+    const [noDescription, installTooltip, websiteTooltip] = useTranslations([
+        "NO_DESCRIPTION",
+        "INSTALL",
+        "OPEN_WEBSITE"
+    ]);
+
     if (status === "Loading") {
         return <div className="mod-row center-loading" aria-busy style={props.style}></div>;
     } else if (status === "Error") {
-        return <p style={props.style}>{err}</p>;
+        return (
+            <p className="mod-row center-loading" style={props.style}>
+                {err!.toString()}
+            </p>
+        );
     } else {
         const remote_mod = mod!;
-        let desc = remote_mod.description ?? "No Description Provided";
-        if (desc.trim() === "") desc = "No Description Provided";
+        let desc = remote_mod.description ?? noDescription;
+        if (desc.trim() === "") desc = noDescription;
         return (
             <div style={props.style} className="mod-row">
                 <ModHeader {...remote_mod} author={remote_mod.authorDisplay ?? remote_mod.author}>
                     <small>{formatNumber(remote_mod.downloadCount)}</small>
-                    <ModActionButton ariaLabel="Install With Dependencies">
+                    <ModActionButton ariaLabel={installTooltip}>
                         <Icon iconType={FaArrowDown} />
                     </ModActionButton>
-                    <ModActionButton ariaLabel="View On Website">
+                    <ModActionButton ariaLabel={websiteTooltip}>
                         <Icon iconType={FaGlobe} />
                     </ModActionButton>
                 </ModHeader>

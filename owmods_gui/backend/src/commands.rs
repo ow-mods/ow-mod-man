@@ -36,11 +36,7 @@ pub fn get_local_mods(state: tauri::State<'_, State>) -> Vec<String> {
 
 #[tauri::command]
 pub fn get_local_mod(unique_name: &str, state: tauri::State<'_, State>) -> Option<LocalMod> {
-    state
-        .local_db
-        .read()
-        .unwrap()
-        .get_mod(unique_name).cloned()
+    state.local_db.read().unwrap().get_mod(unique_name).cloned()
 }
 
 #[tauri::command]
@@ -79,5 +75,6 @@ pub fn get_remote_mod(unique_name: &str, state: tauri::State<'_, State>) -> Opti
         .remote_db
         .read()
         .unwrap()
-        .get_mod(unique_name).cloned()
+        .get_mod(unique_name)
+        .cloned()
 }

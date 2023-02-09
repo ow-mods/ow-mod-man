@@ -1,3 +1,4 @@
+import { useTranslations } from "@hooks";
 import { MutableRefObject, ReactNode, useEffect, useState } from "react";
 
 export interface ModalProps {
@@ -29,6 +30,8 @@ const Modal = (props: ModalProps) => {
     if (props.open) {
         props.open.current = open;
     }
+
+    const [cancel, confirm] = useTranslations(["CANCEL", "CONFIRM"]);
 
     useEffect(() => {
         if (state.open) {
@@ -67,7 +70,7 @@ const Modal = (props: ModalProps) => {
                                 }
                             }}
                         >
-                            {props.cancelText ?? "Cancel"}
+                            {props.cancelText ?? cancel}
                         </a>
                     )}
                     <a
@@ -79,7 +82,7 @@ const Modal = (props: ModalProps) => {
                             }
                         }}
                     >
-                        {props.confirmText ?? "Ok"}
+                        {props.confirmText ?? confirm}
                     </a>
                 </footer>
             </article>

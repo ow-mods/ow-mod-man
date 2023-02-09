@@ -1,3 +1,4 @@
+import { useTranslation } from "@hooks";
 import { ReactNode } from "react";
 
 export interface ModHeaderProps {
@@ -7,11 +8,15 @@ export interface ModHeaderProps {
 }
 
 const ModHeader = (props: ModHeaderProps) => {
+    const by = useTranslation("BY");
+
     return (
         <summary className="mod-header">
             <div className="mod-heading">
                 <span className="mod-name">{props.name}</span>
-                <small className="mod-authors">by {props.author}</small>
+                <small className="mod-authors">
+                    {by} {props.author}
+                </small>
             </div>
             <div className="mod-actions">{props.children}</div>
         </summary>

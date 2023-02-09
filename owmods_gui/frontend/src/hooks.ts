@@ -1,6 +1,7 @@
 import { invoke } from "@tauri-apps/api";
 import { listen } from "@tauri-apps/api/event";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useMemo, useState } from "react";
+import { TranslationContext, TranslationMap } from "@components/TranslationContext";
 
 export type LoadState = "Loading" | "Done" | "Error";
 
@@ -28,9 +29,12 @@ export const useTauri = <T, P>(
     useEffect(() => {
         if (status !== "Loading") {
             console.debug(`Begin subscribe to ${eventName}`);
-            subscribeTauri(eventName)(() => setStatus("Loading"));
+            subscribeTauri(eventName)(() => setStatus("Loading")).catch((e) => {
+                setStatus("Error");
+                setError(e);
+            });
         } else {
-            console.debug(`Invoking ${commandName} with args ${commandPayload ?? "null"}`);
+            console.debug(`${eventName} Fired, Invoking ${commandName} with args`, commandPayload);
             getTauriSnapshot(commandName, commandPayload)()
                 .then((data) => {
                     setData(data as T);
@@ -44,4 +48,17 @@ export const useTauri = <T, P>(
     }, [status]);
 
     return [status, data, error];
+};
+
+export const useTranslation = (key: string) => {
+    const context = useContext(TranslationContext);
+    console.debug(`Getting Translation For ${key}`);
+    return useMemo(() => {
+        const activeTable = TranslationMap[context] ?? TranslationMap["_"];
+        return activeTable[key] ?? activeTable["_"];
+    }, [key]);
+};
+
+export const useTranslations = (keys: string[]) => {
+    return keys.map((k) => useTranslation(k));
 };

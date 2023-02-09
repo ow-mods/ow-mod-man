@@ -1,3 +1,4 @@
+import { useTranslation } from "@hooks";
 import { useState } from "react";
 
 interface ActiveDownloadProps {
@@ -28,10 +29,12 @@ const ActiveDownload = (props: ActiveDownloadProps) => {
 const DownloadsPopout = () => {
     const downloads: ActiveDownloadProps[] = [];
 
+    const noDownloads = useTranslation("NO_DOWNLOADS");
+
     return (
         <div className="downloads-popout">
             {downloads.length === 0 ? (
-                <p className="no-downloads">No Downloads</p>
+                <p className="no-downloads">{noDownloads}</p>
             ) : (
                 downloads.map((d) => <ActiveDownload key={d.id} {...d} />)
             )}

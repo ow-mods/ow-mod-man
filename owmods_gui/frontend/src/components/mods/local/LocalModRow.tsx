@@ -1,7 +1,7 @@
 import Icon from "@components/Icon";
 import ModActionButton from "@components/mods/ModActionButton";
 import ModHeader from "@components/mods/ModHeader";
-import { useTauri } from "@hooks";
+import { useTauri, useTranslations } from "@hooks";
 import { LocalMod } from "@types";
 import { memo } from "react";
 import { FaFolder, FaTrash } from "react-icons/fa";
@@ -13,19 +13,21 @@ const LocalModRow = memo((props: { uniqueName: string }) => {
         { uniqueName: props.uniqueName }
     );
 
+    const [showFolderTooltip, uninstallTooltip] = useTranslations(["SHOW_FOLDER", "UNINSTALL"]);
+
     if (status === "Loading") {
-        return <p>Loading</p>;
+        return <div className="mod-row center-loading" aria-busy></div>;
     } else if (status === "Error") {
-        return <p>{err!}</p>;
+        return <div className="mod-row center-loading">{err!.toString()}</div>;
     } else {
         const localMod = mod!;
         return (
-            <details>
+            <div className="mod-row local">
                 <ModHeader {...localMod.manifest}>
-                    <ModActionButton ariaLabel="Show Folder">
+                    <ModActionButton ariaLabel={showFolderTooltip}>
                         <Icon iconType={FaFolder} />
                     </ModActionButton>
-                    <ModActionButton ariaLabel="Uninstall Mod">
+                    <ModActionButton ariaLabel={uninstallTooltip}>
                         <Icon iconType={FaTrash} />
                     </ModActionButton>
                     <input
@@ -36,8 +38,7 @@ const LocalModRow = memo((props: { uniqueName: string }) => {
                         checked={localMod.enabled}
                     />
                 </ModHeader>
-                Description Not Available
-            </details>
+            </div>
         );
     }
 });

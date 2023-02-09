@@ -12,11 +12,22 @@ import SettingsModal from "@components/modals/SettingsModal";
 import InstallFromModal from "@components/modals/InstallFromModal";
 import AboutModal from "@components/modals/AboutModal";
 import Downloads from "../downloads/Downloads";
+import { useTranslations } from "@hooks";
 
 const Nav = () => {
     const openSettings = useRef<() => void>(() => null);
     const openInstallFrom = useRef<() => void>(() => null);
     const openAbout = useRef<() => void>(() => null);
+
+    const [refresh, runGame, help, settings, installFrom, about, logs] = useTranslations([
+        "REFRESH",
+        "RUN_GAME",
+        "HELP",
+        "SETTINGS",
+        "INSTALL_FROM",
+        "ABOUT",
+        "LOGS"
+    ]);
 
     return (
         <IconContext.Provider value={{ className: "nav-icon" }}>
@@ -26,32 +37,32 @@ const Nav = () => {
             <nav>
                 <ul>
                     <Downloads />
-                    <NavButton labelPlacement="bottom" ariaLabel="Refresh">
+                    <NavButton labelPlacement="bottom" ariaLabel={refresh}>
                         <Icon iconType={TbRefresh} />
                     </NavButton>
                 </ul>
                 <ul>
-                    <NavButton labelPlacement="bottom" ariaLabel="Run Game">
+                    <NavButton labelPlacement="bottom" ariaLabel={runGame}>
                         <Icon iconClassName="main-icon" iconType={FaPlay} />
                     </NavButton>
                 </ul>
                 <ul>
-                    <NavButton labelPlacement="bottom" ariaLabel="Help">
+                    <NavButton labelPlacement="bottom" ariaLabel={help}>
                         <Icon iconType={FaQuestion} />
                     </NavButton>
                     <NavMore>
                         {/* Dropdown uses RTL */}
                         <NavButton onClick={() => openSettings.current?.()}>
-                            Settings <Icon iconType={FaCog} />
+                            {settings} <Icon iconType={FaCog} />
                         </NavButton>
                         <NavButton onClick={() => openInstallFrom.current?.()}>
-                            ...Install From <Icon iconType={RiInstallFill} />
+                            ...{installFrom} <Icon iconType={RiInstallFill} />
                         </NavButton>
                         <NavButton onClick={() => openAbout.current?.()}>
-                            About <Icon iconType={FaInfoCircle} />
+                            {about} <Icon iconType={FaInfoCircle} />
                         </NavButton>
                         <NavButton>
-                            Logs <Icon iconType={RxActivityLog} />
+                            {logs} <Icon iconType={RxActivityLog} />
                         </NavButton>
                     </NavMore>
                 </ul>

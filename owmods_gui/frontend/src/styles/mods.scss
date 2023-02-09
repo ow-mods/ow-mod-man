@@ -15,6 +15,13 @@ $row-border: 1px solid $accent-bg;
     min-width: 0;
 }
 
+.mod-row.local {
+    display: grid;
+    grid-auto-flow: row;
+    align-items: center;
+    padding: $margin-md 0;
+}
+
 .mod-header {
     display: grid;
     grid-template-columns: minmax(0, 1fr);
@@ -50,6 +57,7 @@ $row-border: 1px solid $accent-bg;
     grid-auto-flow: column;
     grid-area: actions;
     justify-self: right;
+    align-items: center;
     column-gap: $margin;
 }
 

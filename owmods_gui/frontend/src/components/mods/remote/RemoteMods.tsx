@@ -10,7 +10,7 @@ const RemoteMods = memo(() => {
     if (status === "Loading") {
         return <div className="mod-list center-loading" aria-busy></div>;
     } else if (status === "Error") {
-        return <p>{err}</p>;
+        return <p className="mod-list center-loading">{err!.toString()}</p>;
     } else {
         const remote_mods = mods!;
         return (

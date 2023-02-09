@@ -3,6 +3,7 @@ import { ChangeEvent, ReactNode, useState } from "react";
 import { FaFolder } from "react-icons/fa";
 import { Config, defaultConfig, defaultOwmlConfig, OwmlConfig } from "@types";
 import Modal, { ModalWrapperProps } from "./Modal";
+import { useTranslation, useTranslations } from "@hooks";
 
 interface SettingsRowProps {
     label: string;
@@ -44,10 +45,12 @@ const SettingsText = (props: SettingsTextProps) => {
 };
 
 const SettingsFolder = (props: SettingsTextProps) => {
+    const browse = useTranslation("BROWSE");
+
     return (
         <SettingsText {...props}>
             <button className="fix-icons" type="button">
-                <Icon iconType={FaFolder} /> Browse
+                <Icon iconType={FaFolder} /> {browse}
             </button>
         </SettingsText>
     );
@@ -81,57 +84,85 @@ const SettingsModal = (props: ModalWrapperProps) => {
         setOwmlConfig({ ...owmlConfig, [e.target.id]: e.target.value });
     };
 
+    const [
+        settings,
+        save,
+        generalSettings,
+        dbUrl,
+        alertUrl,
+        owmlPath,
+        winePrefix,
+        gamePath,
+        forceExe,
+        debugMode,
+        incrementalGC,
+        owmlSettingsLabel
+    ] = useTranslations([
+        "SETTINGS",
+        "SAVE",
+        "GENERAL_SETTINGS",
+        "DB_URL",
+        "ALERT_URL",
+        "OWML_PATH",
+        "WINE_PREFIX",
+        "GAME_PATH",
+        "FORCE_EXE",
+        "DEBUG_MODE",
+        "INCREMENTAL_GC",
+        "OWML_SETTINGS"
+    ]);
+
     return (
-        <Modal showCancel heading="Settings" confirmText="Save" open={props.open}>
+        <Modal showCancel heading={settings} confirmText={save} open={props.open}>
             <form className="settings">
-                <h4>General Settings</h4>
+                <h4>{generalSettings}</h4>
                 <SettingsText
                     onChange={handleConf}
                     value={config.databaseUrl}
-                    label="Database URL"
+                    label={dbUrl}
                     id="databaseUrl"
                 />
                 <SettingsText
                     onChange={handleConf}
                     value={config.alertUrl}
-                    label="Alert URL"
+                    label={alertUrl}
                     id="alertUrl"
                 />
                 <SettingsFolder
                     onChange={handleConf}
                     value={config.owmlPath}
-                    label="OWML Path"
+                    label={owmlPath}
                     id="owmlPath"
                 />
                 <SettingsFolder
                     onChange={handleConf}
                     value={config.winePrefix}
-                    label="Wine Prefix"
+                    label={winePrefix}
                     id="winePrefix"
                 />
-                <h4>OWML Settings</h4>
+                <h4>{owmlSettingsLabel}</h4>
                 <SettingsFolder
                     onChange={handleOwml}
                     value={owmlConfig.gamePath}
-                    label="Game Path"
+                    label={gamePath}
                     id="gamePath"
                 />
                 <SettingsSwitch
                     onChange={handleOwml}
                     value={owmlConfig.forceExe}
-                    label="Force Exe"
+                    label={forceExe}
                     id="forceExe"
                 />
                 <SettingsSwitch
                     onChange={handleOwml}
                     value={owmlConfig.debugMode}
-                    label="Debug Mode"
+                    label={debugMode}
                     id="debugMode"
                 />
                 <SettingsSwitch
                     onChange={handleOwml}
                     value={owmlConfig.incrementalGC}
-                    label="Incremental GC"
+                    label={incrementalGC}
                     id="incrementalGC"
                 />
             </form>

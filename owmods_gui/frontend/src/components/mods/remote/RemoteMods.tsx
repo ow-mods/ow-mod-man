@@ -19,6 +19,7 @@ const RemoteMods = memo(() => {
                     <FixedSizeList
                         itemCount={remote_mods.length}
                         itemSize={120}
+                        itemKey={(index) => remote_mods[index]}
                         width={width}
                         height={height}
                         className="mod-list"

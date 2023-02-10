@@ -3,10 +3,7 @@
     windows_subsystem = "windows"
 )]
 
-use std::{
-    error::Error,
-    sync::{Arc, RwLock},
-};
+use std::{error::Error, sync::Arc};
 
 use commands::*;
 use logging::get_logger;
@@ -16,13 +13,15 @@ use owmods_core::{
     logging::{BasicConsoleBackend, Logger},
 };
 
+use tokio::sync::RwLock as TokioLock;
+
 mod commands;
 mod logging;
 
 pub struct State {
-    local_db: Arc<RwLock<LocalDatabase>>,
-    remote_db: Arc<RwLock<RemoteDatabase>>,
-    config: Arc<RwLock<Config>>,
+    local_db: Arc<TokioLock<LocalDatabase>>,
+    remote_db: Arc<TokioLock<RemoteDatabase>>,
+    config: Arc<TokioLock<Config>>,
 }
 
 fn main() -> Result<(), Box<dyn Error>> {
@@ -33,9 +32,9 @@ fn main() -> Result<(), Box<dyn Error>> {
 
     tauri::Builder::default()
         .manage(State {
-            local_db: Arc::new(RwLock::new(LocalDatabase::empty())),
-            remote_db: Arc::new(RwLock::new(RemoteDatabase::empty())),
-            config: Arc::new(RwLock::new(config)),
+            local_db: Arc::new(TokioLock::new(LocalDatabase::empty())),
+            remote_db: Arc::new(TokioLock::new(RemoteDatabase::empty())),
+            config: Arc::new(TokioLock::new(config)),
         })
         .setup(move |app| {
             get_logger(app.handle()).debug("Starting App");

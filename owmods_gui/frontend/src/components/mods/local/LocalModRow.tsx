@@ -6,19 +6,23 @@ import { LocalMod } from "@types";
 import { memo } from "react";
 import { FaFolder, FaTrash } from "react-icons/fa";
 
-const LocalModRow = memo((props: { uniqueName: string }) => {
-    const [status, mod, err] = useTauri<LocalMod, { uniqueName: string }>(
-        "LOCAL-REFRESH",
-        "get_local_mod",
-        { uniqueName: props.uniqueName }
-    );
+interface LocalModRowProps {
+    uniqueName: string;
+}
+
+const LocalModRow = memo((props: LocalModRowProps) => {
+    const [status, mod, err] = useTauri<LocalMod>("LOCAL-REFRESH", "get_local_mod", {
+        uniqueName: props.uniqueName
+    });
 
     const [showFolderTooltip, uninstallTooltip] = useTranslations(["SHOW_FOLDER", "UNINSTALL"]);
 
+    //return <div className="mod-row local center-loading" aria-busy></div>;
+
     if (status === "Loading") {
-        return <div className="mod-row center-loading" aria-busy></div>;
+        return <div className="mod-row local center-loading" aria-busy></div>;
     } else if (status === "Error") {
-        return <div className="mod-row center-loading">{err!.toString()}</div>;
+        return <div className="mod-row local center-loading">{err!.toString()}</div>;
     } else {
         const localMod = mod!;
         return (

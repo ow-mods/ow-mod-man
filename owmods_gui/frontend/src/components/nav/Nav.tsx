@@ -7,17 +7,23 @@ import NavButton from "@components/nav/NavButton";
 import { IconContext } from "react-icons";
 import Icon from "@components/Icon";
 import NavMore from "./NavMore";
-import { useRef } from "react";
+import { useCallback, useRef } from "react";
 import SettingsModal from "@components/modals/SettingsModal";
 import InstallFromModal from "@components/modals/InstallFromModal";
 import AboutModal from "@components/modals/AboutModal";
 import Downloads from "../downloads/Downloads";
 import { useTranslations } from "@hooks";
+import { invoke } from "@tauri-apps/api";
 
 const Nav = () => {
     const openSettings = useRef<() => void>(() => null);
     const openInstallFrom = useRef<() => void>(() => null);
     const openAbout = useRef<() => void>(() => null);
+
+    const onRefresh = useCallback(() => {
+        invoke("refresh_local_db").catch((e) => console.warn(e));
+        invoke("refresh_remote_db").catch((e) => console.warn(e));
+    }, []);
 
     const [refresh, runGame, help, settings, installFrom, about, logs] = useTranslations([
         "REFRESH",
@@ -37,7 +43,7 @@ const Nav = () => {
             <nav>
                 <ul>
                     <Downloads />
-                    <NavButton labelPlacement="bottom" ariaLabel={refresh}>
+                    <NavButton onClick={onRefresh} labelPlacement="bottom" ariaLabel={refresh}>
                         <Icon iconType={TbRefresh} />
                     </NavButton>
                 </ul>

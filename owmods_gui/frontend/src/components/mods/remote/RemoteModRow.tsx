@@ -32,12 +32,15 @@ export const formatNumber = (value: number, digits = 1) => {
         : "0";
 };
 
-const RemoteModRow = memo((props: { uniqueName: string; style?: CSSProperties }) => {
-    const [status, mod, err] = useTauri<RemoteMod, { uniqueName: string }>(
-        "REMOTE-REFRESH",
-        "get_remote_mod",
-        { uniqueName: props.uniqueName }
-    );
+export interface RemoteModRowProps {
+    uniqueName: string;
+    style?: CSSProperties;
+}
+
+const RemoteModRow = memo((props: RemoteModRowProps) => {
+    const [status, mod, err] = useTauri<RemoteMod>("REMOTE-REFRESH", "get_remote_mod", {
+        uniqueName: props.uniqueName
+    });
 
     const [noDescription, installTooltip, websiteTooltip] = useTranslations([
         "NO_DESCRIPTION",

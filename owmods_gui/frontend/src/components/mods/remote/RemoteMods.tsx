@@ -5,9 +5,9 @@ import { FixedSizeList } from "react-window";
 import RemoteModRow from "./RemoteModRow";
 
 const RemoteMods = memo(() => {
-    const [status, mods, err] = useTauri<string[], undefined>("REMOTE-REFRESH", "get_remote_mods");
+    const [status, mods, err] = useTauri<string[]>("REMOTE-REFRESH", "get_remote_mods");
 
-    if (status === "Loading") {
+    if (status === "Loading" && mods === null) {
         return <div className="mod-list center-loading" aria-busy></div>;
     } else if (status === "Error") {
         return <p className="mod-list center-loading">{err!.toString()}</p>;

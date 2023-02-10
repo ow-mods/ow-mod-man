@@ -22,6 +22,10 @@ $row-border: 1px solid $accent-bg;
     padding: $margin-md 0;
 }
 
+.mod-row.local.center-loading {
+    padding: $margin-xl 0;
+}
+
 .mod-header {
     display: grid;
     grid-template-columns: minmax(0, 1fr);

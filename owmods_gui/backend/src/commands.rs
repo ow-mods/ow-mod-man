@@ -1,10 +1,16 @@
 use owmods_core::db::{fetch_local_db, fetch_remote_db};
 use owmods_core::mods::{LocalMod, RemoteMod};
+use owmods_core::open::open_shortcut;
+use owmods_core::remove::remove_mod;
 use tauri::Manager;
 
 use crate::State;
 
 use crate::logging::get_logger;
+
+fn e_to_str(e: anyhow::Error) -> String {
+    e.to_string()
+}
 
 #[tauri::command]
 pub async fn refresh_local_db(
@@ -16,7 +22,7 @@ pub async fn refresh_local_db(
     {
         let mut db = state.local_db.write().await;
         handle.emit_all("LOCAL-REFRESH", "").ok();
-        let local_db = fetch_local_db(&log, &conf).map_err(|err| err.to_string())?;
+        let local_db = fetch_local_db(&log, &conf).map_err(e_to_str)?;
         *db = local_db;
     }
     Ok(())
@@ -51,9 +57,7 @@ pub async fn refresh_remote_db(
     {
         let mut db = state.remote_db.write().await;
         handle.emit_all("REMOTE-REFRESH", "").ok();
-        let remote_db = fetch_remote_db(&log, &conf)
-            .await
-            .map_err(|e| e.to_string())?;
+        let remote_db = fetch_remote_db(&log, &conf).await.map_err(e_to_str)?;
         *db = remote_db;
     }
     Ok(())
@@ -77,4 +81,46 @@ pub async fn get_remote_mod(
     state: tauri::State<'_, State>,
 ) -> Result<Option<RemoteMod>, ()> {
     Ok(state.remote_db.read().await.get_mod(unique_name).cloned())
+}
+
+#[tauri::command]
+pub async fn open_mod_folder(
+    unique_name: &str,
+    state: tauri::State<'_, State>,
+) -> Result<(), String> {
+    let db = state.local_db.read().await;
+    let conf = state.config.read().await;
+    open_shortcut(unique_name, &conf, &db).map_err(e_to_str)?;
+    Ok(())
+}
+
+#[tauri::command]
+pub async fn toggle_mod(
+    unique_name: &str,
+    enabled: bool,
+    handle: tauri::AppHandle,
+    state: tauri::State<'_, State>,
+) -> Result<(), String> {
+    let db = state.local_db.read().await;
+    let log = get_logger(handle);
+    let path = db.get_mod_path(unique_name);
+    if let Some(path) = path {
+        owmods_core::toggle::toggle_mod(&log, &path, &db, enabled, false).map_err(e_to_str)?;
+        Ok(())
+    } else {
+        Err(format!("Mod {} not found", unique_name))
+    }
+}
+
+#[tauri::command]
+pub async fn uninstall_mod(
+    unique_name: &str,
+    state: tauri::State<'_, State>,
+) -> Result<(), String> {
+    let db = state.local_db.read().await;
+    let local_mod = db
+        .get_mod(unique_name)
+        .ok_or_else(|| format!("Mod {} not found", unique_name))?;
+    remove_mod(local_mod, &db, false).map_err(e_to_str)?;
+    Ok(())
 }

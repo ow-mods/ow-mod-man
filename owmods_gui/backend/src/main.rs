@@ -46,7 +46,10 @@ fn main() -> Result<(), Box<dyn Error>> {
             get_local_mod,
             refresh_remote_db,
             get_remote_mods,
-            get_remote_mod
+            get_remote_mod,
+            open_mod_folder,
+            toggle_mod,
+            uninstall_mod
         ])
         .run(tauri::generate_context!())
         .expect("Error while running tauri application.");

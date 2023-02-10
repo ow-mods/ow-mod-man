@@ -55,6 +55,10 @@ details summary::after {
     background-image: #{$themed-chevron};
 }
 
+.muted {
+    color: $primary-muted;
+}
+
 @import "nav.scss";
 @import "tabs.scss";
 @import "mods.scss";

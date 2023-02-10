@@ -2,7 +2,7 @@ import { useTauri } from "@hooks";
 import LocalModRow from "./LocalModRow";
 
 const LocalMods = () => {
-    const [status, mods, err] = useTauri<string[], undefined>("LOCAL-REFRESH", "get_local_mods");
+    const [status, mods, err] = useTauri<string[]>("LOCAL-REFRESH", "get_local_mods");
 
     if (status === "Loading" && mods === null) {
         return <div aria-busy className="mod-list center-loading"></div>;
@@ -11,6 +11,11 @@ const LocalMods = () => {
     } else {
         return (
             <div className="mod-list">
+                {mods!.length === 0 && (
+                    <p className="center-loading muted">
+                        No Mods Installed, Click &quot;Get Mods&quot; To Grab Some!
+                    </p>
+                )}
                 {mods!.map((m) => (
                     <LocalModRow key={m} uniqueName={m} />
                 ))}

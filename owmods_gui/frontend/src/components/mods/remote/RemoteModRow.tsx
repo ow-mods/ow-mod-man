@@ -2,8 +2,9 @@ import Icon from "@components/Icon";
 import ModActionButton from "@components/mods/ModActionButton";
 import ModHeader from "@components/mods/ModHeader";
 import { useTauri, useTranslations } from "@hooks";
-import { CSSProperties, memo } from "react";
-import { FaArrowDown, FaGlobe } from "react-icons/fa";
+import { invoke } from "@tauri-apps/api";
+import { CSSProperties, memo, useCallback, useState } from "react";
+import { FaArrowDown, FaFileAlt } from "react-icons/fa";
 import { RemoteMod } from "src/types";
 
 // Stolen from mods website, Rai will never catch me!
@@ -42,11 +43,27 @@ const RemoteModRow = memo((props: RemoteModRowProps) => {
         uniqueName: props.uniqueName
     });
 
+    const [downloading, setDownloading] = useState(false);
+
     const [noDescription, installTooltip, websiteTooltip] = useTranslations([
         "NO_DESCRIPTION",
         "INSTALL",
-        "OPEN_WEBSITE"
+        "OPEN_README"
     ]);
+
+    const onInstall = useCallback(() => {
+        setDownloading(true);
+        invoke("install_mod", { uniqueName: props.uniqueName })
+            .then(() => {
+                setDownloading(false);
+                invoke("refresh_local_db").catch(console.error);
+            })
+            .catch(console.error);
+    }, [props.uniqueName]);
+
+    const onReadme = useCallback(() => {
+        invoke("open_mod_readme", { uniqueName: props.uniqueName }).catch(console.warn);
+    }, [props.uniqueName]);
 
     if (status === "Loading") {
         return <div className="mod-row center-loading" aria-busy style={props.style}></div>;
@@ -64,11 +81,15 @@ const RemoteModRow = memo((props: RemoteModRowProps) => {
             <div style={props.style} className="mod-row">
                 <ModHeader {...remote_mod} author={remote_mod.authorDisplay ?? remote_mod.author}>
                     <small>{formatNumber(remote_mod.downloadCount)}</small>
-                    <ModActionButton ariaLabel={installTooltip}>
-                        <Icon iconType={FaArrowDown} />
-                    </ModActionButton>
-                    <ModActionButton ariaLabel={websiteTooltip}>
-                        <Icon iconType={FaGlobe} />
+                    {downloading ? (
+                        <div className="center-loading" aria-busy></div>
+                    ) : (
+                        <ModActionButton onClick={onInstall} ariaLabel={installTooltip}>
+                            <Icon iconType={FaArrowDown} />
+                        </ModActionButton>
+                    )}
+                    <ModActionButton onClick={onReadme} ariaLabel={websiteTooltip}>
+                        <Icon iconType={FaFileAlt} />
                     </ModActionButton>
                 </ModHeader>
                 <small className="mod-description">{desc}</small>

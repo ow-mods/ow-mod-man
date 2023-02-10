@@ -191,7 +191,7 @@ fn extract_mod_zip(
         }
     }
 
-    progress.finish(&format!("Extracted {}", zip_name));
+    progress.finish(&format!("Installed {}", zip_name));
 
     Ok(())
 }

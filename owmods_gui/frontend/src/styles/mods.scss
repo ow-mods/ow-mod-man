@@ -15,6 +15,10 @@ $row-border: 1px solid $accent-bg;
     min-width: 0;
 }
 
+.mod-row:last-child {
+    border-bottom: none;
+}
+
 .mod-row.local {
     display: grid;
     grid-auto-flow: row;
@@ -63,6 +67,10 @@ $row-border: 1px solid $accent-bg;
     justify-self: right;
     align-items: center;
     column-gap: $margin;
+}
+
+.mod-actions.center-loading {
+    align-self: center;
 }
 
 .mod-actions svg {

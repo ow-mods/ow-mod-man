@@ -14,6 +14,7 @@ struct TauriProgressBackend {
 }
 
 #[derive(Clone, Serialize)]
+#[serde(rename_all = "camelCase")]
 struct ProgressStartPayload {
     id: String,
     message: String,
@@ -23,9 +24,13 @@ struct ProgressStartPayload {
 }
 
 #[derive(Clone, Serialize)]
+#[serde(rename_all = "camelCase")]
 enum ProgressUpdatePayload {
+    #[serde(rename_all = "camelCase")]
     Increment { id: String, amount: u64 },
+    #[serde(rename_all = "camelCase")]
     ChangeMsg { id: String, new_msg: String },
+    #[serde(rename_all = "camelCase")]
     Finish { id: String, msg: String },
 }
 

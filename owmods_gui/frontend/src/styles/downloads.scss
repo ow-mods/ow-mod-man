@@ -25,6 +25,15 @@
     background-color: $accent-bg-darker;
 }
 
+.clear-downloads {
+    position: absolute;
+    top: $margin-md;
+    right: 0;
+    padding: 0.1em $margin !important;
+    left: auto;
+    bottom: auto;
+}
+
 .downloads-popout p {
     margin: 0;
     overflow: hidden;

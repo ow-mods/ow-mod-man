@@ -1,6 +1,7 @@
 use owmods_core::db::{fetch_local_db, fetch_remote_db};
+use owmods_core::download::install_mod_from_db;
 use owmods_core::mods::{LocalMod, RemoteMod};
-use owmods_core::open::open_shortcut;
+use owmods_core::open::{open_readme, open_shortcut};
 use owmods_core::remove::remove_mod;
 use tauri::Manager;
 
@@ -113,6 +114,31 @@ pub async fn toggle_mod(
 }
 
 #[tauri::command]
+pub async fn install_mod(
+    unique_name: &str,
+    handle: tauri::AppHandle,
+    state: tauri::State<'_, State>,
+) -> Result<(), String> {
+    handle.emit_all("INSTALL-START", unique_name).ok();
+    let local_db = state.local_db.read().await;
+    let remote_db = state.remote_db.read().await;
+    let conf = state.config.read().await;
+    let log = get_logger(handle.clone());
+    install_mod_from_db(
+        &log,
+        &unique_name.to_string(),
+        &conf,
+        &remote_db,
+        &local_db,
+        true,
+    )
+    .await
+    .map_err(e_to_str)?;
+    handle.emit_all("INSTALL-FINISH", unique_name).ok();
+    Ok(())
+}
+
+#[tauri::command]
 pub async fn uninstall_mod(
     unique_name: &str,
     state: tauri::State<'_, State>,
@@ -122,5 +148,15 @@ pub async fn uninstall_mod(
         .get_mod(unique_name)
         .ok_or_else(|| format!("Mod {} not found", unique_name))?;
     remove_mod(local_mod, &db, false).map_err(e_to_str)?;
+    Ok(())
+}
+
+#[tauri::command]
+pub async fn open_mod_readme(
+    unique_name: &str,
+    state: tauri::State<'_, State>,
+) -> Result<(), String> {
+    let db = state.remote_db.read().await;
+    open_readme(unique_name, &db).map_err(e_to_str)?;
     Ok(())
 }

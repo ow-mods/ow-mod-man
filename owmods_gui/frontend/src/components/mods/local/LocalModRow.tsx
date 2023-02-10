@@ -19,12 +19,15 @@ const LocalModRow = memo((props: LocalModRowProps) => {
 
     const [showFolderTooltip, uninstallTooltip] = useTranslations(["SHOW_FOLDER", "UNINSTALL"]);
 
-    const onToggle = useCallback(() => {
-        invoke("toggle_mod", {
-            uniqueName: props.uniqueName,
-            enabled: !mod?.enabled ?? false
-        }).then(() => invoke("refresh_local_db"));
-    }, [mod?.enabled]);
+    const onToggle = useCallback(
+        (newVal: boolean) => {
+            invoke("toggle_mod", {
+                uniqueName: props.uniqueName,
+                enabled: newVal
+            }).then(() => invoke("refresh_local_db"));
+        },
+        [props.uniqueName]
+    );
 
     const onOpen = useCallback(() => {
         invoke("open_mod_folder", { uniqueName: props.uniqueName });
@@ -62,7 +65,7 @@ const LocalModRow = memo((props: LocalModRowProps) => {
                         type="checkbox"
                         aria-label="enabled"
                         role="switch"
-                        onClick={onToggle}
+                        onChange={(e) => onToggle(e.target.checked)}
                         checked={localMod.enabled}
                     />
                 </ModHeader>

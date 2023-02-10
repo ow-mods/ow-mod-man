@@ -1,12 +1,13 @@
 import { invoke } from "@tauri-apps/api";
 import { listen, UnlistenFn } from "@tauri-apps/api/event";
-import { useContext, useEffect, useMemo, useState } from "react";
+import { useContext, useEffect, useMemo, useRef, useState } from "react";
 import { TranslationContext, TranslationMap } from "@components/TranslationContext";
 
 export type LoadState = "Loading" | "Done" | "Error";
 
 const subscribeTauri = (name: string) => {
-    return async (callback: () => void) => {
+    // console.debug("Sub", name);
+    return async (callback: (p: unknown) => void) => {
         return await listen(name, callback);
     };
 };
@@ -29,7 +30,7 @@ export const useTauri = <T>(
 
     useEffect(() => {
         if (status !== "Loading") {
-            console.debug(`Begin subscribe to ${eventName}`);
+            // console.debug(`Begin subscribe to ${eventName}`);
             subscribeTauri(eventName)(() => setStatus("Loading"))
                 .then((u) => {
                     unsubscribe = u;
@@ -39,7 +40,7 @@ export const useTauri = <T>(
                     setError(e);
                 });
         } else {
-            console.debug(`${eventName} Fired, Invoking ${commandName} with args`, commandPayload);
+            // console.debug(`${eventName} Fired, Invoking ${commandName} with args`, commandPayload);
             getTauriSnapshot(commandName, commandPayload)()
                 .then((data) => {
                     setData(data as T);
@@ -59,9 +60,29 @@ export const useTauri = <T>(
     return [status, data, error];
 };
 
+export const useTauriCount = (incEvent: string, decEvent: string, initial?: number) => {
+    const [count, setCount] = useState(initial ?? 0);
+
+    const countRef = useRef(initial ?? 0);
+
+    const incCount = () => setCount(countRef.current + 1);
+    const decCount = () => setCount(countRef.current - 1);
+
+    useEffect(() => {
+        countRef.current = count;
+    }, [count]);
+
+    useEffect(() => {
+        subscribeTauri(incEvent)(incCount).catch(console.warn);
+        subscribeTauri(decEvent)(decCount).catch(console.warn);
+    }, []);
+
+    return count;
+};
+
 export const useTranslation = (key: string) => {
     const context = useContext(TranslationContext);
-    console.debug(`Getting Translation For ${key}`);
+    // console.debug(`Getting Translation For ${key}`);
     return useMemo(() => {
         const activeTable = TranslationMap[context] ?? TranslationMap["_"];
         return activeTable[key] ?? activeTable["_"];

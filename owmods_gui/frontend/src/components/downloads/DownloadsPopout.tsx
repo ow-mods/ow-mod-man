@@ -61,7 +61,6 @@ const DownloadsPopout = () => {
         listen("PROGRESS-START", (p) => {
             const data = p.payload as ActiveDownloadProps;
             if (data.progressAction !== "Wine") {
-                console.debug(p.payload);
                 if (data.id in downloadsRef.current) {
                     delete downloadsRef.current[data.id];
                 }
@@ -80,7 +79,6 @@ const DownloadsPopout = () => {
             const payload = (e.payload as ProgressMessagePayload).changeMsg;
             const current = downloadsRef.current[payload.id];
             if (current) {
-                console.debug(payload);
                 current.message = payload.newMsg;
                 setDownloads({ ...downloadsRef.current, [current.id]: current });
             }

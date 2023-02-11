@@ -14,7 +14,7 @@ const Downloads = () => {
                 <summary>
                     <NavButton labelPlacement="right" ariaLabel={downloads}>
                         <Icon iconType={FaArrowDown} />
-                        <DownloadsBadge count={3} />
+                        <DownloadsBadge />
                     </NavButton>
                 </summary>
                 <DownloadsPopout />

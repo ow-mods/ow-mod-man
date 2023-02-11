@@ -6,7 +6,7 @@ use clap::{Parser, Subcommand};
 use colored::Colorize;
 use logging::ConsoleLogBackend;
 use owmods_core as core;
-
+use owmods_core::mods::LocalMod;
 use owmods_core::log;
 
 mod logging;
@@ -212,7 +212,9 @@ async fn run_from_cli(cli: BaseCli, logger: &core::logging::Logger) -> Result<()
                     db.mods.len(),
                     config.owml_path
                 );
-                for local_mod in db.mods.values() {
+                let mut mods: Vec<&LocalMod> = db.mods.values().collect();
+                mods.sort_by(|a, b| b.enabled.cmp(&a.enabled));
+                for local_mod in mods.iter() {
                     output += &format!(
                         "({}) {} by {} ({})\n",
                         if local_mod.enabled { "+" } else { "-" },

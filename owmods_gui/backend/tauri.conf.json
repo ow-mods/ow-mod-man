@@ -13,6 +13,17 @@
     "allowlist": {
       "dialog": {
         "confirm": true
+      },
+      "app": {
+        "all": true,
+        "hide": false,
+        "show": false
+      },
+      "os": {
+        "all": true
+      },
+      "shell": {
+        "open": "^https://github.com/"
       }
     },
     "bundle": {

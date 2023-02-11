@@ -1,6 +1,8 @@
-import { useTranslation } from "@hooks";
+import Icon from "@components/Icon";
+import { useTranslations } from "@hooks";
 import { listen } from "@tauri-apps/api/event";
 import { useEffect, useRef, useState } from "react";
+import { FaCheck, FaTrash } from "react-icons/fa";
 
 interface ActiveDownloadProps {
     id: string;
@@ -34,15 +36,17 @@ interface ProgressFinishPayload {
 
 const ActiveDownload = (props: ActiveDownloadProps) => {
     return (
-        <div className="downloads-row">
-            <p className="download-header">{props.message}</p>
+        <div className={`downloads-row${props.progress >= props.len ? " download-done" : ""}`}>
+            <p className="download-header fix-icons">
+                <Icon iconType={FaCheck} /> {props.message}
+            </p>
             <progress
                 value={
                     props.progressType === "Indefinite" && props.progress === 0
                         ? undefined
-                        : (props.progress / props.len) * 100
+                        : props.progress / props.len
                 }
-                max={100}
+                max={1}
             />
         </div>
     );
@@ -90,13 +94,15 @@ const DownloadsPopout = () => {
                 current.message = payload.msg;
                 if (current.progressType === "Indefinite") {
                     current.progress = 1;
+                } else {
+                    current.progress = current.len;
                 }
                 setDownloads({ ...downloadsRef.current, [current.id]: current });
             }
         });
     }, []);
 
-    const noDownloads = useTranslation("NO_DOWNLOADS");
+    const [noDownloads, clearDownloads] = useTranslations(["NO_DOWNLOADS", "CLEAR_DOWNLOADS"]);
 
     return (
         <div className="downloads-popout">
@@ -108,9 +114,11 @@ const DownloadsPopout = () => {
                         role="button"
                         href="#"
                         className="clear-downloads secondary"
+                        data-tooltip={clearDownloads}
+                        data-placement="left"
                         onClick={() => setDownloads({})}
                     >
-                        Clear All
+                        <Icon iconType={FaTrash} />
                     </a>
                     {Object.values(downloads)
                         .reverse()

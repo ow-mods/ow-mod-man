@@ -6,8 +6,8 @@ use clap::{Parser, Subcommand};
 use colored::Colorize;
 use logging::ConsoleLogBackend;
 use owmods_core as core;
-use owmods_core::mods::LocalMod;
 use owmods_core::log;
+use owmods_core::mods::LocalMod;
 
 mod logging;
 

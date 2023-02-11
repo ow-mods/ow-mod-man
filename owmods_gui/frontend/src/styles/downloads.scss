@@ -34,6 +34,11 @@
     bottom: auto;
 }
 
+a.clear-downloads svg {
+    margin: $margin-sm;
+    margin-right: $margin-sm !important;
+}
+
 .downloads-popout p {
     margin: 0;
     overflow: hidden;
@@ -44,6 +49,19 @@
 .downloads-row {
     padding: $margin;
     border-bottom: 1px solid $accent-bg;
+}
+
+.downloads-row svg {
+    display: none;
+    padding-right: $margin-sm;
+}
+
+.downloads-row.download-done progress {
+    background-color: $primary-muted;
+}
+
+.downloads-row.download-done svg {
+    display: initial;
 }
 
 .no-downloads {

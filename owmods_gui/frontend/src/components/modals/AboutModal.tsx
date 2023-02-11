@@ -3,9 +3,9 @@ import logo from "@assets/images/logo.png";
 import Icon from "@components/Icon";
 import { FaGithub } from "react-icons/fa";
 import { useTranslations } from "@hooks";
+import { app, os, shell } from "@tauri-apps/api";
+import { useEffect, useState } from "react";
 
-// TODO: When integrating with tauri, replace #var# with calls to the backend
-// TODO: Also the github button will change the webview to the url, uh don't do that
 const AboutModal = (props: ModalWrapperProps) => {
     const [heading, dismiss, appName, version, platform] = useTranslations([
         "ABOUT",
@@ -15,14 +15,31 @@ const AboutModal = (props: ModalWrapperProps) => {
         "PLATFORM"
     ]);
 
+    const [appVersion, setVersion] = useState("");
+    const [appPlatform, setPlatform] = useState("");
+
+    useEffect(() => {
+        app.getVersion().then(setVersion);
+        os.platform().then(setPlatform);
+    }, []);
+
     return (
         <Modal open={props.open} heading={heading} confirmText={dismiss}>
             <div className="about-modal">
                 <img width="256" height="256" src={logo} />
                 <h1>{appName}</h1>
-                <p>{version}: #VERSION#</p>
-                <p>{platform}: #PLATFORM#</p>
-                <a href="https://github.com/Bwc9876/ow-mod-man" role="button" className="fix-icons">
+                <p>
+                    {version}: {appVersion}
+                </p>
+                <p>
+                    {platform}: {appPlatform}
+                </p>
+                <a
+                    onClick={() => shell.open("https://github.com/Bwc9876/ow-mod-man/")}
+                    href="#"
+                    role="button"
+                    className="fix-icons"
+                >
                     <Icon iconType={FaGithub} />
                     GitHub
                 </a>

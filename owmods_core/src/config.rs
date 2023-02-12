@@ -24,9 +24,7 @@ pub fn generate_default_config(log: &Logger) -> Result<Config, anyhow::Error> {
     let default_config = Config {
         owml_path: String::from(""),
         wine_prefix: None,
-        database_url: String::from(
-            "https://raw.githubusercontent.com/ow-mods/ow-mod-db/master/database.json",
-        ),
+        database_url: String::from("https://ow-mods.github.io/ow-mod-db/database.json"),
         alert_url: String::from(
             "https://raw.githubusercontent.com/ow-mods/ow-mod-db/source/alert.json",
         ),

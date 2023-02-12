@@ -80,13 +80,16 @@ export const useTauriCount = (incEvent: string, decEvent: string, initial?: numb
     return count;
 };
 
-export const useTranslation = (key: string) => {
+export const useTranslation = (key: string, variables?: Record<string, string>) => {
     const context = useContext(TranslationContext);
-    // console.debug(`Getting Translation For ${key}`);
     return useMemo(() => {
         const activeTable = TranslationMap[context] ?? TranslationMap["_"];
-        return activeTable[key] ?? activeTable["_"];
-    }, [key]);
+        let translated = activeTable[key] ?? activeTable["_"];
+        for (const k in variables) {
+            translated = translated.replaceAll(`$${k}$`, variables[k]);
+        }
+        return translated;
+    }, [context, key, variables]);
 };
 
 export const useTranslations = (keys: string[]) => {

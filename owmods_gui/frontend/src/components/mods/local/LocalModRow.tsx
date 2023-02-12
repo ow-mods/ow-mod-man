@@ -1,7 +1,7 @@
 import Icon from "@components/Icon";
 import ModActionButton from "@components/mods/ModActionButton";
 import ModHeader from "@components/mods/ModHeader";
-import { useTauri, useTranslations } from "@hooks";
+import { useTauri, useTranslation, useTranslations } from "@hooks";
 import { invoke } from "@tauri-apps/api";
 import { confirm } from "@tauri-apps/api/dialog";
 import { LocalMod } from "@types";
@@ -17,7 +17,14 @@ const LocalModRow = memo((props: LocalModRowProps) => {
         uniqueName: props.uniqueName
     });
 
-    const [showFolderTooltip, uninstallTooltip] = useTranslations(["SHOW_FOLDER", "UNINSTALL"]);
+    const [showFolderTooltip, uninstallTooltip, confirmText] = useTranslations([
+        "SHOW_FOLDER",
+        "UNINSTALL",
+        "CONFIRM"
+    ]);
+    const uninstallConfirmText = useTranslation("UNINSTALL_CONFIRM", {
+        name: mod?.manifest.name ?? "null"
+    });
 
     const onToggle = useCallback(
         (newVal: boolean) => {
@@ -34,15 +41,13 @@ const LocalModRow = memo((props: LocalModRowProps) => {
     }, [props.uniqueName]);
 
     const onUninstall = useCallback(() => {
-        confirm(`Are you sure you want to uninstall ${mod?.manifest.name}?`, "Confirm").then(
-            (answer) => {
-                if (answer) {
-                    invoke("uninstall_mod", { uniqueName: props.uniqueName }).then(() =>
-                        invoke("refresh_local_db")
-                    );
-                }
+        confirm(uninstallConfirmText, confirmText).then((answer) => {
+            if (answer) {
+                invoke("uninstall_mod", { uniqueName: props.uniqueName }).then(() =>
+                    invoke("refresh_local_db")
+                );
             }
-        );
+        });
     }, [props.uniqueName, mod?.manifest.name]);
 
     if (status === "Loading" && mod === null) {

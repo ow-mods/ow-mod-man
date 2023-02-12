@@ -28,3 +28,21 @@ dialog article footer {
 dialog article footer a {
     margin-right: $margin-sm;
 }
+
+dialog article form {
+    margin-bottom: 0;
+}
+
+dialog article form input,
+dialog article form select {
+    margin-bottom: $margin-sm !important;
+}
+
+.install-warning {
+    color: $primary-muted;
+    padding: 0;
+}
+
+.install-warning .modal-icon {
+    margin-bottom: $margin-sm;
+}

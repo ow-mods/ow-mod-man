@@ -1,5 +1,7 @@
+import Icon from "@components/Icon";
 import { useTranslations } from "@hooks";
 import { useState } from "react";
+import { FaExclamationTriangle } from "react-icons/fa";
 import Modal, { ModalWrapperProps } from "./Modal";
 
 type SourceType = "URL" | "ZIP";
@@ -8,11 +10,12 @@ const InstallFromModal = (props: ModalWrapperProps) => {
     const [source, setSource] = useState<SourceType>("URL");
     const [target, setTarget] = useState<string>("");
 
-    const [install, installFrom, zip, url] = useTranslations([
+    const [install, installFrom, zip, url, warningText] = useTranslations([
         "INSTALL",
         "INSTALL_FROM",
         "ZIP",
-        "URL"
+        "URL",
+        "INSTALL_WARNING"
     ]);
 
     return (
@@ -41,6 +44,10 @@ const InstallFromModal = (props: ModalWrapperProps) => {
                         onChange={(e) => setTarget(e.target.value)}
                     />
                 </label>
+                <p className="install-warning">
+                    <Icon iconType={FaExclamationTriangle} />
+                    {warningText}
+                </p>
             </form>
         </Modal>
     );

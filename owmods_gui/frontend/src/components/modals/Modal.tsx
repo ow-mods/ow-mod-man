@@ -1,5 +1,6 @@
 import { useTranslations } from "@hooks";
 import { MutableRefObject, ReactNode, useEffect, useState } from "react";
+import { IconContext } from "react-icons";
 
 export interface ModalProps {
     heading?: string;
@@ -31,7 +32,7 @@ const Modal = (props: ModalProps) => {
         props.open.current = open;
     }
 
-    const [cancel, confirm] = useTranslations(["CANCEL", "CONFIRM"]);
+    const [cancel, ok] = useTranslations(["CANCEL", "OK"]);
 
     useEffect(() => {
         if (state.open) {
@@ -53,39 +54,41 @@ const Modal = (props: ModalProps) => {
 
     return (
         <dialog dir="ltr" open={state.open}>
-            <article>
-                <header>
-                    <p>{props.heading ?? "Modal"}</p>
-                </header>
-                <div className="modal-body">{props.children}</div>
-                <footer>
-                    {props.showCancel && (
+            <IconContext.Provider value={{ className: "modal-icon" }}>
+                <article>
+                    <header>
+                        <p>{props.heading ?? "Modal"}</p>
+                    </header>
+                    <div className="modal-body">{props.children}</div>
+                    <footer>
+                        {props.showCancel && (
+                            <a
+                                href="#cancel"
+                                role="button"
+                                className="secondary"
+                                onClick={() => {
+                                    if (props.onCancel?.() ?? true) {
+                                        close();
+                                    }
+                                }}
+                            >
+                                {props.cancelText ?? cancel}
+                            </a>
+                        )}
                         <a
-                            href="#cancel"
+                            href="#confirm"
                             role="button"
-                            className="secondary"
                             onClick={() => {
-                                if (props.onCancel?.() ?? true) {
+                                if (props.onConfirm?.() ?? true) {
                                     close();
                                 }
                             }}
                         >
-                            {props.cancelText ?? cancel}
+                            {props.confirmText ?? ok}
                         </a>
-                    )}
-                    <a
-                        href="#confirm"
-                        role="button"
-                        onClick={() => {
-                            if (props.onConfirm?.() ?? true) {
-                                close();
-                            }
-                        }}
-                    >
-                        {props.confirmText ?? confirm}
-                    </a>
-                </footer>
-            </article>
+                    </footer>
+                </article>
+            </IconContext.Provider>
         </dialog>
     );
 };

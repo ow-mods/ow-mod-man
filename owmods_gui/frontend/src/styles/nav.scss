@@ -21,9 +21,9 @@
 
 details[role="list"] summary {
     padding: 0 !important;
-    background-color: $bg !important;
+    background-color: var(--bg) !important;
     border: none !important;
-    color: $primary !important;
+    color: var(--primary) !important;
 }
 
 details[role="list"] summary::after {

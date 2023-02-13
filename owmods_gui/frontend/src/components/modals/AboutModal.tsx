@@ -1,18 +1,20 @@
 import Modal, { ModalWrapperProps } from "./Modal";
 import logo from "@assets/images/logo.png";
 import Icon from "@components/Icon";
-import { FaGithub } from "react-icons/fa";
+import { FaDiscord, FaGithub } from "react-icons/fa";
 import { useTranslations } from "@hooks";
 import { app, os, shell } from "@tauri-apps/api";
 import { useEffect, useState } from "react";
 
 const AboutModal = (props: ModalWrapperProps) => {
-    const [heading, dismiss, appName, version, platform] = useTranslations([
+    const [heading, dismiss, appName, version, platform, gitHub, discord] = useTranslations([
         "ABOUT",
         "DISMISS",
         "APP_TITLE",
         "VERSION",
-        "PLATFORM"
+        "PLATFORM",
+        "GITHUB",
+        "DISCORD"
     ]);
 
     const [appVersion, setVersion] = useState("");
@@ -34,15 +36,26 @@ const AboutModal = (props: ModalWrapperProps) => {
                 <p>
                     {platform}: {appPlatform}
                 </p>
-                <a
-                    onClick={() => shell.open("https://github.com/Bwc9876/ow-mod-man/")}
-                    href="#"
-                    role="button"
-                    className="fix-icons"
-                >
-                    <Icon iconType={FaGithub} />
-                    GitHub
-                </a>
+                <div className="links">
+                    <a
+                        onClick={() => shell.open("https://github.com/Bwc9876/ow-mod-man/")}
+                        href="#"
+                        role="button"
+                        className="fix-icons"
+                    >
+                        <Icon iconType={FaGithub} />
+                        {gitHub}
+                    </a>
+                    <a
+                        onClick={() => shell.open("https://discord.gg/wusTQYbYTc")}
+                        href="#"
+                        role="button"
+                        className="fix-icons"
+                    >
+                        <Icon iconType={FaDiscord} />
+                        {discord}
+                    </a>
+                </div>
             </div>
         </Modal>
     );

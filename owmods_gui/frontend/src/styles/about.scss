@@ -13,7 +13,7 @@ $logo-size: 10em;
     justify-self: center;
     width: $logo-size;
     height: $logo-size;
-    filter: drop-shadow(0px -1px 10px $primary);
+    filter: drop-shadow(0px -1px 10px var(--primary));
 }
 
 .about-modal h1,
@@ -23,11 +23,19 @@ $logo-size: 10em;
 }
 
 .about-modal a[role="button"] {
-    margin-top: $margin-md;
+    margin-right: $margin-md;
     justify-content: center;
     justify-self: center;
 }
 
 .about-modal a[role="button"] svg {
     margin: $margin-sm !important;
+}
+
+.about-modal .links {
+    margin-top: $margin;
+    display: flex;
+    flex-direction: row;
+    align-content: center;
+    justify-content: center;
 }

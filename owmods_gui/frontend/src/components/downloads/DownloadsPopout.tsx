@@ -111,9 +111,8 @@ const DownloadsPopout = () => {
             ) : (
                 <>
                     <a
-                        role="button"
                         href="#"
-                        className="clear-downloads secondary"
+                        className="clear-downloads"
                         data-tooltip={clearDownloads}
                         data-placement="left"
                         onClick={() => setDownloads({})}

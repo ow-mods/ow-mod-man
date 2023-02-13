@@ -2,12 +2,13 @@ use serde::{Deserialize, Serialize};
 use std::path::{Path, PathBuf};
 
 use crate::{
+    file::{deserialize_from_json, get_app_path, serialize_to_json},
     log,
     logging::Logger,
-    utils::file::{deserialize_from_json, get_app_path, serialize_to_json},
 };
 
 #[derive(Serialize, Deserialize, Clone)]
+#[serde(rename_all = "camelCase")]
 pub struct Config {
     pub owml_path: String,
     pub wine_prefix: Option<String>,

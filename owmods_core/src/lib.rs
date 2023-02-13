@@ -2,6 +2,7 @@ pub mod alerts;
 pub mod config;
 pub mod db;
 pub mod download;
+pub mod file;
 pub mod game;
 pub mod io;
 pub mod logging;

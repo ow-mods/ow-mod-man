@@ -1,4 +1,4 @@
-@import "theme.scss";
+@import "vars.scss";
 
 .container {
     width: 100vw;
@@ -17,46 +17,51 @@
     display: none;
 }
 
+.fill {
+    width: 100vw !important;
+    height: 100vh !important;
+}
+
 a[role="button"],
 button {
-    background-color: $button-bg;
+    background-color: var(--button-bg);
     border: none;
     padding: $margin $margin-md;
 }
 
 a[role="button"]:hover,
 button:hover {
-    background-color: $button-bg-hover;
+    background-color: var(--button-bg-hover);
 }
 
 input::-webkit-file-upload-button {
-    background-color: $button-bg !important;
+    background-color: var(--button-bg) !important;
     border: none !important;
     padding: $margin $margin-md !important;
     margin-right: $margin !important;
 }
 
 input::-webkit-file-upload-button:hover {
-    background-color: $button-bg-hover !important;
+    background-color: var(--button-bg-hover) !important;
 }
 
 a[role="button"].secondary,
 button.secondary {
-    background-color: $secondary-button-bg;
+    background-color: var(--secondary-button-bg);
 }
 
 a[role="button"].secondary:hover,
 button.secondary:hover {
-    background-color: $secondary-button-bg-hover;
+    background-color: var(--secondary-button-bg-hover);
 }
 
 // Override Pico's STINKY, BLAND, DUMB chevron with a themed one
 details summary::after {
-    background-image: #{$themed-chevron};
+    background-image: var(--theme-chevron);
 }
 
 .muted {
-    color: $primary-muted;
+    color: var(--primary-muted);
 }
 
 @import "nav.scss";

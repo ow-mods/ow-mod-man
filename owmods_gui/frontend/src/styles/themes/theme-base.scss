@@ -1,0 +1,29 @@
+@mixin theme_base($primary) {
+    $bg: mix($primary, black, 10%);
+    $accent-bg: mix($primary, $bg, 10%);
+    $accent-bg-darker: mix($accent-bg, black, 40%);
+    $primary-really-dark: mix($primary, black, 50%);
+    $accent-bg-lighter: mix($accent-bg, white, 80%);
+    $button-bg: $primary-really-dark;
+    $secondary-button-bg: $accent-bg-lighter;
+    :root {
+        --primary: #{$primary} !important;
+        --bg: #{$bg};
+        --accent-bg: #{$accent-bg};
+        --accent-bg-lighter: #{$accent-bg-lighter};
+        --primary-really-dark: #{$primary-really-dark};
+        --accent-bg-darker: #{$accent-bg-darker};
+        --button-bg: #{$button-bg};
+        --secondary-button-bg: #{$secondary-button-bg};
+        --primary-muted: #{mix($primary, grey, 30%)};
+        --primary-dark: #{mix($primary, black, 80%)};
+        --primary-light: #{mix($primary, white, 80%)};
+        --primary-really-light: #{mix($primary, white, 10%)};
+        --accent-bg-lightest: #{mix($accent-bg, white, 50%)};
+        --active-bg: #{mix($primary, $bg, 20%)};
+        --button-bg-hover: #{mix($button-bg, black, 90%)};
+        --secondary-button-bg-hover: #{mix($secondary-button-bg, black, 90%)};
+        --modal-overlay-background-color: #{scale-color($accent-bg-darker, $alpha: -15%)} !important;
+        --themed-chevron: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='#{$primary}' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+    }
+}

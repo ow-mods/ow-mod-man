@@ -1,0 +1,9 @@
+{
+  "recommendations": [
+    "DavidAnson.vscode-markdownlint",
+    "rust-lang.rust-analyzer",
+    "tauri-apps.tauri-vscode",
+    "dbaeumer.vscode-eslint",
+    "esbenp.prettier-vscode"
+  ]
+}

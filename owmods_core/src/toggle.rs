@@ -1,9 +1,9 @@
 use std::path::{Path, PathBuf};
 
 use crate::{
+    file::{deserialize_from_json, fix_json, serialize_to_json},
     logging::Logger,
     mods::ModStubConfig,
-    utils::file::{deserialize_from_json, fix_json, serialize_to_json},
 };
 
 use super::db::{read_local_mod, LocalDatabase};

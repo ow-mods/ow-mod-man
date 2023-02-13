@@ -18,11 +18,11 @@ export default defineConfig({
     },
     resolve: {
         alias: [
-            { find: "@components", replacement: path.resolve(__dirname, "src/components") },
-            { find: "@styles", replacement: path.resolve(__dirname, "src/styles") },
-            { find: "@assets", replacement: path.resolve(__dirname, "src/assets") },
-            { find: "@types", replacement: path.resolve(__dirname, "src/types.ts") },
-            { find: "@hooks", replacement: path.resolve(__dirname, "src/hooks.ts") }
+            { find: "@components", replacement: path.resolve(__dirname, "./src/components") },
+            { find: "@styles", replacement: path.resolve(__dirname, "./src/styles") },
+            { find: "@assets", replacement: path.resolve(__dirname, "./src/assets") },
+            { find: "@types", replacement: path.resolve(__dirname, "./src/types.ts") },
+            { find: "@hooks", replacement: path.resolve(__dirname, "./src/hooks.ts") }
         ]
     }
 });

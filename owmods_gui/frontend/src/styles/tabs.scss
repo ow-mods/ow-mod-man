@@ -5,12 +5,12 @@
     grid-column-gap: $margin;
     grid-row-gap: 0px;
     align-items: center;
-    border-bottom: $border-size solid $accent-bg;
+    border-bottom: $border-size solid var(--accent-bg);
 }
 
 .tab {
-    color: $primary;
-    background-color: $accent-bg-darker;
+    color: var(--primary);
+    background-color: var(--accent-bg-darker);
     cursor: pointer;
     text-align: center;
     transition: background-color 0.2s, color 0.2s;
@@ -24,13 +24,13 @@
 }
 
 .tab.shown {
-    color: $primary-light;
-    background-color: $accent-bg;
+    color: var(--primary-light);
+    background-color: var(--accent-bg);
 }
 
 .tab:hover {
-    color: $primary-light;
-    background-color: $accent-bg-lighter;
+    color: var(--primary-light);
+    background-color: var(--accent-bg-lighter);
 }
 
 .tab-icon {

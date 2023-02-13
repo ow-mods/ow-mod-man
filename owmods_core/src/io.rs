@@ -1,6 +1,6 @@
 use std::path::{Path, PathBuf};
 
-use crate::{download::install_mods_parallel, logging::Logger, utils::file::deserialize_from_json};
+use crate::{download::install_mods_parallel, file::deserialize_from_json, logging::Logger};
 
 use super::{
     config::Config,

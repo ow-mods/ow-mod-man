@@ -1,9 +1,10 @@
 dialog article {
     width: 80%;
     max-height: 70%;
-    background-color: $bg;
+    background-color: var(--bg);
     display: flex;
     flex-direction: column;
+    overflow: hidden;
 }
 
 dialog article header {
@@ -17,10 +18,12 @@ dialog article header {
 
 dialog article div.modal-body {
     flex-grow: 1;
+    overflow-x: hidden;
+    overflow-y: auto;
 }
 
 dialog article footer {
-    background-color: $bg;
+    background-color: var(--bg);
     padding: $margin;
     margin-top: $margin-lg;
 }
@@ -39,7 +42,7 @@ dialog article form select {
 }
 
 .install-warning {
-    color: $primary-muted;
+    color: var(--primary-muted);
     padding: 0;
 }
 

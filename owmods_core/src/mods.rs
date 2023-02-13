@@ -1,9 +1,15 @@
-use std::path::{Path, PathBuf};
+use std::{
+    collections::HashMap,
+    path::{Path, PathBuf},
+};
 
 use serde::{Deserialize, Serialize};
-use serde_json::Map;
+use serde_json::Value;
 
-use crate::utils::fix_version;
+use crate::{
+    file::{deserialize_from_json, serialize_to_json},
+    utils::fix_version,
+};
 
 use super::config::Config;
 
@@ -100,7 +106,7 @@ pub struct ModManifest {
 pub struct ModStubConfig {
     pub enabled: bool,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub settings: Option<Map<String, serde_json::Value>>,
+    pub settings: Option<HashMap<String, Value>>,
 }
 
 // Have to allow non_snake_case here because OWML's config uses incrementalGC, which isn't proper camelCase
@@ -115,4 +121,39 @@ pub struct OWMLConfig {
     #[serde(skip_serializing_if = "Option::is_none")]
     owml_path: Option<String>,
     socket_port: u32,
+    #[serde(flatten)]
+    extra: HashMap<String, Value>,
+}
+
+impl OWMLConfig {
+    fn path(config: &Config) -> PathBuf {
+        Path::new(&config.owml_path).join("OWML.Config.json")
+    }
+
+    fn read(config: &Config) -> Result<OWMLConfig, anyhow::Error> {
+        deserialize_from_json(&Self::path(config))
+    }
+
+    fn load_default(config: &Config) -> Result<OWMLConfig, anyhow::Error> {
+        deserialize_from_json(&Path::new(&config.owml_path).join("OWML.DefaultConfig.json"))
+    }
+
+    fn write(owml_config: &OWMLConfig, config: &Config) -> Result<(), anyhow::Error> {
+        serialize_to_json(owml_config, &Self::path(config), true)?;
+        Ok(())
+    }
+
+    pub fn get(config: &Config) -> Result<OWMLConfig, anyhow::Error> {
+        if Self::path(config).is_file() {
+            Self::read(config)
+        } else {
+            let new_conf = Self::load_default(config)?;
+            new_conf.save(config)?;
+            Ok(new_conf)
+        }
+    }
+
+    pub fn save(&self, config: &Config) -> Result<(), anyhow::Error> {
+        Self::write(self, config)
+    }
 }

@@ -13,15 +13,12 @@ use zip::ZipArchive;
 use crate::{
     config::{write_config, Config},
     db::{read_local_mod, LocalDatabase, RemoteDatabase},
+    file::{create_all_parents, fix_bom, get_app_path},
     log,
     logging::{Logger, ProgressAction, ProgressType},
     mods::{get_paths_to_preserve, LocalMod, ModManifest, RemoteMod},
     toggle::generate_config,
-    utils::{
-        check_file_matches_paths,
-        file::{create_all_parents, get_app_path},
-        fix_bom, get_end_of_url,
-    },
+    utils::{check_file_matches_paths, get_end_of_url},
 };
 
 async fn download_zip(log: &Logger, url: &str, target_path: &Path) -> Result<(), anyhow::Error> {

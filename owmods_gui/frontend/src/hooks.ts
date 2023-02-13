@@ -2,6 +2,7 @@ import { invoke } from "@tauri-apps/api";
 import { listen, UnlistenFn } from "@tauri-apps/api/event";
 import { useContext, useEffect, useMemo, useRef, useState } from "react";
 import { TranslationContext, TranslationMap } from "@components/TranslationContext";
+import { Config, GuiConfig } from "@types";
 
 export type LoadState = "Loading" | "Done" | "Error";
 
@@ -83,7 +84,7 @@ export const useTauriCount = (incEvent: string, decEvent: string, initial?: numb
 export const useTranslation = (key: string, variables?: Record<string, string>) => {
     const context = useContext(TranslationContext);
     return useMemo(() => {
-        const activeTable = TranslationMap[context] ?? TranslationMap["_"];
+        const activeTable = TranslationMap[context];
         let translated = activeTable[key] ?? activeTable["_"];
         for (const k in variables) {
             translated = translated.replaceAll(`$${k}$`, variables[k]);
@@ -95,3 +96,6 @@ export const useTranslation = (key: string, variables?: Record<string, string>) 
 export const useTranslations = (keys: string[]) => {
     return keys.map((k) => useTranslation(k));
 };
+
+export const useConfig = () => useTauri<Config>("CONFIG_RELOAD", "fetch_config");
+export const useGuiConfig = () => useTauri<GuiConfig>("GUI_CONFIG_RELOAD", "get_gui_config");

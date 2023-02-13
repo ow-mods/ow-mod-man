@@ -61,17 +61,24 @@ export interface OwmlConfig {
     forceExe: boolean;
 }
 
-// Temporary defaults used when designing
-export const defaultConfig: Config = {
-    alertUrl: "",
-    databaseUrl: "",
-    owmlPath: "",
-    winePrefix: ""
-};
+export const ThemeArr = [
+    "White",
+    "Blue",
+    "Pink",
+    "Green",
+    "Yellow",
+    "Orange",
+    "Blurple",
+    "GhostlyGreen"
+] as const;
+export const LanguageArr = ["English", "Wario"] as const;
 
-export const defaultOwmlConfig: OwmlConfig = {
-    gamePath: "",
-    debugMode: false,
-    incrementalGC: true,
-    forceExe: true
-};
+export type Theme = (typeof ThemeArr)[number];
+export type Language = (typeof LanguageArr)[number];
+
+export interface GuiConfig {
+    theme: Theme;
+    rainbow: boolean;
+    language: Language;
+    watchFs: boolean;
+}

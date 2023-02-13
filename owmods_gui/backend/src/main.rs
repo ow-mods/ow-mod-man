@@ -6,6 +6,7 @@
 use std::{error::Error, sync::Arc};
 
 use commands::*;
+use gui_config::GuiConfig;
 use logging::get_logger;
 use owmods_core::{
     config::{get_config, Config},
@@ -16,12 +17,14 @@ use owmods_core::{
 use tokio::sync::RwLock as TokioLock;
 
 mod commands;
+mod gui_config;
 mod logging;
 
 pub struct State {
     local_db: Arc<TokioLock<LocalDatabase>>,
     remote_db: Arc<TokioLock<RemoteDatabase>>,
     config: Arc<TokioLock<Config>>,
+    gui_config: Arc<TokioLock<GuiConfig>>,
 }
 
 fn main() -> Result<(), Box<dyn Error>> {
@@ -29,12 +32,14 @@ fn main() -> Result<(), Box<dyn Error>> {
     let temp_logger = Logger::new(Box::new(basic_console));
 
     let config = get_config(&temp_logger)?;
+    let gui_config = GuiConfig::get()?;
 
     tauri::Builder::default()
         .manage(State {
             local_db: Arc::new(TokioLock::new(LocalDatabase::empty())),
             remote_db: Arc::new(TokioLock::new(RemoteDatabase::empty())),
             config: Arc::new(TokioLock::new(config)),
+            gui_config: Arc::new(TokioLock::new(gui_config)),
         })
         .setup(move |app| {
             get_logger(app.handle()).debug("Starting App");
@@ -51,7 +56,13 @@ fn main() -> Result<(), Box<dyn Error>> {
             toggle_mod,
             uninstall_mod,
             install_mod,
-            open_mod_readme
+            open_mod_readme,
+            save_config,
+            fetch_config,
+            save_gui_config,
+            get_gui_config,
+            save_owml_config,
+            get_owml_config
         ])
         .run(tauri::generate_context!())
         .expect("Error while running tauri application.");

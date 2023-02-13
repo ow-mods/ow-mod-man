@@ -6,7 +6,7 @@
     width: 100%;
 }
 
-$row-border: 1px solid $accent-bg;
+$row-border: 1px solid var(--accent-bg);
 
 .mod-row {
     border-bottom: $row-border;
@@ -38,7 +38,7 @@ $row-border: 1px solid $accent-bg;
 }
 
 .mod-header:focus {
-    color: $primary;
+    color: var(--primary);
 }
 
 .mod-header::after {
@@ -78,7 +78,7 @@ $row-border: 1px solid $accent-bg;
 }
 
 .mod-authors {
-    color: $primary-muted;
+    color: var(--primary-muted);
 }
 
 .mod-description {

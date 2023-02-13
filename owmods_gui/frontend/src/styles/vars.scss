@@ -1,0 +1,44 @@
+// Manages *just* the theming for the app, use styles.scss for actual classes and such
+@import "@picocss/pico/scss/pico";
+
+// Colors
+// Just as notes for later, cool colors include:
+// - lightgreen
+// - #ffab8a (mods website orange)
+// - #94a0cc (nomai tech blurple)
+// - rgb(51 255 204) (owlk green)
+
+// Sizing/Spacing
+$border-size: 0.15em;
+$tab-border-rad: 0.2em;
+$margin: 0.4em;
+$margin-sm: 0.2em;
+$margin-md: 0.6em;
+$margin-lg: 1em;
+$margin-xl: 1.2em;
+
+:root {
+    --primary-hover: var(--primary-dark);
+    --color: var(--primary-really-light);
+    --muted-color: var(--primary-muted);
+    --h4-color: var(--primary-really-light);
+    --background-color: var(--bg);
+    --card-background-color: var(--accent-bg);
+    --card-sectionning-background-color: var(--accent-bg);
+    --switch-color: var(--primary-really-light);
+    --switch-background-color: var(--accent-bg);
+    --switch-checked-background-color: var(--primary-really-dark);
+    --accordion-open-summary-color: var(--primary);
+    --accordion-border-color: var(--accent-bg);
+    --tooltip-color: var(--primary-really-light);
+    --tooltip-background-color: var(--accent-bg-lighter);
+    --dropdown-color: var(--primary);
+    --dropdown-border-color: var(--accent-bg);
+    --dropdown-background-color: var(--accent-bg-darker);
+    --dropdown-hover-background-color: var(--accent-bg);
+    --form-element-background-color: var(--accent-bg);
+    --form-element-border-color: var(--accent-bg);
+    --form-element-color: var(--primary-really-light);
+    --progress-background-color: var(--accent-bg);
+    --font-size: 16px !important; // Pico resizes the font based on breakpoints, don't do that
+}

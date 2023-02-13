@@ -12,7 +12,8 @@
   "tauri": {
     "allowlist": {
       "dialog": {
-        "confirm": true
+        "confirm": true,
+        "open": true
       },
       "app": {
         "all": true,
@@ -23,7 +24,10 @@
         "all": true
       },
       "shell": {
-        "open": "^https://github.com/"
+        "open": "(^https://github.com/)|(^https://discord.gg/)"
+      },
+      "window": {
+        "setTitle": true
       }
     },
     "bundle": {

@@ -26,8 +26,8 @@ pub fn launch_game(log: &Logger, config: &Config) -> Result<(), anyhow::Error> {
     use std::{process::Stdio, thread, time::Duration};
 
     use crate::{
+        file::{deserialize_from_json, serialize_to_json},
         mods::OWMLConfig,
-        utils::file::{deserialize_from_json, serialize_to_json},
     };
 
     if let Some(wine_prefix) = &config.wine_prefix {
@@ -78,8 +78,8 @@ pub fn setup_wine_prefix(log: &Logger, config: &Config) -> Result<Config, anyhow
 
     use crate::{
         config::write_config,
+        file::{create_all_parents, get_app_path},
         logging::{ProgressAction, ProgressType},
-        utils::file::{create_all_parents, get_app_path},
     };
 
     // SETUP

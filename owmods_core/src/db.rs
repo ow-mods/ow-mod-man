@@ -5,9 +5,9 @@ use anyhow::anyhow;
 use glob::glob;
 use serde::Deserialize;
 
+use crate::file::{deserialize_from_json, fix_json};
 use crate::log;
 use crate::logging::Logger;
-use crate::utils::file::{deserialize_from_json, fix_json};
 
 use super::config::Config;
 use super::mods::{get_mods_dir, LocalMod, ModManifest, RemoteMod};

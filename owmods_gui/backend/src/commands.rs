@@ -1,12 +1,14 @@
-use owmods_core::db::{fetch_local_db, fetch_remote_db};
+use owmods_core::config::{write_config, Config};
+use owmods_core::db::{fetch_local_db, fetch_remote_db, LocalDatabase, RemoteDatabase};
 use owmods_core::download::install_mod_from_db;
-use owmods_core::mods::{LocalMod, RemoteMod};
+use owmods_core::mods::{LocalMod, OWMLConfig, RemoteMod};
 use owmods_core::open::{open_readme, open_shortcut};
 use owmods_core::remove::remove_mod;
 use tauri::Manager;
 
 use crate::State;
 
+use crate::gui_config::GuiConfig;
 use crate::logging::get_logger;
 
 fn e_to_str(e: anyhow::Error) -> String {
@@ -23,8 +25,8 @@ pub async fn refresh_local_db(
     {
         let mut db = state.local_db.write().await;
         handle.emit_all("LOCAL-REFRESH", "").ok();
-        let local_db = fetch_local_db(&log, &conf).map_err(e_to_str)?;
-        *db = local_db;
+        let local_db = fetch_local_db(&log, &conf);
+        *db = local_db.unwrap_or_else(|_| LocalDatabase::empty());
     }
     Ok(())
 }
@@ -58,8 +60,8 @@ pub async fn refresh_remote_db(
     {
         let mut db = state.remote_db.write().await;
         handle.emit_all("REMOTE-REFRESH", "").ok();
-        let remote_db = fetch_remote_db(&log, &conf).await.map_err(e_to_str)?;
-        *db = remote_db;
+        let remote_db = fetch_remote_db(&log, &conf).await;
+        *db = remote_db.unwrap_or_else(|_| RemoteDatabase::empty());
     }
     Ok(())
 }
@@ -159,4 +161,63 @@ pub async fn open_mod_readme(
     let db = state.remote_db.read().await;
     open_readme(unique_name, &db).map_err(e_to_str)?;
     Ok(())
+}
+
+#[tauri::command]
+pub async fn save_config(
+    config: Config,
+    state: tauri::State<'_, State>,
+    handle: tauri::AppHandle,
+) -> Result<(), String> {
+    let logger = get_logger(handle.clone());
+    write_config(&logger, &config).map_err(e_to_str)?;
+    {
+        let mut conf_lock = state.config.write().await;
+        *conf_lock = config;
+    }
+    handle.emit_all("CONFIG_RELOAD", "").ok();
+    Ok(())
+}
+
+#[tauri::command]
+pub async fn fetch_config(state: tauri::State<'_, State>) -> Result<Config, String> {
+    Ok(state.config.read().await.clone())
+}
+
+#[tauri::command]
+pub async fn save_gui_config(
+    gui_config: GuiConfig,
+    state: tauri::State<'_, State>,
+    handle: tauri::AppHandle,
+) -> Result<(), String> {
+    gui_config.save().map_err(e_to_str)?;
+    {
+        let mut conf_lock = state.gui_config.write().await;
+        *conf_lock = gui_config;
+    }
+    handle.emit_all("GUI_CONFIG_RELOAD", "").ok();
+    Ok(())
+}
+
+#[tauri::command]
+pub async fn get_gui_config(state: tauri::State<'_, State>) -> Result<GuiConfig, String> {
+    Ok(state.gui_config.read().await.clone())
+}
+
+#[tauri::command]
+pub async fn save_owml_config(
+    owml_config: OWMLConfig,
+    state: tauri::State<'_, State>,
+    handle: tauri::AppHandle,
+) -> Result<(), String> {
+    let config = state.config.read().await;
+    owml_config.save(&config).map_err(e_to_str)?;
+    handle.emit_all("OWML_CONFIG_RELOAD", "").ok();
+    Ok(())
+}
+
+#[tauri::command]
+pub async fn get_owml_config(state: tauri::State<'_, State>) -> Result<OWMLConfig, String> {
+    let config = state.config.read().await;
+    OWMLConfig::get(&config).map_err(e_to_str)
 }

@@ -2,7 +2,7 @@
     position: absolute;
     top: -$margin-md;
     right: $margin;
-    color: $primary-dark;
+    color: var(--primary-dark);
     padding: 2px 6px;
     font-size: small;
     border-radius: 50px;
@@ -21,14 +21,14 @@
     padding: 0;
     overflow-y: scroll;
     border-radius: 5px;
-    border: 1px solid $accent-bg;
-    background-color: $accent-bg-darker;
+    border: 1px solid var(--accent-bg);
+    background-color: var(--accent-bg-darker);
 }
 
 .clear-downloads {
     position: absolute;
     top: $margin-md;
-    right: 0;
+    right: $margin-md;
     padding: 0.1em $margin !important;
     left: auto;
     bottom: auto;
@@ -48,7 +48,7 @@ a.clear-downloads svg {
 
 .downloads-row {
     padding: $margin;
-    border-bottom: 1px solid $accent-bg;
+    border-bottom: 1px solid var(--accent-bg);
 }
 
 .downloads-row svg {
@@ -57,7 +57,7 @@ a.clear-downloads svg {
 }
 
 .downloads-row.download-done progress {
-    background-color: $primary-muted;
+    background-color: var(--primary-muted);
 }
 
 .downloads-row.download-done svg {
@@ -67,5 +67,5 @@ a.clear-downloads svg {
 .no-downloads {
     padding: $margin-xl;
     text-align: center;
-    color: $primary-dark;
+    color: var(--primary-dark);
 }

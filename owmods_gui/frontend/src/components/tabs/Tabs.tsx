@@ -53,7 +53,7 @@ const Tabs = memo(() => {
                 <Section shown={shownSection == SectionType.Local}>
                     <LocalMods />
                 </Section>
-                <Section shown={shownSection == SectionType.Remote}>
+                <Section className="remote" shown={shownSection == SectionType.Remote}>
                     <RemoteMods />
                 </Section>
             </div>

@@ -48,7 +48,12 @@
 .section {
     display: none;
     height: 100%;
-    overflow: hidden;
+    overflow-x: hidden;
+    overflow-y: auto;
+}
+
+.section.remote {
+    overflow-y: hidden;
 }
 
 .section.shown {

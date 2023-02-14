@@ -1,6 +1,7 @@
 *::-webkit-scrollbar {
     background-color: var(--accent-bg);
     border-radius: $tab-border-rad;
+    width: $margin-md;
 }
 
 *::-webkit-scrollbar-thumb {

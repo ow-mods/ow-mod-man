@@ -1,0 +1,21 @@
+div.install-source {
+    display: grid;
+    grid-template-rows: 1fr;
+    grid-template-columns: 1fr 0.3fr;
+    column-gap: $margin-md;
+    height: 100%;
+}
+
+.install-source button {
+    justify-content: center;
+    height: 100%;
+}
+
+.install-source button,
+.installSource input {
+    padding: $margin $margin-md;
+}
+
+.install-source button svg {
+    margin: 0 $margin !important;
+}

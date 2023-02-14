@@ -1,6 +1,8 @@
+use std::path::PathBuf;
+
 use owmods_core::config::{write_config, Config};
 use owmods_core::db::{fetch_local_db, fetch_remote_db, LocalDatabase, RemoteDatabase};
-use owmods_core::download::install_mod_from_db;
+use owmods_core::download::{install_mod_from_db, install_mod_from_url, install_mod_from_zip};
 use owmods_core::mods::{LocalMod, OWMLConfig, RemoteMod};
 use owmods_core::open::{open_readme, open_shortcut};
 use owmods_core::remove::remove_mod;
@@ -137,6 +139,39 @@ pub async fn install_mod(
     .await
     .map_err(e_to_str)?;
     handle.emit_all("INSTALL-FINISH", unique_name).ok();
+    Ok(())
+}
+
+#[tauri::command]
+pub async fn install_url(
+    url: &str,
+    handle: tauri::AppHandle,
+    state: tauri::State<'_, State>,
+) -> Result<(), String> {
+    handle.emit_all("INSTALL-START", url).ok();
+    let logger = get_logger(handle.clone());
+    let conf = state.config.read().await;
+    let db = state.local_db.read().await;
+    install_mod_from_url(&logger, url, &conf, &db)
+        .await
+        .map_err(e_to_str)?;
+    handle.emit_all("INSTALL-FINISH", url).ok();
+    Ok(())
+}
+
+#[tauri::command]
+pub async fn install_zip(
+    path: &str,
+    handle: tauri::AppHandle,
+    state: tauri::State<'_, State>,
+) -> Result<(), String> {
+    handle.emit_all("INSTALL-START", path).ok();
+    let logger = get_logger(handle.clone());
+    let conf = state.config.read().await;
+    let db = state.local_db.read().await;
+    println!("Installing {}", path);
+    install_mod_from_zip(&logger, &PathBuf::from(path), &conf, &db).map_err(e_to_str)?;
+    handle.emit_all("INSTALL-FINISH", path).ok();
     Ok(())
 }
 

@@ -56,6 +56,8 @@ fn main() -> Result<(), Box<dyn Error>> {
             toggle_mod,
             uninstall_mod,
             install_mod,
+            install_url,
+            install_zip,
             open_mod_readme,
             save_config,
             fetch_config,

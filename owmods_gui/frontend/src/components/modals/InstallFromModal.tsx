@@ -1,7 +1,8 @@
 import Icon from "@components/Icon";
 import { useTranslations } from "@hooks";
 import { dialog, invoke } from "@tauri-apps/api";
-import { useState } from "react";
+import { listen } from "@tauri-apps/api/event";
+import { useEffect, useState } from "react";
 import { FaExclamationTriangle, FaFileArchive } from "react-icons/fa";
 import Modal, { ModalWrapperProps } from "./Modal";
 
@@ -51,6 +52,14 @@ const InstallFromModal = (props: ModalWrapperProps) => {
                 }
             });
     };
+
+    useEffect(() => {
+        listen("PROTOCOL_INSTALL_URL", ({ payload }) => {
+            setSource("URL");
+            setTarget(payload as string);
+            props.open?.current();
+        }).catch(console.warn);
+    }, []);
 
     return (
         <Modal

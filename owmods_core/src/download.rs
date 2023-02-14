@@ -188,7 +188,10 @@ fn extract_mod_zip(
         }
     }
 
-    progress.finish(&format!("Installed {}", zip_name));
+    let mod_name = read_local_mod(log, &target_path.join("manifest.json"))?
+        .manifest
+        .name;
+    progress.finish(&format!("Installed {}", mod_name));
 
     Ok(())
 }

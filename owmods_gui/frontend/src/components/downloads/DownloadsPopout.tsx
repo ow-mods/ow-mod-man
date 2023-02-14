@@ -36,7 +36,13 @@ interface ProgressFinishPayload {
 
 const ActiveDownload = (props: ActiveDownloadProps) => {
     return (
-        <div className={`downloads-row${props.progress >= props.len ? " download-done" : ""}`}>
+        <div
+            className={`downloads-row${
+                props.progressAction === "Extract" && props.progress >= props.len
+                    ? " download-done"
+                    : ""
+            }`}
+        >
             <p className="download-header fix-icons">
                 <Icon iconType={FaCheck} /> {props.message}
             </p>
@@ -44,9 +50,9 @@ const ActiveDownload = (props: ActiveDownloadProps) => {
                 value={
                     props.progressType === "Indefinite" && props.progress === 0
                         ? undefined
-                        : props.progress / props.len
+                        : props.progress
                 }
-                max={1}
+                max={props.len}
             />
         </div>
     );
@@ -62,7 +68,10 @@ const DownloadsPopout = () => {
     }, [downloads]);
 
     useEffect(() => {
+        // Necessary evil, can't unsubscribe bc everything is async
+        let cancelled = false;
         listen("PROGRESS-START", (p) => {
+            if (cancelled) return;
             const data = p.payload as ActiveDownloadProps;
             if (data.progressAction !== "Wine") {
                 if (data.id in downloadsRef.current) {
@@ -72,22 +81,28 @@ const DownloadsPopout = () => {
             }
         }).catch(console.warn);
         listen("PROGRESS-INCREMENT", (e) => {
+            if (cancelled) return;
             const payload = (e.payload as ProgressIncrementPayload).increment;
             const current = downloadsRef.current[payload.id];
-            if (current) {
+            if (current && current.progressAction === "Extract") {
+                console.debug(`${current.progress} / ${current.len}`);
+            }
+            if (current && current.progress + payload.amount <= current.len) {
                 current.progress += payload.amount;
                 setDownloads({ ...downloadsRef.current, [current.id]: current });
             }
-        });
+        }).catch(console.warn);
         listen("PROGRESS-MSG", (e) => {
+            if (cancelled) return;
             const payload = (e.payload as ProgressMessagePayload).changeMsg;
             const current = downloadsRef.current[payload.id];
             if (current) {
                 current.message = payload.newMsg;
                 setDownloads({ ...downloadsRef.current, [current.id]: current });
             }
-        });
+        }).catch(console.warn);
         listen("PROGRESS-FINISH", (e) => {
+            if (cancelled) return;
             const payload = (e.payload as ProgressFinishPayload).finish;
             const current = downloadsRef.current[payload.id];
             if (current && current.progressAction === "Extract") {
@@ -99,7 +114,10 @@ const DownloadsPopout = () => {
                 }
                 setDownloads({ ...downloadsRef.current, [current.id]: current });
             }
-        });
+        }).catch(console.warn);
+        return () => {
+            cancelled = true;
+        };
     }, []);
 
     const [noDownloads, clearDownloads] = useTranslations(["NO_DOWNLOADS", "CLEAR_DOWNLOADS"]);

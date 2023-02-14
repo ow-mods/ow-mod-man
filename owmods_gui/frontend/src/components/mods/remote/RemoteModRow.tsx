@@ -65,7 +65,7 @@ const RemoteModRow = memo((props: RemoteModRowProps) => {
         invoke("open_mod_readme", { uniqueName: props.uniqueName }).catch(console.warn);
     }, [props.uniqueName]);
 
-    if (status === "Loading") {
+    if (status === "Loading" && mod === null) {
         return <div className="mod-row center-loading" aria-busy style={props.style}></div>;
     } else if (status === "Error") {
         return (

@@ -84,10 +84,7 @@ const DownloadsPopout = () => {
             if (cancelled) return;
             const payload = (e.payload as ProgressIncrementPayload).increment;
             const current = downloadsRef.current[payload.id];
-            if (current && current.progressAction === "Extract") {
-                console.debug(`${current.progress} / ${current.len}`);
-            }
-            if (current && current.progress + payload.amount <= current.len) {
+            if (current) {
                 current.progress += payload.amount;
                 setDownloads({ ...downloadsRef.current, [current.id]: current });
             }

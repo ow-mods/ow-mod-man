@@ -4,6 +4,7 @@
     grid-auto-flow: row;
     min-width: 0;
     width: 100%;
+    overflow-x: hidden;
 }
 
 $row-border: 1px solid var(--accent-bg);

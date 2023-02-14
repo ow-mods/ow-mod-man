@@ -8,7 +8,13 @@
     "owlk",
     "owmods",
     "reqwest",
+    "rungameid",
+    "scrollbars",
+    "steamapps",
     "Unlisten",
-    "Wario"
-  ]
+    "Wario",
+    "wineboot",
+    "WINEPREFIX",
+    "winetricks"
+]
 }

@@ -5,7 +5,7 @@ use std::{path::PathBuf, process::Command};
 #[cfg(windows)]
 pub fn launch_game(log: &Logger, config: &Config) -> Result<(), anyhow::Error> {
     let owml_path = PathBuf::from(&config.owml_path);
-    let mut child = Command::new(&owml_path.join("OWML.Launcher.exe").to_str().unwrap())
+    let mut child = Command::new(owml_path.join("OWML.Launcher.exe").to_str().unwrap())
         .current_dir(PathBuf::from(&owml_path))
         .spawn()?;
     child.wait()?;

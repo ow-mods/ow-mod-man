@@ -1,0 +1,14 @@
+*::-webkit-scrollbar {
+    background-color: var(--accent-bg);
+    border-radius: $tab-border-rad;
+}
+
+*::-webkit-scrollbar-thumb {
+    border-radius: $tab-border-rad;
+    background-color: var(--primary-dark);
+    transition: background-color 4s;
+}
+
+*::-webkit-scrollbar-thumb:hover {
+    background-color: var(--primary-really-dark);
+}

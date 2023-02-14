@@ -8,7 +8,7 @@ export interface SectionProps {
 
 const Section = (props: SectionProps) => {
     return (
-        <div className={`section${props.shown ? " shown" : ""} ${props.className}`}>
+        <div className={`section${props.shown ? " shown" : ""} ${props.className ?? ""}`}>
             {props.children}
         </div>
     );

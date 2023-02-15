@@ -410,7 +410,12 @@ async fn run_from_cli(cli: BaseCli, logger: &core::logging::Logger) -> Result<()
         Commands::Update => {
             let remote_db = core::db::fetch_remote_db(logger, &config).await?;
             let local_db = core::db::fetch_local_db(logger, &config)?;
-            core::updates::check_for_updates(logger, &config, &local_db, &remote_db).await?;
+            let updated = core::updates::update_all(logger, &config, &local_db, &remote_db).await?;
+            if updated {
+                logger.success("Update Complete!");
+            } else {
+                logger.success("No Updates Available!");
+            }
         }
         Commands::Enable { unique_name } | Commands::Disable { unique_name } => {
             let db = core::db::fetch_local_db(logger, &config)?;

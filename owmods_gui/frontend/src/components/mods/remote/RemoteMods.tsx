@@ -22,7 +22,7 @@ const RemoteMods = memo(() => {
                         itemKey={(index) => remote_mods[index]}
                         width={width}
                         height={height}
-                        className="mod-list"
+                        className="mod-list remote"
                     >
                         {({ index, style }) => (
                             <RemoteModRow style={style} uniqueName={remote_mods[index]} />

@@ -13,7 +13,8 @@
     "allowlist": {
       "dialog": {
         "confirm": true,
-        "open": true
+        "open": true,
+        "message": true
       },
       "app": {
         "all": true,

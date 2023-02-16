@@ -1,14 +1,15 @@
 import Nav from "@components/nav/Nav";
 import Tabs from "@components/tabs/Tabs";
-import { LoadState, useGuiConfig } from "@hooks";
+import { useGuiConfig } from "@hooks";
 import { invoke } from "@tauri-apps/api";
 import { getCurrent } from "@tauri-apps/api/window";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef } from "react";
 import { TranslationContext, TranslationMap } from "@components/TranslationContext";
 import ThemeMap from "../theme";
 
 import rainbow from "@styles/rainbow.scss?inline";
 import OwmlSetupModal from "./modals/OwmlSetupModal";
+import { listen } from "@tauri-apps/api/event";
 
 // Refresh once to get data
 invoke("refresh_local_db").catch(() => console.warn("Can't fetch local DB"));
@@ -16,7 +17,6 @@ invoke("refresh_remote_db").catch(() => console.warn("Can't fetch remote DB"));
 
 const App = () => {
     const [status, guiConfig, err] = useGuiConfig();
-    const [owmlStatus, setOwmlStatus] = useState<LoadState>("Loading");
     const openOwmlSetup = useRef<() => void>(() => null);
 
     useEffect(() => {
@@ -25,15 +25,30 @@ const App = () => {
             .catch(console.warn);
     }, [guiConfig?.language]);
 
+    const owmlCheck = useCallback(() => {
+        invoke("get_owml_config").catch(() => {
+            openOwmlSetup.current();
+        });
+    }, [openOwmlSetup]);
+
     useEffect(() => {
-        if (status === "Done" && owmlStatus === "Loading") {
-            invoke("get_owml_config").then(() => setOwmlStatus("Done")).catch(() => {
-                console.debug("ee");
-                setOwmlStatus("Error");
+        if (status === "Done") {
+            owmlCheck();
+        }
+    }, [status]);
+
+    useEffect(() => {
+        let cancelled = false;
+        listen("OWML_CONFIG_RELOAD", () => {
+            if (cancelled) return;
+            invoke("get_owml_config").catch(() => {
                 openOwmlSetup.current();
             });
-        }
-    }, [status, owmlStatus]);
+        });
+        return () => {
+            cancelled = true;
+        };
+    }, []);
 
     useEffect(() => {
         let newTheme = ThemeMap[guiConfig?.theme ?? "White"];

@@ -1,8 +1,10 @@
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 
 use owmods_core::config::{write_config, Config};
 use owmods_core::db::{fetch_local_db, fetch_remote_db, LocalDatabase, RemoteDatabase};
-use owmods_core::download::{install_mod_from_db, install_mod_from_url, install_mod_from_zip};
+use owmods_core::download::{
+    download_and_install_owml, install_mod_from_db, install_mod_from_url, install_mod_from_zip,
+};
 use owmods_core::mods::{LocalMod, OWMLConfig, RemoteMod};
 use owmods_core::open::{open_readme, open_shortcut};
 use owmods_core::remove::remove_mod;
@@ -255,4 +257,39 @@ pub async fn save_owml_config(
 pub async fn get_owml_config(state: tauri::State<'_, State>) -> Result<OWMLConfig, String> {
     let config = state.config.read().await;
     OWMLConfig::get(&config).map_err(e_to_str)
+}
+
+#[tauri::command]
+pub async fn install_owml(
+    state: tauri::State<'_, State>,
+    handle: tauri::AppHandle,
+) -> Result<(), String> {
+    let log = get_logger(handle.clone());
+    let config = state.config.read().await;
+    let db = state.remote_db.read().await;
+    let owml = db.get_owml().ok_or("Couldn't Find OWML In The Database")?;
+    download_and_install_owml(&log, &config, owml)
+        .await
+        .map_err(e_to_str)?;
+    handle.emit_all("OWML_CONFIG_RELOAD", "").ok();
+    Ok(())
+}
+
+#[tauri::command]
+pub async fn set_owml(
+    path: &str,
+    state: tauri::State<'_, State>,
+    handle: tauri::AppHandle,
+) -> Result<bool, String> {
+    let log = get_logger(handle.clone());
+    let path = Path::new(path);
+    if path.is_dir() && path.join("OWML.Manifest.json").is_file() {
+        let mut config = state.config.write().await;
+        config.owml_path = path.to_str().unwrap().to_string();
+        write_config(&log, &config).map_err(e_to_str)?;
+        handle.emit_all("OWML_CONFIG_RELOAD", "").ok();
+        Ok(true)
+    } else {
+        Ok(false)
+    }
 }

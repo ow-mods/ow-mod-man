@@ -192,10 +192,11 @@ const SettingsForm = (props: SettingsFormProps) => {
     props.save.current = () => {
         const task = async () => {
             await invoke("save_config", { config });
-            await invoke("save_owml_config", { owmlConfig });
             await invoke("save_gui_config", { guiConfig });
             if (config.owmlPath !== props.initialConfig.owmlPath) {
                 await invoke("refresh_local_db");
+            } else {
+                await invoke("save_owml_config", { owmlConfig });
             }
             if (config.databaseUrl !== props.initialConfig.databaseUrl) {
                 await invoke("refresh_remote_db");

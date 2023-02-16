@@ -72,7 +72,8 @@ pub async fn update_all(
     if needs_update.is_empty() {
         Ok(false)
     } else {
-        let mod_names = needs_update.into_iter()
+        let mod_names = needs_update
+            .into_iter()
             .map(|m| m.unique_name.clone())
             .collect();
         install_mods_parallel(log, mod_names, config, remote_db, local_db).await?;

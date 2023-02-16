@@ -8,6 +8,7 @@ export interface ModalProps {
     showCancel?: boolean;
     cancelText?: string;
     open?: MutableRefObject<() => void>;
+    close?: MutableRefObject<() => void>;
     children: ReactNode;
     onCancel?: () => boolean | void;
     onConfirm?: () => boolean | void;
@@ -24,12 +25,20 @@ interface OpenState {
 
 const Modal = (props: ModalProps) => {
     const [state, setState] = useState<OpenState>({ open: false, closing: false });
+    const [awaitingClose, setAwaitingClose] = useState(false);
 
     const open = () => setState({ open: true, closing: false });
-    const close = () => setState({ open: true, closing: true });
+    const close = () => {
+        setAwaitingClose(false);
+        setState({ open: true, closing: true });
+    };
 
     if (props.open) {
         props.open.current = open;
+    }
+
+    if (props.close) {
+        props.close.current = close;
     }
 
     const [cancel, ok] = useTranslations(["CANCEL", "OK"]);
@@ -53,7 +62,7 @@ const Modal = (props: ModalProps) => {
     }, [state]);
 
     return (
-        <dialog dir="ltr" open={state.open}>
+        <dialog className={state.open ? "" : "d-none"} dir="ltr" open={state.open}>
             <IconContext.Provider value={{ className: "modal-icon" }}>
                 <article>
                     <header>
@@ -78,13 +87,15 @@ const Modal = (props: ModalProps) => {
                         <a
                             href="#confirm"
                             role="button"
+                            aria-busy={awaitingClose}
                             onClick={() => {
+                                setAwaitingClose(true);
                                 if (props.onConfirm?.() ?? true) {
                                     close();
                                 }
                             }}
                         >
-                            {props.confirmText ?? ok}
+                            {!awaitingClose && (props.confirmText ?? ok)}
                         </a>
                     </footer>
                 </article>

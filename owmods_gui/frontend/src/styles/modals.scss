@@ -20,6 +20,7 @@ dialog article div.modal-body {
     flex-grow: 1;
     overflow-x: hidden;
     overflow-y: auto;
+    padding-right: $margin-md;
 }
 
 dialog article footer {

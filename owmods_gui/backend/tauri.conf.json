@@ -46,7 +46,7 @@
         "icons/icon.icns",
         "icons/icon.ico"
       ],
-      "identifier": "com.bwc9876.owmods_gui",
+      "identifier": "com.bwc9876.owmods-gui",
       "longDescription": "A manager for Outer Wilds mods",
       "macOS": {
         "entitlements": null,

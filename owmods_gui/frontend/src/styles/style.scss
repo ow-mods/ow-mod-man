@@ -1,5 +1,10 @@
 @import "vars.scss";
 
+body {
+    -webkit-user-select: none;     
+    user-select: none;
+}
+
 .container {
     width: 100vw;
     height: 100vh;

@@ -110,6 +110,7 @@ const DownloadsPopout = () => {
 
     return (
         <div className="downloads-popout">
+            <header>Downloads</header>
             {Object.keys(downloads).length === 0 ? (
                 <p className="no-downloads">{noDownloads}</p>
             ) : (

@@ -25,6 +25,10 @@
     background-color: var(--accent-bg-darker);
 }
 
+.downloads-popout::-webkit-scrollbar {
+    width: $margin;
+}
+
 .clear-downloads {
     position: absolute;
     top: $margin-md;
@@ -32,11 +36,22 @@
     padding: 0.1em $margin !important;
     left: auto;
     bottom: auto;
+    color: var(--primary-muted);
 }
 
 a.clear-downloads svg {
     margin: $margin-sm;
     margin-right: $margin-sm !important;
+}
+
+.downloads-popout header {
+    color: var(--primary-really-light);
+    background-color: var(--accent-bg);
+    font-size: large;
+    border-bottom: $row-border;
+    padding: 0;
+    margin: 0;
+    text-align: center;
 }
 
 .downloads-popout p {
@@ -47,13 +62,22 @@ a.clear-downloads svg {
 }
 
 .downloads-row {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    margin: 0 $margin;
     padding: $margin;
     border-bottom: 1px solid var(--accent-bg);
 }
 
 .downloads-row svg {
     display: none;
-    padding-right: $margin-sm;
+    padding-right: $margin;
+}
+
+.downloads-row progress {
+    box-sizing: content-box;
+    margin: $margin 0;
 }
 
 .downloads-row.download-done progress {

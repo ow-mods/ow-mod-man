@@ -15,6 +15,7 @@ serde = { version = "1.0", features = ["derive"] }
 tauri = { version = "1.2.4", features = ["app-all", "dialog-confirm", "dialog-message", "dialog-open", "os-all", "shell-open", "window-set-title"] }
 anyhow = "1.0.69"
 tokio = { version = "1.25.0", features = ["sync"] }
+log = { version = "0.4.17", features = ["std", "serde"] }
 
 [features]
 default = ["custom-protocol"]

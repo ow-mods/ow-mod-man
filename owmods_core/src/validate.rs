@@ -1,10 +1,11 @@
 use std::path::PathBuf;
 
+use anyhow::Result;
+
 use crate::{
     config::Config,
     db::{LocalDatabase, RemoteDatabase},
     download::install_mods_parallel,
-    logging::Logger,
     mods::LocalMod,
     toggle::toggle_mod,
 };
@@ -31,24 +32,16 @@ pub fn check_deps<'a>(
 }
 
 pub async fn fix_deps(
-    log: &Logger,
     config: &Config,
     db: &LocalDatabase,
     remote_db: &RemoteDatabase,
-) -> Result<(), anyhow::Error> {
+) -> Result<()> {
     for local_mod in db.active().iter() {
         let (missing, disabled) = check_deps(local_mod, db);
         for disabled in disabled.iter() {
-            toggle_mod(
-                log,
-                &PathBuf::from(disabled.mod_path.to_owned()),
-                db,
-                true,
-                true,
-            )?;
+            toggle_mod(&PathBuf::from(disabled.mod_path.to_owned()), db, true, true)?;
         }
         install_mods_parallel(
-            log,
             missing.into_iter().cloned().collect(),
             config,
             remote_db,

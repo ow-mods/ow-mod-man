@@ -1,27 +1,29 @@
-use crate::{config::Config, logging::Logger};
-
+use crate::config::Config;
+use anyhow::Result;
+use log::{debug, info};
 use std::{path::PathBuf, process::Command};
 
 #[cfg(windows)]
-pub fn launch_game(log: &Logger, config: &Config) -> Result<(), anyhow::Error> {
+pub fn launch_game(config: &Config) -> Result<()> {
     let owml_path = PathBuf::from(&config.owml_path);
     let mut child = Command::new(owml_path.join("OWML.Launcher.exe").to_str().unwrap())
         .current_dir(PathBuf::from(&owml_path))
         .spawn()?;
     child.wait()?;
-    log.info("Quit Game");
+    info!("Quit Game");
     Ok(())
 }
 
 #[cfg(windows)]
-pub fn setup_wine_prefix(log: &Logger, config: &Config) -> Result<Config, anyhow::Error> {
-    log.error("How in the ever-loving FUCK did you get here");
-    log.error("...report this please");
+pub fn setup_wine_prefix(log: &Logger, config: &Config) -> Result<Config> {
+    use log::error;
+    error!("How in the ever-loving FUCK did you get here");
+    error!("...report this please");
     Ok(config.clone()) // Never reached so idc
 }
 
 #[cfg(not(windows))]
-pub fn launch_game(log: &Logger, config: &Config) -> Result<(), anyhow::Error> {
+pub fn launch_game(config: &Config) -> Result<()> {
     use anyhow::anyhow;
     use std::{process::Stdio, thread, time::Duration};
 
@@ -57,10 +59,10 @@ pub fn launch_game(log: &Logger, config: &Config) -> Result<(), anyhow::Error> {
                     res.code().unwrap()
                 ));
             } else {
-                log.debug("Actually Starting Game Now...");
+                debug!("Actually Starting Game Now...");
                 opener::open("steam://rungameid/753640")?;
                 child.wait()?;
-                log.info("Quit Game");
+                info!("Quit Game");
             }
         }
     } else {
@@ -71,15 +73,14 @@ pub fn launch_game(log: &Logger, config: &Config) -> Result<(), anyhow::Error> {
 }
 
 #[cfg(not(windows))]
-pub fn setup_wine_prefix(log: &Logger, config: &Config) -> Result<Config, anyhow::Error> {
+pub fn setup_wine_prefix(config: &Config) -> Result<Config> {
     use anyhow::anyhow;
     use directories::BaseDirs;
     use std::{os::unix::fs::symlink, path::Path, process::Stdio};
 
     use crate::{
-        config::write_config,
         file::{create_all_parents, get_app_path},
-        logging::{ProgressAction, ProgressType},
+        progress::{ProgressAction, ProgressBar, ProgressType},
     };
 
     // SETUP
@@ -97,12 +98,12 @@ pub fn setup_wine_prefix(log: &Logger, config: &Config) -> Result<Config, anyhow
         .join(ow_rel_dir);
 
     // WINE PREFIX
-    let progress = log.start_progress(
+    let progress = ProgressBar::new(
         "PREFIX",
+        0,
+        "Setting Up Wine Prefix...",
         ProgressType::Indefinite,
         ProgressAction::Wine,
-        "Setting Up Wine Prefix...",
-        0,
     );
 
     let out = Command::new("wine")
@@ -123,12 +124,12 @@ pub fn setup_wine_prefix(log: &Logger, config: &Config) -> Result<Config, anyhow
     progress.finish("Wine Prefix Created!");
 
     // SYMLINK
-    let progress = log.start_progress(
+    let progress = ProgressBar::new(
         "SYMLINK",
+        0,
+        "Creating Symlink To OW...",
         ProgressType::Indefinite,
         ProgressAction::Wine,
-        "Creating Symlink To OW...",
-        0,
     );
 
     create_all_parents(&link_path)?;
@@ -138,12 +139,12 @@ pub fn setup_wine_prefix(log: &Logger, config: &Config) -> Result<Config, anyhow
     progress.finish("Symlink Created!");
 
     // .NET 4.8
-    let progress = log.start_progress(
+    let progress = ProgressBar::new(
         ".NET",
+        0,
+        "Installing .NET 4.8...",
         ProgressType::Indefinite,
         ProgressAction::Wine,
-        "Installing .NET 4.8...",
-        0,
     );
 
     let out = Command::new("winetricks")
@@ -165,6 +166,6 @@ pub fn setup_wine_prefix(log: &Logger, config: &Config) -> Result<Config, anyhow
 
     let mut new_config = config.clone();
     new_config.wine_prefix = Some(prefix_str.to_string());
-    write_config(log, &new_config)?;
+    new_config.save()?;
     Ok(new_config)
 }

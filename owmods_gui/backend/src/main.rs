@@ -7,11 +7,11 @@ use std::{error::Error, sync::Arc};
 
 use commands::*;
 use gui_config::GuiConfig;
-use logging::get_logger;
+use log::{set_boxed_logger, set_max_level};
+use logging::Logger;
 use owmods_core::{
-    config::{get_config, Config},
+    config::Config,
     db::{LocalDatabase, RemoteDatabase},
-    logging::{BasicConsoleBackend, Logger},
 };
 
 use tokio::sync::RwLock as TokioLock;
@@ -28,21 +28,19 @@ pub struct State {
 }
 
 fn main() -> Result<(), Box<dyn Error>> {
-    let basic_console = BasicConsoleBackend;
-    let temp_logger = Logger::new(Box::new(basic_console));
-
-    let config = get_config(&temp_logger)?;
+    let config = Config::get()?;
     let gui_config = GuiConfig::get()?;
 
     tauri::Builder::default()
         .manage(State {
-            local_db: Arc::new(TokioLock::new(LocalDatabase::empty())),
-            remote_db: Arc::new(TokioLock::new(RemoteDatabase::empty())),
+            local_db: Arc::new(TokioLock::new(LocalDatabase::default())),
+            remote_db: Arc::new(TokioLock::new(RemoteDatabase::default())),
             config: Arc::new(TokioLock::new(config)),
             gui_config: Arc::new(TokioLock::new(gui_config)),
         })
         .setup(move |app| {
-            get_logger(app.handle()).debug("Starting App");
+            set_boxed_logger(Box::new(Logger::new(app.handle())))
+                .map(|_| set_max_level(log::LevelFilter::Debug))?;
             Ok(())
         })
         .invoke_handler(tauri::generate_handler![
@@ -70,6 +68,5 @@ fn main() -> Result<(), Box<dyn Error>> {
         ])
         .run(tauri::generate_context!())
         .expect("Error while running tauri application.");
-
     Ok(())
 }

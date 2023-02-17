@@ -3,6 +3,7 @@ use std::{
     path::{Path, PathBuf},
 };
 
+use anyhow::Result;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 
@@ -130,20 +131,20 @@ impl OWMLConfig {
         Path::new(&config.owml_path).join("OWML.Config.json")
     }
 
-    fn read(config: &Config) -> Result<OWMLConfig, anyhow::Error> {
+    fn read(config: &Config) -> Result<OWMLConfig> {
         deserialize_from_json(&Self::path(config))
     }
 
-    fn load_default(config: &Config) -> Result<OWMLConfig, anyhow::Error> {
+    fn load_default(config: &Config) -> Result<OWMLConfig> {
         deserialize_from_json(&Path::new(&config.owml_path).join("OWML.DefaultConfig.json"))
     }
 
-    fn write(owml_config: &OWMLConfig, config: &Config) -> Result<(), anyhow::Error> {
+    fn write(owml_config: &OWMLConfig, config: &Config) -> Result<()> {
         serialize_to_json(owml_config, &Self::path(config), true)?;
         Ok(())
     }
 
-    pub fn get(config: &Config) -> Result<OWMLConfig, anyhow::Error> {
+    pub fn get(config: &Config) -> Result<OWMLConfig> {
         if Self::path(config).is_file() {
             Self::read(config)
         } else {
@@ -153,7 +154,7 @@ impl OWMLConfig {
         }
     }
 
-    pub fn save(&self, config: &Config) -> Result<(), anyhow::Error> {
+    pub fn save(&self, config: &Config) -> Result<()> {
         Self::write(self, config)
     }
 }

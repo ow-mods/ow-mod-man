@@ -1,12 +1,10 @@
 use std::{fs::remove_dir_all, path::PathBuf};
 
+use anyhow::Result;
+
 use crate::{db::LocalDatabase, mods::LocalMod};
 
-pub fn remove_mod(
-    local_mod: &LocalMod,
-    db: &LocalDatabase,
-    recursive: bool,
-) -> Result<(), anyhow::Error> {
+pub fn remove_mod(local_mod: &LocalMod, db: &LocalDatabase, recursive: bool) -> Result<()> {
     if PathBuf::from(&local_mod.mod_path).is_dir() {
         // In case weird circular dep stuff happens, just don't delete it if it doesn't exist
         remove_dir_all(&local_mod.mod_path)?;

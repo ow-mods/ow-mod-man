@@ -1,11 +1,9 @@
+use anyhow::Result;
+use log::debug;
 use serde::{Deserialize, Serialize};
-use std::path::{Path, PathBuf};
+use std::path::{PathBuf, Path};
 
-use crate::{
-    file::{deserialize_from_json, get_app_path, serialize_to_json},
-    log,
-    logging::Logger,
-};
+use crate::file::{deserialize_from_json, get_app_path, serialize_to_json};
 
 #[derive(Serialize, Deserialize, Clone)]
 #[serde(rename_all = "camelCase")]
@@ -16,51 +14,43 @@ pub struct Config {
     pub alert_url: String,
 }
 
-pub fn config_path() -> Result<PathBuf, anyhow::Error> {
-    let app_path = get_app_path()?;
-    Ok(app_path.join("settings.json"))
-}
-
-pub fn generate_default_config(log: &Logger) -> Result<Config, anyhow::Error> {
-    let default_config = Config {
-        owml_path: String::from(""),
-        wine_prefix: None,
-        database_url: String::from("https://ow-mods.github.io/ow-mod-db/database.json"),
-        alert_url: String::from(
-            "https://raw.githubusercontent.com/ow-mods/ow-mod-db/source/alert.json",
-        ),
-    };
-    write_config(log, &default_config)?;
-    Ok(default_config)
-}
-
-pub fn get_config(log: &Logger) -> Result<Config, anyhow::Error> {
-    if config_exists() {
-        read_config(log, &config_path()?)
-    } else {
-        generate_default_config(log)
+impl Default for Config {
+    fn default() -> Self {
+        Self {
+            owml_path: String::from(""),
+            wine_prefix: None,
+            database_url: String::from("https://ow-mods.github.io/ow-mod-db/database.json"),
+            alert_url: String::from(
+                "https://raw.githubusercontent.com/ow-mods/ow-mod-db/source/alert.json",
+            ),
+        }
     }
 }
 
-pub fn write_config(log: &Logger, conf: &Config) -> Result<(), anyhow::Error> {
-    log!(
-        log,
-        debug,
-        "Writing Config To {}",
-        config_path()?.to_str().unwrap()
-    );
-    serialize_to_json(&conf, &config_path()?, true)
-}
+impl Config {
+    fn path() -> Result<PathBuf, anyhow::Error> {
+        let app_path = get_app_path()?;
+        Ok(app_path.join("settings.json"))
+    }
 
-pub fn read_config(log: &Logger, path: &Path) -> Result<Config, anyhow::Error> {
-    log!(log, debug, "Reading Config From {}", path.to_str().unwrap());
-    deserialize_from_json(path)
-}
+    pub fn save(&self) -> Result<()> {
+        debug!("Writing Config To {}", Self::path()?.to_str().unwrap());
+        serialize_to_json(self, &Self::path()?, true)?;
+        Ok(())
+    }
 
-fn config_exists() -> bool {
-    let config_path = config_path();
-    match config_path {
-        Ok(config_path) => config_path.is_file(),
-        Err(_) => false,
+    fn read(path: &Path) -> Result<Self> {
+        debug!("Reading Config From {}", path.to_str().unwrap());
+        deserialize_from_json(path)
+    }
+
+    pub fn get() -> Result<Self> {
+        if Self::path()?.is_file() {
+            Self::read(&Self::path()?)
+        } else {
+            let new_config = Self::default();
+            new_config.save()?;
+            Ok(new_config)
+        }
     }
 }

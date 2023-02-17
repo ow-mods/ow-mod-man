@@ -1,15 +1,29 @@
 use std::path::PathBuf;
 
 use anyhow::anyhow;
+use anyhow::Result;
 use clap::{Parser, Subcommand};
-
 use colored::Colorize;
-use logging::ConsoleLogBackend;
-use owmods_core as core;
-use owmods_core::log;
-use owmods_core::mods::LocalMod;
+use log::{debug, error, info, warn, LevelFilter};
+use owmods_core::{
+    alerts::fetch_alert,
+    config::Config,
+    db::{LocalDatabase, RemoteDatabase},
+    download::{
+        download_and_install_owml, install_mod_from_db, install_mod_from_url, install_mod_from_zip,
+    },
+    game::{launch_game, setup_wine_prefix},
+    io::{export_mods, import_mods},
+    mods::LocalMod,
+    open::{open_readme, open_shortcut},
+    remove::remove_mod,
+    toggle::toggle_mod,
+    updates::update_all,
+    validate::{self, has_errors},
+};
 
 mod logging;
+use logging::Logger;
 
 #[derive(Parser)]
 #[command(author, version, about, long_about = None)]
@@ -23,8 +37,6 @@ struct BaseCli {
         help = "Apply the action recursively (to all dependencies)"
     )]
     recursive: bool,
-    #[arg(global = true, long = "settings", help = "Override the settings file")]
-    settings_path: Option<PathBuf>,
     #[arg(global = true, long = "debug", help = "Enable debug output")]
     debug: bool,
 }
@@ -135,42 +147,36 @@ enum ModListTypes {
     Remote,
 }
 
-async fn run_from_cli(cli: BaseCli, logger: &core::logging::Logger) -> Result<(), anyhow::Error> {
+async fn run_from_cli(cli: BaseCli) -> Result<()> {
     let r = cli.recursive;
 
-    let config = if let Some(override_config) = cli.settings_path {
-        core::config::read_config(logger, &override_config)?
-    } else {
-        core::config::get_config(logger)?
-    };
+    let config = Config::get()?;
 
     let ran_setup = matches!(&cli.command, Commands::Setup { owml_path: _ });
 
     if config.owml_path.is_empty() && !ran_setup {
-        logger.info(
+        info!(
             "Welcome to the Outer Wild Mods CLI! In order to continue you'll need to setup OWML.",
         );
-        logger.info("To do this, run `owmods setup {{PATH_TO_OWML}}`. Or, run with no path to auto-install it.");
-        logger.info("This message will display so long as owml_path is empty in %APPDATA%/ow-mod-man/settings.json.");
+        info!("To do this, run `owmods setup {{PATH_TO_OWML}}`. Or, run with no path to auto-install it.");
+        info!("This message will display so long as owml_path is empty in %APPDATA%/ow-mod-man/settings.json.");
         return Ok(());
     }
 
     match &cli.command {
         Commands::Version => {
-            println!(env!("CARGO_PKG_VERSION"));
+            info!(env!("CARGO_PKG_VERSION"));
         }
         Commands::Setup { owml_path } => {
             if let Some(owml_path) = owml_path {
                 if owml_path.is_dir() && owml_path.join("OWML.Manifest.json").is_file() {
-                    logger.success("Path to OWML is valid! Updating config...");
+                    info!("Path to OWML is valid! Updating config...");
                     let mut new_config = config.clone();
                     new_config.owml_path = owml_path.to_str().unwrap().to_string();
-                    core::config::write_config(logger, &new_config)?;
-                    logger.success("Done! Happy Modding!");
+                    new_config.save()?;
+                    info!("Done! Happy Modding!");
                 } else {
-                    log!(
-                        logger,
-                        error,
+                    error!(
                         "Error: OWML.Manifest.json Not Found In {}",
                         owml_path.to_str().unwrap()
                     );
@@ -178,20 +184,18 @@ async fn run_from_cli(cli: BaseCli, logger: &core::logging::Logger) -> Result<()
             } else {
                 let mut config = config.clone();
                 config.owml_path = "".to_string();
-                let db = core::db::fetch_remote_db(logger, &config).await?;
+                let db = RemoteDatabase::fetch(&config).await?;
                 let owml = db
                     .get_owml()
                     .ok_or_else(|| anyhow!("OWML not found, is the database URL correct?"))?;
-                core::download::download_and_install_owml(logger, &config, owml).await?;
-                logger.success("Done! Happy Modding!");
+                download_and_install_owml(&config, owml).await?;
+                info!("Done! Happy Modding!");
             }
         }
         Commands::Alert => {
-            let alert = core::alerts::fetch_alert(logger, &config).await?;
+            let alert = fetch_alert(&config).await?;
             if alert.enabled {
-                log!(
-                    logger,
-                    info,
+                info!(
                     "[{}] {}",
                     alert
                         .severity
@@ -200,12 +204,12 @@ async fn run_from_cli(cli: BaseCli, logger: &core::logging::Logger) -> Result<()
                     alert.message.unwrap_or_else(|| "No message".to_string())
                 );
             } else {
-                logger.info("No alert");
+                info!("No alert");
             };
         }
         Commands::List { mod_type } => match mod_type {
             Some(ModListTypes::Local) | None => {
-                let db = core::db::fetch_local_db(logger, &config)?;
+                let db = LocalDatabase::fetch(&config)?;
                 let mut output = String::new();
                 output += &format!(
                     "Found {} Installed Mods at {}:\n(+): Enabled\n(-): Disabled\n\n",
@@ -223,10 +227,10 @@ async fn run_from_cli(cli: BaseCli, logger: &core::logging::Logger) -> Result<()
                         &local_mod.manifest.unique_name.to_string().bold()
                     );
                 }
-                logger.info(&output);
+                info!("{}", &output);
             }
             Some(ModListTypes::Remote) => {
-                let db = core::db::fetch_remote_db(logger, &config).await?;
+                let db = RemoteDatabase::fetch(&config).await?;
                 let mut output = String::new();
                 output += &format!("Found {} Remote Mods:\n", db.mods.values().len());
                 for remote_mod in db.mods.values() {
@@ -240,23 +244,18 @@ async fn run_from_cli(cli: BaseCli, logger: &core::logging::Logger) -> Result<()
                         &remote_mod.unique_name.to_string().bold()
                     )
                 }
-                logger.info(&output);
+                info!("{}", &output);
             }
         },
         Commands::Info { unique_name } => {
-            let remote_db = core::db::fetch_remote_db(logger, &config).await?;
-            let local_db = core::db::fetch_local_db(logger, &config)?;
+            let remote_db = RemoteDatabase::fetch(&config).await?;
+            let local_db = LocalDatabase::fetch(&config)?;
             let local_mod = local_db.get_mod(unique_name);
             let remote_mod = remote_db.get_mod(unique_name);
             let installed = local_mod.is_some();
             let has_remote = remote_mod.is_some();
             if (!installed) && (!has_remote) {
-                log!(
-                    logger,
-                    error,
-                    "Mod not found in local or remote db: {}",
-                    unique_name
-                );
+                info!("Mod not found in local or remote db: {}", unique_name);
             } else {
                 let name = if installed {
                     &local_mod.unwrap().manifest.name
@@ -268,50 +267,42 @@ async fn run_from_cli(cli: BaseCli, logger: &core::logging::Logger) -> Result<()
                 } else {
                     remote_mod.unwrap().get_author()
                 };
-                log!(logger, success, "========== {} ==========", unique_name);
-                log!(logger, info, "Name: {}", name);
-                log!(logger, info, "Author(s): {}", author);
-                log!(logger, info, "Installed: {}", yesno(installed));
+                info!("========== {} ==========", unique_name);
+                info!("Name: {}", name);
+                info!("Author(s): {}", author);
+                info!("Installed: {}", yesno(installed));
                 if installed {
                     let local_mod = local_mod.unwrap();
-                    log!(logger, info, "Installed At: {}", local_mod.mod_path);
-                    log!(logger, info, "Enabled: {}", yesno(local_mod.enabled));
-                    log!(
-                        logger,
-                        info,
-                        "Installed Version: {}",
-                        local_mod.get_version()
-                    );
+                    info!("Installed At: {}", local_mod.mod_path);
+                    info!("Enabled: {}", yesno(local_mod.enabled));
+                    info!("Installed Version: {}", local_mod.get_version());
                     if let Some(owml_version) = &local_mod.manifest.owml_version {
-                        log!(logger, info, "Expected OWML Version: {}", owml_version);
+                        info!("Expected OWML Version: {}", owml_version);
                     }
                     if let Some(deps) = &local_mod.manifest.dependencies {
-                        log!(logger, info, "Dependencies: {}", deps.join(", "));
+                        info!("Dependencies: {}", deps.join(", "));
                     }
                     if let Some(conflicts) = &local_mod.manifest.conflicts {
-                        log!(logger, info, "Conflicts: {}", conflicts.join(", "));
+                        info!("Conflicts: {}", conflicts.join(", "));
                     }
                 }
-                log!(logger, info, "In Database: {}", yesno(has_remote));
+                info!("In Database: {}", yesno(has_remote));
                 if has_remote {
                     let remote_mod = remote_mod.unwrap();
-                    log!(logger, info, "Description: {}", remote_mod.description);
-                    log!(logger, info, "GitHub Repo URL: {}", remote_mod.repo);
-                    log!(logger, info, "Downloads: {}", remote_mod.download_count);
+                    info!("Description: {}", remote_mod.description);
+                    info!("GitHub Repo URL: {}", remote_mod.repo);
+                    info!("Downloads: {}", remote_mod.download_count);
                     if let Some(parent) = &remote_mod.parent {
-                        log!(logger, info, "Parent Mod: {}", parent);
+                        info!("Parent Mod: {}", parent);
                     }
                     if let Some(tags) = &remote_mod.tags {
-                        log!(logger, info, "Tags: {}", tags.join(", "));
+                        info!("Tags: {}", tags.join(", "));
                     }
-                    log!(logger, info, "Remote Version: {}", remote_mod.get_version());
+                    info!("Remote Version: {}", remote_mod.get_version());
                     if let Some(prerelease) = &remote_mod.prerelease {
-                        log!(
-                            logger,
-                            info,
+                        info!(
                             "Prerelease Version: {} ({})",
-                            prerelease.version,
-                            prerelease.download_url
+                            prerelease.version, prerelease.download_url
                         );
                     }
                 }
@@ -321,206 +312,160 @@ async fn run_from_cli(cli: BaseCli, logger: &core::logging::Logger) -> Result<()
             unique_name,
             overwrite,
         } => {
-            let remote_db = core::db::fetch_remote_db(logger, &config).await?;
-            let local_db = core::db::fetch_local_db(logger, &config)?;
+            let remote_db = RemoteDatabase::fetch(&config).await?;
+            let local_db = LocalDatabase::fetch(&config)?;
             let local_mod = local_db.get_mod(unique_name);
             let mut flag = true;
 
             if *overwrite && local_mod.is_some() {
-                log!(logger, warning, "Overriding {}", unique_name);
+                warn!("Overriding {}", unique_name);
             } else if let Some(local_mod) = local_db.get_mod(unique_name) {
-                log!(
-                    logger,
-                    error,
+                error!(
                     "{} is already installed at {}, use -o to overwrite",
-                    unique_name,
-                    local_mod.mod_path
+                    unique_name, local_mod.mod_path
                 );
                 flag = false;
             }
 
             if flag {
-                core::download::install_mod_from_db(
-                    logger,
-                    unique_name,
-                    &config,
-                    &remote_db,
-                    &local_db,
-                    r,
-                )
-                .await?
+                install_mod_from_db(unique_name, &config, &remote_db, &local_db, r).await?
             }
         }
         Commands::InstallZip { zip_path } => {
-            log!(
-                logger,
-                info,
-                "Installing From {}",
-                zip_path.to_str().unwrap()
-            );
-            let local_db = core::db::fetch_local_db(logger, &config)?;
-            let new_mod =
-                core::download::install_mod_from_zip(logger, zip_path, &config, &local_db)?;
-            log!(logger, success, "Installed {}!", new_mod.manifest.name);
+            info!("Installing From {}", zip_path.to_str().unwrap());
+            let local_db = LocalDatabase::fetch(&config)?;
+            let new_mod = install_mod_from_zip(zip_path, &config, &local_db)?;
+            info!("Installed {}!", new_mod.manifest.name);
         }
         Commands::InstallUrl { url } => {
-            let local_db = core::db::fetch_local_db(logger, &config)?;
-            log!(logger, info, "Installing From {}", url);
-            let new_mod =
-                core::download::install_mod_from_url(logger, url, &config, &local_db).await?;
-            log!(logger, success, "Installed {}!", new_mod.manifest.name);
+            let local_db = LocalDatabase::fetch(&config)?;
+            info!("Installing From {}", url);
+            let new_mod = install_mod_from_url(url, &config, &local_db).await?;
+            info!("Installed {}!", new_mod.manifest.name);
         }
         Commands::Uninstall { unique_name } => {
-            let db = core::db::fetch_local_db(logger, &config)?;
+            let db = LocalDatabase::fetch(&config)?;
             let local_mod = db.get_mod(unique_name);
             if let Some(local_mod) = local_mod {
-                log!(
-                    logger,
-                    info,
+                info!(
                     "Uninstalling {}{}...",
                     unique_name,
                     if r { " and dependencies" } else { "" }
                 );
-                core::remove::remove_mod(local_mod, &db, r)?;
-                logger.success("Done");
+                remove_mod(local_mod, &db, r)?;
+                info!("Done");
             } else {
-                log!(logger, error, "Mod {} Is Not Installed", unique_name);
+                error!("Mod {} Is Not Installed", unique_name);
             }
         }
         Commands::Export => {
-            let local_db = core::db::fetch_local_db(logger, &config)?;
-            println!("{}", core::io::export_mods(&local_db)?);
+            let local_db = LocalDatabase::fetch(&config)?;
+            println!("{}", export_mods(&local_db)?);
         }
         Commands::Import {
             file_path,
             disable_missing,
         } => {
-            let remote_db = core::db::fetch_remote_db(logger, &config).await?;
-            let local_db = core::db::fetch_local_db(logger, &config)?;
-            core::io::import_mods(
-                logger,
-                &config,
-                &local_db,
-                &remote_db,
-                file_path,
-                *disable_missing,
-            )
-            .await?;
+            let remote_db = RemoteDatabase::fetch(&config).await?;
+            let local_db = LocalDatabase::fetch(&config)?;
+            import_mods(&config, &local_db, &remote_db, file_path, *disable_missing).await?;
         }
         Commands::Update => {
-            let remote_db = core::db::fetch_remote_db(logger, &config).await?;
-            let local_db = core::db::fetch_local_db(logger, &config)?;
-            let updated = core::updates::update_all(logger, &config, &local_db, &remote_db).await?;
+            let remote_db = RemoteDatabase::fetch(&config).await?;
+            let local_db = LocalDatabase::fetch(&config)?;
+            let updated = update_all(&config, &local_db, &remote_db).await?;
             if updated {
-                logger.success("Update Complete!");
+                info!("Update Complete!");
             } else {
-                logger.success("No Updates Available!");
+                info!("No Updates Available!");
             }
         }
         Commands::Enable { unique_name } | Commands::Disable { unique_name } => {
-            let db = core::db::fetch_local_db(logger, &config)?;
+            let db = LocalDatabase::fetch(&config)?;
             let enable = matches!(cli.command, Commands::Enable { unique_name: _ });
             if unique_name == "*" || unique_name == "all" {
                 for local_mod in db.mods.values() {
-                    core::toggle::toggle_mod(
-                        logger,
-                        &PathBuf::from(&local_mod.mod_path),
-                        &db,
-                        enable,
-                        false,
-                    )?;
+                    toggle_mod(&PathBuf::from(&local_mod.mod_path), &db, enable, false)?;
                 }
             } else {
                 let mod_path = db.get_mod_path(unique_name);
                 if let Some(mod_path) = mod_path {
-                    core::toggle::toggle_mod(logger, &mod_path, &db, enable, r)?;
+                    toggle_mod(&mod_path, &db, enable, r)?;
                 } else {
-                    log!(logger, error, "Mod {} is not installed", unique_name);
+                    info!("Mod {} is not installed", unique_name);
                 }
             }
         }
         Commands::Run { force } => {
-            logger.info("Attempting to launch game...");
+            info!("Attempting to launch game...");
             if !*force {
-                let local_db = core::db::fetch_local_db(logger, &config)?;
-                if core::validate::has_errors(&local_db) {
-                    logger.error("Errors found, refusing to launch");
-                    logger.info("Run `owmods validate` to see issues");
-                    logger.info("...or run with -f to launch anyway");
+                let local_db = LocalDatabase::fetch(&config)?;
+                if has_errors(&local_db) {
+                    error!("Errors found, refusing to launch");
+                    info!("Run `owmods validate` to see issues");
+                    info!("...or run with -f to launch anyway");
                     return Ok(());
                 }
             }
             if cfg!(windows) || config.wine_prefix.is_some() {
-                core::game::launch_game(logger, &config)?;
+                launch_game(&config)?;
             } else {
-                logger.info(
-                    "Hey there! Before you can run the game we'll need to setup a wine prefix.",
-                );
-                logger.info(
-                    "You can either set wine_prefix in ~/.local/share/ow-mod-man/settings.json.",
-                );
-                logger.info(
-                    "Or we can set one up for you, you'll need wine and winetricks installed.",
-                );
+                info!("Hey there! Before you can run the game we'll need to setup a wine prefix.",);
+                info!("You can either set wine_prefix in ~/.local/share/ow-mod-man/settings.json.",);
+                info!("Or we can set one up for you, you'll need wine and winetricks installed.",);
                 println!("Set up a wine prefix now? (y/n)");
                 let mut answer = String::new();
                 std::io::stdin().read_line(&mut answer)?;
                 if answer.trim().to_ascii_lowercase() == "y" {
-                    logger.info("Alright! We'll need about 10 minutes to set up, during setup dialog boxes will appear so make sure to go through them.");
-                    logger.info("When prompted to restart, select \"Restart Later\"");
-                    logger.debug("Begin creating wine prefix");
-                    let new_conf = core::game::setup_wine_prefix(logger, &config)?;
-                    logger.success("Success! Launching the game now...");
-                    core::game::launch_game(logger, &new_conf)?;
+                    info!("Alright! We'll need about 10 minutes to set up, during setup dialog boxes will appear so make sure to go through them.");
+                    info!("When prompted to restart, select \"Restart Later\"");
+                    debug!("Begin creating wine prefix");
+                    let new_conf = setup_wine_prefix(&config)?;
+                    info!("Success! Launching the game now...");
+                    launch_game(&new_conf)?;
                 }
             }
         }
         Commands::Open { identifier } => {
-            log!(logger, info, "Opening {}", identifier);
-            let local_db = core::db::fetch_local_db(logger, &config)?;
-            core::open::open_shortcut(identifier, &config, &local_db)?;
+            info!("Opening {}", identifier);
+            let local_db = LocalDatabase::fetch(&config)?;
+            open_shortcut(identifier, &config, &local_db)?;
         }
         Commands::Readme { unique_name } => {
-            log!(logger, info, "Opening README for {}", unique_name);
-            let remote_db = core::db::fetch_remote_db(logger, &config).await?;
-            core::open::open_readme(unique_name, &remote_db)?;
+            info!("Opening README for {}", unique_name);
+            let remote_db = RemoteDatabase::fetch(&config).await?;
+            open_readme(unique_name, &remote_db)?;
         }
         Commands::Validate { fix_deps } => {
-            let local_db = core::db::fetch_local_db(logger, &config)?;
-            logger.info("Checking For Issues...");
+            let local_db = LocalDatabase::fetch(&config)?;
+            info!("Checking For Issues...");
             let mut flag = false;
             if *fix_deps {
-                let remote_db = core::db::fetch_remote_db(logger, &config).await?;
-                core::validate::fix_deps(logger, &config, &local_db, &remote_db).await?;
+                let remote_db = RemoteDatabase::fetch(&config).await?;
+                validate::fix_deps(&config, &local_db, &remote_db).await?;
             }
             for local_mod in local_db.active().iter() {
                 let name = &local_mod.manifest.name;
                 if !*fix_deps {
-                    let (missing, disabled) = core::validate::check_deps(local_mod, &local_db);
+                    let (missing, disabled) = validate::check_deps(local_mod, &local_db);
                     for missing in missing.iter() {
-                        log!(logger, error, "{}: Missing Dependency {}", name, missing);
+                        warn!("{}: Missing Dependency {}", name, missing);
                         flag = true;
                     }
                     for disabled in disabled.iter() {
-                        log!(
-                            logger,
-                            error,
-                            "{}: Disabled Dependency {}",
-                            name,
-                            disabled.manifest.name
-                        );
+                        warn!("{}: Disabled Dependency {}", name, disabled.manifest.name);
                         flag = true;
                     }
                 }
-                for conflicting in core::validate::check_conflicts(local_mod, &local_db).iter() {
-                    log!(logger, error, "{}: Conflicts With {}", name, conflicting);
+                for conflicting in validate::check_conflicts(local_mod, &local_db).iter() {
+                    warn!("{}: Conflicts With {}", name, conflicting);
                     flag = true;
                 }
             }
             if flag {
-                logger.info("Issues found, run with -f to fix dependency issues, or disable conflicting mods");
+                error!("Issues found, run with -f to fix dependency issues, or disable conflicting mods");
             } else {
-                logger.success("No issues found!");
+                info!("No issues found!");
             }
         }
     }
@@ -538,14 +483,23 @@ fn yesno(v: bool) -> String {
 #[tokio::main]
 async fn main() {
     let cli = BaseCli::parse();
-    let log_backend: Box<dyn core::logging::LoggerBackend> =
-        Box::new(ConsoleLogBackend::new(cli.debug));
-    let logger = &core::logging::Logger::new(log_backend);
-    let res = run_from_cli(cli, logger).await;
-    match res {
-        Ok(_) => {}
-        Err(e) => {
-            log!(logger, error, "{:?}", e);
-        }
-    };
+    let logger = Logger::default();
+    let err = log::set_boxed_logger(Box::new(logger)).map(|_| {
+        log::set_max_level(if cli.debug {
+            LevelFilter::Trace
+        } else {
+            LevelFilter::Info
+        })
+    });
+    if err.is_err() {
+        println!("Error setting up logger");
+    } else {
+        let res = run_from_cli(cli).await;
+        match res {
+            Ok(_) => {}
+            Err(e) => {
+                error!("{:?}", e);
+            }
+        };
+    }
 }

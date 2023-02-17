@@ -6,25 +6,24 @@ use std::{
 };
 
 use anyhow::anyhow;
+use anyhow::Result;
 use futures::{stream::FuturesUnordered, StreamExt};
+use log::{debug, info};
 use tempdir::TempDir;
 use zip::ZipArchive;
 
 use crate::{
-    config::{write_config, Config},
-    db::{read_local_mod, LocalDatabase, RemoteDatabase},
+    config::Config,
+    db::{LocalDatabase, RemoteDatabase},
     file::{create_all_parents, fix_bom, get_app_path},
-    log,
-    logging::{Logger, ProgressAction, ProgressType},
     mods::{get_paths_to_preserve, LocalMod, ModManifest, RemoteMod},
+    progress::{ProgressAction, ProgressBar, ProgressType},
     toggle::generate_config,
     utils::{check_file_matches_paths, get_end_of_url},
 };
 
-async fn download_zip(log: &Logger, url: &str, target_path: &Path) -> Result<(), anyhow::Error> {
-    log!(
-        log,
-        debug,
+async fn download_zip(url: &str, target_path: &Path) -> Result<()> {
+    debug!(
         "Begin download of {} to {}",
         url,
         target_path.to_str().unwrap()
@@ -44,16 +43,16 @@ async fn download_zip(log: &Logger, url: &str, target_path: &Path) -> Result<(),
         ProgressType::Indefinite
     };
 
-    let progress = log.start_progress(
+    let mut progress = ProgressBar::new(
         target_path.to_str().unwrap(),
+        file_size,
+        &format!("Downloading {}", zip_name),
         progress_type,
         ProgressAction::Download,
-        &format!("Downloading {}", zip_name),
-        file_size,
     );
 
     while let Some(chunk) = download.chunk().await? {
-        progress.increment(chunk.len().try_into().unwrap());
+        progress.inc(chunk.len().try_into().unwrap());
         stream.write_all(&chunk)?;
     }
 
@@ -65,7 +64,7 @@ async fn download_zip(log: &Logger, url: &str, target_path: &Path) -> Result<(),
 // Does this mean that i'll have to re-open the archive to do anything with it? Yes.
 // Do I really care? No.
 // You want a better one make it pls thx.
-fn get_manifest_path_from_zip(zip_path: &PathBuf) -> Result<(String, PathBuf), anyhow::Error> {
+fn get_manifest_path_from_zip(zip_path: &PathBuf) -> Result<(String, PathBuf)> {
     let file = File::open(zip_path)?;
     let mut archive = ZipArchive::new(file)?;
 
@@ -89,24 +88,18 @@ fn get_manifest_path_from_zip(zip_path: &PathBuf) -> Result<(String, PathBuf), a
     Err(anyhow!("Manifest not found in zip archive"))
 }
 
-fn extract_zip(
-    log: &Logger,
-    zip_path: &PathBuf,
-    target_path: &PathBuf,
-) -> Result<(), anyhow::Error> {
-    log!(
-        log,
-        debug,
+fn extract_zip(zip_path: &PathBuf, target_path: &PathBuf) -> Result<()> {
+    debug!(
         "Begin extraction of {} to {}",
         zip_path.to_str().unwrap(),
         target_path.to_str().unwrap()
     );
-    let progress = log.start_progress(
+    let progress = ProgressBar::new(
         zip_path.to_str().unwrap(),
+        0,
+        "Extracting...",
         ProgressType::Indefinite,
         ProgressAction::Extract,
-        "Extracting...",
-        0,
     );
     let file = File::open(zip_path)?;
     let mut archive = ZipArchive::new(file)?;
@@ -115,7 +108,7 @@ fn extract_zip(
     Ok(())
 }
 
-fn get_unique_name_from_zip(zip_path: &PathBuf) -> Result<String, anyhow::Error> {
+fn get_unique_name_from_zip(zip_path: &PathBuf) -> Result<String> {
     let (manifest_name, _) = get_manifest_path_from_zip(zip_path)?;
     let file = File::open(zip_path)?;
     let mut archive = ZipArchive::new(file)?;
@@ -128,22 +121,17 @@ fn get_unique_name_from_zip(zip_path: &PathBuf) -> Result<String, anyhow::Error>
 }
 
 fn extract_mod_zip(
-    log: &Logger,
     zip_path: &PathBuf,
     target_path: &Path,
     exclude_paths: Vec<PathBuf>,
-) -> Result<(), anyhow::Error> {
-    log!(
-        log,
-        debug,
+) -> Result<()> {
+    debug!(
         "Begin extraction of {} to {}",
         zip_path.to_str().unwrap(),
         target_path.to_str().unwrap()
     );
     let (_, manifest_path) = get_manifest_path_from_zip(zip_path)?;
-    log!(
-        log,
-        debug,
+    debug!(
         "Found manifest at {} in zip, extracting siblings",
         manifest_path.to_str().unwrap()
     );
@@ -153,16 +141,16 @@ fn extract_mod_zip(
     let file = File::open(zip_path)?;
     let mut archive = ZipArchive::new(file)?;
 
-    let progress = log.start_progress(
+    let mut progress = ProgressBar::new(
         zip_path.to_str().unwrap(),
+        archive.len().try_into().unwrap(),
+        &format!("Extracting {}", zip_name),
         ProgressType::Definite,
         ProgressAction::Extract,
-        &format!("Extracting {}", zip_name),
-        archive.len().try_into().unwrap(),
     );
 
     for idx in 0..archive.len() {
-        progress.increment(1);
+        progress.inc(1);
         let zip_file = archive.by_index(idx)?;
         if zip_file.is_file() {
             let file_path = zip_file
@@ -171,7 +159,7 @@ fn extract_mod_zip(
             if file_path.starts_with(parent_path) {
                 // Unwrap is safe bc we know it's a file and OsStr.to_str shouldn't fail
                 let file_name = file_path.file_name().unwrap().to_str().unwrap();
-                progress.change_message(&format!("Extracting {}", file_name));
+                progress.set_msg(&format!("Extracting {}", file_name));
                 // Unwrap is safe bc we just checked if it starts with the parent path
                 let rel_path = file_path.strip_prefix(parent_path).unwrap();
                 if !check_file_matches_paths(rel_path, &exclude_paths) {
@@ -188,7 +176,7 @@ fn extract_mod_zip(
         }
     }
 
-    let mod_name = read_local_mod(log, &target_path.join("manifest.json"))?
+    let mod_name = LocalDatabase::read_local_mod(&target_path.join("manifest.json"))?
         .manifest
         .name;
     progress.finish(&format!("Installed {}", mod_name));
@@ -196,11 +184,7 @@ fn extract_mod_zip(
     Ok(())
 }
 
-pub async fn download_and_install_owml(
-    log: &Logger,
-    config: &Config,
-    owml: &RemoteMod,
-) -> Result<(), anyhow::Error> {
+pub async fn download_and_install_owml(config: &Config, owml: &RemoteMod) -> Result<()> {
     let url = &owml.download_url;
     let target_path = if config.owml_path.is_empty() {
         let app_path = get_app_path()?;
@@ -211,13 +195,13 @@ pub async fn download_and_install_owml(
 
     let temp_dir = TempDir::new("owmods")?;
     let download_path = temp_dir.path().join("OWML.zip");
-    download_zip(log, url, &download_path).await?;
-    extract_zip(log, &download_path, &target_path)?;
+    download_zip(url, &download_path).await?;
+    extract_zip(&download_path, &target_path)?;
 
     if config.owml_path.is_empty() {
         let mut new_config = config.clone();
         new_config.owml_path = String::from(target_path.to_str().unwrap());
-        write_config(log, &new_config)?;
+        new_config.save()?;
     }
 
     temp_dir.close()?;
@@ -226,11 +210,10 @@ pub async fn download_and_install_owml(
 }
 
 pub fn install_mod_from_zip(
-    log: &Logger,
     zip_path: &PathBuf,
     config: &Config,
     local_db: &LocalDatabase,
-) -> Result<LocalMod, anyhow::Error> {
+) -> Result<LocalMod> {
     let unique_name = get_unique_name_from_zip(zip_path)?;
     let target_path = PathBuf::from(&config.owml_path)
         .join("Mods")
@@ -239,29 +222,28 @@ pub fn install_mod_from_zip(
 
     let paths_to_preserve = get_paths_to_preserve(local_mod);
 
-    extract_mod_zip(log, zip_path, &target_path, paths_to_preserve)?;
+    extract_mod_zip(zip_path, &target_path, paths_to_preserve)?;
     if local_mod.is_none() {
         // First install, generate config
         generate_config(&target_path)?;
     }
 
-    let new_local_mod = read_local_mod(log, &target_path.join("manifest.json"))?;
+    let new_local_mod = LocalDatabase::read_local_mod(&target_path.join("manifest.json"))?;
     Ok(new_local_mod)
 }
 
 pub async fn install_mod_from_url(
-    log: &Logger,
     url: &str,
     config: &Config,
     local_db: &LocalDatabase,
-) -> Result<LocalMod, anyhow::Error> {
+) -> Result<LocalMod> {
     let zip_name = get_end_of_url(url).replace(".zip", "");
 
     let temp_dir = TempDir::new("owmods")?;
     let download_path = temp_dir.path().join(format!("{}.zip", zip_name));
 
-    download_zip(log, url, &download_path).await?;
-    let new_mod = install_mod_from_zip(log, &download_path, config, local_db)?;
+    download_zip(url, &download_path).await?;
+    let new_mod = install_mod_from_zip(&download_path, config, local_db)?;
 
     temp_dir.close()?;
 
@@ -269,12 +251,11 @@ pub async fn install_mod_from_url(
 }
 
 pub async fn install_mods_parallel(
-    log: &Logger,
     unique_names: Vec<String>,
     config: &Config,
     remote_db: &RemoteDatabase,
     local_db: &LocalDatabase,
-) -> Result<Vec<LocalMod>, anyhow::Error> {
+) -> Result<Vec<LocalMod>> {
     let mut set = FuturesUnordered::new();
     let mut installed: Vec<LocalMod> = vec![];
     for name in unique_names.iter() {
@@ -282,7 +263,7 @@ pub async fn install_mods_parallel(
             .get_mod(name)
             .ok_or_else(|| anyhow!("Mod {} not found in database.", name))?;
 
-        let task = install_mod_from_url(log, &remote_mod.download_url, config, local_db);
+        let task = install_mod_from_url(&remote_mod.download_url, config, local_db);
         set.push(task);
     }
     while let Some(res) = set.next().await {
@@ -293,13 +274,12 @@ pub async fn install_mods_parallel(
 }
 
 pub async fn install_mod_from_db(
-    log: &Logger,
     unique_name: &String,
     config: &Config,
     remote_db: &RemoteDatabase,
     local_db: &LocalDatabase,
     recursive: bool,
-) -> Result<(), anyhow::Error> {
+) -> Result<()> {
     if !recursive {
         let remote_mod = remote_db.get_mod(unique_name).ok_or_else(|| {
             anyhow!(
@@ -307,7 +287,7 @@ pub async fn install_mod_from_db(
                 unique_name
             )
         })?;
-        install_mod_from_url(log, &remote_mod.download_url, config, local_db).await?;
+        install_mod_from_url(&remote_mod.download_url, config, local_db).await?;
         return Ok(());
     }
 
@@ -327,15 +307,12 @@ pub async fn install_mod_from_db(
     let mut count = 1;
 
     while !to_install.is_empty() {
-        log!(
-            log,
-            debug,
+        debug!(
             "Begin round {} of install with {} dependencies",
             count,
             installed.len()
         );
         let newly_installed = install_mods_parallel(
-            log,
             to_install
                 .drain(..)
                 .filter(|m| !installed.contains(m))
@@ -359,7 +336,7 @@ pub async fn install_mod_from_db(
         count += 1;
     }
 
-    log!(log, success, "Installed {}!", unique_name);
+    info!("Installed {}!", unique_name);
 
     Ok(())
 }

@@ -1,15 +1,11 @@
-use anyhow::anyhow;
-
 use crate::{
     config::Config,
     db::{LocalDatabase, RemoteDatabase},
 };
+use anyhow::anyhow;
+use anyhow::Result;
 
-pub fn open_shortcut(
-    identifier: &str,
-    conf: &Config,
-    local_db: &LocalDatabase,
-) -> Result<(), anyhow::Error> {
+pub fn open_shortcut(identifier: &str, conf: &Config, local_db: &LocalDatabase) -> Result<()> {
     let target = match identifier {
         "db" => "https://github.com/ow-mods/ow-mod-db",
         "website" => "https://outerwildsmods.com",
@@ -30,7 +26,7 @@ pub fn open_shortcut(
     Ok(())
 }
 
-pub fn open_readme(unique_name: &str, db: &RemoteDatabase) -> Result<(), anyhow::Error> {
+pub fn open_readme(unique_name: &str, db: &RemoteDatabase) -> Result<()> {
     let remote_mod = db
         .get_mod(unique_name)
         .ok_or_else(|| anyhow!("Mod {} not found", unique_name))?;

@@ -1,116 +1,62 @@
-use owmods_core::logging::{
-    Log, Logger, LoggerBackend, ProgressAction, ProgressHandler, ProgressType,
-};
+use log::{Level, STATIC_MAX_LEVEL};
+use owmods_core::progress::ProgressPayload;
 use serde::Serialize;
 use tauri::{AppHandle, Manager};
 
-struct TauriLogBackend {
+pub struct Logger {
     app: AppHandle,
 }
 
-struct TauriProgressBackend {
-    id: String,
-    app: AppHandle,
-}
-
-#[derive(Clone, Serialize)]
-#[serde(rename_all = "camelCase")]
-struct ProgressStartPayload {
-    id: String,
+#[derive(Serialize, Clone)]
+struct LogPayload {
+    log_type: Level,
     message: String,
-    progress_type: ProgressType,
-    progress_action: ProgressAction,
-    len: u64,
 }
 
-#[derive(Clone, Serialize)]
-#[serde(rename_all = "camelCase")]
-enum ProgressUpdatePayload {
-    #[serde(rename_all = "camelCase")]
-    Increment { id: String, amount: u64 },
-    #[serde(rename_all = "camelCase")]
-    ChangeMsg { id: String, new_msg: String },
-    #[serde(rename_all = "camelCase")]
-    Finish { id: String, msg: String },
+impl Logger {
+    pub fn new(app: AppHandle) -> Self {
+        Self { app }
+    }
 }
 
-impl TauriProgressBackend {
-    pub fn new(id: &str, app: AppHandle) -> TauriProgressBackend {
-        TauriProgressBackend {
-            id: id.to_string(),
-            app,
+impl log::Log for Logger {
+    fn enabled(&self, metadata: &log::Metadata) -> bool {
+        metadata.level() <= STATIC_MAX_LEVEL
+    }
+
+    fn log(&self, record: &log::Record) {
+        let result = if record.target() == "progress" {
+            let raw = format!("{}", record.args());
+            let payload = ProgressPayload::parse(&raw);
+            match payload {
+                ProgressPayload::Start(payload) => self.app.emit_all("PROGRESS-START", payload),
+                ProgressPayload::Increment(payload) => {
+                    self.app.emit_all("PROGRESS-INCREMENT", payload)
+                }
+                ProgressPayload::Msg(payload) => self.app.emit_all("PROGRESS-MESSAGE", payload),
+                ProgressPayload::Finish(payload) => self.app.emit_all("PROGRESS-FINISH", payload),
+                ProgressPayload::Unknown => Ok(()),
+            }
+        } else if self.enabled(record.metadata()) {
+            self.app.emit_all(
+                "LOG",
+                LogPayload {
+                    log_type: record.level(),
+                    message: format!("{}", record.args()),
+                },
+            )
+        } else {
+            Ok(())
+        };
+
+        if result.is_err() {
+            println!(
+                "Error Logging: {:?}\nORIGINAL LOG: {}",
+                result.unwrap_err(),
+                record.args()
+            );
         }
     }
-}
 
-impl LoggerBackend for TauriLogBackend {
-    fn handle_log(&self, log: Log) {
-        self.app.emit_all("LOG", log).ok();
-    }
-
-    fn create_progress(
-        &self,
-        id: &str,
-        msg: &str,
-        progress_type: ProgressType,
-        action_type: ProgressAction,
-        len: u64,
-    ) -> Box<dyn ProgressHandler> {
-        self.app
-            .emit_all(
-                "PROGRESS-START",
-                ProgressStartPayload {
-                    id: id.to_string(),
-                    message: msg.to_string(),
-                    progress_type,
-                    progress_action: action_type,
-                    len,
-                },
-            )
-            .ok();
-        Box::new(TauriProgressBackend::new(id, self.app.clone()))
-    }
-}
-
-impl ProgressHandler for TauriProgressBackend {
-    fn increment(&self, amount: u64) {
-        self.app
-            .emit_all(
-                "PROGRESS-INCREMENT",
-                ProgressUpdatePayload::Increment {
-                    id: self.id.clone(),
-                    amount,
-                },
-            )
-            .ok();
-    }
-
-    fn change_message(&self, new_message: &str) {
-        self.app
-            .emit_all(
-                "PROGRESS-MSG",
-                ProgressUpdatePayload::ChangeMsg {
-                    id: self.id.clone(),
-                    new_msg: new_message.to_string(),
-                },
-            )
-            .ok();
-    }
-
-    fn finish(&self, msg: &str) {
-        self.app
-            .emit_all(
-                "PROGRESS-FINISH",
-                ProgressUpdatePayload::Finish {
-                    id: self.id.clone(),
-                    msg: msg.to_string(),
-                },
-            )
-            .ok();
-    }
-}
-
-pub fn get_logger(handle: AppHandle) -> Logger {
-    let backend = TauriLogBackend { app: handle };
-    Logger::new(Box::new(backend))
+    fn flush(&self) {}
 }

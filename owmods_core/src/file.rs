@@ -5,10 +5,11 @@ use std::{
 };
 
 use anyhow::anyhow;
+use anyhow::Result;
 use directories::ProjectDirs;
 use serde::{Deserialize, Serialize};
 
-pub fn deserialize_from_json<T>(file_path: &Path) -> Result<T, anyhow::Error>
+pub fn deserialize_from_json<T>(file_path: &Path) -> Result<T>
 where
     for<'a> T: Deserialize<'a>,
 {
@@ -18,11 +19,7 @@ where
     Ok(result)
 }
 
-pub fn serialize_to_json<T>(
-    obj: &T,
-    out_path: &Path,
-    create_parents: bool,
-) -> Result<(), anyhow::Error>
+pub fn serialize_to_json<T>(obj: &T, out_path: &Path, create_parents: bool) -> Result<()>
 where
     T: Serialize,
 {
@@ -37,7 +34,7 @@ where
     Ok(())
 }
 
-pub fn get_app_path() -> Result<PathBuf, anyhow::Error> {
+pub fn get_app_path() -> Result<PathBuf> {
     let app_data_path = ProjectDirs::from("com", "ow-mods", "ow-mod-man");
     match app_data_path {
         Some(app_data_path) => Ok(app_data_path.data_dir().to_path_buf()),
@@ -45,7 +42,7 @@ pub fn get_app_path() -> Result<PathBuf, anyhow::Error> {
     }
 }
 
-pub fn fix_json(path: &Path) -> Result<(), anyhow::Error> {
+pub fn fix_json(path: &Path) -> Result<()> {
     let mut file = File::open(path)?;
     let mut buffer = String::new();
 
@@ -60,7 +57,7 @@ pub fn fix_json(path: &Path) -> Result<(), anyhow::Error> {
     Ok(())
 }
 
-pub fn create_all_parents(file_path: &Path) -> Result<(), anyhow::Error> {
+pub fn create_all_parents(file_path: &Path) -> Result<()> {
     if let Some(parent_path) = file_path.parent() {
         create_dir_all(parent_path)?;
     }

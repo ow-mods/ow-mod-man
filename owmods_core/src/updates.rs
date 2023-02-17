@@ -1,6 +1,9 @@
+use log::info;
 use version_compare::Cmp;
 
-use crate::{download::install_mods_parallel, log, logging::Logger};
+use anyhow::Result;
+
+use crate::download::install_mods_parallel;
 
 use super::{
     config::Config,
@@ -31,19 +34,16 @@ fn check_mod_needs_update<'a>(
 }
 
 pub async fn update_all(
-    log: &Logger,
     config: &Config,
     local_db: &LocalDatabase,
     remote_db: &RemoteDatabase,
-) -> Result<bool, anyhow::Error> {
+) -> Result<bool> {
     let mut needs_update: Vec<&RemoteMod> = vec![];
 
     for local_mod in local_db.mods.values() {
         let (update, remote_mod) = check_mod_needs_update(local_mod, remote_db);
         if update {
-            log!(
-                log,
-                info,
+            info!(
                 "{}: {} -> {}",
                 local_mod.manifest.name,
                 local_mod.get_version(),
@@ -58,14 +58,12 @@ pub async fn update_all(
     if owml.is_some() {
         let (update, remote_owml) = check_mod_needs_update(owml.as_ref().unwrap(), remote_db);
         if update {
-            log!(
-                log,
-                info,
+            info!(
                 "OWML: {} -> {}",
                 owml.as_ref().unwrap().get_version(),
                 remote_owml.unwrap().get_version()
             );
-            download_and_install_owml(log, config, remote_owml.unwrap()).await?;
+            download_and_install_owml(config, remote_owml.unwrap()).await?;
         }
     }
 
@@ -76,7 +74,7 @@ pub async fn update_all(
             .into_iter()
             .map(|m| m.unique_name.clone())
             .collect();
-        install_mods_parallel(log, mod_names, config, remote_db, local_db).await?;
+        install_mods_parallel(mod_names, config, remote_db, local_db).await?;
         Ok(true)
     }
 }

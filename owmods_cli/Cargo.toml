@@ -14,6 +14,7 @@ colored = "2.0.0"
 anyhow = "1.0.68"
 indicatif = { version = "0.17.3", features = ["improved_unicode"] }
 tokio = { version = "1.25.0", features = ["macros"] }
+log = { version = "0.4.17", features = ["std"] }
 
 [[bin]]
 name = "owmods"

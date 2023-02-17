@@ -8,30 +8,24 @@ interface ActiveDownloadProps {
     id: string;
     progressAction: "Download" | "Extract" | "Wine";
     progressType: "Definite" | "Indefinite";
-    message: string;
+    msg: string;
     progress: number;
     len: number;
 }
 
 interface ProgressIncrementPayload {
-    increment: {
-        id: string;
-        amount: number;
-    };
+    id: string;
+    progress: number;
 }
 
 interface ProgressMessagePayload {
-    changeMsg: {
-        id: string;
-        newMsg: string;
-    };
+    id: string;
+    msg: string;
 }
 
 interface ProgressFinishPayload {
-    finish: {
-        id: string;
-        msg: string;
-    };
+    id: string;
+    msg: string;
 }
 
 const ActiveDownload = (props: ActiveDownloadProps) => {
@@ -44,7 +38,7 @@ const ActiveDownload = (props: ActiveDownloadProps) => {
             }`}
         >
             <p className="download-header fix-icons">
-                <Icon iconType={FaCheck} /> {props.message}
+                <Icon iconType={FaCheck} /> {props.msg}
             </p>
             <progress
                 value={
@@ -82,33 +76,28 @@ const DownloadsPopout = () => {
         }).catch(console.warn);
         listen("PROGRESS-INCREMENT", (e) => {
             if (cancelled) return;
-            const payload = (e.payload as ProgressIncrementPayload).increment;
+            const payload = e.payload as ProgressIncrementPayload;
             const current = downloadsRef.current[payload.id];
             if (current) {
-                current.progress += payload.amount;
+                current.progress = payload.progress;
                 setDownloads({ ...downloadsRef.current, [current.id]: current });
             }
         }).catch(console.warn);
-        listen("PROGRESS-MSG", (e) => {
+        listen("PROGRESS-MESSAGE", (e) => {
             if (cancelled) return;
-            const payload = (e.payload as ProgressMessagePayload).changeMsg;
+            const payload = e.payload as ProgressMessagePayload;
             const current = downloadsRef.current[payload.id];
             if (current) {
-                current.message = payload.newMsg;
+                current.msg = payload.msg;
                 setDownloads({ ...downloadsRef.current, [current.id]: current });
             }
         }).catch(console.warn);
         listen("PROGRESS-FINISH", (e) => {
             if (cancelled) return;
-            const payload = (e.payload as ProgressFinishPayload).finish;
+            const payload = e.payload as ProgressFinishPayload;
             const current = downloadsRef.current[payload.id];
             if (current && current.progressAction === "Extract") {
-                current.message = payload.msg;
-                if (current.progressType === "Indefinite") {
-                    current.progress = 1;
-                } else {
-                    current.progress = current.len;
-                }
+                current.msg = payload.msg;
                 setDownloads({ ...downloadsRef.current, [current.id]: current });
             }
         }).catch(console.warn);

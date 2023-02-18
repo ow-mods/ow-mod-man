@@ -12,7 +12,6 @@ pub async fn launch_game(config: &Config, port: &u16) -> Result<()> {
         .current_dir(PathBuf::from(&owml_path))
         .spawn()?;
     child.wait().await?;
-    info!("Quit Game");
     Ok(())
 }
 

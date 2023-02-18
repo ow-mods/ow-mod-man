@@ -58,7 +58,7 @@ impl LogServer {
         let mut keep_going = true;
         while keep_going {
             let stream = self.listener.accept().await;
-            info!(target: &target, "===Client Attached To Console===");
+            info!(target: &target, "======Client Attached To Console======");
             if let Ok((mut stream, _)) = stream {
                 let mut reader = BufReader::new(&mut stream);
                 let mut body = String::new();
@@ -87,12 +87,12 @@ impl LogServer {
                             error!(target: &target, "Invalid Log From Game Sent: {:?}", why);
                         }
                     }
-                    body = String::default();
+                    body.clear();
                 }
             } else {
                 error!(target: &target, "Invalid Log From Game Sent!");
             }
-            info!(target: &target, "===Client De-Attached From Console===");
+            info!(target: &target, "======Client Detached From Console======");
         }
         Ok(())
     }

@@ -121,7 +121,7 @@ pub struct OWMLConfig {
     incremental_GC: bool,
     #[serde(skip_serializing_if = "Option::is_none")]
     owml_path: Option<String>,
-    socket_port: u32,
+    pub socket_port: u16,
     #[serde(flatten)]
     extra: HashMap<String, Value>,
 }

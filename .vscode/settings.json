@@ -8,6 +8,7 @@
     "indicatif",
     "owlk",
     "owmods",
+    "repr",
     "reqwest",
     "rungameid",
     "scrollbars",

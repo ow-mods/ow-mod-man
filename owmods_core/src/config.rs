@@ -1,7 +1,7 @@
 use anyhow::Result;
 use log::debug;
 use serde::{Deserialize, Serialize};
-use std::path::{PathBuf, Path};
+use std::path::{Path, PathBuf};
 
 use crate::file::{deserialize_from_json, get_app_path, serialize_to_json};
 

@@ -4,6 +4,7 @@ use anyhow::anyhow;
 use anyhow::Result;
 use clap::{Parser, Subcommand};
 use colored::Colorize;
+use game::start_just_logs;
 use log::{debug, error, info, warn, LevelFilter};
 use owmods_core::{
     alerts::fetch_alert,
@@ -12,7 +13,7 @@ use owmods_core::{
     download::{
         download_and_install_owml, install_mod_from_db, install_mod_from_url, install_mod_from_zip,
     },
-    game::{launch_game, setup_wine_prefix},
+    game::setup_wine_prefix,
     io::{export_mods, import_mods},
     mods::LocalMod,
     open::{open_readme, open_shortcut},
@@ -22,8 +23,11 @@ use owmods_core::{
     validate::{self, has_errors},
 };
 
+mod game;
 mod logging;
 use logging::Logger;
+
+use crate::game::start_game;
 
 #[derive(Parser)]
 #[command(author, version, about, long_about = None)]
@@ -121,6 +125,22 @@ enum Commands {
             help = "Force the game to run even if there's conflicting mods or missing dependencies"
         )]
         force: bool,
+        #[arg(
+            short = 'p',
+            long = "port",
+            help = "Port to use for logging",
+            default_value = "0"
+        )]
+        port: u16,
+    },
+    LogServer {
+        #[arg(
+            short = 'p',
+            long = "port",
+            help = "Port to use for logging",
+            default_value = "0"
+        )]
+        port: u16,
     },
     #[command(about = "Quickly open something")]
     Open {
@@ -270,11 +290,11 @@ async fn run_from_cli(cli: BaseCli) -> Result<()> {
                 info!("========== {} ==========", unique_name);
                 info!("Name: {}", name);
                 info!("Author(s): {}", author);
-                info!("Installed: {}", yesno(installed));
+                info!("Installed: {}", yes_no(installed));
                 if installed {
                     let local_mod = local_mod.unwrap();
                     info!("Installed At: {}", local_mod.mod_path);
-                    info!("Enabled: {}", yesno(local_mod.enabled));
+                    info!("Enabled: {}", yes_no(local_mod.enabled));
                     info!("Installed Version: {}", local_mod.get_version());
                     if let Some(owml_version) = &local_mod.manifest.owml_version {
                         info!("Expected OWML Version: {}", owml_version);
@@ -286,7 +306,7 @@ async fn run_from_cli(cli: BaseCli) -> Result<()> {
                         info!("Conflicts: {}", conflicts.join(", "));
                     }
                 }
-                info!("In Database: {}", yesno(has_remote));
+                info!("In Database: {}", yes_no(has_remote));
                 if has_remote {
                     let remote_mod = remote_mod.unwrap();
                     info!("Description: {}", remote_mod.description);
@@ -396,7 +416,10 @@ async fn run_from_cli(cli: BaseCli) -> Result<()> {
                 }
             }
         }
-        Commands::Run { force } => {
+        Commands::LogServer { port } => {
+            start_just_logs(port).await?;
+        }
+        Commands::Run { force, port } => {
             info!("Attempting to launch game...");
             if !*force {
                 let local_db = LocalDatabase::fetch(&config)?;
@@ -408,7 +431,7 @@ async fn run_from_cli(cli: BaseCli) -> Result<()> {
                 }
             }
             if cfg!(windows) || config.wine_prefix.is_some() {
-                launch_game(&config)?;
+                start_game(&config, port).await?;
             } else {
                 info!("Hey there! Before you can run the game we'll need to setup a wine prefix.",);
                 info!("You can either set wine_prefix in ~/.local/share/ow-mod-man/settings.json.",);
@@ -420,9 +443,9 @@ async fn run_from_cli(cli: BaseCli) -> Result<()> {
                     info!("Alright! We'll need about 10 minutes to set up, during setup dialog boxes will appear so make sure to go through them.");
                     info!("When prompted to restart, select \"Restart Later\"");
                     debug!("Begin creating wine prefix");
-                    let new_conf = setup_wine_prefix(&config)?;
+                    let new_conf = setup_wine_prefix(&config).await?;
                     info!("Success! Launching the game now...");
-                    launch_game(&new_conf)?;
+                    start_game(&new_conf, port).await?;
                 }
             }
         }
@@ -472,7 +495,7 @@ async fn run_from_cli(cli: BaseCli) -> Result<()> {
     Ok(())
 }
 
-fn yesno(v: bool) -> String {
+fn yes_no(v: bool) -> String {
     if v {
         "Yes".to_string()
     } else {

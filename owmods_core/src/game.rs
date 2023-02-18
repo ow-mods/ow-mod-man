@@ -1,21 +1,23 @@
 use crate::config::Config;
 use anyhow::Result;
-use log::{debug, info};
-use std::{path::PathBuf, process::Command};
+use std::path::PathBuf;
+use tokio::process::Command;
 
 #[cfg(windows)]
-pub fn launch_game(config: &Config) -> Result<()> {
+pub async fn launch_game(config: &Config, port: &u16) -> Result<()> {
     let owml_path = PathBuf::from(&config.owml_path);
     let mut child = Command::new(owml_path.join("OWML.Launcher.exe").to_str().unwrap())
+        .arg("-consolePort")
+        .arg(port.to_string())
         .current_dir(PathBuf::from(&owml_path))
         .spawn()?;
-    child.wait()?;
+    child.wait().await?;
     info!("Quit Game");
     Ok(())
 }
 
 #[cfg(windows)]
-pub fn setup_wine_prefix(log: &Logger, config: &Config) -> Result<Config> {
+pub fn setup_wine_prefix(config: &Config) -> Result<Config> {
     use log::error;
     error!("How in the ever-loving FUCK did you get here");
     error!("...report this please");
@@ -23,48 +25,32 @@ pub fn setup_wine_prefix(log: &Logger, config: &Config) -> Result<Config> {
 }
 
 #[cfg(not(windows))]
-pub fn launch_game(config: &Config) -> Result<()> {
+pub async fn launch_game(config: &Config, port: &u16) -> Result<()> {
     use anyhow::anyhow;
-    use std::{process::Stdio, thread, time::Duration};
+    use std::process::Stdio;
 
-    use crate::{
-        file::{deserialize_from_json, serialize_to_json},
-        mods::OWMLConfig,
-    };
+    use crate::mods::OWMLConfig;
 
     if let Some(wine_prefix) = &config.wine_prefix {
-        let owml_path = PathBuf::from(&config.owml_path);
-        let mut owml_config: OWMLConfig =
-            deserialize_from_json(&owml_path.join("OWML.Config.json")).unwrap_or(
-                deserialize_from_json(&owml_path.join("OWML.DefaultConfig.json"))?,
-            );
+        let mut owml_config = OWMLConfig::get(config)?;
         owml_config.force_exe = true;
         owml_config.game_path =
             "C:/Program Files (x86)/Steam/steamapps/common/Outer Wilds".to_string();
-        serialize_to_json(&owml_config, &owml_path.join("OWML.Config.json"), false)?;
+        owml_config.socket_port = *port;
+        owml_config.save(config)?;
 
         let mut child = Command::new("wine")
-            .stderr(Stdio::null())
+            .stdout(Stdio::piped())
+            .stderr(Stdio::piped())
             .env("WINEPREFIX", wine_prefix)
             .arg("OWML.Launcher.exe")
+            .arg("-consolePort")
+            .arg(port.to_string())
             .current_dir(PathBuf::from(&config.owml_path))
             .spawn()?;
 
-        thread::sleep(Duration::from_secs(3));
-
-        if let Ok(res) = child.try_wait() {
-            if let Some(res) = res {
-                return Err(anyhow!(
-                    "Couldn't start game with exit code: {}",
-                    res.code().unwrap()
-                ));
-            } else {
-                debug!("Actually Starting Game Now...");
-                opener::open("steam://rungameid/753640")?;
-                child.wait()?;
-                info!("Quit Game");
-            }
-        }
+        child.wait().await?;
+        opener::open("steam://rungameid/753640")?;
     } else {
         return Err(anyhow!("wine_prefix not set in settings"));
     }
@@ -73,7 +59,7 @@ pub fn launch_game(config: &Config) -> Result<()> {
 }
 
 #[cfg(not(windows))]
-pub fn setup_wine_prefix(config: &Config) -> Result<Config> {
+pub async fn setup_wine_prefix(config: &Config) -> Result<Config> {
     use anyhow::anyhow;
     use directories::BaseDirs;
     use std::{os::unix::fs::symlink, path::Path, process::Stdio};
@@ -111,7 +97,8 @@ pub fn setup_wine_prefix(config: &Config) -> Result<Config> {
         .stderr(Stdio::piped())
         .env("WINEPREFIX", prefix_str)
         .arg("wineboot")
-        .output()?;
+        .output()
+        .await?;
 
     if !out.status.success() {
         return Err(anyhow!(
@@ -152,7 +139,8 @@ pub fn setup_wine_prefix(config: &Config) -> Result<Config> {
         .stderr(Stdio::piped())
         .env("WINEPREFIX", prefix_str)
         .arg("dotnet48")
-        .output()?;
+        .output()
+        .await?;
 
     if !out.status.success() {
         return Err(anyhow!(

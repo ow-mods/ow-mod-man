@@ -135,6 +135,14 @@ impl OWMLConfig {
         deserialize_from_json(&Self::path(config))
     }
 
+    pub fn get_from_path(path: &Path) -> Result<OWMLConfig> {
+        deserialize_from_json(path)
+    }
+
+    pub fn save_to_path(&self, path: &Path) -> Result<()> {
+        serialize_to_json(self, path, true)
+    }
+
     fn load_default(config: &Config) -> Result<OWMLConfig> {
         deserialize_from_json(&Path::new(&config.owml_path).join("OWML.DefaultConfig.json"))
     }

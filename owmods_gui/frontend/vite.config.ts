@@ -1,4 +1,5 @@
 import { defineConfig } from "vite";
+import { createHtmlPlugin } from "vite-plugin-html";
 import react from "@vitejs/plugin-react";
 import path from "path";
 
@@ -9,9 +10,22 @@ export default defineConfig({
         strictPort: true
     },
     envPrefix: ["VITE_", "TAURI_"],
-    plugins: [react()],
+    plugins: [
+        react(),
+        createHtmlPlugin({
+            minify: true,
+            template: "index.html",
+            inject: {
+                data: {
+                    reactDevTools: process.env.TAURI_DEBUG
+                        ? '<script src="http://localhost:8097"></script>'
+                        : ""
+                }
+            }
+        })
+    ],
     build: {
-        outDir: "../../dist",
+        outDir: "../dist",
         target: process.env.TAURI_PLATFORM == "windows" ? "chrome105" : "safari13",
         minify: !process.env.TAURI_DEBUG ? "esbuild" : false,
         sourcemap: !!process.env.TAURI_DEBUG

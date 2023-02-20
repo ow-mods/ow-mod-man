@@ -10,6 +10,9 @@ import ThemeMap from "../theme";
 import rainbow from "@styles/rainbow.scss?inline";
 import OwmlSetupModal from "./modals/OwmlSetupModal";
 import { listen } from "@tauri-apps/api/event";
+import { startLogListen } from "../logging";
+
+startLogListen();
 
 // Refresh once to get data
 invoke("refresh_local_db").catch(() => console.warn("Can't fetch local DB"));

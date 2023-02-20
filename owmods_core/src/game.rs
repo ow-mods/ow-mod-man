@@ -1,7 +1,9 @@
-use crate::config::Config;
+use crate::{config::Config, mods::OWMLConfig};
 use anyhow::Result;
 use std::path::PathBuf;
 use tokio::process::Command;
+
+const LINUX_GAME_PATH: &str = "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Outer Wilds";
 
 #[cfg(windows)]
 pub async fn launch_game(config: &Config, port: &u16) -> Result<()> {
@@ -28,13 +30,10 @@ pub async fn launch_game(config: &Config, port: &u16) -> Result<()> {
     use anyhow::anyhow;
     use std::process::Stdio;
 
-    use crate::mods::OWMLConfig;
-
     if let Some(wine_prefix) = &config.wine_prefix {
         let mut owml_config = OWMLConfig::get(config)?;
         owml_config.force_exe = true;
-        owml_config.game_path =
-            "C:/Program Files (x86)/Steam/steamapps/common/Outer Wilds".to_string();
+        owml_config.game_path = LINUX_GAME_PATH.to_string();
         owml_config.socket_port = *port;
         owml_config.save(config)?;
 
@@ -49,12 +48,22 @@ pub async fn launch_game(config: &Config, port: &u16) -> Result<()> {
             .spawn()?;
 
         child.wait().await?;
+        // OWML really likes forward slashes
+        fix_slashes_on_game(config)?;
         opener::open("steam://rungameid/753640")?;
     } else {
         return Err(anyhow!("wine_prefix not set in settings"));
     }
 
     Ok(())
+}
+
+#[cfg(not(windows))]
+pub fn fix_slashes_on_game(config: &Config) -> Result<()> {
+    let conf_path= PathBuf::from(config.wine_prefix.as_ref().unwrap()).join("drive_c/Program Files (x86)/Steam/steamapps/common/Outer Wilds/OuterWilds_Data/Managed/OWML.Config.json");
+    let mut owml_config = OWMLConfig::get_from_path(&conf_path)?;
+    owml_config.game_path = LINUX_GAME_PATH.to_string();
+    OWMLConfig::save_to_path(&owml_config, &conf_path)
 }
 
 #[cfg(not(windows))]

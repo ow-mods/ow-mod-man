@@ -1,8 +1,9 @@
-use crate::{config::Config, mods::OWMLConfig};
+use crate::config::Config;
 use anyhow::Result;
 use std::path::PathBuf;
 use tokio::process::Command;
 
+#[cfg(not(windows))]
 const LINUX_GAME_PATH: &str = "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Outer Wilds";
 
 #[cfg(windows)]
@@ -18,7 +19,7 @@ pub async fn launch_game(config: &Config, port: &u16) -> Result<()> {
 }
 
 #[cfg(windows)]
-pub fn setup_wine_prefix(config: &Config) -> Result<Config> {
+pub async fn setup_wine_prefix(config: &Config) -> Result<Config> {
     use log::error;
     error!("How in the ever-loving FUCK did you get here");
     error!("...report this please");
@@ -74,6 +75,7 @@ pub async fn setup_wine_prefix(config: &Config) -> Result<Config> {
 
     use crate::{
         file::{create_all_parents, get_app_path},
+        mods::OWMLConfig,
         progress::{ProgressAction, ProgressBar, ProgressType},
     };
 

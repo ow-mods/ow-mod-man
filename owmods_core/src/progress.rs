@@ -67,13 +67,14 @@ pub enum ProgressPayload {
 
 impl ProgressPayload {
     pub fn parse(input: &str) -> Self {
-        let (action, rest) = input.split_once(':').unwrap();
-        let (id, args) = rest.split_once(':').unwrap();
+        let (action, rest) = input.split_once('|').unwrap();
+        let (id, args) = rest.split_once('|').unwrap();
         match action {
             "Start" => {
-                let (len, r) = args.split_once(':').unwrap();
-                let (progress_type, r) = r.split_once(':').unwrap();
-                let (progress_action, msg) = r.split_once(':').unwrap();
+                let (len, r) = args.split_once('|').unwrap();
+                let (progress_type, r) = r.split_once('|').unwrap();
+                let (progress_action, msg) = r.split_once('|').unwrap();
+                println!("{}", input);
                 ProgressPayload::Start(ProgressStartPayload {
                     id: id.to_string(),
                     msg: msg.to_string(),
@@ -118,7 +119,7 @@ impl ProgressBar {
             len,
             progress: 0,
         };
-        info!(target: "progress", "Start:{}:{}:{:?}:{:?}:{}", id, len, progress_type, progress_action, msg);
+        info!(target: "progress", "Start|{}|{}|{:?}|{:?}|{}", id, len, progress_type, progress_action, msg);
         new
     }
 
@@ -128,14 +129,14 @@ impl ProgressBar {
         } else {
             self.progress + amount
         };
-        info!(target: "progress", "Increment:{}:{}", self.id, self.progress);
+        info!(target: "progress", "Increment|{}|{}", self.id, self.progress);
     }
 
     pub fn set_msg(&self, msg: &str) {
-        info!(target: "progress", "Msg:{}:{}", self.id, msg);
+        info!(target: "progress", "Msg|{}|{}", self.id, msg);
     }
 
     pub fn finish(&self, msg: &str) {
-        info!(target: "progress", "Finish:{}:{}", self.id, msg);
+        info!(target: "progress", "Finish|{}|{}", self.id, msg);
     }
 }

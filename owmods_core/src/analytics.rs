@@ -62,7 +62,7 @@ impl AnalyticsPayload {
 
 pub async fn send_analytics_event(event_name: AnalyticsEventName, unique_name: &str) -> Result<()> {
     if let Some(api_key) = API_KEY {
-        let url = format!("https://www.google-analytics.com/mp/collect?measurement_id=${MEASUREMENT_ID}&api_secret=${api_key}");
+        let url = format!("https://www.google-analytics.com/mp/collect?measurement_id={MEASUREMENT_ID}&api_secret={api_key}");
         let client = Client::new();
         let payload = AnalyticsPayload::new(&event_name, unique_name);
         let resp = client.post(url).json(&payload).send().await?;

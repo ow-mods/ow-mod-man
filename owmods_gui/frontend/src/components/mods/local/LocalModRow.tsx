@@ -26,6 +26,8 @@ const LocalModRow = memo((props: LocalModRowProps) => {
         name: mod?.manifest.name ?? "null"
     });
 
+    const subtitle = useTranslation("BY", { author: mod?.manifest.author ?? "" });
+
     const onToggle = useCallback(
         (newVal: boolean) => {
             invoke("toggle_mod", {
@@ -58,7 +60,7 @@ const LocalModRow = memo((props: LocalModRowProps) => {
         const localMod = mod!;
         return (
             <div className="mod-row local">
-                <ModHeader {...localMod.manifest}>
+                <ModHeader subtitle={subtitle} {...localMod.manifest}>
                     <ModActionButton onClick={onOpen} ariaLabel={showFolderTooltip}>
                         <Icon iconType={FaFolder} />
                     </ModActionButton>

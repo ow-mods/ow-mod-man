@@ -1,4 +1,5 @@
 pub mod alerts;
+pub mod analytics;
 pub mod config;
 pub mod db;
 pub mod download;

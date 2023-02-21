@@ -8,11 +8,12 @@ use std::{
 use anyhow::anyhow;
 use anyhow::Result;
 use futures::{stream::FuturesUnordered, StreamExt};
-use log::{debug, info};
+use log::debug;
 use tempdir::TempDir;
 use zip::ZipArchive;
 
 use crate::{
+    analytics::{send_analytics_event, AnalyticsEventName},
     config::Config,
     db::{LocalDatabase, RemoteDatabase},
     file::{create_all_parents, fix_bom, get_app_path},
@@ -280,7 +281,63 @@ pub async fn install_mod_from_db(
     local_db: &LocalDatabase,
     recursive: bool,
 ) -> Result<()> {
-    if !recursive {
+    let already_installed = local_db.get_mod(unique_name).is_some();
+    if recursive {
+        let mut to_install: Vec<String> = vec![unique_name.clone()];
+        let mut installed: Vec<String> = local_db
+            .active()
+            .iter()
+            .filter_map(|m| {
+                if m.manifest.unique_name == *unique_name {
+                    None
+                } else {
+                    Some(m.manifest.unique_name.clone())
+                }
+            })
+            .collect();
+
+        let mut count = 1;
+
+        while !to_install.is_empty() {
+            debug!(
+                "Begin round {} of install with {} dependencies",
+                count,
+                installed.len()
+            );
+            let newly_installed = install_mods_parallel(
+                to_install
+                    .drain(..)
+                    .filter(|m| !installed.contains(m))
+                    .collect(),
+                config,
+                remote_db,
+                local_db,
+            )
+            .await?;
+            for installed_mod in newly_installed
+                .iter()
+                .filter(|m| &m.manifest.unique_name != unique_name)
+            {
+                send_analytics_event(
+                    AnalyticsEventName::ModRequiredInstall,
+                    &installed_mod.manifest.unique_name,
+                )
+                .await?;
+            }
+            installed.append(
+                &mut newly_installed
+                    .iter()
+                    .map(|m| m.manifest.unique_name.to_owned())
+                    .collect(),
+            );
+            for new_mod in newly_installed.into_iter() {
+                if let Some(mut deps) = new_mod.manifest.dependencies {
+                    to_install.append(&mut deps);
+                }
+            }
+            count += 1;
+        }
+    } else {
         let remote_mod = remote_db.get_mod(unique_name).ok_or_else(|| {
             anyhow!(
                 "Mod {} not found, run `owmods list remote` to view a list.",
@@ -288,55 +345,10 @@ pub async fn install_mod_from_db(
             )
         })?;
         install_mod_from_url(&remote_mod.download_url, config, local_db).await?;
-        return Ok(());
     }
-
-    let mut to_install: Vec<String> = vec![unique_name.clone()];
-    let mut installed: Vec<String> = local_db
-        .active()
-        .iter()
-        .filter_map(|m| {
-            if m.manifest.unique_name == *unique_name {
-                None
-            } else {
-                Some(m.manifest.unique_name.clone())
-            }
-        })
-        .collect();
-
-    let mut count = 1;
-
-    while !to_install.is_empty() {
-        debug!(
-            "Begin round {} of install with {} dependencies",
-            count,
-            installed.len()
-        );
-        let newly_installed = install_mods_parallel(
-            to_install
-                .drain(..)
-                .filter(|m| !installed.contains(m))
-                .collect(),
-            config,
-            remote_db,
-            local_db,
-        )
-        .await?;
-        installed.append(
-            &mut newly_installed
-                .iter()
-                .map(|m| m.manifest.unique_name.to_owned())
-                .collect(),
-        );
-        for new_mod in newly_installed.into_iter() {
-            if let Some(mut deps) = new_mod.manifest.dependencies {
-                to_install.append(&mut deps);
-            }
-        }
-        count += 1;
+    if already_installed {
+        send_analytics_event(AnalyticsEventName::ModReinstall, unique_name).await
+    } else {
+        send_analytics_event(AnalyticsEventName::ModInstall, unique_name).await
     }
-
-    info!("Installed {}!", unique_name);
-
-    Ok(())
 }

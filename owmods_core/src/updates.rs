@@ -3,7 +3,10 @@ use version_compare::Cmp;
 
 use anyhow::Result;
 
-use crate::download::install_mods_parallel;
+use crate::{
+    analytics::{send_analytics_event, AnalyticsEventName},
+    download::install_mods_parallel,
+};
 
 use super::{
     config::Config,
@@ -12,7 +15,7 @@ use super::{
     mods::{LocalMod, RemoteMod},
 };
 
-fn check_mod_needs_update<'a>(
+pub fn check_mod_needs_update<'a>(
     local_mod: &'a LocalMod,
     remote_db: &'a RemoteDatabase,
 ) -> (bool, Option<&'a RemoteMod>) {
@@ -74,7 +77,14 @@ pub async fn update_all(
             .into_iter()
             .map(|m| m.unique_name.clone())
             .collect();
-        install_mods_parallel(mod_names, config, remote_db, local_db).await?;
+        let updated = install_mods_parallel(mod_names, config, remote_db, local_db).await?;
+        for updated_mod in updated {
+            send_analytics_event(
+                AnalyticsEventName::ModUpdate,
+                &updated_mod.manifest.unique_name,
+            )
+            .await?;
+        }
         Ok(true)
     }
 }

@@ -1,7 +1,7 @@
 import Icon from "@components/Icon";
 import ModActionButton from "@components/mods/ModActionButton";
 import ModHeader from "@components/mods/ModHeader";
-import { useTauri, useTranslations } from "@hooks";
+import { useTauri, useTranslation, useTranslations } from "@hooks";
 import { invoke } from "@tauri-apps/api";
 import { CSSProperties, memo, useCallback, useState } from "react";
 import { FaArrowDown, FaFileAlt } from "react-icons/fa";
@@ -51,6 +51,8 @@ const RemoteModRow = memo((props: RemoteModRowProps) => {
         "OPEN_README"
     ]);
 
+    const subtitle = useTranslation("BY", { author: mod?.authorDisplay ?? mod?.author ?? "" });
+
     const onInstall = useCallback(() => {
         setDownloading(true);
         invoke("install_mod", { uniqueName: props.uniqueName })
@@ -74,13 +76,13 @@ const RemoteModRow = memo((props: RemoteModRowProps) => {
             </p>
         );
     } else {
-        const remote_mod = mod!;
-        let desc = remote_mod.description ?? noDescription;
+        const remoteMod = mod!;
+        let desc = remoteMod.description ?? noDescription;
         if (desc.trim() === "") desc = noDescription;
         return (
             <div style={props.style} className="mod-row">
-                <ModHeader {...remote_mod} author={remote_mod.authorDisplay ?? remote_mod.author}>
-                    <small>{formatNumber(remote_mod.downloadCount)}</small>
+                <ModHeader {...remoteMod} subtitle={subtitle}>
+                    <small>{formatNumber(remoteMod.downloadCount)}</small>
                     {downloading ? (
                         <div className="center-loading" aria-busy></div>
                     ) : (

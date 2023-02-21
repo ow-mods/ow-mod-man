@@ -7,7 +7,6 @@ import { Config, GuiConfig } from "@types";
 export type LoadState = "Loading" | "Done" | "Error";
 
 const subscribeTauri = (name: string) => {
-    // console.debug("Sub", name);
     return async (callback: (p: unknown) => void) => {
         return await listen(name, callback);
     };
@@ -20,28 +19,29 @@ const getTauriSnapshot = <T>(cmdName: string, payload: unknown): (() => Promise<
 };
 
 export const useTauri = <T>(
-    eventName: string,
+    eventName: string | string[],
     commandName: string,
     commandPayload?: unknown
 ): [LoadState, T | null, string | null] => {
     const [status, setStatus] = useState<LoadState>("Loading");
     const [data, setData] = useState<T | null>(null);
     const [error, setError] = useState<string | null>(null);
+    const events = useMemo(() => (Array.isArray(eventName) ? eventName : [eventName]), [eventName]);
     let unsubscribe: UnlistenFn | null = null;
 
     useEffect(() => {
         if (status !== "Loading") {
-            // console.debug(`Begin subscribe to ${eventName}`);
-            subscribeTauri(eventName)(() => setStatus("Loading"))
-                .then((u) => {
-                    unsubscribe = u;
-                })
-                .catch((e) => {
-                    setStatus("Error");
-                    setError(e);
-                });
+            for (const eventToSubscribe of events) {
+                subscribeTauri(eventToSubscribe)(() => setStatus("Loading"))
+                    .then((u) => {
+                        unsubscribe = u;
+                    })
+                    .catch((e) => {
+                        setStatus("Error");
+                        setError(e);
+                    });
+            }
         } else {
-            // console.debug(`${eventName} Fired, Invoking ${commandName} with args`, commandPayload);
             getTauriSnapshot(commandName, commandPayload)()
                 .then((data) => {
                     setData(data as T);

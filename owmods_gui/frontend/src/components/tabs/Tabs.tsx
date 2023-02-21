@@ -9,6 +9,7 @@ import { IconContext } from "react-icons";
 import RemoteMods from "@components/mods/remote/RemoteMods";
 import Icon from "@components/Icon";
 import { useTranslations } from "@hooks";
+import UpdateMods from "@components/mods/updates/UpdateMods";
 
 enum SectionType {
     Local,
@@ -30,19 +31,19 @@ const Tabs = memo(() => {
             <IconContext.Provider value={{ className: "tab-icon" }}>
                 <div className="grid tabs">
                     <Tab
-                        selected={shownSection == SectionType.Local}
+                        selected={shownSection === SectionType.Local}
                         onClick={() => setShownSection(SectionType.Local)}
                     >
                         <Icon iconType={MdMonitor} label={installedMods} />
                     </Tab>
                     <Tab
-                        selected={shownSection == SectionType.Remote}
+                        selected={shownSection === SectionType.Remote}
                         onClick={() => setShownSection(SectionType.Remote)}
                     >
                         <Icon iconType={FaGlobeAmericas} label={getMods} />
                     </Tab>
                     <Tab
-                        selected={shownSection == SectionType.Updates}
+                        selected={shownSection === SectionType.Updates}
                         onClick={() => setShownSection(SectionType.Updates)}
                     >
                         <Icon iconType={FaArrowAltCircleUp} label={updates} />
@@ -50,11 +51,14 @@ const Tabs = memo(() => {
                 </div>
             </IconContext.Provider>
             <div className="sections">
-                <Section shown={shownSection == SectionType.Local}>
+                <Section shown={shownSection === SectionType.Local}>
                     <LocalMods />
                 </Section>
-                <Section className="remote" shown={shownSection == SectionType.Remote}>
+                <Section className="remote" shown={shownSection === SectionType.Remote}>
                     <RemoteMods />
+                </Section>
+                <Section shown={shownSection === SectionType.Updates}>
+                    <UpdateMods />
                 </Section>
             </div>
         </>

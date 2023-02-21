@@ -64,7 +64,10 @@ fn main() -> Result<(), Box<dyn Error>> {
             save_owml_config,
             get_owml_config,
             install_owml,
-            set_owml
+            set_owml,
+            get_updatable_mods,
+            update_mod,
+            update_all_mods
         ])
         .run(tauri::generate_context!())
         .expect("Error while running tauri application.");

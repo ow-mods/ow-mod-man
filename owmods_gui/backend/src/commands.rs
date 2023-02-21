@@ -4,10 +4,12 @@ use owmods_core::config::Config;
 use owmods_core::db::{LocalDatabase, RemoteDatabase};
 use owmods_core::download::{
     download_and_install_owml, install_mod_from_db, install_mod_from_url, install_mod_from_zip,
+    install_mods_parallel,
 };
 use owmods_core::mods::{LocalMod, OWMLConfig, RemoteMod};
 use owmods_core::open::{open_readme, open_shortcut};
 use owmods_core::remove::remove_mod;
+use owmods_core::updates::{check_mod_needs_update, update_all};
 use tauri::Manager;
 
 use crate::State;
@@ -274,4 +276,52 @@ pub async fn set_owml(
     } else {
         Ok(false)
     }
+}
+
+#[tauri::command]
+pub async fn get_updatable_mods(state: tauri::State<'_, State>) -> Result<Vec<String>, String> {
+    let mut updates: Vec<String> = vec![];
+    let local_db = state.local_db.read().await;
+    let remote_db = state.remote_db.read().await;
+    for local_mod in local_db.mods.values() {
+        let (needs_update, _) = check_mod_needs_update(local_mod, &remote_db);
+        if needs_update {
+            updates.push(local_mod.manifest.unique_name.clone());
+        }
+    }
+    Ok(updates)
+}
+
+#[tauri::command]
+pub async fn update_mod(
+    unique_name: &str,
+    state: tauri::State<'_, State>,
+    handle: tauri::AppHandle,
+) -> Result<(), String> {
+    handle.emit_all("INSTALL-START", unique_name).ok();
+    let config = state.config.read().await;
+    let local_db = state.local_db.read().await;
+    let remote_db = state.remote_db.read().await;
+    update_all(&config, &local_db, &remote_db)
+        .await
+        .map_err(e_to_str)?;
+    handle.emit_all("INSTALL-FINISH", unique_name).ok();
+    Ok(())
+}
+
+#[tauri::command]
+pub async fn update_all_mods(
+    unique_names: Vec<String>,
+    state: tauri::State<'_, State>,
+    handle: tauri::AppHandle,
+) -> Result<(), String> {
+    handle.emit_all("INSTALL-START", "").ok();
+    let config = state.config.read().await;
+    let local_db = state.local_db.read().await;
+    let remote_db = state.remote_db.read().await;
+    install_mods_parallel(unique_names, &config, &remote_db, &local_db)
+        .await
+        .map_err(e_to_str)?;
+    handle.emit_all("INSTALL-FINISH", "").ok();
+    Ok(())
 }

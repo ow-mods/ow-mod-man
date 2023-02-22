@@ -28,6 +28,7 @@ pub async fn setup_wine_prefix(config: &Config) -> Result<Config> {
 
 #[cfg(not(windows))]
 pub async fn launch_game(config: &Config, port: &u16) -> Result<()> {
+    use crate::mods::OWMLConfig;
     use anyhow::anyhow;
     use std::process::Stdio;
 
@@ -61,6 +62,7 @@ pub async fn launch_game(config: &Config, port: &u16) -> Result<()> {
 
 #[cfg(not(windows))]
 pub fn fix_slashes_on_game(config: &Config) -> Result<()> {
+    use crate::mods::OWMLConfig;
     let conf_path= PathBuf::from(config.wine_prefix.as_ref().unwrap()).join("drive_c/Program Files (x86)/Steam/steamapps/common/Outer Wilds/OuterWilds_Data/Managed/OWML.Config.json");
     let mut owml_config = OWMLConfig::get_from_path(&conf_path)?;
     owml_config.game_path = LINUX_GAME_PATH.to_string();
@@ -75,7 +77,6 @@ pub async fn setup_wine_prefix(config: &Config) -> Result<Config> {
 
     use crate::{
         file::{create_all_parents, get_app_path},
-        mods::OWMLConfig,
         progress::{ProgressAction, ProgressBar, ProgressType},
     };
 

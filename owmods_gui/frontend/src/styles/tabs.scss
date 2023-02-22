@@ -46,6 +46,7 @@
 
 .section {
     display: none;
+    flex-direction: column;
     height: 100%;
     overflow: hidden;
 }
@@ -55,5 +56,5 @@
 }
 
 .section.shown {
-    display: initial;
+    display: flex;
 }

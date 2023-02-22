@@ -1,37 +1,66 @@
-import { useTauri } from "@hooks";
-import { memo } from "react";
+import { useTauri, useTranslation } from "@hooks";
+import { memo, useRef, useState } from "react";
 import AutoSizer from "react-virtualized-auto-sizer";
 import { FixedSizeList } from "react-window";
 import RemoteModRow from "./RemoteModRow";
 
 const RemoteMods = memo(() => {
-    const [status, mods, err] = useTauri<string[]>("REMOTE-REFRESH", "get_remote_mods");
+    const [filter, setFilter] = useState("");
+    const [tempFilter, setTempFilter] = useState("");
+    const [status, mods, err] = useTauri<string[]>("REMOTE-REFRESH", "get_remote_mods", { filter });
 
-    if (status === "Loading" && mods === null) {
-        return <div className="mod-list center-loading" aria-busy></div>;
+    const activeTimeout = useRef<number | null>(null);
+
+    const searchLabel = useTranslation("SEARCH");
+
+    const onChangeFilter = (newFilter: string) => {
+        setTempFilter(newFilter);
+        if (activeTimeout.current) {
+            clearTimeout(activeTimeout.current);
+        }
+        activeTimeout.current = setTimeout(() => setFilter(newFilter), 450);
+    };
+
+    let res = <></>;
+
+    if ((status === "Loading" && mods === null) || tempFilter !== filter) {
+        res = <div className="mod-list center-loading" aria-busy></div>;
     } else if (status === "Error") {
-        return <p className="mod-list center-loading">{err!.toString()}</p>;
+        res = <p className="mod-list center-loading">{err!.toString()}</p>;
     } else {
-        const remote_mods = mods!;
-        return (
-            <AutoSizer>
-                {({ width, height }) => (
-                    <FixedSizeList
-                        itemCount={remote_mods.length}
-                        itemSize={120}
-                        itemKey={(index) => remote_mods[index]}
-                        width={width}
-                        height={height}
-                        className="mod-list remote"
-                    >
-                        {({ index, style }) => (
-                            <RemoteModRow style={style} uniqueName={remote_mods[index]} />
-                        )}
-                    </FixedSizeList>
-                )}
-            </AutoSizer>
+        const remoteMods = mods!;
+        res = (
+            <div className="mod-list remote">
+                <AutoSizer>
+                    {({ width, height }) => (
+                        <FixedSizeList
+                            itemCount={remoteMods.length}
+                            itemSize={120}
+                            itemKey={(index) => remoteMods[index]}
+                            width={width}
+                            height={height}
+                        >
+                            {({ index, style }) => (
+                                <RemoteModRow style={style} uniqueName={remoteMods[index]} />
+                            )}
+                        </FixedSizeList>
+                    )}
+                </AutoSizer>
+            </div>
         );
     }
+    return (
+        <>
+            <input
+                placeholder={searchLabel}
+                className="mod-search"
+                id="searchRemote"
+                value={tempFilter}
+                onChange={(e) => onChangeFilter(e.target.value)}
+            />
+            {res}
+        </>
+    );
 });
 
 export default RemoteMods;

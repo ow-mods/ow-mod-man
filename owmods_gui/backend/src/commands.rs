@@ -10,6 +10,7 @@ use owmods_core::mods::{LocalMod, OWMLConfig, RemoteMod};
 use owmods_core::open::{open_readme, open_shortcut};
 use owmods_core::remove::remove_mod;
 use owmods_core::updates::{check_mod_needs_update, update_all};
+use rust_fuzzy_search::fuzzy_compare;
 use tauri::Manager;
 
 use crate::State;
@@ -19,6 +20,8 @@ use crate::gui_config::GuiConfig;
 fn e_to_str(e: anyhow::Error) -> String {
     e.to_string()
 }
+
+const SEARCH_THRESHOLD: f32 = 0.04;
 
 #[tauri::command]
 pub async fn refresh_local_db(
@@ -70,15 +73,42 @@ pub async fn refresh_remote_db(
 }
 
 #[tauri::command]
-pub async fn get_remote_mods(state: tauri::State<'_, State>) -> Result<Vec<String>, ()> {
+pub async fn get_remote_mods(
+    filter: &str,
+    state: tauri::State<'_, State>,
+) -> Result<Vec<String>, ()> {
     let db = state.remote_db.read().await;
-    let mut mods: Vec<&RemoteMod> = db.mods.values().collect();
-    mods.sort_by(|a, b| b.download_count.cmp(&a.download_count));
-    Ok(mods
-        .into_iter()
-        .map(|m| m.unique_name.clone())
-        .filter(|m| m != "Alek.OWML")
-        .collect::<Vec<String>>())
+    let mut mods: Vec<&RemoteMod> = db
+        .mods
+        .values()
+        .filter(|m| m.unique_name != "Alek.OWML")
+        .collect();
+    if filter.is_empty() {
+        mods.sort_by(|a, b| b.download_count.cmp(&a.download_count));
+    } else {
+        let mut scores: Vec<(&RemoteMod, f32)> = mods
+            .into_iter()
+            .filter_map(|m| {
+                let score = fuzzy_compare(
+                    &format!(
+                        "{} {} {}",
+                        &m.name.to_ascii_lowercase(),
+                        &m.get_author().to_ascii_lowercase(),
+                        &m.description.to_ascii_lowercase()
+                    ),
+                    &filter.to_ascii_lowercase(),
+                );
+                if score >= SEARCH_THRESHOLD {
+                    Some((m, score))
+                } else {
+                    None
+                }
+            })
+            .collect();
+        scores.sort_by(|(_, a), (_, b)| b.total_cmp(a));
+        mods = scores.into_iter().map(|(m, _)| m).collect();
+    }
+    Ok(mods.into_iter().map(|m| m.unique_name.clone()).collect())
 }
 
 #[tauri::command]

@@ -57,6 +57,7 @@
     "UNINSTALL_CONFIRM": "Are you sure you want to uninstall $name$?",
     "NO_MODS": "No Mods Installed, Click \"Get Mods\" To Grab Some!",
     "GITHUB": "GitHub",
+    "SEARCH": "Search Mods",
     "DISCORD": "Discord",
     "INSTALL_WARNING": "Please be careful when downloading mods from sources other than the default database, make sure the link or zip file comes from a trustworthy source such as the Modding Discord.",
     "White": "White",

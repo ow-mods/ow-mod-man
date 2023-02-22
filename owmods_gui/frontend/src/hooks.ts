@@ -58,6 +58,12 @@ export const useTauri = <T>(
         return () => unsubscribe?.();
     }, [status]);
 
+    useEffect(() => {
+        if (status === "Done") {
+            setStatus("Loading");
+        }
+    }, Object.values(commandPayload ?? []));
+
     return [status, data, error];
 };
 

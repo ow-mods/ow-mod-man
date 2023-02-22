@@ -1,14 +1,19 @@
 .mod-list {
     display: flex;
     flex-direction: column;
+    flex-grow: 1;
     min-width: 0;
     width: 100%;
-    height: 100%;
     overflow-x: hidden;
+    margin-bottom: $margin;
 }
 
 .mod-list.remote::-webkit-scrollbar {
     display: none;
+}
+
+.mod-search {
+    margin: $margin 0;
 }
 
 $row-border: 1px solid var(--accent-bg);

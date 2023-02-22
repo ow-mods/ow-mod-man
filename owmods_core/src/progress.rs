@@ -74,7 +74,6 @@ impl ProgressPayload {
                 let (len, r) = args.split_once('|').unwrap();
                 let (progress_type, r) = r.split_once('|').unwrap();
                 let (progress_action, msg) = r.split_once('|').unwrap();
-                println!("{}", input);
                 ProgressPayload::Start(ProgressStartPayload {
                     id: id.to_string(),
                     msg: msg.to_string(),

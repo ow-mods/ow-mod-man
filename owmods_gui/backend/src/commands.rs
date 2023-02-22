@@ -149,6 +149,7 @@ pub async fn toggle_mod(
 #[tauri::command]
 pub async fn install_mod(
     unique_name: &str,
+    prerelease: Option<bool>,
     handle: tauri::AppHandle,
     state: tauri::State<'_, State>,
 ) -> Result<(), String> {
@@ -156,9 +157,16 @@ pub async fn install_mod(
     let local_db = state.local_db.read().await;
     let remote_db = state.remote_db.read().await;
     let conf = state.config.read().await;
-    install_mod_from_db(&unique_name.to_string(), &conf, &remote_db, &local_db, true)
-        .await
-        .map_err(e_to_str)?;
+    install_mod_from_db(
+        &unique_name.to_string(),
+        &conf,
+        &remote_db,
+        &local_db,
+        true,
+        prerelease.unwrap_or(false),
+    )
+    .await
+    .map_err(e_to_str)?;
     handle.emit_all("INSTALL-FINISH", unique_name).ok();
     Ok(())
 }

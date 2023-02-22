@@ -90,6 +90,12 @@ enum Commands {
             help = "Overwrite existing installation"
         )]
         overwrite: bool,
+        #[arg(
+            short = 'p',
+            long = "prerelease",
+            help = "Install the prerelease of this mod"
+        )]
+        prerelease: bool,
     },
     #[command(
         about = "Install a mod from a .zip file (-r not supported)",
@@ -331,6 +337,7 @@ async fn run_from_cli(cli: BaseCli) -> Result<()> {
         Commands::Install {
             unique_name,
             overwrite,
+            prerelease,
         } => {
             let remote_db = RemoteDatabase::fetch(&config).await?;
             let local_db = LocalDatabase::fetch(&config)?;
@@ -348,7 +355,8 @@ async fn run_from_cli(cli: BaseCli) -> Result<()> {
             }
 
             if flag {
-                install_mod_from_db(unique_name, &config, &remote_db, &local_db, r).await?
+                install_mod_from_db(unique_name, &config, &remote_db, &local_db, r, *prerelease)
+                    .await?
             }
         }
         Commands::InstallZip { zip_path } => {

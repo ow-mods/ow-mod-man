@@ -8,7 +8,7 @@ use std::{
 use anyhow::anyhow;
 use anyhow::Result;
 use futures::{stream::FuturesUnordered, StreamExt};
-use log::debug;
+use log::{debug, info};
 use tempdir::TempDir;
 use zip::ZipArchive;
 
@@ -280,10 +280,33 @@ pub async fn install_mod_from_db(
     remote_db: &RemoteDatabase,
     local_db: &LocalDatabase,
     recursive: bool,
+    prerelease: bool,
 ) -> Result<()> {
     let already_installed = local_db.get_mod(unique_name).is_some();
+    let mut using_prerelease = false;
+
+    let remote_mod = remote_db
+        .get_mod(unique_name)
+        .ok_or_else(|| anyhow!("Mod {} not found", unique_name))?;
+    let target_url = if prerelease {
+        let prerelease = remote_mod
+            .prerelease
+            .as_ref()
+            .ok_or_else(|| anyhow!("No prerelease for {} found", unique_name))?;
+        let url = &prerelease.download_url;
+        info!(
+            "Using Prerelease {} for {}",
+            prerelease.version, remote_mod.name
+        );
+        using_prerelease = true;
+        url.clone()
+    } else {
+        remote_mod.download_url.clone()
+    };
+    let new_mod = install_mod_from_url(&target_url, config, local_db).await?;
+
     if recursive {
-        let mut to_install: Vec<String> = vec![unique_name.clone()];
+        let mut to_install: Vec<String> = new_mod.manifest.dependencies.unwrap_or_default();
         let mut installed: Vec<String> = local_db
             .active()
             .iter()
@@ -295,6 +318,8 @@ pub async fn install_mod_from_db(
                 }
             })
             .collect();
+
+        installed.push(new_mod.manifest.unique_name);
 
         let mut count = 1;
 
@@ -337,18 +362,15 @@ pub async fn install_mod_from_db(
             }
             count += 1;
         }
-    } else {
-        let remote_mod = remote_db.get_mod(unique_name).ok_or_else(|| {
-            anyhow!(
-                "Mod {} not found, run `owmods list remote` to view a list.",
-                unique_name
-            )
-        })?;
-        install_mod_from_url(&remote_mod.download_url, config, local_db).await?;
     }
-    if already_installed {
-        send_analytics_event(AnalyticsEventName::ModReinstall, unique_name).await
+
+    let mod_event = if using_prerelease {
+        AnalyticsEventName::ModPrereleaseInstall
+    } else if already_installed {
+        AnalyticsEventName::ModReinstall
     } else {
-        send_analytics_event(AnalyticsEventName::ModInstall, unique_name).await
-    }
+        AnalyticsEventName::ModInstall
+    };
+
+    send_analytics_event(mod_event, unique_name).await
 }

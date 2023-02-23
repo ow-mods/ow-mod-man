@@ -21,7 +21,8 @@
             "@styles/*": ["./src/styles/*"],
             "@assets/*": ["./src/assets/*"],
             "@types": ["./src/types"],
-            "@hooks": ["./src/hooks"]
+            "@hooks": ["./src/hooks"],
+            "@commands": ["./src/commands"]
         }
     },
     "include": ["src"],

@@ -1,6 +1,7 @@
+import { commands } from "@commands";
 import Icon from "@components/Icon";
 import { useTranslations } from "@hooks";
-import { dialog, invoke } from "@tauri-apps/api";
+import { dialog } from "@tauri-apps/api";
 import { listen } from "@tauri-apps/api/event";
 import { useEffect, useState } from "react";
 import { FaExclamationTriangle, FaFileArchive } from "react-icons/fa";
@@ -23,12 +24,14 @@ const InstallFromModal = (props: ModalWrapperProps) => {
 
     const onInstall = () => {
         if (source === "URL") {
-            invoke("install_url", { url: target })
-                .then(() => invoke("refresh_local_db"))
+            commands
+                .install_url({ url: target })
+                .then(() => commands.refresh_local_db())
                 .catch(console.error);
         } else {
-            invoke("install_zip", { path: target })
-                .then(() => invoke("refresh_local_db"))
+            commands
+                .install_zip({ path: target })
+                .then(() => commands.refresh_local_db())
                 .catch(console.error);
         }
     };

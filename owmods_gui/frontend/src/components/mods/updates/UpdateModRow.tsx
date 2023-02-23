@@ -1,23 +1,14 @@
+import { commands, hooks } from "@commands";
 import Icon from "@components/Icon";
-import { useTauri, useTranslation } from "@hooks";
-import { invoke } from "@tauri-apps/api";
-import { LocalMod, RemoteMod } from "@types";
+import { useTranslation } from "@hooks";
 import { memo, useCallback, useMemo, useState } from "react";
 import { FaArrowAltCircleUp } from "react-icons/fa";
 import ModActionButton from "../ModActionButton";
 import ModHeader from "../ModHeader";
 
 const UpdateModRow = memo((props: { uniqueName: string }) => {
-    const [remoteStatus, remoteMod, err1] = useTauri<RemoteMod>(
-        "REMOTE-REFRESH",
-        "get_remote_mod",
-        props
-    );
-    const [localStatus, localMod, err2] = useTauri<LocalMod>(
-        "LOCAL-REFRESH",
-        "get_local_mod",
-        props
-    );
+    const [remoteStatus, remoteMod, err1] = hooks.get_remote_mod("REMOTE-REFRESH", props);
+    const [localStatus, localMod, err2] = hooks.get_local_mod("LOCAL-REFRESH", props);
     const [updating, setUpdating] = useState(false);
 
     const subtitleString = useMemo(
@@ -31,10 +22,11 @@ const UpdateModRow = memo((props: { uniqueName: string }) => {
 
     const onUpdate = useCallback(() => {
         setUpdating(true);
-        invoke("update_mod", { uniqueName: props.uniqueName })
+        commands
+            .update_mod({ uniqueName: props.uniqueName })
             .then(() => {
                 setUpdating(false);
-                invoke("refresh_local_db").catch(console.warn);
+                commands.refresh_local_db().catch(console.warn);
             })
             .catch(console.error);
     }, [props.uniqueName]);

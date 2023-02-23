@@ -3,8 +3,9 @@ import { ChangeEvent, MutableRefObject, ReactNode, useEffect, useRef, useState }
 import { FaFolder } from "react-icons/fa";
 import { Config, GuiConfig, Language, OWMLConfig, Theme } from "@types";
 import Modal, { ModalWrapperProps } from "./Modal";
-import { useTauri, useTranslations } from "@hooks";
-import { dialog, invoke, os } from "@tauri-apps/api";
+import { useTranslations } from "@hooks";
+import { dialog, os } from "@tauri-apps/api";
+import { commands, hooks } from "@commands";
 
 const ThemeArr = Object.values(Theme);
 const LanguageArr = Object.values(Language);
@@ -194,15 +195,15 @@ const SettingsForm = (props: SettingsFormProps) => {
 
     props.save.current = () => {
         const task = async () => {
-            await invoke("save_config", { config });
-            await invoke("save_gui_config", { guiConfig });
+            await commands.save_config({ config });
+            await commands.save_gui_config({ guiConfig });
             if (config.owmlPath !== props.initialConfig.owmlPath) {
-                await invoke("refresh_local_db");
+                await commands.refresh_local_db();
             } else {
-                await invoke("save_owml_config", { owmlConfig });
+                await commands.save_owml_config({ owmlConfig });
             }
             if (config.databaseUrl !== props.initialConfig.databaseUrl) {
-                await invoke("refresh_remote_db");
+                await commands.refresh_remote_db();
             }
         };
         task().catch(console.error);
@@ -296,15 +297,9 @@ const SettingsForm = (props: SettingsFormProps) => {
 };
 
 const SettingsModal = (props: ModalWrapperProps) => {
-    const [configStatus, config, err1] = useTauri<Config>("CONFIG_RELOAD", "fetch_config");
-    const [guiConfigStatus, guiConfig, err2] = useTauri<GuiConfig>(
-        "GUI_CONFIG_RELOAD",
-        "get_gui_config"
-    );
-    const [owmlConfigStatus, owmlConfig, err3] = useTauri<OWMLConfig>(
-        "OWML_CONFIG_RELOAD",
-        "get_owml_config"
-    );
+    const [configStatus, config, err1] = hooks.fetch_config("CONFIG_RELOAD");
+    const [guiConfigStatus, guiConfig, err2] = hooks.get_gui_config("GUI_CONFIG_RELOAD");
+    const [owmlConfigStatus, owmlConfig, err3] = hooks.get_owml_config("OWML_CONFIG_RELOAD");
 
     const saveChanges = useRef<() => void>(() => null);
 
@@ -319,7 +314,10 @@ const SettingsModal = (props: ModalWrapperProps) => {
             <Modal showCancel heading={settings} confirmText={save} open={props.open}>
                 <>
                     <p className="center-loading">
-                        Error: Couldn&apos;t Load Settings: {err1 ?? ""} {err2 ?? ""} {err3 ?? ""}
+                        <>
+                            Error: Couldn&apos;t Load Settings: {err1 ?? ""} {err2 ?? ""}{" "}
+                            {err3 ?? ""}
+                        </>
                     </p>
                 </>
             </Modal>

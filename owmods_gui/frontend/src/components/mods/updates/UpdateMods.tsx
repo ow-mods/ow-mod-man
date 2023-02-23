@@ -1,22 +1,20 @@
-import { useTauri, useTranslations } from "@hooks";
-import { invoke } from "@tauri-apps/api";
+import { commands, hooks } from "@commands";
+import { useTranslations } from "@hooks";
 import { memo, useCallback, useState } from "react";
 import UpdateModRow from "./UpdateModRow";
 
 const UpdateMods = memo(() => {
-    const [status, updates, err] = useTauri<string[]>(
-        ["REMOTE-REFRESH", "LOCAL-REFRESH"],
-        "get_updatable_mods"
-    );
+    const [status, updates, err] = hooks.get_updatable_mods(["REMOTE-REFRESH", "LOCAL-REFRESH"]);
     const [updating, setUpdating] = useState(false);
 
     const [updateAll, noUpdates] = useTranslations(["UPDATE_ALL", "NO_UPDATES"]);
 
     const onUpdateAll = useCallback(() => {
         setUpdating(true);
-        invoke("update_all_mods", { uniqueNames: updates })
+        commands
+            .update_all_mods({ uniqueNames: updates ?? [] })
             .then(() => {
-                invoke("refresh_local_db").catch(console.warn);
+                commands.refresh_local_db().catch(console.warn);
             })
             .catch(console.warn)
             .finally(() => setUpdating(false));

@@ -13,7 +13,7 @@ import InstallFromModal from "@components/modals/InstallFromModal";
 import AboutModal from "@components/modals/AboutModal";
 import Downloads from "../downloads/Downloads";
 import { useTranslations } from "@hooks";
-import { invoke } from "@tauri-apps/api";
+import { commands } from "@commands";
 
 const Nav = () => {
     const openSettings = useRef<() => void>(() => null);
@@ -21,8 +21,8 @@ const Nav = () => {
     const openAbout = useRef<() => void>(() => null);
 
     const onRefresh = useCallback(() => {
-        invoke("refresh_local_db").catch((e) => console.warn(e));
-        invoke("refresh_remote_db").catch((e) => console.warn(e));
+        commands.refresh_local_db().catch((e) => console.warn(e));
+        commands.refresh_remote_db().catch((e) => console.warn(e));
     }, []);
 
     const [refresh, runGame, help, settings, installFrom, about, logs] = useTranslations([

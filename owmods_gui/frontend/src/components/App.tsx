@@ -1,7 +1,5 @@
 import Nav from "@components/nav/Nav";
 import Tabs from "@components/tabs/Tabs";
-import { useGuiConfig } from "@hooks";
-import { invoke } from "@tauri-apps/api";
 import { getCurrent } from "@tauri-apps/api/window";
 import { useCallback, useEffect, useRef } from "react";
 import { TranslationContext, TranslationMap } from "@components/TranslationContext";
@@ -11,15 +9,16 @@ import rainbow from "@styles/rainbow.scss?inline";
 import OwmlSetupModal from "./modals/OwmlSetupModal";
 import { listen } from "@tauri-apps/api/event";
 import { startLogListen } from "../logging";
+import { commands, hooks } from "@commands";
 
 startLogListen();
 
 // Refresh once to get data
-invoke("refresh_local_db").catch(() => console.warn("Can't fetch local DB"));
-invoke("refresh_remote_db").catch(() => console.warn("Can't fetch remote DB"));
+commands.refresh_local_db().catch(() => console.warn("Can't fetch local DB"));
+commands.refresh_remote_db().catch(() => console.warn("Can't fetch remote DB"));
 
 const App = () => {
-    const [status, guiConfig, err] = useGuiConfig();
+    const [status, guiConfig, err] = hooks.get_gui_config("GUI_CONFIG_RELOAD");
     const openOwmlSetup = useRef<() => void>(() => null);
 
     useEffect(() => {
@@ -29,7 +28,7 @@ const App = () => {
     }, [guiConfig?.language]);
 
     const owmlCheck = useCallback(() => {
-        invoke("get_owml_config").catch(() => {
+        commands.get_owml_config().catch(() => {
             openOwmlSetup.current();
         });
     }, [openOwmlSetup]);
@@ -44,7 +43,7 @@ const App = () => {
         let cancelled = false;
         listen("OWML_CONFIG_RELOAD", () => {
             if (cancelled) return;
-            invoke("get_owml_config").catch(() => {
+            commands.get_owml_config().catch(() => {
                 openOwmlSetup.current();
             });
         });

@@ -1,10 +1,9 @@
+import { commands, hooks } from "@commands";
 import Icon from "@components/Icon";
 import ModActionButton from "@components/mods/ModActionButton";
 import ModHeader from "@components/mods/ModHeader";
-import { useTauri, useTranslation, useTranslations } from "@hooks";
-import { invoke } from "@tauri-apps/api";
+import { useTranslation, useTranslations } from "@hooks";
 import { confirm } from "@tauri-apps/api/dialog";
-import { LocalMod } from "@types";
 import { memo, useCallback } from "react";
 import { FaFolder, FaTrash } from "react-icons/fa";
 
@@ -13,7 +12,7 @@ interface LocalModRowProps {
 }
 
 const LocalModRow = memo((props: LocalModRowProps) => {
-    const [status, mod, err] = useTauri<LocalMod>("LOCAL-REFRESH", "get_local_mod", {
+    const [status, mod, err] = hooks.get_local_mod("LOCAL-REFRESH", {
         uniqueName: props.uniqueName
     });
 
@@ -30,24 +29,26 @@ const LocalModRow = memo((props: LocalModRowProps) => {
 
     const onToggle = useCallback(
         (newVal: boolean) => {
-            invoke("toggle_mod", {
-                uniqueName: props.uniqueName,
-                enabled: newVal
-            }).then(() => invoke("refresh_local_db"));
+            commands
+                .toggle_mod({
+                    uniqueName: props.uniqueName,
+                    enabled: newVal
+                })
+                .then(() => commands.refresh_local_db());
         },
         [props.uniqueName]
     );
 
     const onOpen = useCallback(() => {
-        invoke("open_mod_folder", { uniqueName: props.uniqueName });
+        commands.open_mod_folder({ uniqueName: props.uniqueName });
     }, [props.uniqueName]);
 
     const onUninstall = useCallback(() => {
         confirm(uninstallConfirmText, confirmText).then((answer) => {
             if (answer) {
-                invoke("uninstall_mod", { uniqueName: props.uniqueName }).then(() =>
-                    invoke("refresh_local_db")
-                );
+                commands
+                    .uninstall_mod({ uniqueName: props.uniqueName })
+                    .then(() => commands.refresh_local_db());
             }
         });
     }, [props.uniqueName, mod?.manifest.name]);

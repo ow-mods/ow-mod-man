@@ -1,11 +1,10 @@
+import { commands, hooks } from "@commands";
 import Icon from "@components/Icon";
 import ModActionButton from "@components/mods/ModActionButton";
 import ModHeader from "@components/mods/ModHeader";
-import { useTauri, useTranslation, useTranslations } from "@hooks";
-import { invoke } from "@tauri-apps/api";
+import { useTranslation, useTranslations } from "@hooks";
 import { CSSProperties, memo, useCallback, useState } from "react";
 import { FaArrowDown, FaFileAlt } from "react-icons/fa";
-import { RemoteMod } from "src/types";
 
 // Stolen from mods website, Rai will never catch me!
 const magnitudeMap = [
@@ -39,7 +38,7 @@ export interface RemoteModRowProps {
 }
 
 const RemoteModRow = memo((props: RemoteModRowProps) => {
-    const [status, mod, err] = useTauri<RemoteMod>("REMOTE-REFRESH", "get_remote_mod", {
+    const [status, mod, err] = hooks.get_remote_mod("REMOTE-REFRESH", {
         uniqueName: props.uniqueName
     });
 
@@ -55,16 +54,17 @@ const RemoteModRow = memo((props: RemoteModRowProps) => {
 
     const onInstall = useCallback(() => {
         setDownloading(true);
-        invoke("install_mod", { uniqueName: props.uniqueName })
+        commands
+            .install_mod({ uniqueName: props.uniqueName })
             .then(() => {
                 setDownloading(false);
-                invoke("refresh_local_db").catch(console.error);
+                commands.refresh_local_db().catch(console.error);
             })
             .catch(console.error);
     }, [props.uniqueName]);
 
     const onReadme = useCallback(() => {
-        invoke("open_mod_readme", { uniqueName: props.uniqueName }).catch(console.warn);
+        commands.open_mod_readme({ uniqueName: props.uniqueName }).catch(console.warn);
     }, [props.uniqueName]);
 
     if (status === "Loading" && mod === null) {

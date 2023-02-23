@@ -1,8 +1,9 @@
-import { useTauri, useTranslation } from "@hooks";
+import { hooks } from "@commands";
+import { useTranslation } from "@hooks";
 import LocalModRow from "./LocalModRow";
 
 const LocalMods = () => {
-    const [status, mods, err] = useTauri<string[]>("LOCAL-REFRESH", "get_local_mods");
+    const [status, mods, err] = hooks.get_local_mods("LOCAL-REFRESH");
 
     const noMods = useTranslation("NO_MODS");
 

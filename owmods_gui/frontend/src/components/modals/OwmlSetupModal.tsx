@@ -1,6 +1,7 @@
+import { commands } from "@commands";
 import Icon from "@components/Icon";
 import { useTranslations } from "@hooks";
-import { dialog, invoke } from "@tauri-apps/api";
+import { dialog } from "@tauri-apps/api";
 import { useRef, useState } from "react";
 import { FaFolder } from "react-icons/fa";
 import Modal, { ModalWrapperProps } from "./Modal";
@@ -39,14 +40,16 @@ const OwmlSetupModal = (props: ModalWrapperProps) => {
 
     const onClose = () => {
         if (setupMethod === "Install") {
-            invoke("install_owml")
+            commands
+                .install_owml()
                 .then(() => {
                     closeModal.current();
                     window.location.reload();
                 })
                 .catch(dialog.message);
         } else {
-            invoke("set_owml", { path: owmlPath })
+            commands
+                .set_owml({ path: owmlPath })
                 .then((valid) => {
                     if (valid) {
                         window.location.reload();

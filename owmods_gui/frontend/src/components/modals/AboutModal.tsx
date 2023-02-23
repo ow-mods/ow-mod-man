@@ -2,23 +2,24 @@ import Modal, { ModalWrapperProps } from "./Modal";
 import logo from "@assets/images/logo.png";
 import Icon from "@components/Icon";
 import { FaDiscord, FaGithub } from "react-icons/fa";
-import { useTranslations } from "@hooks";
+import { useTranslation, useTranslations } from "@hooks";
 import { app, os, shell } from "@tauri-apps/api";
 import { useEffect, useState } from "react";
 
 const AboutModal = (props: ModalWrapperProps) => {
-    const [heading, dismiss, appName, version, platform, gitHub, discord] = useTranslations([
+    const [heading, dismiss, appName, gitHub, discord] = useTranslations([
         "ABOUT",
         "DISMISS",
         "APP_TITLE",
-        "VERSION",
-        "PLATFORM",
         "GITHUB",
         "DISCORD"
     ]);
 
     const [appVersion, setVersion] = useState("");
     const [appPlatform, setPlatform] = useState("");
+
+    const version = useTranslation("VERSION", { version: appVersion });
+    const platform = useTranslation("PLATFORM", { platform: appPlatform });
 
     useEffect(() => {
         app.getVersion().then(setVersion);
@@ -30,12 +31,8 @@ const AboutModal = (props: ModalWrapperProps) => {
             <div className="about-modal">
                 <img width="256" height="256" src={logo} />
                 <h1>{appName}</h1>
-                <p>
-                    {version}: {appVersion}
-                </p>
-                <p>
-                    {platform}: {appPlatform}
-                </p>
+                <p>{version}</p>
+                <p>{platform}</p>
                 <div className="links">
                     <a
                         onClick={() => shell.open("https://github.com/Bwc9876/ow-mod-man/")}

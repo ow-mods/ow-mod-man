@@ -85,7 +85,7 @@ export const useTranslation = (key: string, variables?: Record<string, string>) 
             translated = translated.replaceAll(`$${k}$`, variables[k]);
         }
         return translated;
-    }, [context, key, variables]);
+    }, [context, key, ...Object.values(variables ?? {})]);
 };
 
 export const useTranslations = (keys: string[]) => {

@@ -1,14 +1,17 @@
 import Icon from "@components/Icon";
 import { ChangeEvent, MutableRefObject, ReactNode, useEffect, useRef, useState } from "react";
 import { FaFolder } from "react-icons/fa";
-import { Config, GuiConfig, LanguageArr, OwmlConfig, ThemeArr } from "@types";
+import { Config, GuiConfig, Language, OWMLConfig, Theme } from "@types";
 import Modal, { ModalWrapperProps } from "./Modal";
 import { useTauri, useTranslations } from "@hooks";
 import { dialog, invoke, os } from "@tauri-apps/api";
 
+const ThemeArr = Object.values(Theme);
+const LanguageArr = Object.values(Language);
+
 interface SettingsFormProps {
     initialConfig: Config;
-    initialOwmlConfig: OwmlConfig;
+    initialOwmlConfig: OWMLConfig;
     initialGuiConfig: GuiConfig;
     save: MutableRefObject<() => void>;
 }
@@ -126,7 +129,7 @@ const SettingsSwitch = (props: SettingsSwitchProps) => {
 
 const SettingsForm = (props: SettingsFormProps) => {
     const [config, setConfig] = useState<Config>(props.initialConfig);
-    const [owmlConfig, setOwmlConfig] = useState<OwmlConfig>(props.initialOwmlConfig);
+    const [owmlConfig, setOwmlConfig] = useState<OWMLConfig>(props.initialOwmlConfig);
     const [guiConfig, setGuiConfig] = useState<GuiConfig>(props.initialGuiConfig);
     const [platform, setPlatform] = useState("windows");
 
@@ -229,7 +232,7 @@ const SettingsForm = (props: SettingsFormProps) => {
             {platform === "linux" && (
                 <SettingsFolder
                     onChange={handleConf}
-                    value={config.winePrefix}
+                    value={config.winePrefix ?? ""}
                     label={winePrefix}
                     id="winePrefix"
                 />
@@ -298,7 +301,7 @@ const SettingsModal = (props: ModalWrapperProps) => {
         "GUI_CONFIG_RELOAD",
         "get_gui_config"
     );
-    const [owmlConfigStatus, owmlConfig, err3] = useTauri<OwmlConfig>(
+    const [owmlConfigStatus, owmlConfig, err3] = useTauri<OWMLConfig>(
         "OWML_CONFIG_RELOAD",
         "get_owml_config"
     );

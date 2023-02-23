@@ -35,7 +35,7 @@ export default defineConfig({
             { find: "@components", replacement: path.resolve(__dirname, "./src/components") },
             { find: "@styles", replacement: path.resolve(__dirname, "./src/styles") },
             { find: "@assets", replacement: path.resolve(__dirname, "./src/assets") },
-            { find: "@types", replacement: path.resolve(__dirname, "./src/types.ts") },
+            { find: "@types", replacement: path.resolve(__dirname, "./src/types.d.ts") },
             { find: "@hooks", replacement: path.resolve(__dirname, "./src/hooks.ts") }
         ]
     }

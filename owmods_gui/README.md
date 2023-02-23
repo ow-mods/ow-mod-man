@@ -40,11 +40,11 @@ cargo tauri dev
 
 ```sh
 cargo tauri build
-````
+```
 
 Builds are located in `target/` at the root of the repo.
 
-## build.rs Error in `backend/`
+### build.rs Error in `backend/`
 
 Just create an empty `dist/` folder next to `backend`, tauri expects one to be there from vite but it isn't since you haven't ran it yet.
 

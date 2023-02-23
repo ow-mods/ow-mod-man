@@ -2,7 +2,9 @@ use std::path::PathBuf;
 
 use owmods_core::file::{deserialize_from_json, get_app_path, serialize_to_json};
 use serde::{Deserialize, Serialize};
+use typeshare::typeshare;
 
+#[typeshare]
 #[derive(Serialize, Deserialize, Clone)]
 pub enum Theme {
     White,
@@ -15,12 +17,14 @@ pub enum Theme {
     GhostlyGreen,
 }
 
+#[typeshare]
 #[derive(Serialize, Deserialize, Clone)]
 pub enum Language {
     English,
     Wario,
 }
 
+#[typeshare]
 #[derive(Serialize, Deserialize, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct GuiConfig {

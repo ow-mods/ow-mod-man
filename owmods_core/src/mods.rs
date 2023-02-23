@@ -6,6 +6,7 @@ use std::{
 use anyhow::Result;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
+use typeshare::typeshare;
 
 use crate::{
     file::{deserialize_from_json, serialize_to_json},
@@ -18,6 +19,7 @@ pub fn get_mods_dir(conf: &Config) -> PathBuf {
     Path::new(&conf.owml_path).join("Mods")
 }
 
+#[typeshare]
 #[derive(Serialize, Deserialize, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct RemoteMod {
@@ -48,6 +50,7 @@ impl RemoteMod {
     }
 }
 
+#[typeshare]
 #[derive(Serialize, Deserialize, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct ModPrerelease {
@@ -55,6 +58,7 @@ pub struct ModPrerelease {
     pub version: String,
 }
 
+#[typeshare]
 #[derive(Serialize, Deserialize, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct ModReadMe {
@@ -62,6 +66,7 @@ pub struct ModReadMe {
     pub download_url: String,
 }
 
+#[typeshare]
 #[derive(Clone, Serialize)]
 pub struct LocalMod {
     pub enabled: bool,
@@ -90,6 +95,7 @@ pub fn get_paths_to_preserve(local_mod: Option<&LocalMod>) -> Vec<PathBuf> {
     vec![]
 }
 
+#[typeshare]
 #[derive(Serialize, Deserialize, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct ModManifest {
@@ -111,6 +117,7 @@ pub struct ModStubConfig {
 }
 
 // Have to allow non_snake_case here because OWML's config uses incrementalGC, which isn't proper camelCase
+#[typeshare]
 #[derive(Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 #[allow(non_snake_case)]
@@ -122,6 +129,7 @@ pub struct OWMLConfig {
     #[serde(skip_serializing_if = "Option::is_none")]
     owml_path: Option<String>,
     pub socket_port: u16,
+    #[typeshare(skip)]
     #[serde(flatten)]
     extra: HashMap<String, Value>,
 }

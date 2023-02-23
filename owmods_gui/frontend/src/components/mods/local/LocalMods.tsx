@@ -3,7 +3,7 @@ import { useTranslation } from "@hooks";
 import LocalModRow from "./LocalModRow";
 
 const LocalMods = () => {
-    const [status, mods, err] = hooks.get_local_mods("LOCAL-REFRESH");
+    const [status, mods, err] = hooks.getLocalMods("LOCAL-REFRESH");
 
     const noMods = useTranslation("NO_MODS");
 

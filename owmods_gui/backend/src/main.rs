@@ -58,7 +58,7 @@ fn main() -> Result<(), Box<dyn Error>> {
             install_zip,
             open_mod_readme,
             save_config,
-            fetch_config,
+            get_config,
             save_gui_config,
             get_gui_config,
             save_owml_config,

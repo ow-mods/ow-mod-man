@@ -9,50 +9,53 @@ type ActionCommand<P> = CommandInfo<P, void>;
 type ModCommand<M> = CommandInfo<{ uniqueName: string }, M>;
 type ModAction = ModCommand<void>;
 
-const $ = <T>() => null as T;
+// This is a rly rly weird system where I tag a string with a type that very much isn't a string
+// but hey it works and it has a minimal runtime footprint
+
+const $ = <T>(cmd: string) => cmd as T;
 
 const commandInfo = {
-    refresh_local_db: $<EmptyCommand>(),
-    refresh_remote_db: $<EmptyCommand>(),
-    fetch_config: $<GetCommand<Config>>(),
-    get_gui_config: $<GetCommand<GuiConfig>>(),
-    get_owml_config: $<GetCommand<OWMLConfig>>(),
-    get_local_mods: $<GetCommand<string[]>>(),
-    get_remote_mods: $<CommandInfo<{ filter: string }, string[]>>(),
-    get_updatable_mods: $<GetCommand<string[]>>(),
-    get_local_mod: $<ModCommand<LocalMod>>(),
-    get_remote_mod: $<ModCommand<RemoteMod>>(),
-    toggle_mod: $<ActionCommand<{ uniqueName: string; enabled: boolean }>>(),
-    open_mod_folder: $<ModAction>(),
-    open_mod_readme: $<ModAction>(),
-    uninstall_mod: $<ModAction>(),
-    install_mod: $<ModAction>(),
-    install_url: $<ActionCommand<{ url: string }>>(),
-    install_zip: $<ActionCommand<{ path: string }>>(),
-    install_owml: $<EmptyCommand>(),
-    set_owml: $<CommandInfo<{ path: string }, boolean>>(),
-    save_config: $<ActionCommand<{ config: Config }>>(),
-    save_gui_config: $<ActionCommand<{ guiConfig: GuiConfig }>>(),
-    save_owml_config: $<ActionCommand<{ owmlConfig: OWMLConfig }>>(),
-    update_mod: $<ModAction>(),
-    update_all_mods: $<ActionCommand<{ uniqueNames: string[] }>>()
+    refreshLocalDb: $<EmptyCommand>("refresh_local_db"),
+    refreshRemoteDb: $<EmptyCommand>("refresh_remote_db"),
+    getConfig: $<GetCommand<Config>>("get_config"),
+    getGuiConfig: $<GetCommand<GuiConfig>>("get_gui_config"),
+    getOwmlConfig: $<GetCommand<OWMLConfig>>("get_owml_config"),
+    getLocalMods: $<GetCommand<string[]>>("get_local_mods"),
+    getRemoteMods: $<CommandInfo<{ filter: string }, string[]>>("get_remote_mods"),
+    getUpdatableMods: $<GetCommand<string[]>>("get_updatable_mods"),
+    getLocalMod: $<ModCommand<LocalMod>>("get_local_mod"),
+    getRemoteMod: $<ModCommand<RemoteMod>>("get_remote_mod"),
+    toggleMod: $<ActionCommand<{ uniqueName: string; enabled: boolean }>>("toggle_mod"),
+    openModFolder: $<ModAction>("open_mod_folder"),
+    openModReadme: $<ModAction>("open_mod_readme"),
+    uninstallMod: $<ModAction>("uninstall_mod"),
+    installMod: $<ModAction>("install_mod"),
+    installUrl: $<ActionCommand<{ url: string }>>("install_url"),
+    installZip: $<ActionCommand<{ path: string }>>("install_zip"),
+    installOwml: $<EmptyCommand>("install_owml"),
+    setOwml: $<CommandInfo<{ path: string }, boolean>>("set_owml"),
+    saveConfig: $<ActionCommand<{ config: Config }>>("save_config"),
+    saveGuiConfig: $<ActionCommand<{ guiConfig: GuiConfig }>>("save_gui_config"),
+    saveOwmlConfig: $<ActionCommand<{ owmlConfig: OWMLConfig }>>("save_owml_config"),
+    updateMod: $<ModAction>("update_mod"),
+    updateAll: $<ActionCommand<{ uniqueNames: string[] }>>("update_all_mods")
 };
 
 type Command = keyof typeof commandInfo;
 
 const makeInvoke = (key: Command) => {
-    const tmpObj = commandInfo[key];
-    return (payload?: (typeof tmpObj)[0]) =>
-        invoke(key, payload ?? {}) as Promise<(typeof tmpObj)[1]>;
+    const name = commandInfo[key];
+    return (payload?: (typeof name)[0]) =>
+        invoke(name as unknown as string, payload ?? {}) as Promise<(typeof name)[1]>;
 };
 
 const makeHook = (key: Command) => {
-    const tmpObj = commandInfo[key];
-    return (eventName: string, payload?: (typeof tmpObj)[0]) => {
+    const name = commandInfo[key];
+    return (eventName: string, payload?: (typeof name)[0]) => {
         const fn = makeInvoke(key);
-        return useTauri<(typeof tmpObj)[1]>(
+        return useTauri<(typeof name)[1]>(
             eventName,
-            () => fn(payload ?? {}) as unknown as Promise<(typeof tmpObj)[1]>,
+            () => fn(payload ?? {}) as unknown as Promise<(typeof name)[1]>,
             payload
         );
     };

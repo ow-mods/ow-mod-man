@@ -8,7 +8,7 @@ import RemoteModRow from "./RemoteModRow";
 const RemoteMods = memo(() => {
     const [filter, setFilter] = useState("");
     const [tempFilter, setTempFilter] = useState("");
-    const [status, mods, err] = hooks.get_remote_mods("REMOTE-REFRESH", { filter });
+    const [status, mods, err] = hooks.getRemoteMods("REMOTE-REFRESH", { filter });
 
     const activeTimeout = useRef<number | null>(null);
 

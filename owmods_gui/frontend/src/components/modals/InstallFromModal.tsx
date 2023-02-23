@@ -25,13 +25,13 @@ const InstallFromModal = (props: ModalWrapperProps) => {
     const onInstall = () => {
         if (source === "URL") {
             commands
-                .install_url({ url: target })
-                .then(() => commands.refresh_local_db())
+                .installUrl({ url: target })
+                .then(() => commands.refreshLocalDb())
                 .catch(console.error);
         } else {
             commands
-                .install_zip({ path: target })
-                .then(() => commands.refresh_local_db())
+                .installZip({ path: target })
+                .then(() => commands.refreshLocalDb())
                 .catch(console.error);
         }
     };

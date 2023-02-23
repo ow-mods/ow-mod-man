@@ -195,15 +195,15 @@ const SettingsForm = (props: SettingsFormProps) => {
 
     props.save.current = () => {
         const task = async () => {
-            await commands.save_config({ config });
-            await commands.save_gui_config({ guiConfig });
+            await commands.saveConfig({ config });
+            await commands.saveGuiConfig({ guiConfig });
             if (config.owmlPath !== props.initialConfig.owmlPath) {
-                await commands.refresh_local_db();
+                await commands.refreshLocalDb();
             } else {
-                await commands.save_owml_config({ owmlConfig });
+                await commands.saveOwmlConfig({ owmlConfig });
             }
             if (config.databaseUrl !== props.initialConfig.databaseUrl) {
-                await commands.refresh_remote_db();
+                await commands.refreshRemoteDb();
             }
         };
         task().catch(console.error);
@@ -297,9 +297,9 @@ const SettingsForm = (props: SettingsFormProps) => {
 };
 
 const SettingsModal = (props: ModalWrapperProps) => {
-    const [configStatus, config, err1] = hooks.fetch_config("CONFIG_RELOAD");
-    const [guiConfigStatus, guiConfig, err2] = hooks.get_gui_config("GUI_CONFIG_RELOAD");
-    const [owmlConfigStatus, owmlConfig, err3] = hooks.get_owml_config("OWML_CONFIG_RELOAD");
+    const [configStatus, config, err1] = hooks.getConfig("CONFIG_RELOAD");
+    const [guiConfigStatus, guiConfig, err2] = hooks.getGuiConfig("GUI_CONFIG_RELOAD");
+    const [owmlConfigStatus, owmlConfig, err3] = hooks.getOwmlConfig("OWML_CONFIG_RELOAD");
 
     const saveChanges = useRef<() => void>(() => null);
 

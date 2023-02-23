@@ -12,7 +12,7 @@ interface LocalModRowProps {
 }
 
 const LocalModRow = memo((props: LocalModRowProps) => {
-    const [status, mod, err] = hooks.get_local_mod("LOCAL-REFRESH", {
+    const [status, mod, err] = hooks.getLocalMod("LOCAL-REFRESH", {
         uniqueName: props.uniqueName
     });
 
@@ -30,25 +30,25 @@ const LocalModRow = memo((props: LocalModRowProps) => {
     const onToggle = useCallback(
         (newVal: boolean) => {
             commands
-                .toggle_mod({
+                .toggleMod({
                     uniqueName: props.uniqueName,
                     enabled: newVal
                 })
-                .then(() => commands.refresh_local_db());
+                .then(() => commands.refreshLocalDb());
         },
         [props.uniqueName]
     );
 
     const onOpen = useCallback(() => {
-        commands.open_mod_folder({ uniqueName: props.uniqueName });
+        commands.openModFolder({ uniqueName: props.uniqueName });
     }, [props.uniqueName]);
 
     const onUninstall = useCallback(() => {
         confirm(uninstallConfirmText, confirmText).then((answer) => {
             if (answer) {
                 commands
-                    .uninstall_mod({ uniqueName: props.uniqueName })
-                    .then(() => commands.refresh_local_db());
+                    .uninstallMod({ uniqueName: props.uniqueName })
+                    .then(() => commands.refreshLocalDb());
             }
         });
     }, [props.uniqueName, mod?.manifest.name]);

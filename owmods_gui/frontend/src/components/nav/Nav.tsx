@@ -21,8 +21,8 @@ const Nav = () => {
     const openAbout = useRef<() => void>(() => null);
 
     const onRefresh = useCallback(() => {
-        commands.refresh_local_db().catch((e) => console.warn(e));
-        commands.refresh_remote_db().catch((e) => console.warn(e));
+        commands.refreshLocalDb().catch((e) => console.warn(e));
+        commands.refreshRemoteDb().catch((e) => console.warn(e));
     }, []);
 
     const [refresh, runGame, help, settings, installFrom, about, logs] = useTranslations([

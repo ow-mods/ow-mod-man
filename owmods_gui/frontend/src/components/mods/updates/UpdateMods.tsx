@@ -4,7 +4,7 @@ import { memo, useCallback, useState } from "react";
 import UpdateModRow from "./UpdateModRow";
 
 const UpdateMods = memo(() => {
-    const [status, updates, err] = hooks.get_updatable_mods(["REMOTE-REFRESH", "LOCAL-REFRESH"]);
+    const [status, updates, err] = hooks.getUpdatableMods(["REMOTE-REFRESH", "LOCAL-REFRESH"]);
     const [updating, setUpdating] = useState(false);
 
     const [updateAll, noUpdates] = useTranslations(["UPDATE_ALL", "NO_UPDATES"]);
@@ -12,9 +12,9 @@ const UpdateMods = memo(() => {
     const onUpdateAll = useCallback(() => {
         setUpdating(true);
         commands
-            .update_all_mods({ uniqueNames: updates ?? [] })
+            .updateAll({ uniqueNames: updates ?? [] })
             .then(() => {
-                commands.refresh_local_db().catch(console.warn);
+                commands.refreshLocalDb().catch(console.warn);
             })
             .catch(console.warn)
             .finally(() => setUpdating(false));

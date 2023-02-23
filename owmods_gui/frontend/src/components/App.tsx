@@ -14,11 +14,11 @@ import { commands, hooks } from "@commands";
 startLogListen();
 
 // Refresh once to get data
-commands.refresh_local_db().catch(() => console.warn("Can't fetch local DB"));
-commands.refresh_remote_db().catch(() => console.warn("Can't fetch remote DB"));
+commands.refreshLocalDb().catch(() => console.warn("Can't fetch local DB"));
+commands.refreshRemoteDb().catch(() => console.warn("Can't fetch remote DB"));
 
 const App = () => {
-    const [status, guiConfig, err] = hooks.get_gui_config("GUI_CONFIG_RELOAD");
+    const [status, guiConfig, err] = hooks.getGuiConfig("GUI_CONFIG_RELOAD");
     const openOwmlSetup = useRef<() => void>(() => null);
 
     useEffect(() => {
@@ -28,7 +28,7 @@ const App = () => {
     }, [guiConfig?.language]);
 
     const owmlCheck = useCallback(() => {
-        commands.get_owml_config().catch(() => {
+        commands.getOwmlConfig().catch(() => {
             openOwmlSetup.current();
         });
     }, [openOwmlSetup]);
@@ -43,7 +43,7 @@ const App = () => {
         let cancelled = false;
         listen("OWML_CONFIG_RELOAD", () => {
             if (cancelled) return;
-            commands.get_owml_config().catch(() => {
+            commands.getOwmlConfig().catch(() => {
                 openOwmlSetup.current();
             });
         });

@@ -241,7 +241,7 @@ pub async fn save_config(
 }
 
 #[tauri::command]
-pub async fn fetch_config(state: tauri::State<'_, State>) -> Result<Config, String> {
+pub async fn get_config(state: tauri::State<'_, State>) -> Result<Config, String> {
     Ok(state.config.read().await.clone())
 }
 

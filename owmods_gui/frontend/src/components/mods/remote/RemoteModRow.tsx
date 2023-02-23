@@ -38,7 +38,7 @@ export interface RemoteModRowProps {
 }
 
 const RemoteModRow = memo((props: RemoteModRowProps) => {
-    const [status, mod, err] = hooks.get_remote_mod("REMOTE-REFRESH", {
+    const [status, mod, err] = hooks.getRemoteMod("REMOTE-REFRESH", {
         uniqueName: props.uniqueName
     });
 
@@ -55,16 +55,16 @@ const RemoteModRow = memo((props: RemoteModRowProps) => {
     const onInstall = useCallback(() => {
         setDownloading(true);
         commands
-            .install_mod({ uniqueName: props.uniqueName })
+            .installMod({ uniqueName: props.uniqueName })
             .then(() => {
                 setDownloading(false);
-                commands.refresh_local_db().catch(console.error);
+                commands.refreshLocalDb().catch(console.error);
             })
             .catch(console.error);
     }, [props.uniqueName]);
 
     const onReadme = useCallback(() => {
-        commands.open_mod_readme({ uniqueName: props.uniqueName }).catch(console.warn);
+        commands.openModReadme({ uniqueName: props.uniqueName }).catch(console.warn);
     }, [props.uniqueName]);
 
     if (status === "Loading" && mod === null) {

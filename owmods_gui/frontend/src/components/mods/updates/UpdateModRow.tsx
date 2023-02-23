@@ -7,8 +7,8 @@ import ModActionButton from "../ModActionButton";
 import ModHeader from "../ModHeader";
 
 const UpdateModRow = memo((props: { uniqueName: string }) => {
-    const [remoteStatus, remoteMod, err1] = hooks.get_remote_mod("REMOTE-REFRESH", props);
-    const [localStatus, localMod, err2] = hooks.get_local_mod("LOCAL-REFRESH", props);
+    const [remoteStatus, remoteMod, err1] = hooks.getRemoteMod("REMOTE-REFRESH", props);
+    const [localStatus, localMod, err2] = hooks.getLocalMod("LOCAL-REFRESH", props);
     const [updating, setUpdating] = useState(false);
 
     const subtitleString = useMemo(
@@ -23,10 +23,10 @@ const UpdateModRow = memo((props: { uniqueName: string }) => {
     const onUpdate = useCallback(() => {
         setUpdating(true);
         commands
-            .update_mod({ uniqueName: props.uniqueName })
+            .updateMod({ uniqueName: props.uniqueName })
             .then(() => {
                 setUpdating(false);
-                commands.refresh_local_db().catch(console.warn);
+                commands.refreshLocalDb().catch(console.warn);
             })
             .catch(console.error);
     }, [props.uniqueName]);

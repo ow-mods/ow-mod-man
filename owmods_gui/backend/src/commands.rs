@@ -89,20 +89,21 @@ pub async fn get_remote_mods(
         let mut scores: Vec<(&RemoteMod, f32)> = mods
             .into_iter()
             .filter_map(|m| {
-                let score = fuzzy_compare(
-                    &format!(
-                        "{} {} {}",
-                        &m.name.to_ascii_lowercase(),
-                        &m.get_author().to_ascii_lowercase(),
-                        &m.description.to_ascii_lowercase()
-                    ),
-                    &filter.to_ascii_lowercase(),
-                );
-                if score >= SEARCH_THRESHOLD {
-                    Some((m, score))
-                } else {
-                    None
+                let filter = filter.to_ascii_lowercase();
+                let name = m.name.to_ascii_lowercase();
+                let author = m.get_author().to_ascii_lowercase();
+                let description = m.description.to_ascii_lowercase();
+                let to_search = [name, author, description];
+                let mut final_score: Option<f32> = None;
+                for search in to_search {
+                    let score = fuzzy_compare(&search, &filter);
+                    if (score >= SEARCH_THRESHOLD || search.contains(&filter))
+                        && score > final_score.unwrap_or(0.0)
+                    {
+                        final_score = Some(score);
+                    }
                 }
+                final_score.map(|score| (m, score))
             })
             .collect();
         scores.sort_by(|(_, a), (_, b)| b.total_cmp(a));

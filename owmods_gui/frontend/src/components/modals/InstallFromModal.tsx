@@ -1,7 +1,7 @@
 import { commands } from "@commands";
+import { OpenFileInput } from "@components/FileInput";
 import Icon from "@components/Icon";
 import { useTranslations } from "@hooks";
-import { dialog } from "@tauri-apps/api";
 import { listen } from "@tauri-apps/api/event";
 import { useEffect, useState } from "react";
 import { FaExclamationTriangle, FaFileArchive } from "react-icons/fa";
@@ -14,14 +14,13 @@ const InstallFromModal = (props: ModalWrapperProps) => {
     const [target, setTarget] = useState<string>("");
     const [prerelease, setPrerelease] = useState<boolean>(false);
 
-    const [install, installFrom, uniqueNameLabel, zip, url, warningText, browse] = useTranslations([
+    const [install, installFrom, uniqueNameLabel, zip, url, warningText] = useTranslations([
         "INSTALL",
         "INSTALL_FROM",
         "UNIQUE_NAME",
         "ZIP",
         "URL",
-        "INSTALL_WARNING",
-        "BROWSE"
+        "INSTALL_WARNING"
     ]);
 
     const lblMap: Record<SourceType, string> = {
@@ -51,26 +50,6 @@ const InstallFromModal = (props: ModalWrapperProps) => {
                     .catch(console.error);
                 break;
         }
-    };
-
-    const onBrowse = () => {
-        dialog
-            .open({
-                title: installFrom,
-                filters: [
-                    {
-                        name: zip,
-                        extensions: ["zip"]
-                    }
-                ],
-                directory: false,
-                multiple: false
-            })
-            .then((path) => {
-                if (path !== null) {
-                    setTarget(path as string);
-                }
-            });
     };
 
     useEffect(() => {
@@ -115,22 +94,35 @@ const InstallFromModal = (props: ModalWrapperProps) => {
                         <option value="ZIP">{zip}</option>
                     </select>
                 </label>
-                <label htmlFor="target">
-                    {lblMap[source]}
-                    <div className={source === "ZIP" ? "install-source" : ""}>
+                {source === "ZIP" ? (
+                    <OpenFileInput
+                        id="ZIP"
+                        value={target}
+                        onChange={setTarget}
+                        browseButtonIcon={FaFileArchive}
+                        dialogOptions={{
+                            title: installFrom,
+                            filters: [
+                                {
+                                    name: zip,
+                                    extensions: ["zip"]
+                                }
+                            ],
+                            directory: false,
+                            multiple: false
+                        }}
+                    />
+                ) : (
+                    <label htmlFor="target">
+                        {lblMap[source]}
                         <input
                             id="target"
                             name="target"
                             value={target}
                             onChange={(e) => setTarget(e.target.value)}
                         />
-                        {source === "ZIP" && (
-                            <button onClick={onBrowse} className="fix-icons" type="button">
-                                <Icon iconType={FaFileArchive} /> {browse}
-                            </button>
-                        )}
-                    </div>
-                </label>
+                    </label>
+                )}
                 {source === "UNIQUE_NAME" && (
                     <label htmlFor="prerelease">
                         <input

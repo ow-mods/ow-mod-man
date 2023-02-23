@@ -1,11 +1,10 @@
-import Icon from "@components/Icon";
 import { ChangeEvent, MutableRefObject, ReactNode, useEffect, useRef, useState } from "react";
-import { FaFolder } from "react-icons/fa";
 import { Config, GuiConfig, Language, OWMLConfig, Theme } from "@types";
 import Modal, { ModalWrapperProps } from "./Modal";
-import { useTranslations } from "@hooks";
-import { dialog, os } from "@tauri-apps/api";
+import { useTranslation, useTranslations } from "@hooks";
+import { os } from "@tauri-apps/api";
 import { commands, hooks } from "@commands";
+import { OpenFileInput } from "@components/FileInput";
 
 const ThemeArr = Object.values(Theme);
 const LanguageArr = Object.values(Language);
@@ -84,31 +83,31 @@ const SettingsSelect = (props: SettingsSelectProps) => {
 };
 
 const SettingsFolder = (props: SettingsTextProps) => {
-    const [browse, select] = useTranslations(["BROWSE", "SELECT"]);
+    const title = useTranslation("SELECT", { name: props.label });
 
-    const onBrowse = () => {
-        dialog
-            .open({
-                defaultPath: props.value,
-                directory: true,
-                multiple: false,
-                title: `${select} ${props.label}`
-            })
-            .then((path) => {
-                if (path !== null) {
-                    props.onChange?.({
-                        target: { id: props.id, value: path }
-                    } as ChangeEvent<HTMLInputElement>);
-                }
-            });
+    const onChange = (e: string) => {
+        props.onChange?.({
+            target: {
+                id: props.id,
+                value: e
+            }
+        } as ChangeEvent<HTMLInputElement>);
     };
 
     return (
-        <SettingsText {...props}>
-            <button onClick={onBrowse} className="fix-icons" type="button">
-                <Icon iconType={FaFolder} /> {browse}
-            </button>
-        </SettingsText>
+        <OpenFileInput
+            id={props.id}
+            label={props.label}
+            value={props.value}
+            onChange={onChange}
+            className="settings-row"
+            dialogOptions={{
+                defaultPath: props.value,
+                directory: true,
+                multiple: false,
+                title
+            }}
+        />
     );
 };
 

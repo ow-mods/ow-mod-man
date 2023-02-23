@@ -1,9 +1,8 @@
 import { commands } from "@commands";
-import Icon from "@components/Icon";
+import { OpenFileInput } from "@components/FileInput";
 import { useTranslations } from "@hooks";
 import { dialog } from "@tauri-apps/api";
 import { useRef, useState } from "react";
-import { FaFolder } from "react-icons/fa";
 import Modal, { ModalWrapperProps } from "./Modal";
 
 type SetupMethod = "Install" | "Locate";
@@ -13,35 +12,18 @@ const OwmlSetupModal = (props: ModalWrapperProps) => {
     const [owmlPath, setOwmlPath] = useState("");
     const closeModal = useRef<() => void>(() => null);
 
-    const [setup, message, installOwml, locateOwml, browse, owmlPathLabel, invalidOwml] =
-        useTranslations([
-            "SETUP",
-            "OWML_SETUP_MESSAGE",
-            "INSTALL_OWML",
-            "LOCATE_OWML",
-            "BROWSE",
-            "OWML_PATH",
-            "INVALID_OWML"
-        ]);
-
-    const onBrowse = () => {
-        dialog
-            .open({
-                directory: true,
-                multiple: false,
-                title: locateOwml
-            })
-            .then((path) => {
-                if (path) {
-                    setOwmlPath(path as string);
-                }
-            });
-    };
+    const [setup, message, installOwml, locateOwml, invalidOwml] = useTranslations([
+        "SETUP",
+        "OWML_SETUP_MESSAGE",
+        "INSTALL_OWML",
+        "LOCATE_OWML",
+        "INVALID_OWML"
+    ]);
 
     const onClose = () => {
         if (setupMethod === "Install") {
             commands
-                .install_owml()
+                .installOwml()
                 .then(() => {
                     closeModal.current();
                     window.location.reload();
@@ -49,7 +31,7 @@ const OwmlSetupModal = (props: ModalWrapperProps) => {
                 .catch(dialog.message);
         } else {
             commands
-                .set_owml({ path: owmlPath })
+                .setOwml({ path: owmlPath })
                 .then((valid) => {
                     if (valid) {
                         window.location.reload();
@@ -81,20 +63,16 @@ const OwmlSetupModal = (props: ModalWrapperProps) => {
                     <option value="Locate">{locateOwml}</option>
                 </select>
                 {setupMethod === "Locate" && (
-                    <>
-                        <label htmlFor="owmlPath">{owmlPathLabel}</label>
-                        <div>
-                            <input
-                                id="owmlPath"
-                                value={owmlPath}
-                                onChange={(e) => setOwmlPath(e.target.value)}
-                                className="settings-folder"
-                            ></input>
-                            <button onClick={onBrowse} type="button" className="fix-icons">
-                                <Icon iconType={FaFolder} /> {browse}
-                            </button>
-                        </div>
-                    </>
+                    <OpenFileInput
+                        id="OWML_PATH"
+                        value={owmlPath}
+                        onChange={setOwmlPath}
+                        dialogOptions={{
+                            directory: true,
+                            multiple: false,
+                            title: locateOwml
+                        }}
+                    />
                 )}
             </form>
         </Modal>

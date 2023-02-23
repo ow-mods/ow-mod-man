@@ -69,6 +69,19 @@ details summary::after {
     background-image: var(--theme-chevron);
 }
 
+.file-input-row {
+    display: grid;
+    grid-template-columns: 0.8fr 0.2fr;
+}
+
+.file-input-row .browse-button {
+    display: flex;
+    align-content: center;
+    justify-content: center;
+    height: 93%;
+    margin-left: $margin;
+}
+
 .muted {
     color: var(--primary-muted);
 }

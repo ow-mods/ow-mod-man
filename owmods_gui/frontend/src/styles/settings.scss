@@ -13,6 +13,10 @@
     height: 100%;
 }
 
+.settings-row .file-input-row .browse-button {
+    width: 90%;
+}
+
 .settings-row input:not([type="checkbox"]),
 .settings-row button {
     margin-bottom: $margin;

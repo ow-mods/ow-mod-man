@@ -7,32 +7,49 @@ import { useEffect, useState } from "react";
 import { FaExclamationTriangle, FaFileArchive } from "react-icons/fa";
 import Modal, { ModalWrapperProps } from "./Modal";
 
-type SourceType = "URL" | "ZIP";
+type SourceType = "UNIQUE_NAME" | "URL" | "ZIP";
 
 const InstallFromModal = (props: ModalWrapperProps) => {
-    const [source, setSource] = useState<SourceType>("URL");
+    const [source, setSource] = useState<SourceType>("UNIQUE_NAME");
     const [target, setTarget] = useState<string>("");
+    const [prerelease, setPrerelease] = useState<boolean>(false);
 
-    const [install, installFrom, zip, url, warningText, browse] = useTranslations([
+    const [install, installFrom, uniqueNameLabel, zip, url, warningText, browse] = useTranslations([
         "INSTALL",
         "INSTALL_FROM",
+        "UNIQUE_NAME",
         "ZIP",
         "URL",
         "INSTALL_WARNING",
         "BROWSE"
     ]);
 
+    const lblMap: Record<SourceType, string> = {
+        UNIQUE_NAME: uniqueNameLabel,
+        URL: url,
+        ZIP: zip
+    };
+
     const onInstall = () => {
-        if (source === "URL") {
-            commands
-                .installUrl({ url: target })
-                .then(() => commands.refreshLocalDb())
-                .catch(console.error);
-        } else {
-            commands
-                .installZip({ path: target })
-                .then(() => commands.refreshLocalDb())
-                .catch(console.error);
+        switch (source) {
+            case "UNIQUE_NAME":
+                commands
+                    .installMod({ uniqueName: target, prerelease })
+                    .then(() => commands.refreshLocalDb())
+                    .catch(console.error);
+                break;
+            case "URL":
+                commands
+                    .installUrl({ url: target })
+                    .then(() => commands.refreshLocalDb())
+                    .catch(console.error);
+                break;
+            case "ZIP":
+                commands
+                    .installZip({ path: target })
+                    .then(() => commands.refreshLocalDb())
+                    .catch(console.error);
+                break;
         }
     };
 
@@ -57,11 +74,22 @@ const InstallFromModal = (props: ModalWrapperProps) => {
     };
 
     useEffect(() => {
+        let cancel = false;
         listen("PROTOCOL_INSTALL_URL", ({ payload }) => {
+            if (cancel) return;
             setSource("URL");
             setTarget(payload as string);
             props.open?.current();
         }).catch(console.warn);
+        listen("PROTOCOL_INSTALL_UNIQUE_NAME", ({ payload }) => {
+            if (cancel) return;
+            setSource("UNIQUE_NAME");
+            setTarget(payload as string);
+            props.open?.current();
+        });
+        return () => {
+            cancel = true;
+        };
     }, []);
 
     return (
@@ -82,12 +110,13 @@ const InstallFromModal = (props: ModalWrapperProps) => {
                         }}
                         id="source"
                     >
+                        <option value="UNIQUE_NAME">{uniqueNameLabel}</option>
                         <option value="URL">{url}</option>
                         <option value="ZIP">{zip}</option>
                     </select>
                 </label>
                 <label htmlFor="target">
-                    {source === "URL" ? url : zip}
+                    {lblMap[source]}
                     <div className={source === "ZIP" ? "install-source" : ""}>
                         <input
                             id="target"
@@ -102,6 +131,18 @@ const InstallFromModal = (props: ModalWrapperProps) => {
                         )}
                     </div>
                 </label>
+                {source === "UNIQUE_NAME" && (
+                    <label htmlFor="prerelease">
+                        <input
+                            id="prerelease"
+                            onChange={(e) => setPrerelease(e.target.checked)}
+                            checked={prerelease}
+                            type="checkbox"
+                            role="switch"
+                        />
+                        Use Prerelease
+                    </label>
+                )}
                 <p className="install-warning">
                     <Icon iconType={FaExclamationTriangle} />
                     {warningText}

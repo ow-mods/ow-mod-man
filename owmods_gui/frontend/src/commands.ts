@@ -29,7 +29,7 @@ const commandInfo = {
     openModFolder: $<ModAction>("open_mod_folder"),
     openModReadme: $<ModAction>("open_mod_readme"),
     uninstallMod: $<ModAction>("uninstall_mod"),
-    installMod: $<ModAction>("install_mod"),
+    installMod: $<CommandInfo<{ uniqueName: string; prerelease?: boolean }, void>>("install_mod"),
     installUrl: $<ActionCommand<{ url: string }>>("install_url"),
     installZip: $<ActionCommand<{ path: string }>>("install_zip"),
     installOwml: $<EmptyCommand>("install_owml"),

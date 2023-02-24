@@ -2,7 +2,7 @@ import Icon from "@components/Icon";
 import { useTranslations } from "@hooks";
 import { listen } from "@tauri-apps/api/event";
 import { useEffect, useRef, useState } from "react";
-import { FaCheck, FaTrash } from "react-icons/fa";
+import { BsCheck2, BsTrashFill } from "react-icons/bs";
 
 interface ActiveDownloadProps {
     id: string;
@@ -38,7 +38,7 @@ const ActiveDownload = (props: ActiveDownloadProps) => {
             }`}
         >
             <p className="download-header fix-icons">
-                <Icon iconType={FaCheck} /> {props.msg}
+                <Icon iconType={BsCheck2} /> {props.msg}
             </p>
             <progress
                 value={
@@ -122,7 +122,7 @@ const DownloadsPopout = () => {
                         data-placement="left"
                         onClick={() => setDownloads({})}
                     >
-                        <Icon iconType={FaTrash} />
+                        <Icon iconType={BsTrashFill} />
                     </a>
                     {Object.values(downloads)
                         .reverse()

@@ -3,20 +3,3 @@
     grid-auto-flow: row;
     row-gap: $margin-md;
 }
-
-.owml-setup div {
-    display: grid;
-    grid-template-rows: 1fr;
-    grid-template-columns: 1fr 0.3fr;
-    column-gap: $margin-md;
-    height: 100%;
-}
-
-.owml-setup div button {
-    justify-content: center;
-    height: 100%;
-}
-
-.owml-setup div button svg {
-    margin: 0 $margin !important;
-}

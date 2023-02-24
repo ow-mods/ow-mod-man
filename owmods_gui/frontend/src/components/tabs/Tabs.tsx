@@ -1,5 +1,4 @@
-import { MdMonitor } from "react-icons/md";
-import { FaGlobeAmericas, FaArrowAltCircleUp } from "react-icons/fa";
+import { BsDisplay, BsGlobe } from "react-icons/bs";
 
 import Tab from "@components/tabs/Tab";
 import Section from "./Section";
@@ -10,6 +9,7 @@ import RemoteMods from "@components/mods/remote/RemoteMods";
 import Icon from "@components/Icon";
 import { useTranslations } from "@hooks";
 import UpdateMods from "@components/mods/updates/UpdateMods";
+import UpdatesTab from "./UpdatesTab";
 
 enum SectionType {
     Local,
@@ -20,11 +20,7 @@ enum SectionType {
 const Tabs = memo(() => {
     const [shownSection, setShownSection] = useState(SectionType.Local);
 
-    const [installedMods, getMods, updates] = useTranslations([
-        "INSTALLED_MODS",
-        "GET_MODS",
-        "UPDATES"
-    ]);
+    const [installedMods, getMods] = useTranslations(["INSTALLED_MODS", "GET_MODS"]);
 
     return (
         <>
@@ -34,20 +30,18 @@ const Tabs = memo(() => {
                         selected={shownSection === SectionType.Local}
                         onClick={() => setShownSection(SectionType.Local)}
                     >
-                        <Icon iconType={MdMonitor} label={installedMods} />
+                        <Icon iconType={BsDisplay} label={installedMods} />
                     </Tab>
                     <Tab
                         selected={shownSection === SectionType.Remote}
                         onClick={() => setShownSection(SectionType.Remote)}
                     >
-                        <Icon iconType={FaGlobeAmericas} label={getMods} />
+                        <Icon iconType={BsGlobe} label={getMods} />
                     </Tab>
-                    <Tab
+                    <UpdatesTab
                         selected={shownSection === SectionType.Updates}
                         onClick={() => setShownSection(SectionType.Updates)}
-                    >
-                        <Icon iconType={FaArrowAltCircleUp} label={updates} />
-                    </Tab>
+                    />
                 </div>
             </IconContext.Provider>
             <div className="sections">

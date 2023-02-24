@@ -4,7 +4,7 @@ import ModActionButton from "@components/mods/ModActionButton";
 import ModHeader from "@components/mods/ModHeader";
 import { useTranslation, useTranslations } from "@hooks";
 import { CSSProperties, memo, useCallback, useState } from "react";
-import { FaArrowDown, FaFileAlt } from "react-icons/fa";
+import { BsArrowDown, BsFileEarmarkTextFill } from "react-icons/bs";
 
 // Stolen from mods website, Rai will never catch me!
 const magnitudeMap = [
@@ -87,11 +87,11 @@ const RemoteModRow = memo((props: RemoteModRowProps) => {
                         <div className="center-loading" aria-busy></div>
                     ) : (
                         <ModActionButton onClick={onInstall} ariaLabel={installTooltip}>
-                            <Icon iconType={FaArrowDown} />
+                            <Icon iconType={BsArrowDown} />
                         </ModActionButton>
                     )}
                     <ModActionButton onClick={onReadme} ariaLabel={websiteTooltip}>
-                        <Icon iconType={FaFileAlt} />
+                        <Icon iconType={BsFileEarmarkTextFill} />
                     </ModActionButton>
                 </ModHeader>
                 <small className="mod-description">{desc}</small>

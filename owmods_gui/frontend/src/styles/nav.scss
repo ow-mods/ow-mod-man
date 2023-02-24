@@ -1,6 +1,8 @@
-.nav-icon {
-    width: auto;
+svg.nav-icon {
+    width: $margin-lg;
+    height: $margin-lg;
     margin: 0;
+    font-size: medium;
 }
 
 .nav-icon:not(details[role="list"] .nav-icon) {
@@ -11,7 +13,8 @@
     cursor: pointer;
 }
 
-.main-icon {
+svg.main-icon {
+    font-size: larger;
     height: $margin-xl;
     width: auto;
 }

@@ -21,6 +21,12 @@ const App = () => {
     const [status, guiConfig, err] = hooks.getGuiConfig("GUI_CONFIG_RELOAD");
     const openOwmlSetup = useRef<() => void>(() => null);
 
+    if (import.meta.env.DEV) {
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        window._DEBUG_OPEN_SETUP = () => openOwmlSetup.current();
+    }
+
     useEffect(() => {
         getCurrent()
             .setTitle(TranslationMap[guiConfig?.language ?? "English"]["APP_TITLE"])

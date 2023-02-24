@@ -1,7 +1,12 @@
-import { FaPlay, FaQuestion, FaCog, FaInfoCircle } from "react-icons/fa";
-import { TbRefresh } from "react-icons/tb";
-import { RiInstallFill } from "react-icons/ri";
-import { RxActivityLog } from "react-icons/rx";
+import {
+    BsPlayFill,
+    BsQuestion,
+    BsGearFill,
+    BsInfoCircleFill,
+    BsArrowRepeat,
+    BsBoxArrowInDown,
+    BsFilterLeft
+} from "react-icons/bs";
 
 import NavButton from "@components/nav/NavButton";
 import { IconContext } from "react-icons";
@@ -44,31 +49,31 @@ const Nav = () => {
                 <ul>
                     <Downloads />
                     <NavButton onClick={onRefresh} labelPlacement="bottom" ariaLabel={refresh}>
-                        <Icon iconType={TbRefresh} />
+                        <Icon iconType={BsArrowRepeat} />
                     </NavButton>
                 </ul>
                 <ul>
                     <NavButton labelPlacement="bottom" ariaLabel={runGame}>
-                        <Icon iconClassName="main-icon" iconType={FaPlay} />
+                        <Icon iconClassName="main-icon" iconType={BsPlayFill} />
                     </NavButton>
                 </ul>
                 <ul>
                     <NavButton labelPlacement="bottom" ariaLabel={help}>
-                        <Icon iconType={FaQuestion} />
+                        <Icon iconType={BsQuestion} />
                     </NavButton>
                     <NavMore>
                         {/* Dropdown uses RTL */}
                         <NavButton onClick={() => openSettings.current?.()}>
-                            {settings} <Icon iconType={FaCog} />
+                            {settings} <Icon iconType={BsGearFill} />
                         </NavButton>
                         <NavButton onClick={() => openInstallFrom.current?.()}>
-                            ...{installFrom} <Icon iconType={RiInstallFill} />
+                            ...{installFrom} <Icon iconType={BsBoxArrowInDown} />
                         </NavButton>
                         <NavButton onClick={() => openAbout.current?.()}>
-                            {about} <Icon iconType={FaInfoCircle} />
+                            {about} <Icon iconType={BsInfoCircleFill} />
                         </NavButton>
                         <NavButton>
-                            {logs} <Icon iconType={RxActivityLog} />
+                            {logs} <Icon iconType={BsFilterLeft} />
                         </NavButton>
                     </NavMore>
                 </ul>

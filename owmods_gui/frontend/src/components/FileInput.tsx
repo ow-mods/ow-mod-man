@@ -1,7 +1,7 @@
 import { useTranslation } from "@hooks";
 import { dialog } from "@tauri-apps/api";
 import { IconType } from "react-icons";
-import { FaFolder } from "react-icons/fa";
+import { BsFolderFill } from "react-icons/bs";
 import Icon from "./Icon";
 
 export interface FileInputProps<T> {
@@ -39,7 +39,7 @@ const FileInput =
                         onChange={(e) => props.onChange?.(e.target.value)}
                     />
                     <button onClick={onBrowse} className="browse-button fix-icons" type="button">
-                        <Icon iconType={props.browseButtonIcon ?? FaFolder} /> {browseLabel}
+                        <Icon iconType={props.browseButtonIcon ?? BsFolderFill} /> {browseLabel}
                     </button>
                 </div>
             </div>

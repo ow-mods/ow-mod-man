@@ -4,7 +4,7 @@ import Icon from "@components/Icon";
 import { useTranslations } from "@hooks";
 import { listen } from "@tauri-apps/api/event";
 import { useEffect, useState } from "react";
-import { FaExclamationTriangle, FaFileArchive } from "react-icons/fa";
+import { BsExclamationTriangleFill } from "react-icons/bs";
 import Modal, { ModalWrapperProps } from "./Modal";
 
 type SourceType = "UNIQUE_NAME" | "URL" | "ZIP";
@@ -99,7 +99,6 @@ const InstallFromModal = (props: ModalWrapperProps) => {
                         id="ZIP"
                         value={target}
                         onChange={setTarget}
-                        browseButtonIcon={FaFileArchive}
                         dialogOptions={{
                             title: installFrom,
                             filters: [
@@ -135,10 +134,12 @@ const InstallFromModal = (props: ModalWrapperProps) => {
                         Use Prerelease
                     </label>
                 )}
-                <p className="install-warning">
-                    <Icon iconType={FaExclamationTriangle} />
-                    {warningText}
-                </p>
+                {source !== "UNIQUE_NAME" && (
+                    <p className="install-warning">
+                        <Icon iconType={BsExclamationTriangleFill} />
+                        {warningText}
+                    </p>
+                )}
             </form>
         </Modal>
     );

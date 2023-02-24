@@ -45,7 +45,7 @@
     "MORE": "More",
     "INSTALLED_MODS": "Installed Mods",
     "GET_MODS": "Get Mods",
-    "UPDATES": "Updates",
+    "UPDATES": "Updates $amount$",
     "NO_UPDATES": "No Updates Available, Check Back Soon!",
     "ZIP": "Zip File",
     "SETUP": "Setup",

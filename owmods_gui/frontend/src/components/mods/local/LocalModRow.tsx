@@ -5,7 +5,7 @@ import ModHeader from "@components/mods/ModHeader";
 import { useTranslation, useTranslations } from "@hooks";
 import { confirm } from "@tauri-apps/api/dialog";
 import { memo, useCallback } from "react";
-import { FaFolder, FaTrash } from "react-icons/fa";
+import { BsFolderFill, BsTrashFill } from "react-icons/bs";
 
 interface LocalModRowProps {
     uniqueName: string;
@@ -63,10 +63,10 @@ const LocalModRow = memo((props: LocalModRowProps) => {
             <div className="mod-row local">
                 <ModHeader subtitle={subtitle} {...localMod.manifest}>
                     <ModActionButton onClick={onOpen} ariaLabel={showFolderTooltip}>
-                        <Icon iconType={FaFolder} />
+                        <Icon iconType={BsFolderFill} />
                     </ModActionButton>
                     <ModActionButton onClick={onUninstall} ariaLabel={uninstallTooltip}>
-                        <Icon iconType={FaTrash} />
+                        <Icon iconType={BsTrashFill} />
                     </ModActionButton>
                     <input
                         className="mod-toggle"

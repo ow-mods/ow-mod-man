@@ -1,5 +1,5 @@
 import Icon from "@components/Icon";
-import { FaArrowDown } from "react-icons/fa";
+import { BsArrowDown } from "react-icons/bs";
 import DownloadsBadge from "./DownloadsBadge";
 import DownloadsPopout from "./DownloadsPopout";
 import NavButton from "../nav/NavButton";
@@ -13,7 +13,7 @@ const Downloads = () => {
             <details role="list">
                 <summary>
                     <NavButton labelPlacement="right" ariaLabel={downloads}>
-                        <Icon iconType={FaArrowDown} />
+                        <Icon iconType={BsArrowDown} />
                         <DownloadsBadge />
                     </NavButton>
                 </summary>

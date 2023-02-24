@@ -82,6 +82,10 @@ details summary::after {
     margin-left: $margin;
 }
 
+.file-input-row .browse-button svg {
+    margin-right: $margin;
+}
+
 .muted {
     color: var(--primary-muted);
 }

@@ -1,7 +1,7 @@
 import Modal, { ModalWrapperProps } from "./Modal";
 import logo from "@assets/images/logo.png";
 import Icon from "@components/Icon";
-import { FaDiscord, FaGithub } from "react-icons/fa";
+import { BsDiscord, BsGithub } from "react-icons/bs";
 import { useTranslation, useTranslations } from "@hooks";
 import { app, os, shell } from "@tauri-apps/api";
 import { useEffect, useState } from "react";
@@ -40,7 +40,7 @@ const AboutModal = (props: ModalWrapperProps) => {
                         role="button"
                         className="fix-icons"
                     >
-                        <Icon iconType={FaGithub} />
+                        <Icon iconType={BsGithub} />
                         {gitHub}
                     </a>
                     <a
@@ -49,7 +49,7 @@ const AboutModal = (props: ModalWrapperProps) => {
                         role="button"
                         className="fix-icons"
                     >
-                        <Icon iconType={FaDiscord} />
+                        <Icon iconType={BsDiscord} />
                         {discord}
                     </a>
                 </div>

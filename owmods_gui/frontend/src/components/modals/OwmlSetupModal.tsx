@@ -12,12 +12,13 @@ const OwmlSetupModal = (props: ModalWrapperProps) => {
     const [owmlPath, setOwmlPath] = useState("");
     const closeModal = useRef<() => void>(() => null);
 
-    const [setup, message, installOwml, locateOwml, invalidOwml] = useTranslations([
+    const [setup, message, installOwml, locateOwml, invalidOwml, continueLabel] = useTranslations([
         "SETUP",
         "OWML_SETUP_MESSAGE",
         "INSTALL_OWML",
         "LOCATE_OWML",
-        "INVALID_OWML"
+        "INVALID_OWML",
+        "CONTINUE"
     ]);
 
     const onClose = () => {
@@ -51,7 +52,7 @@ const OwmlSetupModal = (props: ModalWrapperProps) => {
             onConfirm={onClose}
             heading={setup}
             showCancel={false}
-            confirmText="Continue"
+            confirmText={continueLabel}
         >
             <form className="owml-setup">
                 <p>{message}</p>

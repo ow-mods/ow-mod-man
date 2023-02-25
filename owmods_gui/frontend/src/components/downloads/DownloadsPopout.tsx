@@ -1,5 +1,5 @@
 import Icon from "@components/Icon";
-import { useTranslations } from "@hooks";
+import { useTranslation, useTranslations } from "@hooks";
 import { listen } from "@tauri-apps/api/event";
 import { useEffect, useRef, useState } from "react";
 import { BsCheck2, BsTrashFill } from "react-icons/bs";
@@ -54,6 +54,8 @@ const ActiveDownload = (props: ActiveDownloadProps) => {
 
 const DownloadsPopout = () => {
     const [downloads, setDownloads] = useState<Record<string, ActiveDownloadProps>>({});
+
+    const label = useTranslation("DOWNLOADS");
 
     const downloadsRef = useRef(downloads);
 
@@ -110,7 +112,7 @@ const DownloadsPopout = () => {
 
     return (
         <div className="downloads-popout">
-            <header>Downloads</header>
+            <header>{label}</header>
             {Object.keys(downloads).length === 0 ? (
                 <p className="no-downloads">{noDownloads}</p>
             ) : (

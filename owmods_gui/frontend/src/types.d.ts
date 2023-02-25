@@ -85,5 +85,6 @@ export enum Theme {
 
 export enum Language {
     English = "English",
-    Wario = "Wario"
+    Wario = "Wario",
+    Corby = "Corby"
 }

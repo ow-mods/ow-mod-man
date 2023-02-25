@@ -22,6 +22,7 @@ pub enum Theme {
 pub enum Language {
     English,
     Wario,
+    Corby,
 }
 
 #[typeshare]

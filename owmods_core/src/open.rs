@@ -30,10 +30,7 @@ pub fn open_readme(unique_name: &str, db: &RemoteDatabase) -> Result<()> {
     let remote_mod = db
         .get_mod(unique_name)
         .ok_or_else(|| anyhow!("Mod {} not found", unique_name))?;
-    let mod_readme = remote_mod
-        .readme
-        .as_ref()
-        .ok_or_else(|| anyhow!("Mod doesn't have a README"))?;
-    opener::open_browser(&mod_readme.html_url)?;
+    let slug = &remote_mod.slug;
+    opener::open_browser(format!("https://outerwildsmods.com/mods/{slug}/"))?;
     Ok(())
 }

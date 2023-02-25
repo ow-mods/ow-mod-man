@@ -4,7 +4,7 @@ import ModActionButton from "@components/mods/ModActionButton";
 import ModHeader from "@components/mods/ModHeader";
 import { useTranslation, useTranslations } from "@hooks";
 import { CSSProperties, memo, useCallback, useState } from "react";
-import { BsArrowDown, BsFileEarmarkTextFill } from "react-icons/bs";
+import { BsArrowDown, BsGlobe } from "react-icons/bs";
 
 // Stolen from mods website, Rai will never catch me!
 const magnitudeMap = [
@@ -47,7 +47,7 @@ const RemoteModRow = memo((props: RemoteModRowProps) => {
     const [noDescription, installTooltip, websiteTooltip] = useTranslations([
         "NO_DESCRIPTION",
         "INSTALL",
-        "OPEN_README"
+        "OPEN_WEBSITE"
     ]);
 
     const subtitle = useTranslation("BY", { author: mod?.authorDisplay ?? mod?.author ?? "" });
@@ -91,7 +91,7 @@ const RemoteModRow = memo((props: RemoteModRowProps) => {
                         </ModActionButton>
                     )}
                     <ModActionButton onClick={onReadme} ariaLabel={websiteTooltip}>
-                        <Icon iconType={BsFileEarmarkTextFill} />
+                        <Icon iconType={BsGlobe} />
                     </ModActionButton>
                 </ModHeader>
                 <small className="mod-description">{desc}</small>

@@ -17,6 +17,7 @@ export interface RemoteMod {
     uniqueName: string;
     description: string;
     readme?: ModReadMe;
+    slug: string;
     required?: boolean;
     repo: string;
     author: string;

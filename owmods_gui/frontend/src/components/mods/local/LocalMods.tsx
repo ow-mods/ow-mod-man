@@ -1,8 +1,9 @@
 import { hooks } from "@commands";
 import { useTranslation } from "@hooks";
+import { memo } from "react";
 import LocalModRow from "./LocalModRow";
 
-const LocalMods = () => {
+const LocalMods = memo(() => {
     const [status, mods, err] = hooks.getLocalMods("LOCAL-REFRESH");
 
     const noMods = useTranslation("NO_MODS");
@@ -21,6 +22,6 @@ const LocalMods = () => {
             </div>
         );
     }
-};
+});
 
 export default LocalMods;

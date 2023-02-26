@@ -8,7 +8,7 @@ interface LogMessage {
     message: string;
 }
 
-export const startLogListen = () => {
+export const startConsoleLogListen = () => {
     listen("LOG", (e) => {
         const msg = e.payload as LogMessage;
         if (msg.target !== "progress" && !msg.target?.startsWith("game")) {

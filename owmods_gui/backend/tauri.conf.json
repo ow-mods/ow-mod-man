@@ -28,7 +28,8 @@
         "open": "(^https://github.com/)|(^https://discord.gg/)"
       },
       "window": {
-        "setTitle": true
+        "setTitle": true,
+        "close": true
       }
     },
     "bundle": {

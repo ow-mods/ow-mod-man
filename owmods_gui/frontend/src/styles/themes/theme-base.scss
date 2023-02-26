@@ -1,3 +1,12 @@
+$msg-types: (
+    "message": white,
+    "debug": grey,
+    "info": rgb(64, 145, 211),
+    "warning": orange,
+    "error": red,
+    "success": yellowgreen
+);
+
 @mixin theme_base($primary) {
     $bg: mix($primary, black, 10%);
     $accent-bg: mix($primary, $bg, 10%);
@@ -7,6 +16,9 @@
     $button-bg: $primary-really-dark;
     $secondary-button-bg: $accent-bg-lighter;
     :root {
+        @each $name, $color in $msg-types {
+            --log-#{$name}: #{mix($primary, $color, 20%)};
+        }
         --primary: #{$primary} !important;
         --bg: #{$bg};
         --accent-bg: #{$accent-bg};

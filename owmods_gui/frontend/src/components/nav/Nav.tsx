@@ -26,8 +26,12 @@ const Nav = () => {
     const openAbout = useRef<() => void>(() => null);
 
     const onRefresh = useCallback(() => {
-        commands.refreshLocalDb().catch((e) => console.warn(e));
-        commands.refreshRemoteDb().catch((e) => console.warn(e));
+        commands.refreshLocalDb().catch(console.warn);
+        commands.refreshRemoteDb().catch(console.warn);
+    }, []);
+
+    const onPlay = useCallback(() => {
+        commands.runGame().catch(console.warn);
     }, []);
 
     const [refresh, runGame, help, settings, installFrom, about, logs] = useTranslations([
@@ -53,7 +57,7 @@ const Nav = () => {
                     </NavButton>
                 </ul>
                 <ul>
-                    <NavButton labelPlacement="bottom" ariaLabel={runGame}>
+                    <NavButton onClick={onPlay} labelPlacement="bottom" ariaLabel={runGame}>
                         <Icon iconClassName="main-icon" iconType={BsPlayFill} />
                     </NavButton>
                 </ul>

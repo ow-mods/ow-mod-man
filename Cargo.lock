@@ -2086,6 +2086,7 @@ dependencies = [
  "serde_json",
  "tauri",
  "tauri-build",
+ "tempdir",
  "tokio",
  "typeshare",
 ]

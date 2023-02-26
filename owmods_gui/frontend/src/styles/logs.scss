@@ -1,0 +1,56 @@
+.logs {
+    display: flex;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding: $margin-md;
+}
+
+$log-border: 1px solid var(--accent-bg);
+
+.log-line {
+    height: fit-content;
+    display: flex;
+    width: 100%;
+    padding: $margin $margin-md;
+    border-bottom: $log-border;
+}
+
+.log-line .sender,
+.log-line .message {
+    display: flex;
+    align-items: center;
+}
+
+.log-line {
+    flex-grow: 1;
+}
+
+.log-line .sender {
+    justify-content: center;
+    flex-shrink: 1;
+    margin-right: $margin-lg;
+}
+
+.log-line .message.type-message {
+    color: var(--log-message);
+}
+
+.log-line .message.type-info {
+    color: var(--log-info);
+}
+
+.log-line .message.type-success {
+    color: var(--log-success);
+}
+
+.log-line .message.type-warning {
+    color: var(--log-warning);
+}
+
+.log-line .message.type-error {
+    color: var(--log-error);
+}
+
+.log-line .message.type-debug {
+    color: var(--log-debug);
+}

@@ -1,6 +1,9 @@
 import { listen, UnlistenFn } from "@tauri-apps/api/event";
 import { useContext, useEffect, useMemo, useRef, useState } from "react";
 import { TranslationContext, TranslationMap } from "@components/TranslationContext";
+import ThemeMap from "./theme";
+import { Theme } from "@types";
+import rainbowTheme from "@styles/rainbow.scss?inline";
 
 export type LoadState = "Loading" | "Done" | "Error";
 
@@ -90,4 +93,14 @@ export const useTranslation = (key: string, variables?: Record<string, string>) 
 
 export const useTranslations = (keys: string[]) => {
     return keys.map((k) => useTranslation(k));
+};
+
+export const useTheme = (theme: Theme, rainbow: boolean) => {
+    useEffect(() => {
+        let newTheme = ThemeMap[theme ?? "White"];
+        if (rainbow) {
+            newTheme += rainbowTheme;
+        }
+        document.getElementById("currentTheme")!.textContent = newTheme;
+    }, [theme, rainbow]);
 };

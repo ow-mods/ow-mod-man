@@ -25,6 +25,12 @@ export default defineConfig({
         })
     ],
     build: {
+        rollupOptions: {
+            input: {
+                main: path.resolve(__dirname, "index.html"),
+                logs: path.resolve(__dirname, "logs/index.html")
+            }
+        },
         outDir: "../dist",
         target: process.env.TAURI_PLATFORM == "windows" ? "chrome105" : "safari13",
         minify: !process.env.TAURI_DEBUG ? "esbuild" : false,

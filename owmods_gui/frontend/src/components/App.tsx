@@ -3,15 +3,15 @@ import Tabs from "@components/tabs/Tabs";
 import { getCurrent } from "@tauri-apps/api/window";
 import { useCallback, useEffect, useRef } from "react";
 import { TranslationContext, TranslationMap } from "@components/TranslationContext";
-import ThemeMap from "../theme";
 
-import rainbow from "@styles/rainbow.scss?inline";
 import OwmlSetupModal from "./modals/OwmlSetupModal";
 import { listen } from "@tauri-apps/api/event";
-import { startLogListen } from "../logging";
+import { startConsoleLogListen } from "../logging";
 import { commands, hooks } from "@commands";
+import { useTheme } from "@hooks";
+import { Theme } from "@types";
 
-startLogListen();
+startConsoleLogListen();
 
 // Refresh once to get data
 commands.refreshLocalDb().catch(() => console.warn("Can't fetch local DB"));
@@ -19,6 +19,7 @@ commands.refreshRemoteDb().catch(() => console.warn("Can't fetch remote DB"));
 
 const App = () => {
     const [status, guiConfig, err] = hooks.getGuiConfig("GUI_CONFIG_RELOAD");
+    useTheme(guiConfig?.theme ?? Theme.White, guiConfig?.rainbow ?? false);
     const openOwmlSetup = useRef<() => void>(() => null);
 
     if (import.meta.env.DEV) {
@@ -57,14 +58,6 @@ const App = () => {
             cancelled = true;
         };
     }, []);
-
-    useEffect(() => {
-        let newTheme = ThemeMap[guiConfig?.theme ?? "White"];
-        if (guiConfig?.rainbow /*|| (new Date()).getMonth() === 5*/) {
-            newTheme += rainbow;
-        }
-        document.getElementById("currentTheme")!.textContent = newTheme;
-    }, [guiConfig?.theme, guiConfig?.rainbow]);
 
     if (status === "Loading" && guiConfig === null) {
         return <div className="fill center-loading" aria-busy></div>;

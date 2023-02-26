@@ -65,11 +65,29 @@ export interface OWMLConfig {
     socketPort: number;
 }
 
+export interface SocketMessage {
+    senderName?: string;
+    senderType?: string;
+    message: string;
+    messageType: SocketMessageType;
+}
+
 export interface GuiConfig {
     theme: Theme;
     rainbow: boolean;
     language: Language;
     watchFs: boolean;
+}
+
+export enum SocketMessageType {
+    Message = "message",
+    Error = "error",
+    Warning = "warning",
+    Info = "info",
+    Success = "success",
+    Quit = "quit",
+    Fatal = "fatal",
+    Debug = "debug"
 }
 
 export enum Theme {

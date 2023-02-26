@@ -2,7 +2,7 @@ import { commands, hooks } from "@commands";
 import Icon from "@components/Icon";
 import { useTranslation } from "@hooks";
 import { memo, useCallback, useMemo, useState } from "react";
-import { BsArrowDown } from "react-icons/bs";
+import { BsArrowUp } from "react-icons/bs";
 import ModActionButton from "../ModActionButton";
 import ModHeader from "../ModHeader";
 
@@ -47,7 +47,7 @@ const UpdateModRow = memo((props: { uniqueName: string }) => {
                         <div className="center-loading" aria-busy></div>
                     ) : (
                         <ModActionButton onClick={onUpdate} ariaLabel={updateLabel}>
-                            <Icon iconType={BsArrowDown} />
+                            <Icon iconType={BsArrowUp} />
                         </ModActionButton>
                     )}
                 </ModHeader>

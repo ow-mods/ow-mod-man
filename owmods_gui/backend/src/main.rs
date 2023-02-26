@@ -3,7 +3,7 @@
     windows_subsystem = "windows"
 )]
 
-use std::{error::Error, sync::Arc};
+use std::{collections::HashMap, error::Error, sync::Arc};
 
 use commands::*;
 use gui_config::GuiConfig;
@@ -14,17 +14,22 @@ use owmods_core::{
     db::{LocalDatabase, RemoteDatabase},
 };
 
+use tempdir::TempDir;
 use tokio::sync::RwLock as TokioLock;
 
 mod commands;
+mod game;
 mod gui_config;
 mod logging;
+
+type LogMessages = HashMap<u16, TempDir>;
 
 pub struct State {
     local_db: Arc<TokioLock<LocalDatabase>>,
     remote_db: Arc<TokioLock<RemoteDatabase>>,
     config: Arc<TokioLock<Config>>,
     gui_config: Arc<TokioLock<GuiConfig>>,
+    log_files: Arc<TokioLock<LogMessages>>,
 }
 
 fn main() -> Result<(), Box<dyn Error>> {
@@ -37,6 +42,7 @@ fn main() -> Result<(), Box<dyn Error>> {
             remote_db: Arc::new(TokioLock::new(RemoteDatabase::default())),
             config: Arc::new(TokioLock::new(config)),
             gui_config: Arc::new(TokioLock::new(gui_config)),
+            log_files: Arc::new(TokioLock::new(HashMap::new())),
         })
         .setup(move |app| {
             set_boxed_logger(Box::new(Logger::new(app.handle())))
@@ -67,7 +73,11 @@ fn main() -> Result<(), Box<dyn Error>> {
             set_owml,
             get_updatable_mods,
             update_mod,
-            update_all_mods
+            update_all_mods,
+            run_game,
+            stop_logging,
+            get_game_message,
+            get_logs_length
         ])
         .run(tauri::generate_context!())
         .expect("Error while running tauri application.");

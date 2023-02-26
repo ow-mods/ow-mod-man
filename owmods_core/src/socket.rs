@@ -1,13 +1,15 @@
 use anyhow::Result;
-use log::{error, info};
-use serde::Deserialize;
-use serde_repr::Deserialize_repr;
+use log::info;
+use serde::{Deserialize, Serialize};
+use serde_repr::{Deserialize_repr, Serialize_repr};
 use tokio::{
     io::{AsyncBufReadExt, BufReader},
     net::TcpListener,
 };
+use typeshare::typeshare;
 
-#[derive(Debug, Deserialize_repr)]
+#[typeshare]
+#[derive(Clone, Debug, Serialize_repr, Deserialize_repr)]
 #[serde(rename_all = "camelCase")]
 #[repr(u8)]
 pub enum SocketMessageType {
@@ -21,7 +23,8 @@ pub enum SocketMessageType {
     Debug = 7,
 }
 
-#[derive(Deserialize)]
+#[typeshare]
+#[derive(Serialize, Deserialize, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct SocketMessage {
     pub sender_name: Option<String>,
@@ -29,6 +32,17 @@ pub struct SocketMessage {
     pub message: String,
     #[serde(alias = "type")]
     pub message_type: SocketMessageType,
+}
+
+impl SocketMessage {
+    pub fn make_internal(message: String, message_type: SocketMessageType) -> Self {
+        Self {
+            message,
+            message_type,
+            sender_name: Some("Manager".to_string()),
+            sender_type: Some("Log Server".to_string()),
+        }
+    }
 }
 
 pub struct LogServer {
@@ -47,18 +61,27 @@ impl LogServer {
 
     pub async fn listen(
         self,
-        f: &dyn Fn(&SocketMessage, &str),
+        f: impl Fn(&SocketMessage, &str),
         disconnect_on_quit: bool,
     ) -> Result<()> {
         let target = format!("game:{}", self.port);
-        info!(
-            target: &target,
-            "Ready To Receive Game Logs On Port {}!", self.port
+        f(
+            &SocketMessage::make_internal(
+                format!("Ready to receive game logs on port {}!", self.port),
+                SocketMessageType::Info,
+            ),
+            &target,
         );
         let mut keep_going = true;
         while keep_going {
             let stream = self.listener.accept().await;
-            info!(target: &target, "======Client Attached To Console======");
+            f(
+                &SocketMessage::make_internal(
+                    "====== Client Connected To Console ======".to_string(),
+                    SocketMessageType::Info,
+                ),
+                &target,
+            );
             if let Ok((mut stream, _)) = stream {
                 let mut reader = BufReader::new(&mut stream);
                 let mut body = String::new();
@@ -84,15 +107,33 @@ impl LogServer {
                             };
                         }
                         Err(why) => {
-                            error!(target: &target, "Invalid Log From Game Sent: {:?}", why);
+                            f(
+                                &SocketMessage::make_internal(
+                                    format!("Invalid Log From Game Received: {:?}", why),
+                                    SocketMessageType::Error,
+                                ),
+                                &target,
+                            );
                         }
                     }
                     body.clear();
                 }
             } else {
-                error!(target: &target, "Invalid Log From Game Sent!");
+                f(
+                    &SocketMessage::make_internal(
+                        "Invalid Log Received!".to_string(),
+                        SocketMessageType::Error,
+                    ),
+                    &target,
+                );
             }
-            info!(target: &target, "======Client Detached From Console======");
+            f(
+                &SocketMessage::make_internal(
+                    "====== Client Disconnected From Console ======".to_string(),
+                    SocketMessageType::Info,
+                ),
+                &target,
+            );
         }
         Ok(())
     }

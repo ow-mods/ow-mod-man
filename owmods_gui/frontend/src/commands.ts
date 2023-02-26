@@ -1,6 +1,6 @@
 import { LoadState, useTauri } from "@hooks";
 import { invoke } from "@tauri-apps/api";
-import { Config, GuiConfig, LocalMod, OWMLConfig, RemoteMod } from "@types";
+import { Config, GuiConfig, LocalMod, OWMLConfig, RemoteMod, SocketMessage } from "@types";
 
 type CommandInfo<P, R> = [P, R];
 type GetCommand<V> = CommandInfo<Record<string, never>, V>;
@@ -25,6 +25,8 @@ const commandInfo = {
     getUpdatableMods: $<GetCommand<string[]>>("get_updatable_mods"),
     getLocalMod: $<ModCommand<LocalMod>>("get_local_mod"),
     getRemoteMod: $<ModCommand<RemoteMod>>("get_remote_mod"),
+    getLogsLength: $<CommandInfo<{ port: number }, number>>("get_logs_length"),
+    getLogLine: $<CommandInfo<{ port: number; line: number }, SocketMessage>>("get_game_message"),
     toggleMod: $<ActionCommand<{ uniqueName: string; enabled: boolean }>>("toggle_mod"),
     openModFolder: $<ModAction>("open_mod_folder"),
     openModReadme: $<ModAction>("open_mod_readme"),
@@ -38,7 +40,9 @@ const commandInfo = {
     saveGuiConfig: $<ActionCommand<{ guiConfig: GuiConfig }>>("save_gui_config"),
     saveOwmlConfig: $<ActionCommand<{ owmlConfig: OWMLConfig }>>("save_owml_config"),
     updateMod: $<ModAction>("update_mod"),
-    updateAll: $<ActionCommand<{ uniqueNames: string[] }>>("update_all_mods")
+    updateAll: $<ActionCommand<{ uniqueNames: string[] }>>("update_all_mods"),
+    runGame: $<EmptyCommand>("run_game"),
+    stopLogging: $<ActionCommand<{ port: number }>>("stop_logging")
 };
 
 type Command = keyof typeof commandInfo;

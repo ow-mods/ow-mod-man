@@ -1,11 +1,39 @@
 .logs {
     display: flex;
-    overflow-y: auto;
-    overflow-x: hidden;
+    overflow: hidden;
     padding: $margin-md;
 }
 
 $log-border: 1px solid var(--accent-bg);
+
+.log-list {
+    flex-grow: 1;
+}
+
+.log-actions {
+    display: flex;
+    flex-direction: row;
+}
+
+.log-actions > label {
+    display: flex;
+    width: 50%;
+    margin: $margin;
+}
+
+.log-actions > label[for="filter"] {
+    flex-direction: column;
+}
+
+.log-actions > label[for="scroll"] {
+    flex-direction: row;
+    align-items: center;
+    justify-content: end;
+}
+
+.log-actions > label[for="scroll"] > input {
+    margin-left: $margin;
+}
 
 .log-line {
     height: fit-content;

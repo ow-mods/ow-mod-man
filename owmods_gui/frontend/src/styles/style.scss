@@ -64,11 +64,6 @@ button.secondary:hover {
     background-color: var(--secondary-button-bg-hover);
 }
 
-// Override Pico's STINKY, BLAND, DUMB chevron with a themed one
-details summary::after {
-    background-image: var(--theme-chevron);
-}
-
 .file-input-row {
     display: grid;
     grid-template-columns: 0.8fr 0.2fr;

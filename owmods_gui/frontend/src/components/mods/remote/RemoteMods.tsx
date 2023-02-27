@@ -1,4 +1,5 @@
 import { hooks } from "@commands";
+import CenteredSpinner from "@components/common/CenteredSpinner";
 import { useTranslation } from "@hooks";
 import { memo, useRef, useState } from "react";
 import AutoSizer from "react-virtualized-auto-sizer";
@@ -25,9 +26,9 @@ const RemoteMods = memo(() => {
     let res = <></>;
 
     if ((status === "Loading" && mods === null) || tempFilter !== filter) {
-        res = <div className="mod-list center-loading" aria-busy></div>;
+        res = <CenteredSpinner className="mod-row" />;
     } else if (status === "Error") {
-        res = <p className="mod-list center-loading">{err!.toString()}</p>;
+        res = <p className="mod-list center">{err!.toString()}</p>;
     } else {
         const remoteMods = mods!;
         res = (

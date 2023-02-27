@@ -6,7 +6,7 @@ import { memo, useState } from "react";
 import LocalMods from "@components/mods/local/LocalMods";
 import { IconContext } from "react-icons";
 import RemoteMods from "@components/mods/remote/RemoteMods";
-import Icon from "@components/Icon";
+import Icon from "@components/common/Icon";
 import { useTranslations } from "@hooks";
 import UpdateMods from "@components/mods/updates/UpdateMods";
 import UpdatesTab from "./UpdatesTab";

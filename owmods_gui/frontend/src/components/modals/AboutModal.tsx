@@ -1,6 +1,6 @@
 import Modal, { ModalWrapperProps } from "./Modal";
 import logo from "@assets/images/logo.png";
-import Icon from "@components/Icon";
+import Icon from "@components/common/Icon";
 import { BsDiscord, BsGithub } from "react-icons/bs";
 import { useTranslation, useTranslations } from "@hooks";
 import { app, os, shell } from "@tauri-apps/api";

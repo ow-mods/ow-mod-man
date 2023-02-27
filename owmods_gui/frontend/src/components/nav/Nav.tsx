@@ -10,7 +10,7 @@ import {
 
 import NavButton from "@components/nav/NavButton";
 import { IconContext } from "react-icons";
-import Icon from "@components/Icon";
+import Icon from "@components/common/Icon";
 import NavMore from "./NavMore";
 import { useCallback, useRef } from "react";
 import SettingsModal from "@components/modals/SettingsModal";

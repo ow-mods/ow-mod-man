@@ -4,7 +4,7 @@ import Modal, { ModalWrapperProps } from "./Modal";
 import { useTranslation, useTranslations } from "@hooks";
 import { os } from "@tauri-apps/api";
 import { commands, hooks } from "@commands";
-import { OpenFileInput } from "@components/FileInput";
+import { OpenFileInput } from "@components/common/FileInput";
 
 const ThemeArr = Object.values(Theme);
 const LanguageArr = Object.values(Language);
@@ -312,7 +312,7 @@ const SettingsModal = (props: ModalWrapperProps) => {
         return (
             <Modal showCancel heading={settings} confirmText={save} open={props.open}>
                 <>
-                    <p className="center-loading">
+                    <p className="center">
                         <>
                             Error: Couldn&apos;t Load Settings: {err1 ?? ""} {err2 ?? ""}{" "}
                             {err3 ?? ""}

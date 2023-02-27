@@ -1,5 +1,5 @@
 import { commands } from "@commands";
-import { OpenFileInput } from "@components/FileInput";
+import { OpenFileInput } from "@components/common/FileInput";
 import { useTranslations } from "@hooks";
 import { dialog } from "@tauri-apps/api";
 import { useRef, useState } from "react";

@@ -2,7 +2,7 @@ import Nav from "@components/nav/Nav";
 import Tabs from "@components/tabs/Tabs";
 import { getCurrent } from "@tauri-apps/api/window";
 import { useCallback, useEffect, useRef } from "react";
-import { TranslationContext, TranslationMap } from "@components/TranslationContext";
+import { TranslationContext, TranslationMap } from "@components/common/TranslationContext";
 
 import OwmlSetupModal from "./modals/OwmlSetupModal";
 import { listen } from "@tauri-apps/api/event";
@@ -10,6 +10,7 @@ import { startConsoleLogListen } from "../logging";
 import { commands, hooks } from "@commands";
 import { useTheme } from "@hooks";
 import { Theme } from "@types";
+import CenteredSpinner from "./common/CenteredSpinner";
 
 startConsoleLogListen();
 
@@ -60,11 +61,9 @@ const App = () => {
     }, []);
 
     if (status === "Loading" && guiConfig === null) {
-        return <div className="fill center-loading" aria-busy></div>;
+        return <CenteredSpinner className="fill" />;
     } else if (status === "Error") {
-        return (
-            <p className="fill center-loading">Error loading configuration: {err!.toString()}</p>
-        );
+        return <p className="fill center">Error loading configuration: {err!.toString()}</p>;
     } else {
         return (
             <TranslationContext.Provider value={guiConfig!.language}>

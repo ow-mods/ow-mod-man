@@ -12,4 +12,4 @@ export const TranslationMap: Record<Language, Translations> = {
     Corby: corby
 };
 
-export const TranslationContext = createContext<Language>("English");
+export const TranslationContext = createContext<Language>(Language.English);

@@ -1,7 +1,7 @@
 import { useTranslations } from "@hooks";
 import { SocketMessageType } from "@types";
 import { memo } from "react";
-import { LogFilter } from "./App";
+import { LogFilter } from "./LogApp";
 
 export interface LogHeaderProps {
     activeFilter: LogFilter;

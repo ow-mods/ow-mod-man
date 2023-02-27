@@ -2,10 +2,10 @@ import LogLine from "./LogLine";
 import AutoSizer from "react-virtualized-auto-sizer";
 import { memo, useCallback, useEffect, useRef } from "react";
 import { ListOnItemsRenderedProps, VariableSizeList } from "react-window";
-import { LogFilter } from "./App";
+import { LogFilter } from "./LogApp";
 import { SocketMessage } from "@types";
 
-// Memoize nearbly log data so that way we dont read/write a bunch
+// Memoize nearby log data so that way we don't read/write a bunch
 const MEMOIZATION_RANGE = 30;
 
 export interface LogListProps {

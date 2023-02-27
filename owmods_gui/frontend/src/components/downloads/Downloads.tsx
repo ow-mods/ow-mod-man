@@ -1,4 +1,4 @@
-import Icon from "@components/Icon";
+import Icon from "@components/common/Icon";
 import { BsArrowDown } from "react-icons/bs";
 import DownloadsBadge from "./DownloadsBadge";
 import DownloadsPopout from "./DownloadsPopout";

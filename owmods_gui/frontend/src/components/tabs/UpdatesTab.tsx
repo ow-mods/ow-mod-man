@@ -1,5 +1,5 @@
 import { hooks } from "@commands";
-import Icon from "@components/Icon";
+import Icon from "@components/common/Icon";
 import { useTranslation } from "@hooks";
 import { BsArrowUpCircle, BsArrowUpCircleFill } from "react-icons/bs";
 import Tab, { TabProps } from "./Tab";

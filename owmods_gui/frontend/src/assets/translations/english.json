@@ -7,6 +7,7 @@
     "PLATFORM": "Platform: $platform$",
     "DOWNLOADS": "Downloads",
     "NO_DOWNLOADS": "No Downloads",
+    "USE_PRERELEASE": "Use Prerelease",
     "CONTINUE": "Continue",
     "CLEAR_DOWNLOADS": "Clear All",
     "NO_DESCRIPTION": "No Description Provided",

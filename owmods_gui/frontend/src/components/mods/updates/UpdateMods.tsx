@@ -1,4 +1,5 @@
 import { commands, hooks } from "@commands";
+import CenteredSpinner from "@components/common/CenteredSpinner";
 import { useTranslations } from "@hooks";
 import { memo, useCallback, useState } from "react";
 import UpdateModRow from "./UpdateModRow";
@@ -21,9 +22,9 @@ const UpdateMods = memo(() => {
     }, [updates]);
 
     if (status === "Loading" && updates === null) {
-        return <div aria-busy className="mod-list center-loading"></div>;
+        return <CenteredSpinner className="mod-list" />;
     } else if (status === "Error") {
-        return <div className="center-loading mod-list">{err!.toString()}</div>;
+        return <div className="center mod-list">{err!.toString()}</div>;
     } else {
         return (
             <div className="mod-list">
@@ -36,11 +37,13 @@ const UpdateMods = memo(() => {
                         {updateAll}
                     </button>
                 ) : (
-                    <p className="center-loading muted">{noUpdates}</p>
+                    <p className="center muted">{noUpdates}</p>
                 )}
-                {updates!.map((m) => (
-                    <UpdateModRow key={m} uniqueName={m} />
-                ))}
+                {updating ? (
+                    <CenteredSpinner />
+                ) : (
+                    updates!.map((m) => <UpdateModRow key={m} uniqueName={m} />)
+                )}
             </div>
         );
     }

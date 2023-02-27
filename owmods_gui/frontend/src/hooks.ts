@@ -1,6 +1,6 @@
-import { listen, UnlistenFn } from "@tauri-apps/api/event";
+import { listen } from "@tauri-apps/api/event";
 import { useContext, useEffect, useMemo, useRef, useState } from "react";
-import { TranslationContext, TranslationMap } from "@components/TranslationContext";
+import { TranslationContext, TranslationMap } from "@components/common/TranslationContext";
 import ThemeMap from "./theme";
 import { Theme } from "@types";
 import rainbowTheme from "@styles/rainbow.scss?inline";
@@ -19,35 +19,33 @@ export const useTauri = <T>(
     const [data, setData] = useState<T | null>(null);
     const [error, setError] = useState<string | null>(null);
     const events = useMemo(() => (Array.isArray(eventName) ? eventName : [eventName]), [eventName]);
-    let unsubscribe: UnlistenFn | null = null;
 
     useEffect(() => {
+        let cancel = false;
         if (status !== "Loading") {
             for (const eventToSubscribe of events) {
-                listen(eventToSubscribe, () => setStatus("Loading"))
-                    .then((u) => {
-                        unsubscribe = u;
-                    })
-                    .catch((e) => {
-                        setStatus("Error");
-                        setError(e);
-                    });
+                listen(eventToSubscribe, () => setStatus("Loading")).catch((e) => {
+                    if (cancel) return;
+                    setStatus("Error");
+                    setError(e);
+                });
             }
         } else {
             commandFn()
                 .then((data) => {
+                    if (cancel) return;
                     setData(data as T);
                     setStatus("Done");
                 })
                 .catch((e) => {
+                    if (cancel) return;
                     setError(e as string);
                     setStatus("Error");
-                })
-                .finally(() => {
-                    unsubscribe = null;
                 });
         }
-        return () => unsubscribe?.();
+        return () => {
+            cancel = true;
+        };
     }, [status]);
 
     useEffect(() => {

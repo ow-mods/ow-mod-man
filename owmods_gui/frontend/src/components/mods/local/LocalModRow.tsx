@@ -1,5 +1,6 @@
 import { commands, hooks } from "@commands";
-import Icon from "@components/Icon";
+import CenteredSpinner from "@components/common/CenteredSpinner";
+import Icon from "@components/common/Icon";
 import ModActionButton from "@components/mods/ModActionButton";
 import ModHeader from "@components/mods/ModHeader";
 import { useTranslation, useTranslations } from "@hooks";
@@ -54,9 +55,9 @@ const LocalModRow = memo((props: LocalModRowProps) => {
     }, [props.uniqueName, mod?.manifest.name]);
 
     if (status === "Loading" && mod === null) {
-        return <div className="mod-row local center-loading" aria-busy></div>;
+        return <CenteredSpinner className="mod-row local" />;
     } else if (status === "Error") {
-        return <div className="mod-row local center-loading">{err!.toString()}</div>;
+        return <div className="mod-row local center">{err!.toString()}</div>;
     } else {
         const localMod = mod!;
         return (

@@ -1,5 +1,6 @@
 import { commands, hooks } from "@commands";
-import Icon from "@components/Icon";
+import CenteredSpinner from "@components/common/CenteredSpinner";
+import Icon from "@components/common/Icon";
 import ModActionButton from "@components/mods/ModActionButton";
 import ModHeader from "@components/mods/ModHeader";
 import { useTranslation, useTranslations } from "@hooks";
@@ -68,10 +69,10 @@ const RemoteModRow = memo((props: RemoteModRowProps) => {
     }, [props.uniqueName]);
 
     if (status === "Loading" && mod === null) {
-        return <div className="mod-row center-loading" aria-busy style={props.style}></div>;
+        return <CenteredSpinner style={props.style} className="mod-row" />;
     } else if (status === "Error") {
         return (
-            <p className="mod-row center-loading" style={props.style}>
+            <p className="mod-row center" style={props.style}>
                 {err!.toString()}
             </p>
         );
@@ -84,7 +85,7 @@ const RemoteModRow = memo((props: RemoteModRowProps) => {
                 <ModHeader {...remoteMod} subtitle={subtitle}>
                     <small>{formatNumber(remoteMod.downloadCount)}</small>
                     {downloading ? (
-                        <div className="center-loading" aria-busy></div>
+                        <div className="center" aria-busy></div>
                     ) : (
                         <ModActionButton onClick={onInstall} ariaLabel={installTooltip}>
                             <Icon iconType={BsArrowDown} />

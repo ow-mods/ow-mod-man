@@ -1,4 +1,4 @@
-import Icon from "@components/Icon";
+import Icon from "@components/common/Icon";
 import { useTranslation, useTranslations } from "@hooks";
 import { listen } from "@tauri-apps/api/event";
 import { useEffect, useRef, useState } from "react";

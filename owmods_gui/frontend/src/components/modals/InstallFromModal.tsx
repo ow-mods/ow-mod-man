@@ -1,6 +1,6 @@
 import { commands } from "@commands";
-import { OpenFileInput } from "@components/FileInput";
-import Icon from "@components/Icon";
+import { OpenFileInput } from "@components/common/FileInput";
+import Icon from "@components/common/Icon";
 import { useTranslations } from "@hooks";
 import { listen } from "@tauri-apps/api/event";
 import { useEffect, useState } from "react";
@@ -14,14 +14,16 @@ const InstallFromModal = (props: ModalWrapperProps) => {
     const [target, setTarget] = useState<string>("");
     const [prerelease, setPrerelease] = useState<boolean>(false);
 
-    const [install, installFrom, uniqueNameLabel, zip, url, warningText] = useTranslations([
-        "INSTALL",
-        "INSTALL_FROM",
-        "UNIQUE_NAME",
-        "ZIP",
-        "URL",
-        "INSTALL_WARNING"
-    ]);
+    const [install, installFrom, uniqueNameLabel, zip, url, warningText, usePrerelease] =
+        useTranslations([
+            "INSTALL",
+            "INSTALL_FROM",
+            "UNIQUE_NAME",
+            "ZIP",
+            "URL",
+            "INSTALL_WARNING",
+            "USE_PRERELEASE"
+        ]);
 
     const lblMap: Record<SourceType, string> = {
         UNIQUE_NAME: uniqueNameLabel,
@@ -131,7 +133,7 @@ const InstallFromModal = (props: ModalWrapperProps) => {
                             type="checkbox"
                             role="switch"
                         />
-                        Use Prerelease
+                        {usePrerelease}
                     </label>
                 )}
                 {source !== "UNIQUE_NAME" && (

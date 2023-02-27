@@ -35,7 +35,7 @@ $row-border: 1px solid var(--accent-bg);
     padding: $margin-md 0;
 }
 
-.mod-row.local.center-loading {
+.mod-row.local.center {
     padding: $margin-xl 0;
     align-items: center;
 }
@@ -79,7 +79,7 @@ $row-border: 1px solid var(--accent-bg);
     column-gap: $margin;
 }
 
-.mod-actions.center-loading {
+.mod-actions.center {
     align-self: center;
 }
 
@@ -96,13 +96,6 @@ $row-border: 1px solid var(--accent-bg);
     width: 100%;
     display: block;
     padding-right: 6.5em;
-}
-
-.center-loading {
-    height: 100%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
 }
 
 .update-all-button {

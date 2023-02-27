@@ -1,7 +1,7 @@
 import { commands } from "@commands";
 import { SocketMessage, SocketMessageType } from "@types";
 import { CSSProperties, memo, useEffect, useMemo, useRef, useState } from "react";
-import { LogFilter } from "./App";
+import { LogFilter } from "./LogApp";
 
 export interface LogLineProps {
     port: number;

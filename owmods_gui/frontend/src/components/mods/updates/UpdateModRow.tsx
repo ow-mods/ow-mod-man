@@ -1,5 +1,6 @@
 import { commands, hooks } from "@commands";
-import Icon from "@components/Icon";
+import CenteredSpinner from "@components/common/CenteredSpinner";
+import Icon from "@components/common/Icon";
 import { useTranslation } from "@hooks";
 import { memo, useCallback, useMemo, useState } from "react";
 import { BsArrowUp } from "react-icons/bs";
@@ -32,10 +33,10 @@ const UpdateModRow = memo((props: { uniqueName: string }) => {
     }, [props.uniqueName]);
 
     if (status.includes("Loading") && remoteMod === null && localMod === null) {
-        return <div className="mod-row center-loading" aria-busy></div>;
+        return <CenteredSpinner className="mod-row" />;
     } else if (status.includes("Error")) {
         return (
-            <p className="mod-row center-loading">
+            <p className="mod-row center">
                 {err1?.toString() ?? ""} {err2?.toString() ?? ""}
             </p>
         );
@@ -44,7 +45,7 @@ const UpdateModRow = memo((props: { uniqueName: string }) => {
             <div className="mod-row">
                 <ModHeader {...remoteMod!} subtitle={subtitleString}>
                     {updating ? (
-                        <div className="center-loading" aria-busy></div>
+                        <CenteredSpinner />
                     ) : (
                         <ModActionButton onClick={onUpdate} ariaLabel={updateLabel}>
                             <Icon iconType={BsArrowUp} />

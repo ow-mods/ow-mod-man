@@ -1,11 +1,12 @@
 import { commands, hooks } from "@commands";
-import { TranslationContext, TranslationMap } from "@components/TranslationContext";
+import { TranslationContext, TranslationMap } from "@components/common/TranslationContext";
 import { useTheme } from "@hooks";
 import { getCurrent } from "@tauri-apps/api/window";
 import { SocketMessageType, Theme } from "@types";
 import { useEffect, useState } from "react";
-import LogHeader from "./LogHeader";
-import LogList from "./LogList";
+import LogHeader from "@components/logs/LogHeader";
+import LogList from "@components/logs/LogList";
+import CenteredSpinner from "@components/common/CenteredSpinner";
 
 export type LogFilter = keyof typeof SocketMessageType | "Any";
 
@@ -48,7 +49,7 @@ const App = () => {
     const logsLen = hooks.getLogsLength(`GAME-LOG-${port}`, { port })[1];
 
     if (guiConfig === null) {
-        return <div className="center-loading"></div>;
+        return <CenteredSpinner />;
     }
 
     return (

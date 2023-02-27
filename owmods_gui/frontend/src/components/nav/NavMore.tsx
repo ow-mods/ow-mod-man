@@ -1,4 +1,4 @@
-import Icon from "@components/Icon";
+import Icon from "@components/common/Icon";
 import { useTranslation } from "@hooks";
 import { ReactNode } from "react";
 import { HiDotsVertical } from "react-icons/hi";

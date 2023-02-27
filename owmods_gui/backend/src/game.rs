@@ -5,8 +5,13 @@ use std::{
 
 use anyhow::anyhow;
 use anyhow::Result;
-use owmods_core::socket::SocketMessage;
-use tauri::{AppHandle, Window, WindowBuilder};
+use owmods_core::{
+    alerts::{get_warnings, save_warning_shown},
+    config::Config,
+    db::LocalDatabase,
+    socket::SocketMessage,
+};
+use tauri::{api::dialog, AppHandle, Window, WindowBuilder};
 use tempdir::TempDir;
 
 pub async fn make_log_window(handle: &AppHandle, port: u16) -> Result<Window> {
@@ -23,6 +28,16 @@ pub async fn make_log_window(handle: &AppHandle, port: u16) -> Result<Window> {
         .enable_clipboard_access()
         .build()?;
     Ok(window)
+}
+
+pub fn show_warnings(window: &Window, local_db: &LocalDatabase, config: &Config) -> Result<Config> {
+    let warnings = get_warnings(local_db, config)?;
+    let mut config = config.clone();
+    for (unique_name, warning) in warnings {
+        dialog::blocking::message(Some(window), &warning.title, &warning.body);
+        config = save_warning_shown(unique_name, &config)?;
+    }
+    Ok(config)
 }
 
 pub fn write_log(log_dir: &TempDir, msg: SocketMessage) -> Result<()> {

@@ -19,7 +19,7 @@ use tokio::try_join;
 
 use crate::State;
 
-use crate::game::{get_log_from_line, get_log_len, make_log_window, write_log};
+use crate::game::{get_log_from_line, get_log_len, make_log_window, show_warnings, write_log};
 use crate::gui_config::GuiConfig;
 
 fn e_to_str(e: anyhow::Error) -> String {
@@ -374,7 +374,12 @@ pub async fn update_all_mods(
 pub async fn run_game(
     state: tauri::State<'_, State>,
     handle: tauri::AppHandle,
+    window: tauri::Window,
 ) -> Result<(), String> {
+    // We have to clone here to prevent locking everything else while the game is running
+    let config = state.config.read().await.clone();
+    let local_db = state.local_db.read().await;
+    show_warnings(&window, &local_db, &config).map_err(e_to_str)?;
     let log_server = LogServer::new(0).await.map_err(e_to_str)?;
     let port = log_server.port;
     let log_dir =
@@ -397,8 +402,6 @@ pub async fn run_game(
             }
         });
     };
-    // We have to clone here to prevent locking everything else while the game is running
-    let config = state.config.read().await.clone();
     try_join!(
         log_server.listen(&handle_log, true),
         launch_game(&config, &port)

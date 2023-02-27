@@ -163,6 +163,8 @@ enum Commands {
         #[arg(short = 'f', long = "fix-deps", help = "Try to fix dependency issues")]
         fix_deps: bool,
     },
+    #[command(about = "Clear which mod warnings were already shown")]
+    ClearWarnings,
 }
 
 #[derive(Subcommand)]
@@ -429,17 +431,15 @@ async fn run_from_cli(cli: BaseCli) -> Result<()> {
         }
         Commands::Run { force, port } => {
             info!("Attempting to launch game...");
-            if !*force {
-                let local_db = LocalDatabase::fetch(&config)?;
-                if has_errors(&local_db) {
-                    error!("Errors found, refusing to launch");
-                    info!("Run `owmods validate` to see issues");
-                    info!("...or run with -f to launch anyway");
-                    return Ok(());
-                }
+            let local_db = LocalDatabase::fetch(&config)?;
+            if !*force && has_errors(&local_db) {
+                error!("Errors found, refusing to launch");
+                info!("Run `owmods validate` to see issues");
+                info!("...or run with -f to launch anyway");
+                return Ok(());
             }
             if cfg!(windows) || config.wine_prefix.is_some() {
-                start_game(&config, port).await?;
+                start_game(&local_db, &config, port).await?;
             } else {
                 info!("Hey there! Before you can run the game we'll need to setup a wine prefix.",);
                 info!("You can either set wine_prefix in ~/.local/share/ow-mod-man/settings.json.",);
@@ -453,7 +453,7 @@ async fn run_from_cli(cli: BaseCli) -> Result<()> {
                     debug!("Begin creating wine prefix");
                     let new_conf = setup_wine_prefix(&config).await?;
                     info!("Success! Launching the game now...");
-                    start_game(&new_conf, port).await?;
+                    start_game(&local_db, &new_conf, port).await?;
                 }
             }
         }
@@ -498,6 +498,12 @@ async fn run_from_cli(cli: BaseCli) -> Result<()> {
             } else {
                 info!("No issues found!");
             }
+        }
+        Commands::ClearWarnings => {
+            let mut new_config = config.clone();
+            new_config.viewed_alerts = vec![];
+            new_config.save()?;
+            info!("Warnings Cleared");
         }
     }
     Ok(())

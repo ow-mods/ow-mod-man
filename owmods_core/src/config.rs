@@ -14,6 +14,7 @@ pub struct Config {
     pub wine_prefix: Option<String>,
     pub database_url: String,
     pub alert_url: String,
+    pub viewed_alerts: Vec<String>,
 }
 
 impl Default for Config {
@@ -25,6 +26,7 @@ impl Default for Config {
             alert_url: String::from(
                 "https://raw.githubusercontent.com/ow-mods/ow-mod-db/source/alert.json",
             ),
+            viewed_alerts: vec![],
         }
     }
 }

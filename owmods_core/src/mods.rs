@@ -108,6 +108,15 @@ pub struct ModManifest {
     pub dependencies: Option<Vec<String>>,
     pub conflicts: Option<Vec<String>>,
     pub paths_to_preserve: Option<Vec<String>>,
+    pub warning: Option<ModWarning>,
+}
+
+#[typeshare]
+#[derive(Serialize, Deserialize, Clone)]
+#[serde(rename_all = "camelCase")]
+pub struct ModWarning {
+    pub title: String,
+    pub body: String,
 }
 
 #[derive(Serialize, Deserialize)]

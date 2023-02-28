@@ -44,7 +44,7 @@ const AboutModal = (props: ModalWrapperProps) => {
                         {gitHub}
                     </a>
                     <a
-                        onClick={() => shell.open("https://discord.gg/wusTQYbYTc")}
+                        onClick={() => shell.open("https://discord.gg/outerwildsmodding")}
                         href="#"
                         role="button"
                         className="fix-icons"

@@ -5,7 +5,8 @@ import {
     BsInfoCircleFill,
     BsArrowRepeat,
     BsBoxArrowInDown,
-    BsFilterLeft
+    BsFilterLeft,
+    BsBoxArrowUpRight
 } from "react-icons/bs";
 
 import NavButton from "@components/nav/NavButton";
@@ -19,11 +20,24 @@ import AboutModal from "@components/modals/AboutModal";
 import Downloads from "../downloads/Downloads";
 import { useTranslations } from "@hooks";
 import { commands } from "@commands";
+import { dialog } from "@tauri-apps/api";
 
 const Nav = () => {
     const openSettings = useRef<() => void>(() => null);
     const openInstallFrom = useRef<() => void>(() => null);
     const openAbout = useRef<() => void>(() => null);
+
+    const [refresh, runGame, help, settings, installFrom, about, exportLabel, logs] =
+        useTranslations([
+            "REFRESH",
+            "RUN_GAME",
+            "HELP",
+            "SETTINGS",
+            "INSTALL_FROM",
+            "ABOUT",
+            "EXPORT_MODS",
+            "LOGS"
+        ]);
 
     const onRefresh = useCallback(() => {
         commands.refreshLocalDb().catch(console.warn);
@@ -34,15 +48,23 @@ const Nav = () => {
         commands.runGame().catch(console.warn);
     }, []);
 
-    const [refresh, runGame, help, settings, installFrom, about, logs] = useTranslations([
-        "REFRESH",
-        "RUN_GAME",
-        "HELP",
-        "SETTINGS",
-        "INSTALL_FROM",
-        "ABOUT",
-        "LOGS"
-    ]);
+    const onExport = useCallback(() => {
+        dialog
+            .save({
+                title: exportLabel,
+                filters: [
+                    {
+                        name: "JSON File",
+                        extensions: ["json"]
+                    }
+                ]
+            })
+            .then((path) => {
+                if (path) {
+                    commands.exportMods({ path }).catch(console.error);
+                }
+            });
+    }, [exportLabel]);
 
     return (
         <IconContext.Provider value={{ className: "nav-icon" }}>
@@ -72,6 +94,9 @@ const Nav = () => {
                         </NavButton>
                         <NavButton onClick={() => openInstallFrom.current?.()}>
                             ...{installFrom} <Icon iconType={BsBoxArrowInDown} />
+                        </NavButton>
+                        <NavButton onClick={onExport}>
+                            {exportLabel} <Icon iconType={BsBoxArrowUpRight} />
                         </NavButton>
                         <NavButton onClick={() => openAbout.current?.()}>
                             {about} <Icon iconType={BsInfoCircleFill} />

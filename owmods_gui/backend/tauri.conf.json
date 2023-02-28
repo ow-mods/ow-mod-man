@@ -14,7 +14,8 @@
       "dialog": {
         "confirm": true,
         "open": true,
-        "message": true
+        "message": true,
+        "save": true
       },
       "app": {
         "all": true,

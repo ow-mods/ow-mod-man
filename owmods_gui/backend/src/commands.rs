@@ -1,3 +1,5 @@
+use std::fs::File;
+use std::io::{BufWriter, Write};
 use std::path::{Path, PathBuf};
 
 use owmods_core::config::Config;
@@ -465,4 +467,15 @@ pub async fn get_game_message(
     } else {
         Err("Log File Not Found".to_string())
     }
+}
+
+#[tauri::command]
+pub async fn export_mods(path: String, state: tauri::State<'_, State>) -> Result<(), String> {
+    let path = PathBuf::from(path);
+    let local_db = state.local_db.read().await;
+    let output = owmods_core::io::export_mods(&local_db).map_err(e_to_str)?;
+    let file = File::create(path).map_err(|e| format!("Error Saving File: {:?}", e))?;
+    let mut writer = BufWriter::new(file);
+    write!(&mut writer, "{}", output).map_err(|e| format!("Error Saving File: {:?}", e))?;
+    Ok(())
 }

@@ -78,6 +78,7 @@ fn main() -> Result<(), Box<dyn Error>> {
             run_game,
             stop_logging,
             get_game_message,
+            export_mods
         ])
         .run(tauri::generate_context!())
         .expect("Error while running tauri application.");

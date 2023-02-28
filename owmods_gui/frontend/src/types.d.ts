@@ -7,6 +7,7 @@ export interface Config {
     winePrefix?: string;
     databaseUrl: string;
     alertUrl: string;
+    viewedAlerts: string[];
 }
 
 export interface RemoteMod {
@@ -54,6 +55,12 @@ export interface ModManifest {
     dependencies?: string[];
     conflicts?: string[];
     pathsToPreserve?: string[];
+    warning?: ModWarning;
+}
+
+export interface ModWarning {
+    title: string;
+    body: string;
 }
 
 export interface OWMLConfig {

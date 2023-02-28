@@ -62,16 +62,21 @@ export const useTauriCount = (incEvent: string, decEvent: string, initial?: numb
 
     const countRef = useRef(initial ?? 0);
 
-    const incCount = () => setCount(countRef.current + 1);
-    const decCount = () => setCount(countRef.current - 1);
-
     useEffect(() => {
-        countRef.current = count;
-    }, [count]);
-
-    useEffect(() => {
-        listen(incEvent, incCount).catch(console.warn);
-        listen(decEvent, decCount).catch(console.warn);
+        let cancel = false;
+        listen(incEvent, () => {
+            if (cancel) return;
+            countRef.current++;
+            setCount(countRef.current);
+        }).catch(console.warn);
+        listen(decEvent, () => {
+            if (cancel) return;
+            countRef.current--;
+            setCount(countRef.current);
+        }).catch(console.warn);
+        return () => {
+            cancel = true;
+        };
     }, []);
 
     return count;

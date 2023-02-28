@@ -59,9 +59,9 @@ const DownloadsPopout = () => {
 
     const downloadsRef = useRef(downloads);
 
-    useEffect(() => {
-        downloadsRef.current = downloads;
-    }, [downloads]);
+    // useEffect(() => {
+    //     downloadsRef.current = downloads;
+    // }, [downloads]);
 
     useEffect(() => {
         // Necessary evil, can't unsubscribe bc everything is async
@@ -73,7 +73,11 @@ const DownloadsPopout = () => {
                 if (data.id in downloadsRef.current) {
                     delete downloadsRef.current[data.id];
                 }
-                setDownloads({ ...downloadsRef.current, [data.id]: { ...data, progress: 0 } });
+                downloadsRef.current = {
+                    ...downloadsRef.current,
+                    [data.id]: { ...data, progress: 0 }
+                };
+                setDownloads(downloadsRef.current);
             }
         }).catch(console.warn);
         listen("PROGRESS-INCREMENT", (e) => {
@@ -82,7 +86,8 @@ const DownloadsPopout = () => {
             const current = downloadsRef.current[payload.id];
             if (current) {
                 current.progress = payload.progress;
-                setDownloads({ ...downloadsRef.current, [current.id]: current });
+                downloadsRef.current = { ...downloadsRef.current, [current.id]: current };
+                setDownloads(downloadsRef.current);
             }
         }).catch(console.warn);
         listen("PROGRESS-MESSAGE", (e) => {
@@ -91,7 +96,8 @@ const DownloadsPopout = () => {
             const current = downloadsRef.current[payload.id];
             if (current) {
                 current.msg = payload.msg;
-                setDownloads({ ...downloadsRef.current, [current.id]: current });
+                downloadsRef.current = { ...downloadsRef.current, [current.id]: current };
+                setDownloads(downloadsRef.current);
             }
         }).catch(console.warn);
         listen("PROGRESS-FINISH", (e) => {
@@ -100,7 +106,8 @@ const DownloadsPopout = () => {
             const current = downloadsRef.current[payload.id];
             if (current && current.progressAction === "Extract") {
                 current.msg = payload.msg;
-                setDownloads({ ...downloadsRef.current, [current.id]: current });
+                downloadsRef.current = { ...downloadsRef.current, [current.id]: current };
+                setDownloads(downloadsRef.current);
             }
         }).catch(console.warn);
         return () => {

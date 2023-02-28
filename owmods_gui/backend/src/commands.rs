@@ -13,6 +13,7 @@ use owmods_core::remove::remove_mod;
 use owmods_core::socket::{LogServer, SocketMessage};
 use owmods_core::updates::{check_mod_needs_update, update_all};
 use rust_fuzzy_search::fuzzy_compare;
+use tauri::api::dialog;
 use tauri::Manager;
 use tempdir::TempDir;
 use tokio::try_join;
@@ -156,13 +157,25 @@ pub async fn toggle_mod(
 pub async fn install_mod(
     unique_name: &str,
     prerelease: Option<bool>,
-    handle: tauri::AppHandle,
+    window: tauri::Window,
     state: tauri::State<'_, State>,
 ) -> Result<(), String> {
-    handle.emit_all("INSTALL-START", unique_name).ok();
     let local_db = state.local_db.read().await;
     let remote_db = state.remote_db.read().await;
     let conf = state.config.read().await;
+    if let Some(current_mod) = local_db.mods.get(unique_name) {
+        let res = dialog::blocking::confirm(
+            Some(&window),
+            "Reinstall?",
+            format!(
+                "{} is already installed, reinstall it?",
+                current_mod.manifest.name
+            ),
+        );
+        if !res {
+            return Ok(());
+        }
+    }
     install_mod_from_db(
         &unique_name.to_string(),
         &conf,
@@ -173,7 +186,6 @@ pub async fn install_mod(
     )
     .await
     .map_err(e_to_str)?;
-    handle.emit_all("INSTALL-FINISH", unique_name).ok();
     Ok(())
 }
 

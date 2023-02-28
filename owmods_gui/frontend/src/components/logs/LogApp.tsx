@@ -7,6 +7,7 @@ import { useEffect, useState } from "react";
 import LogHeader from "@components/logs/LogHeader";
 import LogList from "@components/logs/LogList";
 import CenteredSpinner from "@components/common/CenteredSpinner";
+import { listen } from "@tauri-apps/api/event";
 
 export type LogFilter = keyof typeof SocketMessageType | "Any";
 
@@ -16,16 +17,20 @@ const port = parseInt(thisWindow.label.split("-")[1]);
 
 let unlisten: () => void = () => null;
 
-unlisten = await thisWindow.onCloseRequested((e) => {
-    e.preventDefault();
-    commands
-        .stopLogging({ port })
-        .catch(console.warn)
-        .finally(() => {
-            unlisten();
-            thisWindow.close();
-        });
-});
+thisWindow
+    .onCloseRequested((e) => {
+        e.preventDefault();
+        commands
+            .stopLogging({ port })
+            .catch(console.warn)
+            .finally(() => {
+                unlisten();
+                thisWindow.close();
+            });
+    })
+    .then((u) => {
+        unlisten = u;
+    });
 
 const App = () => {
     const [activeFilter, setActiveFilter] = useState<LogFilter>("Any");
@@ -46,7 +51,18 @@ const App = () => {
             .catch(console.warn);
     }, [guiConfig?.language]);
 
-    const logsLen = hooks.getLogsLength(`GAME-LOG-${port}`, { port })[1];
+    const [logsLen, setLogsLen] = useState(0);
+
+    useEffect(() => {
+        let cancel = false;
+        listen(`GAME-LOG-${port}`, (e) => {
+            if (cancel) return;
+            setLogsLen(e.payload as number);
+        });
+        return () => {
+            cancel = true;
+        };
+    });
 
     if (guiConfig === null) {
         return <CenteredSpinner />;

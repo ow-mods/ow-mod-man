@@ -50,12 +50,6 @@ pub fn write_log(log_dir: &TempDir, msg: SocketMessage) -> Result<()> {
     Ok(())
 }
 
-pub fn get_log_len(log_dir: &TempDir) -> Result<usize> {
-    let log_file = File::open(log_dir.path().join("log.txt"))?;
-    let buffer = BufReader::new(log_file);
-    Ok(buffer.lines().count() - 1)
-}
-
 pub fn get_log_from_line(log_dir: &TempDir, line: usize) -> Result<SocketMessage> {
     let log_file = File::open(log_dir.path().join("log.txt"))?;
     let buffer = BufReader::new(log_file);

@@ -25,7 +25,6 @@ const commandInfo = {
     getUpdatableMods: $<GetCommand<string[]>>("get_updatable_mods"),
     getLocalMod: $<ModCommand<LocalMod>>("get_local_mod"),
     getRemoteMod: $<ModCommand<RemoteMod>>("get_remote_mod"),
-    getLogsLength: $<CommandInfo<{ port: number }, number>>("get_logs_length"),
     getLogLine: $<CommandInfo<{ port: number; line: number }, SocketMessage>>("get_game_message"),
     toggleMod: $<ActionCommand<{ uniqueName: string; enabled: boolean }>>("toggle_mod"),
     openModFolder: $<ModAction>("open_mod_folder"),

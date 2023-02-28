@@ -22,7 +22,7 @@ mod game;
 mod gui_config;
 mod logging;
 
-type LogMessages = HashMap<u16, TempDir>;
+type LogMessages = HashMap<u16, (usize, TempDir)>;
 
 pub struct State {
     local_db: Arc<TokioLock<LocalDatabase>>,
@@ -77,7 +77,6 @@ fn main() -> Result<(), Box<dyn Error>> {
             run_game,
             stop_logging,
             get_game_message,
-            get_logs_length
         ])
         .run(tauri::generate_context!())
         .expect("Error while running tauri application.");

@@ -24,6 +24,7 @@
     "SETTINGS": "Settings",
     "SAVE": "Save",
     "GENERAL_SETTINGS": "General Settings",
+    "JSON": "JSON File",
     "DB_URL": "Database URL",
     "ALERT_URL": "Alert URL",
     "OWML_PATH": "OWML Path",

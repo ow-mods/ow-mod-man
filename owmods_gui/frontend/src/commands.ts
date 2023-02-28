@@ -43,7 +43,8 @@ const commandInfo = {
     updateAll: $<ActionCommand<{ uniqueNames: string[] }>>("update_all_mods"),
     runGame: $<EmptyCommand>("run_game"),
     stopLogging: $<ActionCommand<{ port: number }>>("stop_logging"),
-    exportMods: $<ActionCommand<{ path: string }>>("export_mods")
+    exportMods: $<ActionCommand<{ path: string }>>("export_mods"),
+    importMods: $<ActionCommand<{ path: string }>>("import_mods")
 };
 
 type Command = keyof typeof commandInfo;

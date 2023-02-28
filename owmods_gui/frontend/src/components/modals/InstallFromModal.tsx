@@ -7,18 +7,19 @@ import { useEffect, useState } from "react";
 import { BsExclamationTriangleFill } from "react-icons/bs";
 import Modal, { ModalWrapperProps } from "./Modal";
 
-type SourceType = "UNIQUE_NAME" | "URL" | "ZIP";
+type SourceType = "UNIQUE_NAME" | "URL" | "ZIP" | "JSON";
 
 const InstallFromModal = (props: ModalWrapperProps) => {
     const [source, setSource] = useState<SourceType>("UNIQUE_NAME");
     const [target, setTarget] = useState<string>("");
     const [prerelease, setPrerelease] = useState<boolean>(false);
 
-    const [install, installFrom, uniqueNameLabel, zip, url, warningText, usePrerelease] =
+    const [install, installFrom, uniqueNameLabel, jsonLabel, zip, url, warningText, usePrerelease] =
         useTranslations([
             "INSTALL",
             "INSTALL_FROM",
             "UNIQUE_NAME",
+            "JSON",
             "ZIP",
             "URL",
             "INSTALL_WARNING",
@@ -28,7 +29,8 @@ const InstallFromModal = (props: ModalWrapperProps) => {
     const lblMap: Record<SourceType, string> = {
         UNIQUE_NAME: uniqueNameLabel,
         URL: url,
-        ZIP: zip
+        ZIP: zip,
+        JSON: jsonLabel
     };
 
     const onInstall = () => {
@@ -51,6 +53,11 @@ const InstallFromModal = (props: ModalWrapperProps) => {
                     .then(() => commands.refreshLocalDb())
                     .catch(console.error);
                 break;
+            case "JSON":
+                commands
+                    .importMods({ path: target })
+                    .then(() => commands.refreshLocalDb())
+                    .catch(console.error);
         }
     };
 
@@ -92,21 +99,22 @@ const InstallFromModal = (props: ModalWrapperProps) => {
                         id="source"
                     >
                         <option value="UNIQUE_NAME">{uniqueNameLabel}</option>
+                        <option value="JSON">{jsonLabel}</option>
                         <option value="URL">{url}</option>
                         <option value="ZIP">{zip}</option>
                     </select>
                 </label>
-                {source === "ZIP" ? (
+                {source === "ZIP" || source === "JSON" ? (
                     <OpenFileInput
-                        id="ZIP"
+                        id={source}
                         value={target}
                         onChange={setTarget}
                         dialogOptions={{
                             title: installFrom,
                             filters: [
                                 {
-                                    name: zip,
-                                    extensions: ["zip"]
+                                    name: lblMap[source],
+                                    extensions: [source === "ZIP" ? "zip" : "json"]
                                 }
                             ],
                             directory: false,
@@ -136,7 +144,7 @@ const InstallFromModal = (props: ModalWrapperProps) => {
                         {usePrerelease}
                     </label>
                 )}
-                {source !== "UNIQUE_NAME" && (
+                {(source === "ZIP" || source === "URL") && (
                     <p className="install-warning">
                         <Icon iconType={BsExclamationTriangleFill} />
                         {warningText}

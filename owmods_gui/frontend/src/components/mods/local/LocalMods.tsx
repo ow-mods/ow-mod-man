@@ -27,12 +27,14 @@ const LocalMods = memo(() => {
     } else {
         return (
             <>
-                <div className="local-mods-buttons">
-                    <button onClick={() => onToggleAll(false)} className="secondary">
-                        {disableAll}
-                    </button>
-                    <button onClick={() => onToggleAll(true)}>{enableAll}</button>
-                </div>
+                {mods!.length !== 0 && (
+                    <div className="local-mods-buttons">
+                        <button onClick={() => onToggleAll(false)} className="secondary">
+                            {disableAll}
+                        </button>
+                        <button onClick={() => onToggleAll(true)}>{enableAll}</button>
+                    </div>
+                )}
                 <div className="mod-list">
                     {mods!.length === 0 && <p className="center muted">{noMods}</p>}
                     {mods!.map((m) => (

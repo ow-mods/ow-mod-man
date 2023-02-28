@@ -479,3 +479,15 @@ pub async fn export_mods(path: String, state: tauri::State<'_, State>) -> Result
     write!(&mut writer, "{}", output).map_err(|e| format!("Error Saving File: {:?}", e))?;
     Ok(())
 }
+
+#[tauri::command]
+pub async fn import_mods(path: String, state: tauri::State<'_, State>) -> Result<(), String> {
+    let local_db = state.local_db.read().await;
+    let remote_db = state.remote_db.read().await;
+    let config = state.config.read().await;
+    let path = PathBuf::from(path);
+    owmods_core::io::import_mods(&config, &local_db, &remote_db, &path, false)
+        .await
+        .map_err(e_to_str)?;
+    Ok(())
+}

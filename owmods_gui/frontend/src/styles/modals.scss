@@ -8,6 +8,7 @@ dialog article {
 }
 
 dialog article header {
+    background-color: var(--accent-bg);
     margin-bottom: $margin-xl;
     padding: $margin-lg;
     display: flex;
@@ -20,7 +21,7 @@ dialog article div.modal-body {
     flex-grow: 1;
     overflow-x: hidden;
     overflow-y: auto;
-    padding-right: $margin-md;
+    padding: 0 $margin-md;
 }
 
 dialog article footer {

@@ -1,8 +1,18 @@
+@import "pico.scss";
 @import "vars.scss";
+
+html {
+    overflow: hidden;
+}
 
 body {
     -webkit-user-select: none;
     user-select: none;
+}
+
+summary::marker,
+summary::-webkit-details-marker {
+    display: none !important;
 }
 
 .container {
@@ -16,6 +26,7 @@ body {
 .fix-icons {
     display: flex;
     align-items: center;
+    align-content: center;
 }
 
 .center {
@@ -47,17 +58,6 @@ button:hover {
     background-color: var(--button-bg-hover);
 }
 
-input::-webkit-file-upload-button {
-    background-color: var(--button-bg) !important;
-    border: none !important;
-    padding: $margin $margin-md !important;
-    margin-right: $margin !important;
-}
-
-input::-webkit-file-upload-button:hover {
-    background-color: var(--button-bg-hover) !important;
-}
-
 a[role="button"].secondary,
 button.secondary {
     background-color: var(--secondary-button-bg);
@@ -68,27 +68,11 @@ button.secondary:hover {
     background-color: var(--secondary-button-bg-hover);
 }
 
-.file-input-row {
-    display: grid;
-    grid-template-columns: 0.8fr 0.2fr;
-}
-
-.file-input-row .browse-button {
-    display: flex;
-    align-content: center;
-    justify-content: center;
-    height: 93%;
-    margin-left: $margin;
-}
-
-.file-input-row .browse-button svg {
-    margin-right: $margin;
-}
-
 .muted {
     color: var(--primary-muted);
 }
 
+@import "files.scss";
 @import "nav.scss";
 @import "tabs.scss";
 @import "mods.scss";

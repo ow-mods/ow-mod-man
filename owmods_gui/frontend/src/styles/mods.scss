@@ -102,3 +102,10 @@ $row-border: 1px solid var(--accent-bg);
     margin-top: $margin-md;
     margin-bottom: $margin-sm;
 }
+
+.local-mods-buttons {
+    margin-top: $margin-md;
+    display: flex;
+    flex-direction: row;
+    column-gap: $margin;
+}

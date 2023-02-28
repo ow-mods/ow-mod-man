@@ -17,6 +17,8 @@
     "CANCEL": "Cancel",
     "OK": "Ok",
     "CONFIRM": "Confirm",
+    "ENABLE_ALL": "Enable All",
+    "DISABLE_ALL": "Disable All",
     "BROWSE": "Browse",
     "SETTINGS": "Settings",
     "SAVE": "Save",

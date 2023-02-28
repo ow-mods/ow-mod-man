@@ -58,6 +58,7 @@ fn main() -> Result<(), Box<dyn Error>> {
             get_remote_mod,
             open_mod_folder,
             toggle_mod,
+            toggle_all,
             uninstall_mod,
             install_mod,
             install_url,

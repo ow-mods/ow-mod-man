@@ -27,6 +27,7 @@ const commandInfo = {
     getRemoteMod: $<ModCommand<RemoteMod>>("get_remote_mod"),
     getLogLine: $<CommandInfo<{ port: number; line: number }, SocketMessage>>("get_game_message"),
     toggleMod: $<ActionCommand<{ uniqueName: string; enabled: boolean }>>("toggle_mod"),
+    toggleAll: $<ActionCommand<{ enabled: boolean }>>("toggle_all"),
     openModFolder: $<ModAction>("open_mod_folder"),
     openModReadme: $<ModAction>("open_mod_readme"),
     uninstallMod: $<ModAction>("uninstall_mod"),

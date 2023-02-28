@@ -154,6 +154,16 @@ pub async fn toggle_mod(
 }
 
 #[tauri::command]
+pub async fn toggle_all(enabled: bool, state: tauri::State<'_, State>) -> Result<(), String> {
+    let local_db = state.local_db.read().await;
+    for local_mod in local_db.mods.values() {
+        let mod_path = PathBuf::from(&local_mod.mod_path);
+        owmods_core::toggle::toggle_mod(&mod_path, &local_db, enabled, false).map_err(e_to_str)?;
+    }
+    Ok(())
+}
+
+#[tauri::command]
 pub async fn install_mod(
     unique_name: &str,
     prerelease: Option<bool>,

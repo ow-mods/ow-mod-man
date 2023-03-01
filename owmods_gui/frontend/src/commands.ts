@@ -20,7 +20,7 @@ const commandInfo = {
     getConfig: $<GetCommand<Config>>("get_config"),
     getGuiConfig: $<GetCommand<GuiConfig>>("get_gui_config"),
     getOwmlConfig: $<GetCommand<OWMLConfig>>("get_owml_config"),
-    getLocalMods: $<GetCommand<string[]>>("get_local_mods"),
+    getLocalMods: $<CommandInfo<{ filter: string }, string[]>>("get_local_mods"),
     getRemoteMods: $<CommandInfo<{ filter: string }, string[]>>("get_remote_mods"),
     getUpdatableMods: $<GetCommand<string[]>>("get_updatable_mods"),
     getLocalMod: $<ModCommand<LocalMod>>("get_local_mod"),

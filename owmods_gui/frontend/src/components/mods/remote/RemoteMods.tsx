@@ -55,7 +55,7 @@ const RemoteMods = memo(() => {
         <>
             <input
                 placeholder={searchLabel}
-                className="mod-search"
+                className="remote-mod-search"
                 id="searchRemote"
                 value={tempFilter}
                 onChange={(e) => onChangeFilter(e.target.value)}

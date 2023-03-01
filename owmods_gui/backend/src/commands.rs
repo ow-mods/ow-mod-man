@@ -31,6 +31,30 @@ fn e_to_str(e: anyhow::Error) -> String {
 
 const SEARCH_THRESHOLD: f32 = 0.04;
 
+fn search<'a, T>(
+    source_list: Vec<&'a T>,
+    filter: &str,
+    get_values: impl Fn(&T) -> Vec<String>,
+) -> Vec<&'a T> {
+    let mut scores: Vec<(&T, f32)> = source_list
+        .into_iter()
+        .filter_map(|m| {
+            let mut final_score: Option<f32> = None;
+            for search in get_values(m).iter() {
+                let score = fuzzy_compare(search, filter);
+                if (score >= SEARCH_THRESHOLD || search.contains(filter))
+                    && score > final_score.unwrap_or(0.0)
+                {
+                    final_score = Some(score);
+                }
+            }
+            final_score.map(|score| (m, score))
+        })
+        .collect();
+    scores.sort_by(|(_, a), (_, b)| b.total_cmp(a));
+    scores.iter().map(|(m, _)| *m).collect()
+}
+
 #[tauri::command]
 pub async fn refresh_local_db(
     handle: tauri::AppHandle,
@@ -47,10 +71,23 @@ pub async fn refresh_local_db(
 }
 
 #[tauri::command]
-pub async fn get_local_mods(state: tauri::State<'_, State>) -> Result<Vec<String>, ()> {
+pub async fn get_local_mods(
+    filter: &str,
+    state: tauri::State<'_, State>,
+) -> Result<Vec<String>, ()> {
     let db = state.local_db.read().await;
     let mut mods: Vec<&LocalMod> = db.mods.values().collect();
-    mods.sort_by(|a, b| a.manifest.name.cmp(&b.manifest.name));
+    if filter.is_empty() {
+        mods.sort_by(|a, b| a.manifest.name.cmp(&b.manifest.name));
+    } else {
+        mods = search(mods, &filter.to_ascii_lowercase(), |m| {
+            vec![
+                m.manifest.name.to_ascii_lowercase(),
+                m.manifest.author.to_ascii_lowercase(),
+                m.manifest.unique_name.to_ascii_lowercase(),
+            ]
+        });
+    }
     Ok(mods
         .into_iter()
         .map(|m| m.manifest.unique_name.clone())
@@ -94,28 +131,14 @@ pub async fn get_remote_mods(
     if filter.is_empty() {
         mods.sort_by(|a, b| b.download_count.cmp(&a.download_count));
     } else {
-        let mut scores: Vec<(&RemoteMod, f32)> = mods
-            .into_iter()
-            .filter_map(|m| {
-                let filter = filter.to_ascii_lowercase();
-                let name = m.name.to_ascii_lowercase();
-                let author = m.get_author().to_ascii_lowercase();
-                let description = m.description.to_ascii_lowercase();
-                let to_search = [name, author, description];
-                let mut final_score: Option<f32> = None;
-                for search in to_search {
-                    let score = fuzzy_compare(&search, &filter);
-                    if (score >= SEARCH_THRESHOLD || search.contains(&filter))
-                        && score > final_score.unwrap_or(0.0)
-                    {
-                        final_score = Some(score);
-                    }
-                }
-                final_score.map(|score| (m, score))
-            })
-            .collect();
-        scores.sort_by(|(_, a), (_, b)| b.total_cmp(a));
-        mods = scores.into_iter().map(|(m, _)| m).collect();
+        mods = search(mods, &filter.to_ascii_lowercase(), |m| {
+            vec![
+                m.unique_name.to_ascii_lowercase(),
+                m.name.to_ascii_lowercase(),
+                m.author.to_ascii_lowercase(),
+                m.description.to_ascii_lowercase(),
+            ]
+        });
     }
     Ok(mods.into_iter().map(|m| m.unique_name.clone()).collect())
 }

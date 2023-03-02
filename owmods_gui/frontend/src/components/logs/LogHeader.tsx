@@ -4,18 +4,21 @@ import { memo } from "react";
 import { LogFilter } from "./LogApp";
 
 export interface LogHeaderProps {
+    logsLen: number;
     activeFilter: LogFilter;
     setActiveFilter: (filter: LogFilter) => void;
     autoScroll: boolean;
     setAutoScroll: (newValue: boolean) => void;
+    onClear: () => void;
 }
 
 const LogHeader = memo(
     (props: LogHeaderProps) => {
-        const [filterLabel, autoScrollLabel, anyLabel] = useTranslations([
+        const [filterLabel, autoScrollLabel, anyLabel, clearLabel] = useTranslations([
             "FILTER",
             "AUTO_SCROLL",
-            "ANY"
+            "ANY",
+            "CLEAR_LOGS"
         ]);
 
         const filterTranslations = useTranslations(Object.keys(SocketMessageType));
@@ -57,12 +60,21 @@ const LogHeader = memo(
                             onChange={(e) => props.setAutoScroll(e.target.checked)}
                         />
                     </label>
+                    <a
+                        href={props.logsLen === 0 ? undefined : "#"}
+                        role="button"
+                        onClick={() => props.onClear()}
+                    >
+                        {clearLabel}
+                    </a>
                 </div>
             </>
         );
     },
     (current, next) =>
-        current.activeFilter === next.activeFilter && current.autoScroll === next.autoScroll
+        current.activeFilter === next.activeFilter &&
+        current.autoScroll === next.autoScroll &&
+        current.logsLen === next.logsLen
 );
 
 export default LogHeader;

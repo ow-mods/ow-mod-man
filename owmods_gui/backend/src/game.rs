@@ -13,6 +13,7 @@ use owmods_core::{
 };
 use tauri::{api::dialog, AppHandle, Window, WindowBuilder};
 use tempdir::TempDir;
+use tokio::fs::remove_file;
 
 pub async fn make_log_window(handle: &AppHandle, port: u16) -> Result<Window> {
     let label = format!("game-{port}");
@@ -59,4 +60,9 @@ pub fn get_log_from_line(log_dir: &TempDir, line: usize) -> Result<SocketMessage
         .ok_or_else(|| anyhow!("Line Not In File"))??;
     let msg = serde_json::from_str::<SocketMessage>(&line)?;
     Ok(msg)
+}
+
+pub async fn clear_game_logs(log_dir: &TempDir) -> Result<()> {
+    remove_file(log_dir.path().join("log.txt")).await?;
+    Ok(())
 }

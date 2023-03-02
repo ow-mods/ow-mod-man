@@ -40,6 +40,13 @@ const LogList = memo((props: LogListProps) => {
         }
     }, [props.logsLen, logSizes.current]);
 
+    useEffect(() => {
+        if (props.logsLen === 0) {
+            logSizes.current = {};
+            logMemory.current = {};
+        }
+    }, [props.logsLen]);
+
     const onScroll = useCallback((data: ListOnItemsRenderedProps) => {
         const len = Object.keys(logMemory).length;
         if (len > MEMOIZATION_RANGE) {

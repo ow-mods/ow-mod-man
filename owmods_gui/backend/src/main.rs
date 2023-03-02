@@ -77,6 +77,7 @@ fn main() -> Result<(), Box<dyn Error>> {
             update_mod,
             update_all_mods,
             run_game,
+            clear_logs,
             stop_logging,
             get_game_message,
             export_mods,

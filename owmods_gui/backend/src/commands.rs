@@ -22,7 +22,7 @@ use tokio::try_join;
 
 use crate::State;
 
-use crate::game::{get_log_from_line, make_log_window, show_warnings, write_log};
+use crate::game::{clear_game_logs, get_log_from_line, make_log_window, show_warnings, write_log};
 use crate::gui_config::GuiConfig;
 
 fn e_to_str(e: anyhow::Error) -> String {
@@ -472,6 +472,16 @@ pub async fn run_game(
         launch_game(&config, &port)
     )
     .map_err(|e| format!("Can't Start Game: {:?}", e))?;
+    Ok(())
+}
+
+#[tauri::command]
+pub async fn clear_logs(port: u16, state: tauri::State<'_, State>) -> Result<(), String> {
+    let map = state.log_files.read().await;
+    let dir = map.get(&port);
+    if let Some((_, dir)) = dir {
+        clear_game_logs(dir).await.map_err(e_to_str)?;
+    }
     Ok(())
 }
 

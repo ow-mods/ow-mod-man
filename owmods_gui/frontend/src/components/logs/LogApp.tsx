@@ -3,7 +3,7 @@ import { TranslationContext, TranslationMap } from "@components/common/Translati
 import { useTheme } from "@hooks";
 import { getCurrent } from "@tauri-apps/api/window";
 import { SocketMessageType, Theme } from "@types";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import LogHeader from "@components/logs/LogHeader";
 import LogList from "@components/logs/LogList";
 import CenteredSpinner from "@components/common/CenteredSpinner";
@@ -53,6 +53,10 @@ const App = () => {
 
     const [logsLen, setLogsLen] = useState(0);
 
+    const onClear = useCallback(() => {
+        commands.clearLogs({ port }).then(() => setLogsLen(0));
+    }, []);
+
     useEffect(() => {
         let cancel = false;
         listen(`GAME-LOG-${port}`, (e) => {
@@ -72,10 +76,12 @@ const App = () => {
         <TranslationContext.Provider value={guiConfig!.language}>
             <main className="logs container">
                 <LogHeader
+                    logsLen={logsLen}
                     autoScroll={autoScroll}
                     setAutoScroll={setAutoScroll}
                     activeFilter={activeFilter}
                     setActiveFilter={setActiveFilter}
+                    onClear={onClear}
                 />
                 <LogList
                     autoScroll={autoScroll}

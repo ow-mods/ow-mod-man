@@ -35,6 +35,13 @@ $log-border: 1px solid var(--accent-bg);
     margin-left: $margin;
 }
 
+.log-actions > a[role="button"] {
+    height: fit-content;
+    align-self: center;
+    white-space: nowrap;
+    margin: 0 $margin;
+}
+
 .log-line {
     height: fit-content;
     display: flex;

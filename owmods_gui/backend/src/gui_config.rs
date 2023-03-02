@@ -22,7 +22,6 @@ pub enum Theme {
 pub enum Language {
     English,
     Wario,
-    Corby,
 }
 
 #[typeshare]
@@ -35,30 +34,32 @@ pub struct GuiConfig {
     watch_fs: bool,
 }
 
-impl GuiConfig {
-    pub fn default() -> GuiConfig {
-        GuiConfig {
+impl Default for GuiConfig {
+    fn default() -> Self {
+        Self {
             theme: Theme::White,
             rainbow: false,
             language: Language::English,
             watch_fs: true,
         }
     }
+}
 
+impl GuiConfig {
     fn path() -> Result<PathBuf, anyhow::Error> {
         let path = get_app_path()?.join("gui_settings.json");
         Ok(path)
     }
 
-    fn read() -> Result<GuiConfig, anyhow::Error> {
+    fn read() -> Result<Self, anyhow::Error> {
         deserialize_from_json::<GuiConfig>(&Self::path()?)
     }
 
-    fn write(config: &GuiConfig) -> Result<(), anyhow::Error> {
+    fn write(config: &Self) -> Result<(), anyhow::Error> {
         serialize_to_json(config, &Self::path()?, true)
     }
 
-    pub fn get() -> Result<GuiConfig, anyhow::Error> {
+    pub fn get() -> Result<Self, anyhow::Error> {
         if Self::path()?.is_file() {
             Self::read()
         } else {

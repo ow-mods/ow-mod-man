@@ -33,8 +33,8 @@ pub struct State {
 }
 
 fn main() -> Result<(), Box<dyn Error>> {
-    let config = Config::get()?;
-    let gui_config = GuiConfig::get()?;
+    let config = Config::default();
+    let gui_config = GuiConfig::default();
 
     tauri::Builder::default()
         .manage(State {
@@ -50,6 +50,7 @@ fn main() -> Result<(), Box<dyn Error>> {
             Ok(())
         })
         .invoke_handler(tauri::generate_handler![
+            initial_setup,
             refresh_local_db,
             get_local_mods,
             get_local_mod,

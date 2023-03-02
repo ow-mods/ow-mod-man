@@ -56,6 +56,15 @@ fn search<'a, T>(
 }
 
 #[tauri::command]
+pub async fn initial_setup(state: tauri::State<'_, State>) -> Result<(), String> {
+    let mut config = state.config.write().await;
+    *config = Config::get().map_err(e_to_str)?;
+    let mut gui_config = state.gui_config.write().await;
+    *gui_config = GuiConfig::get().map_err(e_to_str)?;
+    Ok(())
+}
+
+#[tauri::command]
 pub async fn refresh_local_db(
     handle: tauri::AppHandle,
     state: tauri::State<'_, State>,

@@ -1,7 +1,7 @@
 import { commands, hooks } from "@commands";
 import CenteredSpinner from "@components/common/CenteredSpinner";
 import { useTranslations } from "@hooks";
-import { memo, useCallback, useRef, useState } from "react";
+import { memo, useCallback, useEffect, useRef, useState } from "react";
 import LocalModRow from "./LocalModRow";
 
 const LocalMods = memo(() => {
@@ -9,6 +9,10 @@ const LocalMods = memo(() => {
     const [tempFilter, setTempFilter] = useState("");
     const activeTimeout = useRef<number | undefined>(undefined);
     const [status, mods, err] = hooks.getLocalMods("LOCAL-REFRESH", { filter });
+
+    useEffect(() => {
+        commands.refreshLocalDb();
+    }, []);
 
     const [noMods, enableAll, disableAll, searchLabel] = useTranslations([
         "NO_MODS",

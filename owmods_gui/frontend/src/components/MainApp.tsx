@@ -14,10 +14,6 @@ import CenteredSpinner from "./common/CenteredSpinner";
 
 startConsoleLogListen();
 
-// Refresh once to get data
-commands.refreshLocalDb().catch(() => console.warn("Can't fetch local DB"));
-commands.refreshRemoteDb().catch(() => console.warn("Can't fetch remote DB"));
-
 const App = () => {
     const [status, guiConfig, err] = hooks.getGuiConfig("GUI_CONFIG_RELOAD");
     useTheme(guiConfig?.theme ?? Theme.White, guiConfig?.rainbow ?? false);
@@ -28,6 +24,10 @@ const App = () => {
         // @ts-ignore
         window._DEBUG_OPEN_SETUP = () => openOwmlSetup.current();
     }
+
+    useEffect(() => {
+        commands.initialSetup();
+    }, []);
 
     useEffect(() => {
         getCurrent()

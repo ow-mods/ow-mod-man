@@ -1,7 +1,7 @@
-import { hooks } from "@commands";
+import { commands, hooks } from "@commands";
 import CenteredSpinner from "@components/common/CenteredSpinner";
 import { useTranslation } from "@hooks";
-import { memo, useRef, useState } from "react";
+import { memo, useEffect, useRef, useState } from "react";
 import AutoSizer from "react-virtualized-auto-sizer";
 import { FixedSizeList } from "react-window";
 import RemoteModRow from "./RemoteModRow";
@@ -10,6 +10,10 @@ const RemoteMods = memo(() => {
     const [filter, setFilter] = useState("");
     const [tempFilter, setTempFilter] = useState("");
     const [status, mods, err] = hooks.getRemoteMods("REMOTE-REFRESH", { filter });
+
+    useEffect(() => {
+        commands.refreshRemoteDb();
+    }, []);
 
     const activeTimeout = useRef<number | null>(null);
 

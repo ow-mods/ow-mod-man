@@ -15,6 +15,7 @@ type ModAction = ModCommand<void>;
 const $ = <T>(cmd: string) => cmd as T;
 
 const commandInfo = {
+    initialSetup: $<EmptyCommand>("initial_setup"),
     refreshLocalDb: $<EmptyCommand>("refresh_local_db"),
     refreshRemoteDb: $<EmptyCommand>("refresh_remote_db"),
     getConfig: $<GetCommand<Config>>("get_config"),

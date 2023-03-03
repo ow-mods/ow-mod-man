@@ -102,6 +102,7 @@ export enum Theme {
     Blue = "Blue",
     Green = "Green",
     Pink = "Pink",
+    Purple = "Purple",
     Yellow = "Yellow",
     Orange = "Orange",
     Blurple = "Blurple",

@@ -20,8 +20,23 @@ use crate::{
     mods::{get_paths_to_preserve, LocalMod, ModManifest, RemoteMod},
     progress::{ProgressAction, ProgressBar, ProgressType},
     toggle::generate_config,
-    utils::{check_file_matches_paths, get_end_of_url},
 };
+
+fn get_end_of_url(url: &str) -> &str {
+    url.split('/').last().unwrap_or(url)
+}
+
+fn check_file_matches_paths(path: &Path, to_check: &[PathBuf]) -> bool {
+    for check in to_check.iter() {
+        if check.file_name().unwrap_or(check.as_os_str())
+            == path.file_name().unwrap_or(path.as_os_str())
+            || path.starts_with(check)
+        {
+            return true;
+        }
+    }
+    false
+}
 
 async fn download_zip(url: &str, target_path: &Path) -> Result<()> {
     debug!(

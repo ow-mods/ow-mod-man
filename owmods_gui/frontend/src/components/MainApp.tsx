@@ -5,7 +5,7 @@ import { useCallback, useEffect, useRef } from "react";
 import { TranslationContext, TranslationMap } from "@components/common/TranslationContext";
 
 import OwmlSetupModal from "./modals/OwmlSetupModal";
-import { listen } from "@tauri-apps/api/event";
+import { emit, listen } from "@tauri-apps/api/event";
 import { startConsoleLogListen } from "../logging";
 import { commands, hooks } from "@commands";
 import { useTheme } from "@hooks";
@@ -26,7 +26,7 @@ const App = () => {
     }
 
     useEffect(() => {
-        commands.initialSetup();
+        commands.initialSetup().then(() => emit("GUI_CONFIG_RELOAD")).then(() => emit("CONFIG_RELOAD"));
     }, []);
 
     useEffect(() => {

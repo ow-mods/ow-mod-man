@@ -248,9 +248,10 @@ async fn run_from_cli(cli: BaseCli) -> Result<()> {
                 mods.sort_by(|a, b| b.enabled.cmp(&a.enabled));
                 for local_mod in mods.iter() {
                     output += &format!(
-                        "({}) {} by {} ({})\n",
+                        "({}) {} v{} by {} ({})\n",
                         if local_mod.enabled { "+" } else { "-" },
                         local_mod.manifest.name,
+                        local_mod.manifest.version,
                         local_mod.manifest.author,
                         &local_mod.manifest.unique_name.to_string().bold()
                     );
@@ -303,7 +304,7 @@ async fn run_from_cli(cli: BaseCli) -> Result<()> {
                     let local_mod = local_mod.unwrap();
                     info!("Installed At: {}", local_mod.mod_path);
                     info!("Enabled: {}", yes_no(local_mod.enabled));
-                    info!("Installed Version: {}", local_mod.get_version());
+                    info!("Installed Version: {}", local_mod.manifest.version);
                     if let Some(owml_version) = &local_mod.manifest.owml_version {
                         info!("Expected OWML Version: {}", owml_version);
                     }
@@ -326,7 +327,7 @@ async fn run_from_cli(cli: BaseCli) -> Result<()> {
                     if let Some(tags) = &remote_mod.tags {
                         info!("Tags: {}", tags.join(", "));
                     }
-                    info!("Remote Version: {}", remote_mod.get_version());
+                    info!("Remote Version: {}", remote_mod.version);
                     if let Some(prerelease) = &remote_mod.prerelease {
                         info!(
                             "Prerelease Version: {} ({})",

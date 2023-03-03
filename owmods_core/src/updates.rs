@@ -26,7 +26,7 @@ pub fn check_mod_needs_update<'a>(
     };
     if let Some(remote_mod) = remote_mod {
         (
-            version_compare::compare(remote_mod.get_version(), local_mod.get_version())
+            version_compare::compare(&remote_mod.version, &local_mod.manifest.version)
                 .unwrap_or(Cmp::Eq)
                 == Cmp::Gt,
             Some(remote_mod),
@@ -49,8 +49,8 @@ pub async fn update_all(
             info!(
                 "{}: {} -> {}",
                 local_mod.manifest.name,
-                local_mod.get_version(),
-                remote_mod.unwrap().get_version()
+                local_mod.manifest.version,
+                remote_mod.unwrap().version
             );
             needs_update.push(remote_mod.unwrap());
         }
@@ -63,8 +63,8 @@ pub async fn update_all(
         if update {
             info!(
                 "OWML: {} -> {}",
-                owml.as_ref().unwrap().get_version(),
-                remote_owml.unwrap().get_version()
+                owml.as_ref().unwrap().manifest.version,
+                remote_owml.unwrap().version
             );
             download_and_install_owml(config, remote_owml.unwrap()).await?;
         }

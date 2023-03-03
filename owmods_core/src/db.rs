@@ -13,6 +13,14 @@ use super::config::Config;
 use super::mods::{get_mods_dir, LocalMod, ModManifest, RemoteMod};
 use super::toggle::get_mod_enabled;
 
+fn fix_version(version: &str) -> String {
+    let mut str = version.to_owned();
+    while str.starts_with('v') {
+        str = str.strip_prefix('v').unwrap_or(&str).to_string();
+    }
+    str
+}
+
 #[derive(Deserialize)]
 #[serde(rename_all = "camelCase")]
 struct RawRemoteDatabase {
@@ -36,17 +44,22 @@ impl RemoteDatabase {
         let raw = resp.text().await?;
         let raw_db: RawRemoteDatabase = serde_json::from_str(&raw)?;
         debug!("Success, Constructing Mod Map");
+
+        let mut mods = raw_db
+            .releases
+            .into_iter()
+            .map(|m| (m.unique_name.to_owned(), m))
+            .collect::<HashMap<_, _>>();
+
+        for remote_mod in mods.values_mut() {
+            remote_mod.version = fix_version(&remote_mod.version);
+        }
+
         // Creating a hash map is O(N) but access is O(1).
         // In a cli context this doesn't rly matter since we usually only get one or two mods in the entire run of the program.
         // But I'm guessing for the GUI this will help out with performance.
         // Same thing for the local DB.
-        Ok(RemoteDatabase {
-            mods: raw_db
-                .releases
-                .into_iter()
-                .map(|m| (m.unique_name.to_owned(), m))
-                .collect::<HashMap<_, _>>(),
-        })
+        Ok(RemoteDatabase { mods })
     }
 
     pub fn get_mod(&self, unique_name: &str) -> Option<&RemoteMod> {
@@ -80,7 +93,8 @@ impl LocalDatabase {
     pub fn get_owml(&self, config: &Config) -> Option<LocalMod> {
         let manifest_path = PathBuf::from(&config.owml_path).join("OWML.Manifest.json");
         fix_json(&manifest_path).ok();
-        let owml_manifest: ModManifest = deserialize_from_json(&manifest_path).ok()?;
+        let mut owml_manifest: ModManifest = deserialize_from_json(&manifest_path).ok()?;
+        owml_manifest.version = fix_version(&owml_manifest.version);
         Some(LocalMod {
             enabled: true,
             manifest: owml_manifest,
@@ -100,7 +114,8 @@ impl LocalDatabase {
         }
         let folder_path = folder_path.unwrap(); // <- Unwrap is safe, .is_none() check is above
         fix_json(manifest_path).ok();
-        let manifest: ModManifest = deserialize_from_json(manifest_path)?;
+        let mut manifest: ModManifest = deserialize_from_json(manifest_path)?;
+        manifest.version = fix_version(&manifest.version);
         Ok(LocalMod {
             enabled: get_mod_enabled(folder_path)?,
             manifest,

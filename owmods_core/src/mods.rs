@@ -8,10 +8,7 @@ use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use typeshare::typeshare;
 
-use crate::{
-    file::{deserialize_from_json, serialize_to_json},
-    utils::fix_version,
-};
+use crate::file::{deserialize_from_json, serialize_to_json};
 
 use super::config::Config;
 
@@ -45,10 +42,6 @@ impl RemoteMod {
     pub fn get_author(&self) -> &String {
         self.author_display.as_ref().unwrap_or(&self.author)
     }
-
-    pub fn get_version(&self) -> String {
-        fix_version(&self.version)
-    }
 }
 
 #[typeshare]
@@ -74,12 +67,6 @@ pub struct LocalMod {
     pub errors: Vec<String>,
     pub mod_path: String,
     pub manifest: ModManifest,
-}
-
-impl LocalMod {
-    pub fn get_version(&self) -> String {
-        fix_version(&self.manifest.version)
-    }
 }
 
 pub fn get_paths_to_preserve(local_mod: Option<&LocalMod>) -> Vec<PathBuf> {

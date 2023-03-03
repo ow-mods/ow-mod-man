@@ -26,7 +26,10 @@ const App = () => {
     }
 
     useEffect(() => {
-        commands.initialSetup().then(() => emit("GUI_CONFIG_RELOAD")).then(() => emit("CONFIG_RELOAD"));
+        commands
+            .initialSetup()
+            .then(() => emit("GUI_CONFIG_RELOAD"))
+            .then(() => emit("CONFIG_RELOAD"));
     }, []);
 
     useEffect(() => {

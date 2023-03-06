@@ -1,12 +1,13 @@
 import { commands, hooks } from "@commands";
 import CenteredSpinner from "@components/common/CenteredSpinner";
-import { useTranslations } from "@hooks";
+import { useTauriCount, useTranslations } from "@hooks";
 import { memo, useCallback, useState } from "react";
 import UpdateModRow from "./UpdateModRow";
 
 const UpdateMods = memo(() => {
     const [status, updates, err] = hooks.getUpdatableMods(["REMOTE-REFRESH", "LOCAL-REFRESH"]);
     const [updating, setUpdating] = useState(false);
+    const modsUpdating = useTauriCount("INSTALL-START", "INSTALL-FINISH");
 
     const [updateAll, noUpdates] = useTranslations(["UPDATE_ALL", "NO_UPDATES"]);
 
@@ -33,6 +34,7 @@ const UpdateMods = memo(() => {
                         onClick={onUpdateAll}
                         className="update-all-button"
                         aria-busy={updating}
+                        disabled={modsUpdating > 0}
                     >
                         {updateAll}
                     </button>

@@ -104,7 +104,7 @@ fn get_manifest_path_from_zip(zip_path: &PathBuf) -> Result<(String, PathBuf)> {
     Err(anyhow!("Manifest not found in zip archive"))
 }
 
-fn extract_zip(zip_path: &PathBuf, target_path: &PathBuf) -> Result<()> {
+fn extract_zip(zip_path: &PathBuf, target_path: &PathBuf, display_name: &str) -> Result<()> {
     debug!(
         "Begin extraction of {} to {}",
         zip_path.to_str().unwrap(),
@@ -120,7 +120,7 @@ fn extract_zip(zip_path: &PathBuf, target_path: &PathBuf) -> Result<()> {
     let file = File::open(zip_path)?;
     let mut archive = ZipArchive::new(file)?;
     archive.extract(target_path)?;
-    progress.finish("Extracted!");
+    progress.finish(&format!("Extracted {display_name}!"));
     Ok(())
 }
 
@@ -212,7 +212,7 @@ pub async fn download_and_install_owml(config: &Config, owml: &RemoteMod) -> Res
     let temp_dir = TempDir::new("owmods")?;
     let download_path = temp_dir.path().join("OWML.zip");
     download_zip(url, &download_path).await?;
-    extract_zip(&download_path, &target_path)?;
+    extract_zip(&download_path, &target_path, "OWML")?;
 
     if config.owml_path.is_empty() {
         let mut new_config = config.clone();

@@ -13,7 +13,7 @@ use owmods_core::mods::{LocalMod, OWMLConfig, RemoteMod};
 use owmods_core::open::{open_readme, open_shortcut};
 use owmods_core::remove::remove_mod;
 use owmods_core::socket::{LogServer, SocketMessage};
-use owmods_core::updates::{check_mod_needs_update, update_all};
+use owmods_core::updates::check_mod_needs_update;
 use rust_fuzzy_search::fuzzy_compare;
 use tauri::api::dialog;
 use tauri::Manager;
@@ -108,7 +108,13 @@ pub async fn get_local_mod(
     unique_name: &str,
     state: tauri::State<'_, State>,
 ) -> Result<Option<LocalMod>, ()> {
-    Ok(state.local_db.read().await.get_mod(unique_name).cloned())
+    let db = state.local_db.read().await;
+    if unique_name == "Alek.OWML" {
+        let config = state.config.read().await;
+        Ok(db.get_owml(&config))
+    } else {
+        Ok(state.local_db.read().await.get_mod(unique_name).cloned())
+    }
 }
 
 #[tauri::command]
@@ -157,7 +163,12 @@ pub async fn get_remote_mod(
     unique_name: &str,
     state: tauri::State<'_, State>,
 ) -> Result<Option<RemoteMod>, ()> {
-    Ok(state.remote_db.read().await.get_mod(unique_name).cloned())
+    let db = state.remote_db.read().await;
+    if unique_name == "Alek.OWML" {
+        Ok(db.get_owml().cloned())
+    } else {
+        Ok(db.get_mod(unique_name).cloned())
+    }
 }
 
 #[tauri::command]
@@ -383,10 +394,17 @@ pub async fn get_updatable_mods(state: tauri::State<'_, State>) -> Result<Vec<St
     let mut updates: Vec<String> = vec![];
     let local_db = state.local_db.read().await;
     let remote_db = state.remote_db.read().await;
+    let config = state.config.read().await;
     for local_mod in local_db.mods.values() {
         let (needs_update, _) = check_mod_needs_update(local_mod, &remote_db);
         if needs_update {
             updates.push(local_mod.manifest.unique_name.clone());
+        }
+    }
+    if let Some(owml) = local_db.get_owml(&config) {
+        let (needs_update, _) = check_mod_needs_update(&owml, &remote_db);
+        if needs_update {
+            updates.push("Alek.OWML".to_string());
         }
     }
     Ok(updates)
@@ -402,9 +420,25 @@ pub async fn update_mod(
     let config = state.config.read().await;
     let local_db = state.local_db.read().await;
     let remote_db = state.remote_db.read().await;
-    update_all(&config, &local_db, &remote_db)
+    if unique_name == "Alek.OWML" {
+        download_and_install_owml(
+            &config,
+            remote_db.get_owml().ok_or("OWML Not Found!")?,
+        )
         .await
         .map_err(e_to_str)?;
+    } else {
+        install_mod_from_db(
+            &unique_name.to_string(),
+            &config,
+            &remote_db,
+            &local_db,
+            false,
+            false,
+        )
+        .await
+        .map_err(e_to_str)?;
+    }
     handle.emit_all("INSTALL-FINISH", unique_name).ok();
     Ok(())
 }

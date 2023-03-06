@@ -106,6 +106,9 @@ const DownloadsPopout = () => {
             const current = downloadsRef.current[payload.id];
             if (current && current.progressAction === "Extract") {
                 current.msg = payload.msg;
+                if (current.progressType === "Indefinite") {
+                    current.progress = 1;
+                }
                 downloadsRef.current = { ...downloadsRef.current, [current.id]: current };
                 setDownloads(downloadsRef.current);
             }

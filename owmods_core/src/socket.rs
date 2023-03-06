@@ -54,7 +54,7 @@ impl LogServer {
     pub async fn new(port: u16) -> Result<Self> {
         let address = format!("127.0.0.1:{}", port);
         let listener = TcpListener::bind(&address).await?;
-        // Get the actual port we bound too in case the user passed port 0
+        // Get the actual port we bound to in case the user passed port 0
         let port = listener.local_addr()?.port();
         Ok(Self { port, listener })
     }

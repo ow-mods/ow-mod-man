@@ -42,7 +42,7 @@
     "WATCH_FS": "Watch File System",
     "SHOW_FOLDER": "Open Folder",
     "UNINSTALL": "Uninstall",
-    "BY": "by $author$",
+    "BY": "v$version$ by $author$",
     "SELECT": "Select $name$",
     "UPDATE": "Update",
     "UPDATE_ALL": "Update All",

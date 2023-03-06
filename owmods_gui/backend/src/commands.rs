@@ -477,9 +477,10 @@ pub async fn run_game(
 
 #[tauri::command]
 pub async fn clear_logs(port: u16, state: tauri::State<'_, State>) -> Result<(), String> {
-    let map = state.log_files.read().await;
-    let dir = map.get(&port);
-    if let Some((_, dir)) = dir {
+    let mut map = state.log_files.write().await;
+    let dir = map.get_mut(&port);
+    if let Some((len, dir)) = dir {
+        *len = 0;
         clear_game_logs(dir).await.map_err(e_to_str)?;
     }
     Ok(())

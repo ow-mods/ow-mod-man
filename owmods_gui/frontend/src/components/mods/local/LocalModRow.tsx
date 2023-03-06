@@ -26,7 +26,10 @@ const LocalModRow = memo((props: LocalModRowProps) => {
         name: mod?.manifest.name ?? "null"
     });
 
-    const subtitle = useTranslation("BY", { author: mod?.manifest.author ?? "" });
+    const subtitle = useTranslation("BY", {
+        author: mod?.manifest.author ?? "",
+        version: mod?.manifest.version ?? ""
+    });
 
     const onToggle = useCallback(
         (newVal: boolean) => {

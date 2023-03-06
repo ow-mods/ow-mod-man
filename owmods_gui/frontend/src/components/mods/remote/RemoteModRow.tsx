@@ -51,7 +51,10 @@ const RemoteModRow = memo((props: RemoteModRowProps) => {
         "OPEN_WEBSITE"
     ]);
 
-    const subtitle = useTranslation("BY", { author: mod?.authorDisplay ?? mod?.author ?? "" });
+    const subtitle = useTranslation("BY", {
+        author: mod?.authorDisplay ?? mod?.author ?? "",
+        version: mod?.version ?? ""
+    });
 
     const onInstall = useCallback(() => {
         setDownloading(true);

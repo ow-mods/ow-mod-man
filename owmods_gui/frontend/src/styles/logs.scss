@@ -44,7 +44,8 @@ $log-border: 1px solid var(--accent-bg);
 
 .log-line {
     height: fit-content;
-    display: flex;
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
     width: 100%;
     padding: $margin $margin-md;
     border-bottom: $log-border;
@@ -54,16 +55,23 @@ $log-border: 1px solid var(--accent-bg);
 .log-line .message {
     display: flex;
     align-items: center;
+    overflow: hidden;
+    overflow-wrap: anywhere;
+    min-width: 0;
 }
 
 .log-line {
     flex-grow: 1;
 }
 
+.log-line .message {
+    white-space: normal;
+}
+
 .log-line .sender {
-    justify-content: center;
     flex-shrink: 1;
     margin-right: $margin-lg;
+    white-space: nowrap;
 }
 
 .log-line .message.type-message {

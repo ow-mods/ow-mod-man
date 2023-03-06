@@ -12,7 +12,7 @@ div.install-source {
 }
 
 .install-source button,
-.installSource input {
+.install-source input {
     padding: $margin $margin-md;
 }
 
@@ -21,5 +21,11 @@ div.install-source {
 }
 
 .install-warning svg {
+    padding-top: $margin-sm;
     margin-right: $margin-sm;
+}
+
+.install-warning {
+    color: var(--primary-muted);
+    padding: 0;
 }

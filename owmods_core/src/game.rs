@@ -146,7 +146,7 @@ pub async fn setup_wine_prefix(config: &Config) -> Result<Config> {
     );
 
     let out = Command::new("winetricks")
-        .stdout(Stdio::null())
+        .stdout(Stdio::piped())
         .stderr(Stdio::piped())
         .env("WINEPREFIX", prefix_str)
         .arg("dotnet48")
@@ -155,9 +155,10 @@ pub async fn setup_wine_prefix(config: &Config) -> Result<Config> {
 
     if !out.status.success() {
         return Err(anyhow!(
-            "Installing .NET failed with exit code {}: {}",
+            "Installing .NET failed with exit code {}: {}\n{}",
             out.status.code().unwrap(),
-            String::from_utf8(out.stderr)?
+            String::from_utf8(out.stderr)?,
+            String::from_utf8(out.stdout)?
         ));
     }
 

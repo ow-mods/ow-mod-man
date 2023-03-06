@@ -42,12 +42,3 @@ dialog article form input,
 dialog article form select {
     margin-bottom: $margin-sm !important;
 }
-
-.install-warning {
-    color: var(--primary-muted);
-    padding: 0;
-}
-
-.install-warning .modal-icon {
-    margin-bottom: $margin-sm;
-}

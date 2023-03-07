@@ -421,12 +421,9 @@ pub async fn update_mod(
     let local_db = state.local_db.read().await;
     let remote_db = state.remote_db.read().await;
     if unique_name == "Alek.OWML" {
-        download_and_install_owml(
-            &config,
-            remote_db.get_owml().ok_or("OWML Not Found!")?,
-        )
-        .await
-        .map_err(e_to_str)?;
+        download_and_install_owml(&config, remote_db.get_owml().ok_or("OWML Not Found!")?)
+            .await
+            .map_err(e_to_str)?;
     } else {
         install_mod_from_db(
             &unique_name.to_string(),

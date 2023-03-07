@@ -298,7 +298,6 @@ pub async fn install_mod_from_db(
     prerelease: bool,
 ) -> Result<()> {
     let already_installed = local_db.get_mod(unique_name).is_some();
-    let mut using_prerelease = false;
 
     let remote_mod = remote_db
         .get_mod(unique_name)
@@ -313,7 +312,6 @@ pub async fn install_mod_from_db(
             "Using Prerelease {} for {}",
             prerelease.version, remote_mod.name
         );
-        using_prerelease = true;
         url.clone()
     } else {
         remote_mod.download_url.clone()
@@ -379,7 +377,7 @@ pub async fn install_mod_from_db(
         }
     }
 
-    let mod_event = if using_prerelease {
+    let mod_event = if prerelease {
         AnalyticsEventName::ModPrereleaseInstall
     } else if already_installed {
         AnalyticsEventName::ModReinstall

@@ -99,7 +99,7 @@ impl LocalDatabase {
         Some(LocalMod {
             enabled: true,
             manifest: owml_manifest,
-            mod_path: "".to_string(), // <-- Empty bc the config already has it and also less copies
+            mod_path: config.owml_path.clone(),
             errors: vec![],
         })
     }

@@ -3,6 +3,7 @@ use std::io::{BufWriter, Write};
 use std::path::{Path, PathBuf};
 
 use owmods_core::config::Config;
+use owmods_core::constants::OWML_UNIQUE_NAME;
 use owmods_core::db::{LocalDatabase, RemoteDatabase};
 use owmods_core::download::{
     download_and_install_owml, install_mod_from_db, install_mod_from_url, install_mod_from_zip,
@@ -109,7 +110,7 @@ pub async fn get_local_mod(
     state: tauri::State<'_, State>,
 ) -> Result<Option<LocalMod>, ()> {
     let db = state.local_db.read().await;
-    if unique_name == "Alek.OWML" {
+    if unique_name == OWML_UNIQUE_NAME {
         let config = state.config.read().await;
         Ok(db.get_owml(&config))
     } else {
@@ -141,7 +142,7 @@ pub async fn get_remote_mods(
     let mut mods: Vec<&RemoteMod> = db
         .mods
         .values()
-        .filter(|m| m.unique_name != "Alek.OWML")
+        .filter(|m| m.unique_name != OWML_UNIQUE_NAME)
         .collect();
     if filter.is_empty() {
         mods.sort_by(|a, b| b.download_count.cmp(&a.download_count));
@@ -164,7 +165,7 @@ pub async fn get_remote_mod(
     state: tauri::State<'_, State>,
 ) -> Result<Option<RemoteMod>, ()> {
     let db = state.remote_db.read().await;
-    if unique_name == "Alek.OWML" {
+    if unique_name == OWML_UNIQUE_NAME {
         Ok(db.get_owml().cloned())
     } else {
         Ok(db.get_mod(unique_name).cloned())
@@ -404,7 +405,7 @@ pub async fn get_updatable_mods(state: tauri::State<'_, State>) -> Result<Vec<St
     if let Some(owml) = local_db.get_owml(&config) {
         let (needs_update, _) = check_mod_needs_update(&owml, &remote_db);
         if needs_update {
-            updates.push("Alek.OWML".to_string());
+            updates.push(OWML_UNIQUE_NAME.to_string());
         }
     }
     Ok(updates)
@@ -420,7 +421,7 @@ pub async fn update_mod(
     let config = state.config.read().await;
     let local_db = state.local_db.read().await;
     let remote_db = state.remote_db.read().await;
-    if unique_name == "Alek.OWML" {
+    if unique_name == OWML_UNIQUE_NAME {
         download_and_install_owml(&config, remote_db.get_owml().ok_or("OWML Not Found!")?)
             .await
             .map_err(e_to_str)?;

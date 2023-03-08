@@ -140,7 +140,7 @@ fn extract_mod_zip(
     zip_path: &PathBuf,
     target_path: &Path,
     exclude_paths: Vec<PathBuf>,
-) -> Result<()> {
+) -> Result<LocalMod> {
     debug!(
         "Begin extraction of {} to {}",
         zip_path.to_str().unwrap(),
@@ -192,12 +192,9 @@ fn extract_mod_zip(
         }
     }
 
-    let mod_name = LocalDatabase::read_local_mod(&target_path.join("manifest.json"))?
-        .manifest
-        .name;
-    progress.finish(&format!("Installed {}", mod_name));
-
-    Ok(())
+    let new_mod = LocalDatabase::read_local_mod(&target_path.join("manifest.json"))?;
+    progress.finish(&format!("Installed {}", new_mod.manifest.name));
+    Ok(new_mod)
 }
 
 pub async fn download_and_install_owml(config: &Config, owml: &RemoteMod) -> Result<()> {
@@ -238,14 +235,12 @@ pub fn install_mod_from_zip(
 
     let paths_to_preserve = get_paths_to_preserve(local_mod);
 
-    extract_mod_zip(zip_path, &target_path, paths_to_preserve)?;
+    let new_mod = extract_mod_zip(zip_path, &target_path, paths_to_preserve)?;
     if local_mod.is_none() {
         // First install, generate config
         generate_config(&target_path)?;
     }
-
-    let new_local_mod = LocalDatabase::read_local_mod(&target_path.join("manifest.json"))?;
-    Ok(new_local_mod)
+    Ok(new_mod)
 }
 
 pub async fn install_mod_from_url(

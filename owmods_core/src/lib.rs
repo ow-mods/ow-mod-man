@@ -1,6 +1,7 @@
 pub mod alerts;
 pub mod analytics;
 pub mod config;
+pub mod constants;
 pub mod db;
 pub mod download;
 pub mod file;

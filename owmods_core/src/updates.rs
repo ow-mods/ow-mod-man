@@ -5,6 +5,7 @@ use anyhow::Result;
 
 use crate::{
     analytics::{send_analytics_event, AnalyticsEventName},
+    constants::OWML_UNIQUE_NAME,
     download::install_mods_parallel,
 };
 
@@ -19,7 +20,7 @@ pub fn check_mod_needs_update<'a>(
     local_mod: &'a LocalMod,
     remote_db: &'a RemoteDatabase,
 ) -> (bool, Option<&'a RemoteMod>) {
-    let remote_mod = if local_mod.manifest.unique_name == "Alek.OWML" {
+    let remote_mod = if local_mod.manifest.unique_name == OWML_UNIQUE_NAME {
         remote_db.get_owml()
     } else {
         remote_db.get_mod(&local_mod.manifest.unique_name)

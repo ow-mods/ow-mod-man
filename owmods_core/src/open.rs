@@ -1,5 +1,6 @@
 use crate::{
     config::Config,
+    constants::{DB_REPO_URL, OWML_DOCS_URL, WEBSITE_URL},
     db::{LocalDatabase, RemoteDatabase},
 };
 use anyhow::anyhow;
@@ -7,9 +8,9 @@ use anyhow::Result;
 
 pub fn open_shortcut(identifier: &str, conf: &Config, local_db: &LocalDatabase) -> Result<()> {
     let target = match identifier {
-        "db" => "https://github.com/ow-mods/ow-mod-db",
-        "website" => "https://outerwildsmods.com",
-        "owml_docs" => "https://owml.outerwildsmods.com",
+        "db" => DB_REPO_URL,
+        "website" => WEBSITE_URL,
+        "owml_docs" => OWML_DOCS_URL,
         "owml" => &conf.owml_path,
         _ => "",
     };
@@ -31,6 +32,6 @@ pub fn open_readme(unique_name: &str, db: &RemoteDatabase) -> Result<()> {
         .get_mod(unique_name)
         .ok_or_else(|| anyhow!("Mod {} not found", unique_name))?;
     let slug = &remote_mod.slug;
-    opener::open_browser(format!("https://outerwildsmods.com/mods/{slug}/"))?;
+    opener::open_browser(format!("{WEBSITE_URL}/mods/{slug}/"))?;
     Ok(())
 }

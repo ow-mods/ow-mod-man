@@ -4,7 +4,10 @@ use serde::{Deserialize, Serialize};
 use std::path::{Path, PathBuf};
 use typeshare::typeshare;
 
-use crate::file::{deserialize_from_json, get_app_path, serialize_to_json};
+use crate::{
+    constants::{CONFIG_FILE_NAME, DEFAULT_ALERT_URL, DEFAULT_DB_URL},
+    file::{deserialize_from_json, get_app_path, serialize_to_json},
+};
 
 #[typeshare]
 #[derive(Serialize, Deserialize, Clone)]
@@ -22,10 +25,8 @@ impl Default for Config {
         Self {
             owml_path: String::from(""),
             wine_prefix: None,
-            database_url: String::from("https://ow-mods.github.io/ow-mod-db/database.json"),
-            alert_url: String::from(
-                "https://raw.githubusercontent.com/ow-mods/ow-mod-db/source/alert.json",
-            ),
+            database_url: String::from(DEFAULT_DB_URL),
+            alert_url: String::from(DEFAULT_ALERT_URL),
             viewed_alerts: vec![],
         }
     }
@@ -34,7 +35,7 @@ impl Default for Config {
 impl Config {
     fn path() -> Result<PathBuf, anyhow::Error> {
         let app_path = get_app_path()?;
-        Ok(app_path.join("settings.json"))
+        Ok(app_path.join(CONFIG_FILE_NAME))
     }
 
     pub fn save(&self) -> Result<()> {

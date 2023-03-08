@@ -7,6 +7,7 @@ use glob::glob;
 use log::{debug, error};
 use serde::Deserialize;
 
+use crate::constants::OWML_UNIQUE_NAME;
 use crate::file::{deserialize_from_json, fix_json};
 
 use super::config::Config;
@@ -63,14 +64,14 @@ impl RemoteDatabase {
     }
 
     pub fn get_mod(&self, unique_name: &str) -> Option<&RemoteMod> {
-        if unique_name == "Alek.OWML" {
+        if unique_name == OWML_UNIQUE_NAME {
             return None;
         }
         self.mods.get(unique_name)
     }
 
     pub fn get_owml(&self) -> Option<&RemoteMod> {
-        self.mods.get("Alek.OWML")
+        self.mods.get(OWML_UNIQUE_NAME)
     }
 }
 

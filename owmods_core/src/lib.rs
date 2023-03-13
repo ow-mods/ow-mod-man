@@ -15,3 +15,18 @@ pub mod socket;
 pub mod toggle;
 pub mod updates;
 pub mod validate;
+
+#[cfg(test)]
+mod test_utils {
+    use std::path::{Path, PathBuf};
+
+    use tempdir::TempDir;
+
+    pub fn make_test_dir() -> TempDir {
+        TempDir::new("owmods_test").unwrap()
+    }
+
+    pub fn get_test_file(path: &str) -> PathBuf {
+        Path::new(env!("CARGO_MANIFEST_DIR")).join(format!("test_files/{path}"))
+    }
+}

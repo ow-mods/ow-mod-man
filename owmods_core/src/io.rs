@@ -58,3 +58,101 @@ pub async fn import_mods(
 
     Ok(())
 }
+
+#[cfg(test)]
+mod tests {
+
+    use std::fs::File;
+    use std::io::Write;
+
+    use crate::{
+        download::install_mod_from_zip,
+        test_utils::{get_test_file, make_test_dir},
+    };
+
+    use super::*;
+
+    #[test]
+    fn test_export_mods() {
+        let test_dir = get_test_file("");
+        let db = LocalDatabase::fetch(test_dir.to_str().unwrap()).unwrap();
+        let result = export_mods(&db).unwrap();
+        assert!(result.contains("Bwc9876.TimeSaver"));
+        assert_eq!(result.contains("Bwc9876.SaveEditor"), false);
+    }
+
+    #[test]
+    fn test_import_mods() {
+        tokio_test::block_on(async {
+            let dir = make_test_dir();
+            let mut config = Config::default(Some(dir.path().join("settings.json"))).unwrap();
+            config.owml_path = dir.path().to_str().unwrap().to_string();
+            let remote_db = RemoteDatabase::fetch(&config.database_url).await.unwrap();
+            let list_path = dir.path().join("list.json");
+            let mut file = File::create(&list_path).unwrap();
+            write!(file, "{}", "[\"Bwc9876.TimeSaver\"]").unwrap();
+            drop(file);
+            let local_db = LocalDatabase::default();
+            import_mods(&config, &local_db, &remote_db, &list_path, false)
+                .await
+                .unwrap();
+            assert!(dir.path().join("Mods/Bwc9876.TimeSaver").is_dir());
+            dir.close().unwrap();
+        });
+    }
+
+    #[test]
+    fn test_import_mods_with_disabled() {
+        tokio_test::block_on(async {
+            let dir = make_test_dir();
+            let zip_path = get_test_file("Bwc9876.TimeSaver.zip");
+            let mut config = Config::default(Some(dir.path().join("settings.json"))).unwrap();
+            config.owml_path = dir.path().to_str().unwrap().to_string();
+            let remote_db = RemoteDatabase::fetch(&config.database_url).await.unwrap();
+            let local_db = LocalDatabase::default();
+            let new_mod = install_mod_from_zip(&zip_path, &config, &local_db).unwrap();
+            toggle_mod(&PathBuf::from(new_mod.mod_path), &local_db, false, false).unwrap();
+            let list_path = dir.path().join("list.json");
+            let mut file = File::create(&list_path).unwrap();
+            write!(file, "{}", "[\"Bwc9876.TimeSaver\"]").unwrap();
+            drop(file);
+            let local_db = LocalDatabase::fetch(dir.path().to_str().unwrap()).unwrap();
+            import_mods(&config, &local_db, &remote_db, &list_path, false)
+                .await
+                .unwrap();
+            let new_mod = LocalDatabase::read_local_mod(
+                &dir.path().join("Mods/Bwc9876.TimeSaver/manifest.json"),
+            )
+            .unwrap();
+            assert_eq!(new_mod.enabled, true);
+            dir.close().unwrap();
+        });
+    }
+
+    #[test]
+    fn test_import_mods_disable_missing() {
+        tokio_test::block_on(async {
+            let dir = make_test_dir();
+            let zip_path = get_test_file("Bwc9876.TimeSaver.zip");
+            let mut config = Config::default(Some(dir.path().join("settings.json"))).unwrap();
+            config.owml_path = dir.path().to_str().unwrap().to_string();
+            let remote_db = RemoteDatabase::fetch(&config.database_url).await.unwrap();
+            let local_db = LocalDatabase::default();
+            install_mod_from_zip(&zip_path, &config, &local_db).unwrap();
+            let list_path = dir.path().join("list.json");
+            let mut file = File::create(&list_path).unwrap();
+            write!(file, "{}", "[]").unwrap();
+            drop(file);
+            let local_db = LocalDatabase::fetch(dir.path().to_str().unwrap()).unwrap();
+            import_mods(&config, &local_db, &remote_db, &list_path, true)
+                .await
+                .unwrap();
+            let new_mod = LocalDatabase::read_local_mod(
+                &dir.path().join("Mods/Bwc9876.TimeSaver/manifest.json"),
+            )
+            .unwrap();
+            assert_eq!(new_mod.enabled, false);
+            dir.close().unwrap();
+        });
+    }
+}

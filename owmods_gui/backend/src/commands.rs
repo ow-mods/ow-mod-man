@@ -2,6 +2,7 @@ use std::fs::File;
 use std::io::{BufWriter, Write};
 use std::path::{Path, PathBuf};
 
+use chrono::Local;
 use owmods_core::config::Config;
 use owmods_core::constants::OWML_UNIQUE_NAME;
 use owmods_core::db::{LocalDatabase, RemoteDatabase};
@@ -9,21 +10,21 @@ use owmods_core::download::{
     download_and_install_owml, install_mod_from_db, install_mod_from_url, install_mod_from_zip,
     install_mods_parallel,
 };
+use owmods_core::file::{create_all_parents, get_app_path};
 use owmods_core::game::launch_game;
 use owmods_core::mods::{LocalMod, OWMLConfig, RemoteMod};
 use owmods_core::open::{open_readme, open_shortcut};
 use owmods_core::remove::remove_mod;
-use owmods_core::socket::{LogServer, SocketMessage};
+use owmods_core::socket::{LogServer, SocketMessage, SocketMessageType};
 use owmods_core::updates::check_mod_needs_update;
 use rust_fuzzy_search::fuzzy_compare;
 use tauri::api::dialog;
 use tauri::Manager;
-use tempdir::TempDir;
 use tokio::try_join;
 
 use crate::State;
 
-use crate::game::{clear_game_logs, get_log_from_line, make_log_window, show_warnings, write_log};
+use crate::game::{get_logs_indices, make_log_window, show_warnings, write_log};
 use crate::gui_config::GuiConfig;
 
 fn e_to_str(e: anyhow::Error) -> String {
@@ -476,11 +477,20 @@ pub async fn run_game(
     }
     let log_server = LogServer::new(0).await.map_err(e_to_str)?;
     let port = log_server.port;
-    let log_dir =
-        TempDir::new("owmods_logs").map_err(|e| format!("Couldn't Make Temp Dir: {:?}", e))?;
+    let logs_path = get_app_path()
+        .map_err(e_to_str)?
+        .join(format!("logs/{}.log", Local::now().timestamp()));
+    create_all_parents(&logs_path).map_err(e_to_str)?;
+    let file = File::options()
+        .read(true)
+        .append(true)
+        .create(true)
+        .open(&logs_path)
+        .map_err(|e| format!("Couldn't create log file: {:?}", e))?;
     {
         let mut log_map = state.log_files.write().await;
-        log_map.insert(port, (0, log_dir));
+        let writer = BufWriter::new(file);
+        log_map.insert(port, (vec![], writer));
     }
     let log_window = make_log_window(&handle, port).await.map_err(e_to_str)?;
     let handle_log = |msg: &SocketMessage, _: &str| {
@@ -489,18 +499,18 @@ pub async fn run_game(
         let window_handle = log_window.app_handle();
         tokio::spawn(async move {
             let mut map = logs_map.write().await;
-            let log_dir = map.get_mut(&port);
-            if let Some((len, log_dir)) = log_dir {
-                write_log(log_dir, msg).ok();
-                *len += 1;
+            let log_file = map.get_mut(&port);
+            if let Some((lines, writer)) = log_file {
+                write_log(writer, &msg).unwrap();
+                lines.push(msg);
                 window_handle
-                    .emit_all(&format!("GAME-LOG-{port}"), *len)
+                    .emit_all(&format!("LOG-UPDATE-{port}"), "")
                     .ok();
             }
         });
     };
     try_join!(
-        log_server.listen(&handle_log, true),
+        log_server.listen(&handle_log, false),
         launch_game(&config, &port)
     )
     .map_err(|e| format!("Can't Start Game: {:?}", e))?;
@@ -508,12 +518,18 @@ pub async fn run_game(
 }
 
 #[tauri::command]
-pub async fn clear_logs(port: u16, state: tauri::State<'_, State>) -> Result<(), String> {
+pub async fn clear_logs(
+    port: u16,
+    handle: tauri::AppHandle,
+    state: tauri::State<'_, State>,
+) -> Result<(), String> {
     let mut map = state.log_files.write().await;
     let dir = map.get_mut(&port);
-    if let Some((len, dir)) = dir {
-        *len = 0;
-        clear_game_logs(dir).await.map_err(e_to_str)?;
+    if let Some((lines, _)) = dir {
+        lines.clear();
+        handle
+            .emit_all(&format!("LOG-UPDATE-{port}"), "")
+            .map_err(|e| format!("Can't Send Event: {:?}", e))?;
     }
     Ok(())
 }
@@ -522,11 +538,28 @@ pub async fn clear_logs(port: u16, state: tauri::State<'_, State>) -> Result<(),
 pub async fn stop_logging(port: u16, state: tauri::State<'_, State>) -> Result<(), String> {
     let mut map = state.log_files.write().await;
     let dir = map.remove(&port);
-    if let Some((_, dir)) = dir {
-        dir.close()
-            .map_err(|e| format!("Couldn't delete temp: {:?}", e))?;
+    if let Some((_, mut writer)) = dir {
+        writer
+            .flush()
+            .map_err(|e| format!("Error flushing buffer: {:?}", e))?;
+        drop(writer);
     }
     Ok(())
+}
+
+#[tauri::command]
+pub async fn get_log_lines(
+    port: u16,
+    filter_type: Option<SocketMessageType>,
+    state: tauri::State<'_, State>,
+) -> Result<Vec<usize>, String> {
+    let map = state.log_files.read().await;
+    if let Some((lines, _)) = map.get(&port) {
+        let lines = get_logs_indices(lines, filter_type).map_err(e_to_str)?;
+        Ok(lines)
+    } else {
+        Err("Log File Not Found".to_string())
+    }
 }
 
 #[tauri::command]
@@ -536,9 +569,11 @@ pub async fn get_game_message(
     state: tauri::State<'_, State>,
 ) -> Result<SocketMessage, String> {
     let map = state.log_files.read().await;
-    if let Some((_, log_dir)) = map.get(&port) {
-        let msg = get_log_from_line(log_dir, line).map_err(e_to_str)?;
-        Ok(msg)
+    if let Some((lines, _)) = map.get(&port) {
+        let msg = lines
+            .get(line)
+            .ok_or_else(|| "Invalid Log Line".to_string())?;
+        Ok(msg.clone())
     } else {
         Err("Log File Not Found".to_string())
     }

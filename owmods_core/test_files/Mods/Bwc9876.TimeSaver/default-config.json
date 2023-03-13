@@ -1,0 +1,10 @@
+{
+  "enabled": true,
+  "settings": {
+    "Skip Splash": true,
+    "Skip Death Sequence": true,
+    "Suppress Slate": true,
+    "Always Start With Suit": false,
+    "Skip Startup Popups": false
+  }
+}

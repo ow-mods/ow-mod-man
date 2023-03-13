@@ -12,10 +12,6 @@ use crate::file::{deserialize_from_json, serialize_to_json};
 
 use super::config::Config;
 
-pub fn get_mods_dir(conf: &Config) -> PathBuf {
-    Path::new(&conf.owml_path).join("Mods")
-}
-
 #[typeshare]
 #[derive(Serialize, Deserialize, Clone)]
 #[serde(rename_all = "camelCase")]
@@ -41,6 +37,14 @@ pub struct RemoteMod {
 impl RemoteMod {
     pub fn get_author(&self) -> &String {
         self.author_display.as_ref().unwrap_or(&self.author)
+    }
+
+    #[cfg(test)]
+    pub fn get_test(num: u8) -> Self {
+        serde_json::from_str(
+            &include_str!("../test_files/test_remote_mod.json").replace("$num$", &num.to_string()),
+        )
+        .unwrap()
     }
 }
 
@@ -69,6 +73,21 @@ pub struct LocalMod {
     pub manifest: ModManifest,
 }
 
+#[cfg(test)]
+impl LocalMod {
+    pub fn get_test(num: u8) -> Self {
+        let txt =
+            include_str!("../test_files/test_local_mod.json").replace("$num$", &num.to_string());
+        let manifest: ModManifest = serde_json::from_str(&txt).unwrap();
+        Self {
+            manifest,
+            mod_path: "".to_string(),
+            enabled: true,
+            errors: vec![],
+        }
+    }
+}
+
 pub fn get_paths_to_preserve(local_mod: Option<&LocalMod>) -> Vec<PathBuf> {
     if let Some(local_mod) = local_mod {
         let mut paths: Vec<PathBuf> =
@@ -91,6 +110,7 @@ pub struct ModManifest {
     pub name: String,
     pub author: String,
     pub version: String,
+    pub filename: Option<String>,
     pub owml_version: Option<String>,
     pub dependencies: Option<Vec<String>>,
     pub conflicts: Option<Vec<String>>,
@@ -170,4 +190,65 @@ impl OWMLConfig {
     pub fn save(&self, config: &Config) -> Result<()> {
         Self::write(self, config)
     }
+}
+
+
+#[cfg(test)]
+mod tests {
+
+    use std::{fs::File, io::Write};
+
+    use crate::test_utils::{get_test_file, make_test_dir};
+
+    use super::*;
+
+    #[test]
+    fn test_owml_config_read() {
+        let mut config = Config::default(None).unwrap();
+        config.owml_path = get_test_file("").to_str().unwrap().to_string();
+        let conf = OWMLConfig::read(&config).unwrap();
+        assert!(conf.debug_mode);
+        assert!(conf.force_exe);
+        assert!(conf.incremental_GC);
+    }
+
+    #[test]
+    fn test_owml_config_save() {
+        let dir = make_test_dir();
+        let mut config = Config::default(None).unwrap();
+        config.owml_path = get_test_file("").to_str().unwrap().to_string();
+        let conf = OWMLConfig::read(&config).unwrap();
+        config.owml_path = dir.path().to_str().unwrap().to_string();
+        conf.save(&config).unwrap();
+        assert!(dir.path().join("OWML.Config.json").is_file());
+        dir.close().unwrap();
+    }
+
+    #[test]
+    fn test_owml_config_get() {
+        let dir = make_test_dir();
+        let mut file = File::create(dir.path().join("OWML.Config.json")).unwrap();
+        write!(file, "{}", include_str!("../test_files/OWML.Config.json")).unwrap();
+        drop(file);
+        let mut config = Config::default(None).unwrap();
+        config.owml_path = dir.path().to_str().unwrap().to_string();
+        let conf = OWMLConfig::get(&config).unwrap();
+        assert!(conf.debug_mode);
+        dir.close().unwrap();
+    }
+
+    #[test]
+    fn test_owml_config_get_default() {
+        let dir = make_test_dir();
+        let mut file = File::create(dir.path().join("OWML.DefaultConfig.json")).unwrap();
+        write!(file, "{}", include_str!("../test_files/OWML.Config.json")).unwrap();
+        drop(file);
+        let mut config = Config::default(None).unwrap();
+        config.owml_path = dir.path().to_str().unwrap().to_string();
+        let conf = OWMLConfig::get(&config).unwrap();
+        assert!(dir.path().join("OWML.Config.json").is_file());
+        assert!(conf.debug_mode);
+        dir.close().unwrap();
+    }
+
 }

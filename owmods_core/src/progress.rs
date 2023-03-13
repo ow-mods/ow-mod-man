@@ -139,3 +139,62 @@ impl ProgressBar {
         info!(target: "progress", "Finish|{}|{}", self.id, msg);
     }
 }
+
+#[cfg(test)]
+mod tests {
+
+    use super::*;
+
+    #[test]
+    fn test_progress_start() {
+        let start = ProgressPayload::parse("Start|test|50|Definite|Download|Test Download");
+        match start {
+            ProgressPayload::Start(ProgressStartPayload { id, len, msg, progress_type, progress_action }) => {
+                assert_eq!(id, "test");
+                assert_eq!(len, 50);
+                assert!(matches!(progress_type, ProgressType::Definite));
+                assert!(matches!(progress_action, ProgressAction::Download));
+                assert_eq!(msg, "Test Download");
+            }
+            _ => { panic!("Start Payload Not Start!") }
+        }
+    }
+
+    #[test]
+    fn test_progress_inc() {
+        let inc = ProgressPayload::parse("Increment|test|30");
+        match inc {
+            ProgressPayload::Increment(ProgressIncrementPayload { id, progress }) => {
+                assert_eq!(id, "test");
+                assert_eq!(progress, 30);
+            }
+            _ => { panic!("Inc Payload Not Inc!"); }
+        }
+    }
+
+    #[test]
+    fn test_progress_msg() {
+        let msg = ProgressPayload::parse("Msg|test|Test Msg");
+        match msg {
+            ProgressPayload::Msg(ProgressMessagePayload { id, msg }) => {
+                assert_eq!(id, "test");
+                assert_eq!(msg, "Test Msg");
+            }
+            _ => { panic!("Msg Payload Not Msg!"); }
+        }
+    }
+
+    #[test]
+    fn test_progress_finish() {
+        let finish = ProgressPayload::parse("Finish|test|Finished");
+        match finish {
+            ProgressPayload::Finish(ProgressMessagePayload { id, msg }) => {
+                assert_eq!(id, "test");
+                assert_eq!(msg, "Finished");
+            }
+            _ => { panic!("Finish Payload Not Finish!"); }
+        }
+    }
+
+}
+

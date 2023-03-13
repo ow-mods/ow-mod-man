@@ -57,7 +57,7 @@ pub async fn update_all(
         }
     }
 
-    let owml = local_db.get_owml(config);
+    let owml = LocalDatabase::get_owml(&config.owml_path);
 
     if owml.is_some() {
         let (update, remote_owml) = check_mod_needs_update(owml.as_ref().unwrap(), remote_db);

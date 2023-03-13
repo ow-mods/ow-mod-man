@@ -2,14 +2,14 @@ use anyhow::Result;
 use std::path::{Path, PathBuf};
 
 use crate::{
-    file::{deserialize_from_json, fix_json, serialize_to_json},
+    file::{deserialize_from_json, fix_json_file, serialize_to_json},
     mods::ModStubConfig,
 };
 
 use super::db::LocalDatabase;
 
 fn read_config(config_path: &Path) -> Result<ModStubConfig> {
-    fix_json(config_path).ok();
+    fix_json_file(config_path).ok();
     deserialize_from_json(config_path)
 }
 

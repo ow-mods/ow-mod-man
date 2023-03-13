@@ -1,6 +1,6 @@
 use std::{
-    fs::{create_dir_all, File},
-    io::{BufReader, BufWriter, Read, Write},
+    fs::{create_dir_all, read_to_string, File},
+    io::{BufReader, BufWriter, Write},
     path::{Path, PathBuf},
 };
 
@@ -42,18 +42,15 @@ pub fn get_app_path() -> Result<PathBuf> {
     }
 }
 
-pub fn fix_json(path: &Path) -> Result<()> {
-    let mut file = File::open(path)?;
-    let mut buffer = String::new();
+fn fix_json(txt: &str) -> String {
+    fix_bom(txt).to_string()
+}
 
-    file.read_to_string(&mut buffer)?;
-
-    // BOMs are really really annoying
-    buffer = fix_bom(&mut buffer);
-
+pub fn fix_json_file(path: &Path) -> Result<()> {
+    let txt = read_to_string(path)?;
+    let txt = fix_json(&txt);
     let mut file = File::create(path)?;
-    write!(file, "{}", buffer)?;
-
+    write!(file, "{}", txt)?;
     Ok(())
 }
 
@@ -64,6 +61,26 @@ pub fn create_all_parents(file_path: &Path) -> Result<()> {
     Ok(())
 }
 
-pub fn fix_bom(str: &mut String) -> String {
-    str.strip_prefix('\u{FEFF}').unwrap_or(str).to_string()
+pub fn fix_bom(str: &str) -> &str {
+    str.strip_prefix('\u{FEFF}').unwrap_or(str)
+}
+
+#[cfg(test)]
+mod tests {
+
+    use super::*;
+
+    #[derive(Deserialize)]
+    struct TestStruct {
+        prop: bool,
+    }
+
+    // Simple test rn, if some mods ever use weird json we'll need to test for and fix that
+    #[test]
+    fn test_fix_json() {
+        let json = include_str!("../test_files/whacky_json.json");
+        let json = fix_json(&json);
+        let obj: TestStruct = serde_json::from_str(&json).unwrap();
+        assert!(obj.prop)
+    }
 }

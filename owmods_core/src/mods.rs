@@ -192,7 +192,6 @@ impl OWMLConfig {
     }
 }
 
-
 #[cfg(test)]
 mod tests {
 
@@ -250,5 +249,4 @@ mod tests {
         assert!(conf.debug_mode);
         dir.close().unwrap();
     }
-
 }

@@ -5,7 +5,7 @@ use std::{
 
 use anyhow::Result;
 use owmods_core::{
-    alerts::{get_warnings, save_warning_shown},
+    alerts::get_warnings,
     config::Config,
     db::LocalDatabase,
     socket::{SocketMessage, SocketMessageType},
@@ -29,11 +29,14 @@ pub async fn make_log_window(handle: &AppHandle, port: u16) -> Result<Window> {
 }
 
 pub fn show_warnings(window: &Window, local_db: &LocalDatabase, config: &Config) -> Result<Config> {
-    let warnings = get_warnings(local_db, config)?;
+    let warnings = get_warnings(
+        local_db.mods.values().collect(),
+        config.viewed_alerts.iter().map(|s| s.as_str()).collect(),
+    );
     let mut config = config.clone();
     for (unique_name, warning) in warnings {
         dialog::blocking::message(Some(window), &warning.title, &warning.body);
-        config = save_warning_shown(unique_name, &config)?;
+        config.set_warning_shown(unique_name);
     }
     Ok(config)
 }

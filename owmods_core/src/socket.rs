@@ -159,11 +159,11 @@ impl LogServer {
 #[cfg(test)]
 mod tests {
 
-    use std::net::{SocketAddr, SocketAddrV4, Ipv4Addr};
+    use std::net::{Ipv4Addr, SocketAddr, SocketAddrV4};
     use std::sync::Mutex;
 
     use futures::try_join;
-    use tokio::io::{BufWriter, AsyncWriteExt};
+    use tokio::io::{AsyncWriteExt, BufWriter};
     use tokio::net::TcpStream;
 
     use super::*;
@@ -191,7 +191,10 @@ mod tests {
                 match *counter {
                     0 => {
                         assert!(matches!(msg.message_type, SocketMessageType::Info));
-                        assert_eq!(msg.message, format!("Ready to receive game logs on port {}!", port));
+                        assert_eq!(
+                            msg.message,
+                            format!("Ready to receive game logs on port {}!", port)
+                        );
                     }
                     1 => {
                         assert_eq!(msg.message, "====== Client Connected To Console ======");
@@ -206,9 +209,14 @@ mod tests {
                         assert!(matches!(msg.message_type, SocketMessageType::Success));
                     }
                     4 => {
-                        assert_eq!(msg.message, "====== Client Disconnected From Console ======");
+                        assert_eq!(
+                            msg.message,
+                            "====== Client Disconnected From Console ======"
+                        );
                     }
-                    _ => { panic!("Too many calls!"); }
+                    _ => {
+                        panic!("Too many calls!");
+                    }
                 }
                 *counter += 1;
             };
@@ -216,18 +224,22 @@ mod tests {
                 let addr = SocketAddr::V4(SocketAddrV4::new(Ipv4Addr::new(127, 0, 0, 1), port));
                 let client = TcpStream::connect(addr).await.unwrap();
                 let mut writer = BufWriter::new(client);
-                write_msg(&mut writer, make_test_msg("Test Message", SocketMessageType::Info)).await;
-                write_msg(&mut writer, make_test_msg("Success!", SocketMessageType::Success)).await;
+                write_msg(
+                    &mut writer,
+                    make_test_msg("Test Message", SocketMessageType::Info),
+                )
+                .await;
+                write_msg(
+                    &mut writer,
+                    make_test_msg("Success!", SocketMessageType::Success),
+                )
+                .await;
                 write_msg(&mut writer, make_test_msg("", SocketMessageType::Quit)).await;
                 writer.shutdown().await.unwrap();
                 Ok(())
             };
-            try_join!(
-                server.listen(handle_log, true),
-                test_fn
-            ).unwrap();
+            try_join!(server.listen(handle_log, true), test_fn).unwrap();
             assert_eq!(*count_ref.lock().unwrap(), 5);
         });
     }
-
 }

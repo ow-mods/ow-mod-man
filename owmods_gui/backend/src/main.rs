@@ -34,7 +34,7 @@ pub struct State {
 }
 
 fn main() -> Result<(), Box<dyn Error>> {
-    let config = Config::default();
+    let config = Config::default(None)?;
     let gui_config = GuiConfig::default();
 
     tauri::Builder::default()

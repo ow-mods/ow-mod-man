@@ -80,10 +80,7 @@ mod tests {
         let mod2 = LocalMod::get_test(2);
         let warnings = get_warnings(vec![&mod1, &mod2], vec![]);
         assert_eq!(warnings.len(), 1);
-        let warnings = get_warnings(
-            vec![&mod1, &mod2],
-            vec![&mod1.manifest.unique_name],
-        );
+        let warnings = get_warnings(vec![&mod1, &mod2], vec![&mod1.manifest.unique_name]);
         assert_eq!(warnings.len(), 0);
     }
 }

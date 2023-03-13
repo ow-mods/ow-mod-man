@@ -149,14 +149,22 @@ mod tests {
     fn test_progress_start() {
         let start = ProgressPayload::parse("Start|test|50|Definite|Download|Test Download");
         match start {
-            ProgressPayload::Start(ProgressStartPayload { id, len, msg, progress_type, progress_action }) => {
+            ProgressPayload::Start(ProgressStartPayload {
+                id,
+                len,
+                msg,
+                progress_type,
+                progress_action,
+            }) => {
                 assert_eq!(id, "test");
                 assert_eq!(len, 50);
                 assert!(matches!(progress_type, ProgressType::Definite));
                 assert!(matches!(progress_action, ProgressAction::Download));
                 assert_eq!(msg, "Test Download");
             }
-            _ => { panic!("Start Payload Not Start!") }
+            _ => {
+                panic!("Start Payload Not Start!")
+            }
         }
     }
 
@@ -168,7 +176,9 @@ mod tests {
                 assert_eq!(id, "test");
                 assert_eq!(progress, 30);
             }
-            _ => { panic!("Inc Payload Not Inc!"); }
+            _ => {
+                panic!("Inc Payload Not Inc!");
+            }
         }
     }
 
@@ -180,7 +190,9 @@ mod tests {
                 assert_eq!(id, "test");
                 assert_eq!(msg, "Test Msg");
             }
-            _ => { panic!("Msg Payload Not Msg!"); }
+            _ => {
+                panic!("Msg Payload Not Msg!");
+            }
         }
     }
 
@@ -192,9 +204,9 @@ mod tests {
                 assert_eq!(id, "test");
                 assert_eq!(msg, "Finished");
             }
-            _ => { panic!("Finish Payload Not Finish!"); }
+            _ => {
+                panic!("Finish Payload Not Finish!");
+            }
         }
     }
-
 }
-

@@ -60,7 +60,7 @@ fn search<'a, T>(
 #[tauri::command]
 pub async fn initial_setup(state: tauri::State<'_, State>) -> Result<(), String> {
     let mut config = state.config.write().await;
-    *config = Config::get().map_err(e_to_str)?;
+    *config = Config::get(None).map_err(e_to_str)?;
     let mut gui_config = state.gui_config.write().await;
     *gui_config = GuiConfig::get().map_err(e_to_str)?;
     Ok(())
@@ -75,7 +75,7 @@ pub async fn refresh_local_db(
     {
         let mut db = state.local_db.write().await;
         handle.emit_all("LOCAL-REFRESH", "").ok();
-        let local_db = LocalDatabase::fetch(&conf);
+        let local_db = LocalDatabase::fetch(&conf.owml_path);
         *db = local_db.unwrap_or_else(|_| LocalDatabase::default());
     }
     Ok(())
@@ -110,10 +110,9 @@ pub async fn get_local_mod(
     unique_name: &str,
     state: tauri::State<'_, State>,
 ) -> Result<Option<LocalMod>, ()> {
-    let db = state.local_db.read().await;
     if unique_name == OWML_UNIQUE_NAME {
         let config = state.config.read().await;
-        Ok(db.get_owml(&config))
+        Ok(LocalDatabase::get_owml(&config.owml_path))
     } else {
         Ok(state.local_db.read().await.get_mod(unique_name).cloned())
     }
@@ -128,7 +127,7 @@ pub async fn refresh_remote_db(
     {
         let mut db = state.remote_db.write().await;
         handle.emit_all("REMOTE-REFRESH", "").ok();
-        let remote_db = RemoteDatabase::fetch(&conf).await;
+        let remote_db = RemoteDatabase::fetch(&conf.database_url).await;
         *db = remote_db.unwrap_or_else(|_| RemoteDatabase::default());
     }
     Ok(())
@@ -403,7 +402,7 @@ pub async fn get_updatable_mods(state: tauri::State<'_, State>) -> Result<Vec<St
             updates.push(local_mod.manifest.unique_name.clone());
         }
     }
-    if let Some(owml) = local_db.get_owml(&config) {
+    if let Some(owml) = LocalDatabase::get_owml(&config.owml_path) {
         let (needs_update, _) = check_mod_needs_update(&owml, &remote_db);
         if needs_update {
             updates.push(OWML_UNIQUE_NAME.to_string());

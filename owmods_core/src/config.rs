@@ -38,7 +38,7 @@ impl Config {
             database_url: String::from(DEFAULT_DB_URL),
             alert_url: String::from(DEFAULT_ALERT_URL),
             viewed_alerts: vec![],
-            path
+            path,
         })
     }
 

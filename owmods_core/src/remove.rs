@@ -25,7 +25,11 @@ pub fn remove_mod(local_mod: &LocalMod, db: &LocalDatabase, recursive: bool) -> 
 #[cfg(test)]
 mod tests {
 
-    use crate::{test_utils::{make_test_dir, get_test_file}, config::Config, download::install_mod_from_zip};
+    use crate::{
+        config::Config,
+        download::install_mod_from_zip,
+        test_utils::{get_test_file, make_test_dir},
+    };
 
     use super::*;
 
@@ -76,11 +80,14 @@ mod tests {
         let mut db = LocalDatabase::fetch(&config.owml_path).unwrap();
         let mut new_mod = db.get_mod("Bwc9876.TimeSaver").unwrap().clone();
         new_mod.manifest.dependencies = Some(vec!["Bwc9876.SaveEditor".to_string()]);
-        db.mods.get_mut("Bwc9876.SaveEditor").unwrap().manifest.dependencies = Some(vec!["Bwc9876.TimeSaver".to_string()]);
+        db.mods
+            .get_mut("Bwc9876.SaveEditor")
+            .unwrap()
+            .manifest
+            .dependencies = Some(vec!["Bwc9876.TimeSaver".to_string()]);
         remove_mod(&new_mod, &db, true).unwrap();
         assert_eq!(dir.path().join("Mods/Bwc9876.TimeSaver").is_dir(), false);
         assert_eq!(dir.path().join("Mods/Bwc9876.SaveEditor").is_dir(), false);
         dir.close().unwrap();
     }
-
 }

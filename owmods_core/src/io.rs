@@ -96,7 +96,7 @@ mod tests {
             import_mods(&config, &local_db, &remote_db, &list_path, false)
                 .await
                 .unwrap();
-            assert!(dir.path().join("Mods/Bwc9876.TimeSaver").is_dir());
+            assert!(dir.path().join("Mods").join("Bwc9876.TimeSaver").is_dir());
             dir.close().unwrap();
         });
     }
@@ -121,7 +121,7 @@ mod tests {
                 .await
                 .unwrap();
             let new_mod = LocalDatabase::read_local_mod(
-                &dir.path().join("Mods/Bwc9876.TimeSaver/manifest.json"),
+                &dir.path().join("Mods").join("Bwc9876.TimeSaver").join("manifest.json"),
             )
             .unwrap();
             assert_eq!(new_mod.enabled, true);
@@ -148,7 +148,7 @@ mod tests {
                 .await
                 .unwrap();
             let new_mod = LocalDatabase::read_local_mod(
-                &dir.path().join("Mods/Bwc9876.TimeSaver/manifest.json"),
+                &dir.path().join("Mods").join("Bwc9876.TimeSaver").join("manifest.json"),
             )
             .unwrap();
             assert_eq!(new_mod.enabled, false);

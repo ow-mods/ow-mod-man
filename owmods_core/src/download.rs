@@ -482,7 +482,7 @@ mod tests {
     fn test_install_mod_from_zip() {
         let zip_path = get_test_file("Bwc9876.TimeSaver.zip");
         let dir = make_test_dir();
-        let target_path = dir.path().join("Mods/Bwc9876.TimeSaver");
+        let target_path = dir.path().join("Mods").join("Bwc9876.TimeSaver");
         let mut config = Config::default(None).unwrap();
         config.owml_path = dir.path().to_str().unwrap().to_string();
         let db = LocalDatabase::default();
@@ -499,7 +499,7 @@ mod tests {
     fn test_install_mod_from_url() {
         tokio_test::block_on(async {
             let dir = make_test_dir();
-            let target_path = dir.path().join("Mods/Bwc9876.TimeSaver");
+            let target_path = dir.path().join("Mods").join("Bwc9876.TimeSaver");
             let mut config = Config::default(None).unwrap();
             config.owml_path = dir.path().to_str().unwrap().to_string();
             let db = LocalDatabase::default();
@@ -538,7 +538,7 @@ mod tests {
         tokio_test::block_on(async {
             let dir = make_test_dir();
             let mut config = Config::default(None).unwrap();
-            let target_path = dir.path().join("Mods/Bwc9876.TimeSaver");
+            let target_path = dir.path().join("Mods").join("Bwc9876.TimeSaver");
             config.owml_path = dir.path().to_str().unwrap().to_string();
             let remote_db = RemoteDatabase::fetch(&config.database_url).await.unwrap();
             let local_db = LocalDatabase::default();
@@ -563,7 +563,7 @@ mod tests {
             let dir = make_test_dir();
             let zip_path = get_test_file("Bwc9876.TimeSaver.zip");
             let mut config = Config::default(None).unwrap();
-            let target_path = dir.path().join("Mods/Bwc9876.TimeSaver");
+            let target_path = dir.path().join("Mods").join("Bwc9876.TimeSaver");
             config.owml_path = dir.path().to_str().unwrap().to_string();
             let remote_db = RemoteDatabase::fetch(&config.database_url).await.unwrap();
             let mut local_db = LocalDatabase::default();
@@ -584,7 +584,7 @@ mod tests {
             )
             .await
             .unwrap();
-            assert!(dir.path().join("Mods/Bwc9876.SaveEditor").is_dir());
+            assert!(dir.path().join("Mods").join("Bwc9876.TimeSaver").is_dir());
             dir.close().unwrap();
         });
     }
@@ -596,8 +596,8 @@ mod tests {
             let zip_path = get_test_file("Bwc9876.TimeSaver.zip");
             let zip_path_2 = get_test_file("Bwc9876.SaveEditor.zip");
             let mut config = Config::default(None).unwrap();
-            let target_path = dir.path().join("Mods/Bwc9876.TimeSaver");
-            let target_path_2 = dir.path().join("Mods/Bwc9876.SaveEditor");
+            let target_path = dir.path().join("Mods").join("Bwc9876.TimeSaver");
+            let target_path_2 = dir.path().join("Mods").join("Bwc9876.SaveEditor");
             config.owml_path = dir.path().to_str().unwrap().to_string();
             let remote_db = RemoteDatabase::fetch(&config.database_url).await.unwrap();
             let mut local_db = LocalDatabase::default();
@@ -630,8 +630,8 @@ mod tests {
             )
             .await
             .unwrap();
-            assert!(dir.path().join("Mods/Bwc9876.TimeSaver").is_dir());
-            assert!(dir.path().join("Mods/Bwc9876.SaveEditor").is_dir());
+            assert!(dir.path().join("Mods").join("Bwc9876.TimeSaver").is_dir());
+            assert!(dir.path().join("Mods").join("Bwc9876.SaveEditor").is_dir());
             dir.close().unwrap();
         });
     }

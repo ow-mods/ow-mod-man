@@ -44,7 +44,7 @@ mod tests {
         let db = LocalDatabase::fetch(&config.owml_path).unwrap();
         let new_mod = db.get_mod("Bwc9876.TimeSaver").unwrap();
         remove_mod(new_mod, &db, false).unwrap();
-        assert_eq!(dir.path().join("Mods/Bwc9876.TimeSaver").is_dir(), false);
+        assert_eq!(dir.path().join("Mods").join("Bwc9876.TimeSaver").is_dir(), false);
         dir.close().unwrap();
     }
 
@@ -62,8 +62,8 @@ mod tests {
         let mut new_mod = db.get_mod("Bwc9876.TimeSaver").unwrap().clone();
         new_mod.manifest.dependencies = Some(vec!["Bwc9876.SaveEditor".to_string()]);
         remove_mod(&new_mod, &db, true).unwrap();
-        assert_eq!(dir.path().join("Mods/Bwc9876.TimeSaver").is_dir(), false);
-        assert_eq!(dir.path().join("Mods/Bwc9876.SaveEditor").is_dir(), false);
+        assert_eq!(dir.path().join("Mods").join("Bwc9876.TimeSaver").is_dir(), false);
+        assert_eq!(dir.path().join("Mods").join("Bwc9876.SaveEditor").is_dir(), false);
         dir.close().unwrap();
     }
 
@@ -86,8 +86,8 @@ mod tests {
             .manifest
             .dependencies = Some(vec!["Bwc9876.TimeSaver".to_string()]);
         remove_mod(&new_mod, &db, true).unwrap();
-        assert_eq!(dir.path().join("Mods/Bwc9876.TimeSaver").is_dir(), false);
-        assert_eq!(dir.path().join("Mods/Bwc9876.SaveEditor").is_dir(), false);
+        assert_eq!(dir.path().join("Mods").join("Bwc9876.TimeSaver").is_dir(), false);
+        assert_eq!(dir.path().join("Mods").join("Bwc9876.SaveEditor").is_dir(), false);
         dir.close().unwrap();
     }
 }

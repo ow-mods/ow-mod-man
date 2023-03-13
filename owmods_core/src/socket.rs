@@ -159,7 +159,6 @@ impl LogServer {
 #[cfg(test)]
 mod tests {
 
-    use std::net::{Ipv4Addr, SocketAddr, SocketAddrV4};
     use std::sync::Mutex;
 
     use futures::try_join;
@@ -221,8 +220,7 @@ mod tests {
                 *counter += 1;
             };
             let test_fn = async {
-                let addr = SocketAddr::V4(SocketAddrV4::new(Ipv4Addr::new(127, 0, 0, 1), port));
-                let client = TcpStream::connect(addr).await.unwrap();
+                let client = TcpStream::connect(format!("127.0.0.1:{}", port)).await.unwrap();
                 let mut writer = BufWriter::new(client);
                 write_msg(
                     &mut writer,

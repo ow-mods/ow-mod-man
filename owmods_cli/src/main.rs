@@ -416,15 +416,10 @@ async fn run_from_cli(cli: BaseCli) -> Result<()> {
             let enable = matches!(cli.command, Commands::Enable { unique_name: _ });
             if unique_name == "*" || unique_name == "all" {
                 for local_mod in db.mods.values() {
-                    toggle_mod(&PathBuf::from(&local_mod.mod_path), &db, enable, false)?;
+                    toggle_mod(&local_mod.manifest.unique_name, &db, enable, false)?;
                 }
             } else {
-                let mod_path = db.get_mod_path(unique_name);
-                if let Some(mod_path) = mod_path {
-                    toggle_mod(&mod_path, &db, enable, r)?;
-                } else {
-                    info!("Mod {} is not installed", unique_name);
-                }
+                toggle_mod(unique_name, &db, enable, r)?;
             }
         }
         Commands::LogServer { port } => {

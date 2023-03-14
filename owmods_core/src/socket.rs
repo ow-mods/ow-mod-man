@@ -220,7 +220,9 @@ mod tests {
                 *counter += 1;
             };
             let test_fn = async {
-                let client = TcpStream::connect(format!("127.0.0.1:{}", port)).await.unwrap();
+                let client = TcpStream::connect(format!("127.0.0.1:{}", port))
+                    .await
+                    .unwrap();
                 let mut writer = BufWriter::new(client);
                 write_msg(
                     &mut writer,

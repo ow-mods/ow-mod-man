@@ -238,7 +238,7 @@ pub fn install_mod_from_zip(
     let new_mod = extract_mod_zip(zip_path, &target_path, paths_to_preserve)?;
     if local_mod.is_none() {
         // First install, generate config
-        generate_config(&target_path)?;
+        generate_config(&target_path.join("config.json"))?;
     }
     Ok(new_mod)
 }

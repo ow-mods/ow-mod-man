@@ -186,12 +186,6 @@ impl LocalDatabase {
         })
     }
 
-    /// Get a mod's path from its unique name
-    pub fn get_mod_path(&self, unique_name: &str) -> Option<PathBuf> {
-        let local_mod = self.get_mod(unique_name)?;
-        Some(PathBuf::from(&local_mod.mod_path))
-    }
-
     /// Filters for only active mods in the DB
     pub fn active(&self) -> Vec<&LocalMod> {
         self.mods

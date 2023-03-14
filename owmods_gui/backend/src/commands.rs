@@ -190,21 +190,16 @@ pub async fn toggle_mod(
     state: tauri::State<'_, State>,
 ) -> Result<(), String> {
     let db = state.local_db.read().await;
-    let path = db.get_mod_path(unique_name);
-    if let Some(path) = path {
-        owmods_core::toggle::toggle_mod(&path, &db, enabled, false).map_err(e_to_str)?;
-        Ok(())
-    } else {
-        Err(format!("Mod {} not found", unique_name))
-    }
+    owmods_core::toggle::toggle_mod(unique_name, &db, enabled, false).map_err(e_to_str)?;
+    Ok(())
 }
 
 #[tauri::command]
 pub async fn toggle_all(enabled: bool, state: tauri::State<'_, State>) -> Result<(), String> {
     let local_db = state.local_db.read().await;
     for local_mod in local_db.mods.values() {
-        let mod_path = PathBuf::from(&local_mod.mod_path);
-        owmods_core::toggle::toggle_mod(&mod_path, &local_db, enabled, false).map_err(e_to_str)?;
+        owmods_core::toggle::toggle_mod(&local_mod.manifest.unique_name, &local_db, enabled, false)
+            .map_err(e_to_str)?;
     }
     Ok(())
 }

@@ -37,8 +37,8 @@ pub async fn import_mods(
     if disable_missing {
         for local_mod in local_db.mods.values() {
             let mod_path = &PathBuf::from(&local_mod.mod_path);
-            if get_mod_enabled(&PathBuf::from(&mod_path))? {
-                toggle_mod(mod_path, local_db, false, false)?;
+            if get_mod_enabled(&mod_path)? {
+                toggle_mod(&local_mod.manifest.unique_name, local_db, false, false)?;
             }
         }
     }
@@ -47,7 +47,7 @@ pub async fn import_mods(
         if let Some(local_mod) = local_mod {
             let mod_path = &PathBuf::from(&local_mod.mod_path);
             if !get_mod_enabled(&PathBuf::from(&mod_path))? {
-                toggle_mod(mod_path, local_db, true, false)?;
+                toggle_mod(&local_mod.manifest.unique_name, local_db, true, false)?;
             }
         } else {
             needed_install.push(name.to_string());
@@ -110,8 +110,9 @@ mod tests {
             config.owml_path = dir.path().to_str().unwrap().to_string();
             let remote_db = RemoteDatabase::fetch(&config.database_url).await.unwrap();
             let local_db = LocalDatabase::default();
-            let new_mod = install_mod_from_zip(&zip_path, &config, &local_db).unwrap();
-            toggle_mod(&PathBuf::from(new_mod.mod_path), &local_db, false, false).unwrap();
+            install_mod_from_zip(&zip_path, &config, &local_db).unwrap();
+            let local_db = LocalDatabase::fetch(&config.owml_path).unwrap();
+            toggle_mod("Bwc9876.TimeSaver", &local_db, false, false).unwrap();
             let list_path = dir.path().join("list.json");
             let mut file = File::create(&list_path).unwrap();
             write!(file, "{}", "[\"Bwc9876.TimeSaver\"]").unwrap();
@@ -121,7 +122,10 @@ mod tests {
                 .await
                 .unwrap();
             let new_mod = LocalDatabase::read_local_mod(
-                &dir.path().join("Mods").join("Bwc9876.TimeSaver").join("manifest.json"),
+                &dir.path()
+                    .join("Mods")
+                    .join("Bwc9876.TimeSaver")
+                    .join("manifest.json"),
             )
             .unwrap();
             assert_eq!(new_mod.enabled, true);
@@ -148,7 +152,10 @@ mod tests {
                 .await
                 .unwrap();
             let new_mod = LocalDatabase::read_local_mod(
-                &dir.path().join("Mods").join("Bwc9876.TimeSaver").join("manifest.json"),
+                &dir.path()
+                    .join("Mods")
+                    .join("Bwc9876.TimeSaver")
+                    .join("manifest.json"),
             )
             .unwrap();
             assert_eq!(new_mod.enabled, false);

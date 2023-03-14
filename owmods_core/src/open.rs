@@ -16,8 +16,9 @@ pub fn open_shortcut(identifier: &str, conf: &Config, local_db: &LocalDatabase) 
     };
 
     if target.is_empty() {
-        let local_mod = local_db
-            .get_mod_path(identifier)
+        let local_mod: &str = local_db
+            .get_mod(identifier)
+            .map(|m| m.manifest.unique_name.as_ref())
             .ok_or_else(|| anyhow!("Mod {} not found", identifier))?;
         opener::open(local_mod)?;
     } else {

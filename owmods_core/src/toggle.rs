@@ -129,18 +129,4 @@ mod tests {
         dir.close().unwrap();
     }
 
-    #[test]
-    fn test_mod_toggle_recursive() {
-        let dir = make_test_dir();
-        let test_zip = get_test_file("Bwc9876.TimeSaver.zip");
-        let db = LocalDatabase::default();
-        let mut config = Config::default(None).unwrap();
-        config.owml_path = dir.path().to_str().unwrap().to_string();
-        let new_mod = install_mod_from_zip(&test_zip, &config, &db).unwrap();
-        let db = LocalDatabase::fetch(&config.owml_path).unwrap();
-        let test_zip = get_test_file("Bwc9876.SaveEditor.zip");
-        let new_mod_2 = install_mod_from_zip(&test_zip, &config, &db)
-        dir.close().unwrap();
-    }
-
 }

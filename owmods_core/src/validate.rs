@@ -78,3 +78,104 @@ pub fn has_errors(db: &LocalDatabase) -> bool {
     }
     false
 }
+
+#[cfg(test)]
+mod tests {
+
+    use super::*;
+
+    #[test]
+    fn test_check_deps_valid() {
+        let mut mod_a = LocalMod::get_test(0);
+        mod_a.manifest.dependencies = Some(vec!["Example.TestMod1".to_string()]);
+        let mod_b = LocalMod::get_test(1);
+        let mut db = LocalDatabase::default();
+        db.mods
+            .insert(mod_a.manifest.unique_name.to_string(), mod_a);
+        db.mods
+            .insert(mod_b.manifest.unique_name.to_string(), mod_b);
+        let mod_a = db.get_mod("Example.TestMod0").unwrap();
+        let (missing, disabled) = check_deps(mod_a, &db);
+        assert!(missing.is_empty());
+        assert!(disabled.is_empty());
+    }
+
+    #[test]
+    fn test_check_deps_missing() {
+        let mut mod_a = LocalMod::get_test(0);
+        mod_a.manifest.dependencies = Some(vec!["Missing.Mod".to_string()]);
+        let mut db = LocalDatabase::default();
+        db.mods
+            .insert(mod_a.manifest.unique_name.to_string(), mod_a);
+        let mod_a = db.get_mod("Example.TestMod0").unwrap();
+        let (missing, disabled) = check_deps(mod_a, &db);
+        assert_eq!(missing.len(), 1);
+        assert_eq!(*missing.get(0).unwrap(), "Missing.Mod");
+        assert!(disabled.is_empty());
+    }
+
+    #[test]
+    fn test_check_deps_disabled() {
+        let mut mod_a = LocalMod::get_test(0);
+        mod_a.manifest.dependencies = Some(vec!["Example.TestMod1".to_string()]);
+        let mut mod_b = LocalMod::get_test(1);
+        mod_b.enabled = false;
+        let mut db = LocalDatabase::default();
+        db.mods
+            .insert(mod_a.manifest.unique_name.to_string(), mod_a);
+        db.mods
+            .insert(mod_b.manifest.unique_name.to_string(), mod_b);
+        let mod_a = db.get_mod("Example.TestMod0").unwrap();
+        let (missing, disabled) = check_deps(mod_a, &db);
+        assert!(missing.is_empty());
+        assert_eq!(disabled.len(), 1);
+        assert_eq!(
+            disabled.get(0).unwrap().manifest.unique_name.clone(),
+            "Example.TestMod1"
+        );
+    }
+
+    #[test]
+    fn test_check_conflicts_valid() {
+        let mut mod_a = LocalMod::get_test(0);
+        mod_a.manifest.conflicts = Some(vec!["Example.TestMod1".to_string()]);
+        let mut db = LocalDatabase::default();
+        db.mods
+            .insert(mod_a.manifest.unique_name.to_string(), mod_a);
+        let mod_a = db.get_mod("Example.TestMod0").unwrap();
+        let conflicts = check_conflicts(mod_a, &db);
+        assert!(conflicts.is_empty());
+    }
+
+    #[test]
+    fn test_check_conflicts_valid_with_disabled() {
+        let mut mod_a = LocalMod::get_test(0);
+        mod_a.manifest.conflicts = Some(vec!["Example.TestMod1".to_string()]);
+        let mut mod_b = LocalMod::get_test(1);
+        mod_b.enabled = false;
+        let mut db = LocalDatabase::default();
+        db.mods
+            .insert(mod_a.manifest.unique_name.to_string(), mod_a);
+        db.mods
+            .insert(mod_b.manifest.unique_name.to_string(), mod_b);
+        let mod_a = db.get_mod("Example.TestMod0").unwrap();
+        let conflicts = check_conflicts(mod_a, &db);
+        assert!(conflicts.is_empty());
+    }
+
+    #[test]
+    fn test_check_conflicts_invalid() {
+        let mut mod_a = LocalMod::get_test(0);
+        mod_a.manifest.conflicts = Some(vec!["Example.TestMod1".to_string()]);
+        let mod_b = LocalMod::get_test(1);
+        let mut db = LocalDatabase::default();
+        db.mods
+            .insert(mod_a.manifest.unique_name.to_string(), mod_a);
+        db.mods
+            .insert(mod_b.manifest.unique_name.to_string(), mod_b);
+        let mod_a = db.get_mod("Example.TestMod0").unwrap();
+        let conflicts = check_conflicts(mod_a, &db);
+        assert_eq!(conflicts.len(), 1);
+        assert_eq!(*conflicts.get(0).unwrap(), "Example.TestMod1");
+    }
+}

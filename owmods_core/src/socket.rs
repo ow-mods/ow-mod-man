@@ -175,7 +175,7 @@ mod tests {
 
     async fn write_msg(writer: &mut BufWriter<TcpStream>, msg: SocketMessage) {
         let str = format!("{}\n", serde_json::to_string(&msg).unwrap());
-        writer.write(str.as_bytes()).await.unwrap();
+        writer.write_all(str.as_bytes()).await.unwrap();
         writer.flush().await.unwrap();
     }
 
@@ -183,7 +183,7 @@ mod tests {
     fn test_log_server() {
         tokio_test::block_on(async {
             let server = LogServer::new(0).await.unwrap();
-            let port = server.port.clone();
+            let port = server.port;
             let count_ref = Mutex::new(0);
             let handle_log = |msg: &SocketMessage, _: &str| {
                 let mut counter = count_ref.lock().unwrap();

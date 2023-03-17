@@ -247,8 +247,8 @@ mod tests {
         };
         let db = RemoteDatabase::from(raw_db);
         assert_eq!(db.mods.len(), 2);
-        assert!(db.get_mod("Example.Mod1").is_some());
-        assert!(db.get_mod("Example.Mod2").is_some());
+        assert!(db.get_mod("Example.TestMod1").is_some());
+        assert!(db.get_mod("Example.TestMod2").is_some());
     }
 
     #[test]

@@ -398,10 +398,7 @@ mod tests {
         let test_parent = PathBuf::from("folder");
         let unrelated_parent = PathBuf::from("other_folder");
         assert!(check_file_matches_paths(test_path, &[test_parent]));
-        assert_eq!(
-            check_file_matches_paths(test_path, &[unrelated_parent]),
-            false
-        );
+        assert!(!check_file_matches_paths(test_path, &[unrelated_parent]),);
     }
 
     #[test]
@@ -451,7 +448,7 @@ mod tests {
         let new_mod = extract_mod_zip(&zip_path, &target_path, vec![]).unwrap();
         assert!(target_path.join("manifest.json").is_file());
         assert_eq!(new_mod.mod_path, target_path.to_str().unwrap());
-        assert_eq!(target_path.join("Folder1").is_dir(), false);
+        assert!(!target_path.join("Folder1").is_dir());
         dir.close().unwrap();
     }
 

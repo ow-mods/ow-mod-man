@@ -26,7 +26,7 @@ pub fn generate_config(path: &Path) -> Result<()> {
         enabled: true,
         settings: None,
     };
-    serialize_to_json(&new_config, &path, false)
+    serialize_to_json(&new_config, path, false)
 }
 
 pub fn get_mod_enabled(mod_path: &Path) -> Result<bool> {
@@ -106,7 +106,7 @@ mod tests {
         toggle_mod("Bwc9876.TimeSaver", &db, false, false).unwrap();
         assert!(mod_path.join("config.json").is_file());
         let new_mod = LocalDatabase::read_local_mod(&mod_path.join("manifest.json")).unwrap();
-        assert_eq!(new_mod.enabled, false);
+        assert!(!new_mod.enabled);
         toggle_mod("Bwc9876.TimeSaver", &db, true, false).unwrap();
         let new_mod = LocalDatabase::read_local_mod(&mod_path.join("manifest.json")).unwrap();
         assert!(new_mod.enabled);
@@ -118,15 +118,14 @@ mod tests {
         let (dir, db, new_mod) = setup();
         let mod_path = PathBuf::from(new_mod.mod_path);
         remove_file(mod_path.join("config.json")).unwrap();
-        assert_eq!(get_mod_enabled(&mod_path).unwrap(), false);
+        assert!(!get_mod_enabled(&mod_path).unwrap());
         toggle_mod("Bwc9876.TimeSaver", &db, false, false).unwrap();
         assert!(mod_path.join("config.json").is_file());
         let new_mod = LocalDatabase::read_local_mod(&mod_path.join("manifest.json")).unwrap();
-        assert_eq!(new_mod.enabled, false);
+        assert!(!new_mod.enabled);
         toggle_mod("Bwc9876.TimeSaver", &db, true, false).unwrap();
         let new_mod = LocalDatabase::read_local_mod(&mod_path.join("manifest.json")).unwrap();
         assert!(new_mod.enabled);
         dir.close().unwrap();
     }
-
 }

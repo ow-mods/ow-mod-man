@@ -37,7 +37,7 @@ pub async fn import_mods(
     if disable_missing {
         for local_mod in local_db.mods.values() {
             let mod_path = &PathBuf::from(&local_mod.mod_path);
-            if get_mod_enabled(&mod_path)? {
+            if get_mod_enabled(mod_path)? {
                 toggle_mod(&local_mod.manifest.unique_name, local_db, false, false)?;
             }
         }
@@ -78,7 +78,7 @@ mod tests {
         let db = LocalDatabase::fetch(test_dir.to_str().unwrap()).unwrap();
         let result = export_mods(&db).unwrap();
         assert!(result.contains("Bwc9876.TimeSaver"));
-        assert_eq!(result.contains("Bwc9876.SaveEditor"), false);
+        assert!(!result.contains("Bwc9876.SaveEditor"));
     }
 
     #[test]
@@ -90,7 +90,7 @@ mod tests {
             let remote_db = RemoteDatabase::fetch(&config.database_url).await.unwrap();
             let list_path = dir.path().join("list.json");
             let mut file = File::create(&list_path).unwrap();
-            write!(file, "{}", "[\"Bwc9876.TimeSaver\"]").unwrap();
+            write!(file, "[\"Bwc9876.TimeSaver\"]").unwrap();
             drop(file);
             let local_db = LocalDatabase::default();
             import_mods(&config, &local_db, &remote_db, &list_path, false)
@@ -115,7 +115,7 @@ mod tests {
             toggle_mod("Bwc9876.TimeSaver", &local_db, false, false).unwrap();
             let list_path = dir.path().join("list.json");
             let mut file = File::create(&list_path).unwrap();
-            write!(file, "{}", "[\"Bwc9876.TimeSaver\"]").unwrap();
+            write!(file, "[\"Bwc9876.TimeSaver\"]").unwrap();
             drop(file);
             let local_db = LocalDatabase::fetch(dir.path().to_str().unwrap()).unwrap();
             import_mods(&config, &local_db, &remote_db, &list_path, false)
@@ -128,7 +128,7 @@ mod tests {
                     .join("manifest.json"),
             )
             .unwrap();
-            assert_eq!(new_mod.enabled, true);
+            assert!(new_mod.enabled);
             dir.close().unwrap();
         });
     }
@@ -145,7 +145,7 @@ mod tests {
             install_mod_from_zip(&zip_path, &config, &local_db).unwrap();
             let list_path = dir.path().join("list.json");
             let mut file = File::create(&list_path).unwrap();
-            write!(file, "{}", "[]").unwrap();
+            write!(file, "[]").unwrap();
             drop(file);
             let local_db = LocalDatabase::fetch(dir.path().to_str().unwrap()).unwrap();
             import_mods(&config, &local_db, &remote_db, &list_path, true)
@@ -158,7 +158,7 @@ mod tests {
                     .join("manifest.json"),
             )
             .unwrap();
-            assert_eq!(new_mod.enabled, false);
+            assert!(!new_mod.enabled);
             dir.close().unwrap();
         });
     }

@@ -89,3 +89,42 @@ pub async fn update_all(
         Ok(true)
     }
 }
+
+#[cfg(test)]
+mod tests {
+
+    use super::*;
+
+    fn setup(local_version: &str, remote_version: &str) -> (LocalMod, RemoteDatabase) {
+        let mut new_mod = LocalMod::get_test(0);
+        new_mod.manifest.version = local_version.to_string();
+        let mut new_remote_mod = RemoteMod::get_test(0);
+        new_remote_mod.version = remote_version.to_string();
+        let mut db = RemoteDatabase::default();
+        db.mods
+            .insert(new_remote_mod.unique_name.to_string(), new_remote_mod);
+        (new_mod, db)
+    }
+
+    #[test]
+    fn test_check_mod_needs_update() {
+        let (new_mod, db) = setup("0.1.0", "0.2.0");
+        let (needs_update, remote) = check_mod_needs_update(&new_mod, &db);
+        assert!(needs_update);
+        assert_eq!(remote.unwrap().version, "0.2.0");
+    }
+
+    #[test]
+    fn test_check_mod_needs_update_none() {
+        let (new_mod, db) = setup("0.2.0", "0.2.0");
+        let (needs_update, _) = check_mod_needs_update(&new_mod, &db);
+        assert!(!needs_update);
+    }
+
+    #[test]
+    fn test_check_mod_needs_update_invalid_versions() {
+        let (new_mod, db) = setup("burger", "burger");
+        let (needs_update, _) = check_mod_needs_update(&new_mod, &db);
+        assert!(!needs_update);
+    }
+}

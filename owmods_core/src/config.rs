@@ -146,7 +146,7 @@ mod tests {
         let mut config = Config::default(Some(path.clone())).unwrap();
         config.owml_path = "/different/path".to_string();
         config.save().unwrap();
-        let config = Config::get(Some(path.clone())).unwrap();
+        let config = Config::get(Some(path)).unwrap();
         assert_eq!(config.owml_path, "/different/path");
         dir.close().unwrap();
     }

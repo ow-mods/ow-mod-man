@@ -79,7 +79,7 @@ mod tests {
     #[test]
     fn test_fix_json() {
         let json = include_str!("../test_files/whacky_json.json");
-        let json = fix_json(&json);
+        let json = fix_json(json);
         let obj: TestStruct = serde_json::from_str(&json).unwrap();
         assert!(obj.prop)
     }

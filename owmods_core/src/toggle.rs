@@ -20,7 +20,12 @@ fn write_config(conf: &ModStubConfig, config_path: &Path) -> Result<()> {
     Ok(())
 }
 
-// OWML will copy settings for us, so no need to read from default-config.json, just generate an empty config
+/// Generates an empty, enabled config to the given path.
+///
+/// ## Errors
+///
+/// If we can't create or serialize the config file.
+///
 pub fn generate_config(path: &Path) -> Result<()> {
     let new_config = ModStubConfig {
         enabled: true,
@@ -29,6 +34,16 @@ pub fn generate_config(path: &Path) -> Result<()> {
     serialize_to_json(&new_config, path, false)
 }
 
+/// Gets whether a mod is enabled given its mod path
+///
+/// ## Returns
+///
+/// true if the config exists and has `enabled: true`, false if the config doesn't exist or has `enabled: false`.
+///
+/// ## Errors
+///
+/// If we can't deserialize the config file (this will happen in the event of malformed JSON, not a missing file).
+///
 pub fn get_mod_enabled(mod_path: &Path) -> Result<bool> {
     let config_path = mod_path.join("config.json");
     if config_path.is_file() {
@@ -39,6 +54,13 @@ pub fn get_mod_enabled(mod_path: &Path) -> Result<bool> {
     }
 }
 
+/// Toggle a mod to a given enabled value.
+/// Also support applying this action recursively.
+///
+/// ## Errors
+///
+/// If we can't read/save to the config files of the mod or (if recursive is true) any of it's dependents.
+///
 pub fn toggle_mod(
     unique_name: &str,
     local_db: &LocalDatabase,

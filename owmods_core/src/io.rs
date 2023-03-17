@@ -8,22 +8,30 @@ use super::{
     toggle::{get_mod_enabled, toggle_mod},
 };
 
+/// Export all installed **and enabled** mods in the database
+///
+/// ## Returns
+///
+/// A JSON array of unique names of the mods
+///
+/// ## Errors
+///
+/// If we can't serialize to JSON
+///
 pub fn export_mods(db: &LocalDatabase) -> Result<String> {
-    let enabled_mods: Vec<&String> = db
-        .active()
-        .iter()
-        .filter_map(|m| {
-            if m.enabled {
-                Some(&m.manifest.unique_name)
-            } else {
-                None
-            }
-        })
-        .collect();
+    let enabled_mods: Vec<&String> = db.active().map(|m| &m.manifest.unique_name).collect();
     let result = serde_json::to_string_pretty(&enabled_mods)?;
     Ok(result)
 }
 
+/// Import mods from a JSON file that contains an array or unique name (like the one exported by `export_mods`).
+/// Mods that aren't in the remote database will be ignored and will only log a warning.
+/// Optionally this can also disable all current mods not found in this list as well.
+///
+/// ## Errors
+///
+/// If we can't install any mods (that are in the remote database) for whatever reason.
+///
 pub async fn import_mods(
     config: &Config,
     local_db: &LocalDatabase,

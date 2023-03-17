@@ -8,7 +8,14 @@ use crate::{
     toggle::toggle_mod,
 };
 
-/// Returns missing and disabled mod dependencies
+/// Check for missing and disabled mod dependencies.
+///
+/// ## Returns
+///
+/// A tuple containing:
+/// - A Vec<String> of the missing dependencies' unique names.
+/// - A Vec<&LocalMod> of the disabled dependencies.
+///
 pub fn check_deps<'a>(
     local_mod: &'a LocalMod,
     db: &'a LocalDatabase,
@@ -29,12 +36,19 @@ pub fn check_deps<'a>(
     (missing, disabled)
 }
 
+/// Auto-fix dependency issues.
+/// Enables the disabled dependencies and installs missing ones.
+///
+/// ## Errors
+///
+/// If we can't install/enable the dependencies.
+///
 pub async fn fix_deps(
     config: &Config,
     db: &LocalDatabase,
     remote_db: &RemoteDatabase,
 ) -> Result<()> {
-    for local_mod in db.active().iter() {
+    for local_mod in db.active() {
         let (missing, disabled) = check_deps(local_mod, db);
         for disabled in disabled.iter() {
             toggle_mod(&disabled.manifest.unique_name, db, true, true)?;
@@ -50,13 +64,15 @@ pub async fn fix_deps(
     Ok(())
 }
 
+/// Check for mods that conflict with eachother.
+///
+/// ## Returns
+///
+/// A Vec<String> containing all mods that are enabled and conflicting with this mod.
+///
 pub fn check_conflicts<'a>(local_mod: &'a LocalMod, db: &'a LocalDatabase) -> Vec<&'a String> {
     let mut conflicting: Vec<&String> = vec![];
-    let active_mods: Vec<&String> = db
-        .active()
-        .iter()
-        .map(|m| &m.manifest.unique_name)
-        .collect();
+    let active_mods: Vec<&String> = db.active().map(|m| &m.manifest.unique_name).collect();
     if let Some(conflicts) = &local_mod.manifest.conflicts {
         for conflict in conflicts.iter() {
             if active_mods.contains(&conflict) {
@@ -67,9 +83,14 @@ pub fn check_conflicts<'a>(local_mod: &'a LocalMod, db: &'a LocalDatabase) -> Ve
     conflicting
 }
 
-/// Simply check if there's errors, no details
+/// Check if there are any dependency or conflict errors
+///
+/// ## Returns
+///
+/// A bool signifying if there's any errors
+///
 pub fn has_errors(db: &LocalDatabase) -> bool {
-    for local_mod in db.active().iter() {
+    for local_mod in db.active() {
         let (missing, disabled) = check_deps(local_mod, db);
         let conflicts = check_conflicts(local_mod, db);
         if !missing.is_empty() || !disabled.is_empty() || !conflicts.is_empty() {

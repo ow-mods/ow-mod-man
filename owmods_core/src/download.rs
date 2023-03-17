@@ -16,7 +16,7 @@ use crate::{
     analytics::{send_analytics_event, AnalyticsEventName},
     config::Config,
     db::{LocalDatabase, RemoteDatabase},
-    file::{create_all_parents, fix_bom, get_app_path},
+    file::{create_all_parents, fix_json, get_app_path},
     mods::{get_paths_to_preserve, LocalMod, ModManifest, RemoteMod},
     progress::{ProgressAction, ProgressBar, ProgressType},
     toggle::generate_config,
@@ -111,8 +111,8 @@ fn get_unique_name_from_zip(zip_path: &PathBuf) -> Result<String> {
     let mut manifest = archive.by_name(&manifest_name)?;
     let mut buf = String::new();
     manifest.read_to_string(&mut buf)?;
-    let txt = fix_bom(&buf);
-    let manifest: ModManifest = serde_json::from_str(txt)?;
+    let txt = fix_json(&buf);
+    let manifest: ModManifest = serde_json::from_str(&txt)?;
     Ok(manifest.unique_name)
 }
 
@@ -197,6 +197,12 @@ fn extract_mod_zip(
     Ok(new_mod)
 }
 
+/// Downloads and install OWML to the path specified in config.owml_path
+///
+/// ## Errors
+///
+/// If we can't download or extract the OWML zip for any reason.
+///
 pub async fn download_and_install_owml(config: &Config, owml: &RemoteMod) -> Result<()> {
     let url = &owml.download_url;
     let target_path = if config.owml_path.is_empty() {
@@ -222,6 +228,17 @@ pub async fn download_and_install_owml(config: &Config, owml: &RemoteMod) -> Res
     Ok(())
 }
 
+/// Install a mod from a local ZIP file
+///
+/// ## Returns
+///
+/// The newly installed LocalMod
+///
+/// ## Errors
+///
+/// - If we can't find a `manifest.json` file within the archive
+/// - If we can't extract the zip file
+///
 pub fn install_mod_from_zip(
     zip_path: &PathBuf,
     config: &Config,
@@ -243,6 +260,18 @@ pub fn install_mod_from_zip(
     Ok(new_mod)
 }
 
+/// Download and install a mod from a URL
+///
+/// ## Returns
+///
+/// The newly installed local mod
+///
+/// ## Errors
+///
+/// - We can't download the ZIP file
+/// - We can't extract the ZIP file
+/// - There is no `manifest.json` present in the archive / it's not readable
+///
 pub async fn install_mod_from_url(
     url: &str,
     config: &Config,
@@ -261,6 +290,18 @@ pub async fn install_mod_from_url(
     Ok(new_mod)
 }
 
+/// Install a list of mods concurrently.
+/// This should be your preferred method when installing many mods.
+/// **Note that this does no send an analytics event**
+///
+/// ## Returns
+///
+/// The newly installed mods
+///
+/// ## Errors
+///
+/// If __any__ mod fails to install from the list
+///
 pub async fn install_mods_parallel(
     unique_names: Vec<String>,
     config: &Config,
@@ -284,6 +325,17 @@ pub async fn install_mods_parallel(
     Ok(installed)
 }
 
+/// Install mod from the databse with the given unique name.
+/// This should be the preffered method when installing a specific mod.
+/// It can also install prereleases and auto-install dependencies (recursively) as well.
+/// This will also send analytics events given you set `ANALYTICS_API_KEY`.
+///
+/// ## Errors
+///
+/// - If you requested a prerelease and the mod doesn't have one.
+/// - If we can't install the target mod for any reason.
+/// - If we can't install __any__ dependencies for any reason.
+///
 pub async fn install_mod_from_db(
     unique_name: &String,
     config: &Config,
@@ -317,7 +369,6 @@ pub async fn install_mod_from_db(
         let mut to_install: Vec<String> = new_mod.manifest.dependencies.unwrap_or_default();
         let mut installed: Vec<String> = local_db
             .active()
-            .iter()
             .filter_map(|m| {
                 if m.manifest.unique_name == *unique_name {
                     None

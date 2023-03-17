@@ -9,6 +9,7 @@ use tokio::{
 };
 use typeshare::typeshare;
 
+/// Represents the type of message sent from the game
 #[typeshare]
 #[derive(Eq, PartialEq, Clone, Debug, Serialize_repr, Deserialize_repr)]
 #[serde(rename_all = "camelCase")]
@@ -25,6 +26,7 @@ pub enum SocketMessageType {
 }
 
 impl SocketMessageType {
+    /// Parse a socket message type **from a string**.
     pub fn parse(str: &str) -> Result<Self> {
         match str {
             "Message" => Ok(Self::Message),
@@ -40,6 +42,7 @@ impl SocketMessageType {
     }
 }
 
+/// Represents a message sent from the game
 #[typeshare]
 #[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(rename_all = "camelCase")]
@@ -52,6 +55,12 @@ pub struct SocketMessage {
 }
 
 impl SocketMessage {
+    /// Make an internal SocketMessage to send to the server for debugging/information.
+    ///
+    /// ## Returns
+    ///
+    /// A SocketMessage with sender_name set to "Manager" and sender_type set to "Log Server".
+    ///
     pub fn make_internal(message: String, message_type: SocketMessageType) -> Self {
         Self {
             message,
@@ -62,12 +71,24 @@ impl SocketMessage {
     }
 }
 
+/// A server used to listen to logs from the gae
 pub struct LogServer {
     pub port: u16,
     listener: TcpListener,
 }
 
 impl LogServer {
+    /// Create and bind a log server to the given port, pass potr 0 to auto-assign.
+    /// **IMPORTANT:** If you pass port 0 make sure to get the port after binding. Otherwise the port you have and the port the server is bound to won't match.
+    ///
+    /// ## Returns
+    ///
+    /// A new log server that's bound to the given port, **but not ready to listen to logs**.
+    ///
+    /// ## Errors
+    ///
+    /// If we can't bind to the given port
+    ///
     pub async fn new(port: u16) -> Result<Self> {
         let address = format!("127.0.0.1:{}", port);
         let listener = TcpListener::bind(&address).await?;
@@ -76,6 +97,9 @@ impl LogServer {
         Ok(Self { port, listener })
     }
 
+    /// Listen to this server for any logs from the game.
+    /// Function `f` will be passed any messages sent.
+    ///
     pub async fn listen(
         self,
         f: impl Fn(&SocketMessage, &str),

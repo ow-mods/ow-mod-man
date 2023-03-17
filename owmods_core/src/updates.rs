@@ -16,6 +16,15 @@ use super::{
     mods::{LocalMod, RemoteMod},
 };
 
+/// Check a given local mod against the remote databse to see if there's an update.
+/// Skips if the mod doesn't have a remote counterpart or if the versions can't be parsed.
+///
+/// ## Returns
+///
+/// A tuple containing:
+/// - If an update is available
+/// - An option with the remote mod with the newer version, if the first item is `false` this will be `None`.
+///
 pub fn check_mod_needs_update<'a>(
     local_mod: &'a LocalMod,
     remote_db: &'a RemoteDatabase,
@@ -37,6 +46,16 @@ pub fn check_mod_needs_update<'a>(
     }
 }
 
+/// Check all mods *and OWML* for updates and update them if needed.
+///
+/// ## Returns
+///
+/// Whether any updates were actually performed
+///
+/// ## Errors
+///
+/// If we can't read or update the mods.
+///
 pub async fn update_all(
     config: &Config,
     local_db: &LocalDatabase,

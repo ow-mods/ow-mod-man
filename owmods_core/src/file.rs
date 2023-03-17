@@ -9,6 +9,16 @@ use anyhow::Result;
 use directories::ProjectDirs;
 use serde::{Deserialize, Serialize};
 
+/// Utility function to deserialize an object from a JSON file
+///
+/// ## Returns
+///
+/// The json object deserialized to `T`.
+///
+/// ## Errors
+///
+/// If we can't read the file or parse the json or it doesn't conform to `T`.
+///
 pub fn deserialize_from_json<T>(file_path: &Path) -> Result<T>
 where
     for<'a> T: Deserialize<'a>,
@@ -19,6 +29,12 @@ where
     Ok(result)
 }
 
+/// Utility function to serialize an object to a JSON file.
+///
+/// ## Errors
+///
+/// If we can't open the file for writing.
+///
 pub fn serialize_to_json<T>(obj: &T, out_path: &Path, create_parents: bool) -> Result<()>
 where
     T: Serialize,
@@ -34,6 +50,17 @@ where
     Ok(())
 }
 
+/// Utility function to get the application directory in the user's files
+/// You should prefer to store settings and such here to keep everything centralized.
+///
+/// ## Returns
+///
+/// The path that resolves to about `%APPDATA%/owmods/`.
+///
+/// ## Errors
+///
+/// If we can't get the user's app data directory.
+///
 pub fn get_app_path() -> Result<PathBuf> {
     let app_data_path = ProjectDirs::from("com", "ow-mods", "ow-mod-man");
     match app_data_path {
@@ -42,10 +69,12 @@ pub fn get_app_path() -> Result<PathBuf> {
     }
 }
 
-fn fix_json(txt: &str) -> String {
+/// Fix a string of JSON by removing the BOM
+pub fn fix_json(txt: &str) -> String {
     fix_bom(txt).to_string()
 }
 
+/// Removes the BOM on a JSON file
 pub fn fix_json_file(path: &Path) -> Result<()> {
     let txt = read_to_string(path)?;
     let txt = fix_json(&txt);
@@ -54,6 +83,7 @@ pub fn fix_json_file(path: &Path) -> Result<()> {
     Ok(())
 }
 
+/// Recursively creates the parent directories for a file if they don't exist
 pub fn create_all_parents(file_path: &Path) -> Result<()> {
     if let Some(parent_path) = file_path.parent() {
         create_dir_all(parent_path)?;
@@ -61,7 +91,7 @@ pub fn create_all_parents(file_path: &Path) -> Result<()> {
     Ok(())
 }
 
-pub fn fix_bom(str: &str) -> &str {
+fn fix_bom(str: &str) -> &str {
     str.strip_prefix('\u{FEFF}').unwrap_or(str)
 }
 

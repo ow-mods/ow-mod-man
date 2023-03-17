@@ -4,6 +4,12 @@ use anyhow::Result;
 
 use crate::{db::LocalDatabase, mods::LocalMod};
 
+/// Uninstall a mod
+///
+/// ## Errors
+///
+/// If we can't delete the mod's folder.
+///
 pub fn remove_mod(local_mod: &LocalMod, db: &LocalDatabase, recursive: bool) -> Result<()> {
     if PathBuf::from(&local_mod.mod_path).is_dir() {
         // In case weird circular dep stuff happens, just don't delete it if it doesn't exist

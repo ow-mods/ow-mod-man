@@ -186,13 +186,14 @@ impl LocalDatabase {
         })
     }
 
-    /// Filters for only active mods in the DB
-    pub fn active(&self) -> Vec<&LocalMod> {
-        self.mods
-            .values()
-            .into_iter()
-            .filter(|m| m.enabled)
-            .collect()
+    /// Returns an iterator for all enabled mods
+    ///
+    /// ## Returns
+    ///
+    /// An Iterator for mods that are installed and enabled.
+    ///
+    pub fn active(&self) -> impl Iterator<Item = &LocalMod> {
+        self.mods.values().into_iter().filter(|m| m.enabled)
     }
 
     fn get_local_mods(mods_path: &Path) -> Result<HashMap<String, LocalMod>> {

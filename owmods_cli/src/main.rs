@@ -471,7 +471,7 @@ async fn run_from_cli(cli: BaseCli) -> Result<()> {
                 let remote_db = RemoteDatabase::fetch(&config.database_url).await?;
                 validate::fix_deps(&config, &local_db, &remote_db).await?;
             }
-            for local_mod in local_db.active().iter() {
+            for local_mod in local_db.active() {
                 let name = &local_mod.manifest.name;
                 if !*fix_deps {
                     let (missing, disabled) = validate::check_deps(local_mod, &local_db);

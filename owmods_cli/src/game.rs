@@ -43,7 +43,7 @@ pub async fn start_just_logs(port: &u16) -> Result<()> {
 
 pub async fn start_game(local_db: &LocalDatabase, config: &Config, port: &u16) -> Result<()> {
     let names = config.viewed_alerts.iter().map(|n| n.as_str()).collect();
-    let warnings = get_warnings(local_db.active(), names);
+    let warnings = get_warnings(local_db.active().collect(), names);
 
     let mut config = config.clone();
 

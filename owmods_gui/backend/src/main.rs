@@ -3,7 +3,7 @@
     windows_subsystem = "windows"
 )]
 
-use std::{collections::HashMap, error::Error, sync::Arc};
+use std::{collections::HashMap, error::Error, fs::File, io::BufWriter, sync::Arc};
 
 use commands::*;
 use gui_config::GuiConfig;
@@ -12,9 +12,9 @@ use logging::Logger;
 use owmods_core::{
     config::Config,
     db::{LocalDatabase, RemoteDatabase},
+    socket::SocketMessage,
 };
 
-use tempdir::TempDir;
 use tokio::sync::RwLock as TokioLock;
 
 mod commands;
@@ -22,7 +22,8 @@ mod game;
 mod gui_config;
 mod logging;
 
-type LogMessages = HashMap<u16, (usize, TempDir)>;
+type LogPort = u16;
+type LogMessages = HashMap<LogPort, (Vec<SocketMessage>, BufWriter<File>)>;
 
 pub struct State {
     local_db: Arc<TokioLock<LocalDatabase>>,
@@ -33,7 +34,7 @@ pub struct State {
 }
 
 fn main() -> Result<(), Box<dyn Error>> {
-    let config = Config::default();
+    let config = Config::default(None)?;
     let gui_config = GuiConfig::default();
 
     tauri::Builder::default()
@@ -79,6 +80,7 @@ fn main() -> Result<(), Box<dyn Error>> {
             run_game,
             clear_logs,
             stop_logging,
+            get_log_lines,
             get_game_message,
             export_mods,
             import_mods

@@ -1,3 +1,4 @@
+use anyhow::anyhow;
 use anyhow::Result;
 use log::info;
 use serde::{Deserialize, Serialize};
@@ -8,8 +9,9 @@ use tokio::{
 };
 use typeshare::typeshare;
 
+/// Represents the type of message sent from the game
 #[typeshare]
-#[derive(Clone, Debug, Serialize_repr, Deserialize_repr)]
+#[derive(Eq, PartialEq, Clone, Debug, Serialize_repr, Deserialize_repr)]
 #[serde(rename_all = "camelCase")]
 #[repr(u8)]
 pub enum SocketMessageType {
@@ -23,8 +25,26 @@ pub enum SocketMessageType {
     Debug = 7,
 }
 
+impl SocketMessageType {
+    /// Parse a socket message type **from a string**.
+    pub fn parse(str: &str) -> Result<Self> {
+        match str {
+            "Message" => Ok(Self::Message),
+            "Error" => Ok(Self::Error),
+            "Warning" => Ok(Self::Warning),
+            "Info" => Ok(Self::Info),
+            "Success" => Ok(Self::Success),
+            "Quit" => Ok(Self::Quit),
+            "Fatal" => Ok(Self::Fatal),
+            "Debug" => Ok(Self::Debug),
+            _ => Err(anyhow!("Invalid Variant!")),
+        }
+    }
+}
+
+/// Represents a message sent from the game
 #[typeshare]
-#[derive(Serialize, Deserialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct SocketMessage {
     pub sender_name: Option<String>,
@@ -35,6 +55,12 @@ pub struct SocketMessage {
 }
 
 impl SocketMessage {
+    /// Make an internal SocketMessage to send to the server for debugging/information.
+    ///
+    /// ## Returns
+    ///
+    /// A SocketMessage with sender_name set to "Manager" and sender_type set to "Log Server".
+    ///
     pub fn make_internal(message: String, message_type: SocketMessageType) -> Self {
         Self {
             message,
@@ -45,12 +71,24 @@ impl SocketMessage {
     }
 }
 
+/// A server used to listen to logs from the gae
 pub struct LogServer {
     pub port: u16,
     listener: TcpListener,
 }
 
 impl LogServer {
+    /// Create and bind a log server to the given port, pass potr 0 to auto-assign.
+    /// **IMPORTANT:** If you pass port 0 make sure to get the port after binding. Otherwise the port you have and the port the server is bound to won't match.
+    ///
+    /// ## Returns
+    ///
+    /// A new log server that's bound to the given port, **but not ready to listen to logs**.
+    ///
+    /// ## Errors
+    ///
+    /// If we can't bind to the given port
+    ///
     pub async fn new(port: u16) -> Result<Self> {
         let address = format!("127.0.0.1:{}", port);
         let listener = TcpListener::bind(&address).await?;
@@ -59,6 +97,9 @@ impl LogServer {
         Ok(Self { port, listener })
     }
 
+    /// Listen to this server for any logs from the game.
+    /// Function `f` will be passed any messages sent.
+    ///
     pub async fn listen(
         self,
         f: impl Fn(&SocketMessage, &str),
@@ -136,5 +177,93 @@ impl LogServer {
             );
         }
         Ok(())
+    }
+}
+
+#[cfg(test)]
+mod tests {
+
+    use std::sync::Mutex;
+
+    use futures::try_join;
+    use tokio::io::{AsyncWriteExt, BufWriter};
+    use tokio::net::TcpStream;
+
+    use super::*;
+
+    fn make_test_msg(message: &str, message_type: SocketMessageType) -> SocketMessage {
+        let mut msg = SocketMessage::make_internal(message.to_string(), message_type);
+        msg.sender_type = Some("TestClient".to_string());
+        msg
+    }
+
+    async fn write_msg(writer: &mut BufWriter<TcpStream>, msg: SocketMessage) {
+        let str = format!("{}\n", serde_json::to_string(&msg).unwrap());
+        writer.write_all(str.as_bytes()).await.unwrap();
+        writer.flush().await.unwrap();
+    }
+
+    #[test]
+    fn test_log_server() {
+        tokio_test::block_on(async {
+            let server = LogServer::new(0).await.unwrap();
+            let port = server.port;
+            let count_ref = Mutex::new(0);
+            let handle_log = |msg: &SocketMessage, _: &str| {
+                let mut counter = count_ref.lock().unwrap();
+                match *counter {
+                    0 => {
+                        assert!(matches!(msg.message_type, SocketMessageType::Info));
+                        assert_eq!(
+                            msg.message,
+                            format!("Ready to receive game logs on port {}!", port)
+                        );
+                    }
+                    1 => {
+                        assert_eq!(msg.message, "====== Client Connected To Console ======");
+                    }
+                    2 => {
+                        assert_eq!(msg.message, "Test Message");
+                        assert_eq!(msg.sender_name.as_ref().unwrap(), "Manager");
+                        assert_eq!(msg.sender_type.as_ref().unwrap(), "TestClient");
+                    }
+                    3 => {
+                        assert_eq!(msg.message, "Success!");
+                        assert!(matches!(msg.message_type, SocketMessageType::Success));
+                    }
+                    4 => {
+                        assert_eq!(
+                            msg.message,
+                            "====== Client Disconnected From Console ======"
+                        );
+                    }
+                    _ => {
+                        panic!("Too many calls!");
+                    }
+                }
+                *counter += 1;
+            };
+            let test_fn = async {
+                let client = TcpStream::connect(format!("127.0.0.1:{}", port))
+                    .await
+                    .unwrap();
+                let mut writer = BufWriter::new(client);
+                write_msg(
+                    &mut writer,
+                    make_test_msg("Test Message", SocketMessageType::Info),
+                )
+                .await;
+                write_msg(
+                    &mut writer,
+                    make_test_msg("Success!", SocketMessageType::Success),
+                )
+                .await;
+                write_msg(&mut writer, make_test_msg("", SocketMessageType::Quit)).await;
+                writer.shutdown().await.unwrap();
+                Ok(())
+            };
+            try_join!(server.listen(handle_log, true), test_fn).unwrap();
+            assert_eq!(*count_ref.lock().unwrap(), 5);
+        });
     }
 }

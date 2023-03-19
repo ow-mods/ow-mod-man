@@ -1,0 +1,11 @@
+{
+    "downloadUrl": "",
+    "downloadCount": 0,
+    "version": "0.0.0",
+    "name": "Example Mod $num$",
+    "uniqueName": "Example.TestMod$num$",
+    "description": "",
+    "slug": "",
+    "repo": "ExampleRepo",
+    "author": "Example"
+}

@@ -16,6 +16,15 @@ use super::{
     mods::{LocalMod, RemoteMod},
 };
 
+/// Check a given local mod against the remote databse to see if there's an update.
+/// Skips if the mod doesn't have a remote counterpart or if the versions can't be parsed.
+///
+/// ## Returns
+///
+/// A tuple containing:
+/// - If an update is available
+/// - An option with the remote mod with the newer version, if the first item is `false` this will be `None`.
+///
 pub fn check_mod_needs_update<'a>(
     local_mod: &'a LocalMod,
     remote_db: &'a RemoteDatabase,
@@ -37,6 +46,16 @@ pub fn check_mod_needs_update<'a>(
     }
 }
 
+/// Check all mods *and OWML* for updates and update them if needed.
+///
+/// ## Returns
+///
+/// Whether any updates were actually performed
+///
+/// ## Errors
+///
+/// If we can't read or update the mods.
+///
 pub async fn update_all(
     config: &Config,
     local_db: &LocalDatabase,
@@ -57,7 +76,7 @@ pub async fn update_all(
         }
     }
 
-    let owml = local_db.get_owml(config);
+    let owml = LocalDatabase::get_owml(&config.owml_path);
 
     if owml.is_some() {
         let (update, remote_owml) = check_mod_needs_update(owml.as_ref().unwrap(), remote_db);
@@ -87,5 +106,44 @@ pub async fn update_all(
             .await?;
         }
         Ok(true)
+    }
+}
+
+#[cfg(test)]
+mod tests {
+
+    use super::*;
+
+    fn setup(local_version: &str, remote_version: &str) -> (LocalMod, RemoteDatabase) {
+        let mut new_mod = LocalMod::get_test(0);
+        new_mod.manifest.version = local_version.to_string();
+        let mut new_remote_mod = RemoteMod::get_test(0);
+        new_remote_mod.version = remote_version.to_string();
+        let mut db = RemoteDatabase::default();
+        db.mods
+            .insert(new_remote_mod.unique_name.to_string(), new_remote_mod);
+        (new_mod, db)
+    }
+
+    #[test]
+    fn test_check_mod_needs_update() {
+        let (new_mod, db) = setup("0.1.0", "0.2.0");
+        let (needs_update, remote) = check_mod_needs_update(&new_mod, &db);
+        assert!(needs_update);
+        assert_eq!(remote.unwrap().version, "0.2.0");
+    }
+
+    #[test]
+    fn test_check_mod_needs_update_none() {
+        let (new_mod, db) = setup("0.2.0", "0.2.0");
+        let (needs_update, _) = check_mod_needs_update(&new_mod, &db);
+        assert!(!needs_update);
+    }
+
+    #[test]
+    fn test_check_mod_needs_update_invalid_versions() {
+        let (new_mod, db) = setup("burger", "burger");
+        let (needs_update, _) = check_mod_needs_update(&new_mod, &db);
+        assert!(!needs_update);
     }
 }

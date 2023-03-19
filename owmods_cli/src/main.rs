@@ -178,7 +178,7 @@ enum ModListTypes {
 async fn run_from_cli(cli: BaseCli) -> Result<()> {
     let r = cli.recursive;
 
-    let config = Config::get()?;
+    let config = Config::get(None)?;
 
     let ran_setup = matches!(&cli.command, Commands::Setup { owml_path: _ });
 
@@ -212,7 +212,7 @@ async fn run_from_cli(cli: BaseCli) -> Result<()> {
             } else {
                 let mut config = config.clone();
                 config.owml_path = "".to_string();
-                let db = RemoteDatabase::fetch(&config).await?;
+                let db = RemoteDatabase::fetch(&config.database_url).await?;
                 let owml = db
                     .get_owml()
                     .ok_or_else(|| anyhow!("OWML not found, is the database URL correct?"))?;
@@ -221,7 +221,7 @@ async fn run_from_cli(cli: BaseCli) -> Result<()> {
             }
         }
         Commands::Alert => {
-            let alert = fetch_alert(&config).await?;
+            let alert = fetch_alert(&config.alert_url).await?;
             if alert.enabled {
                 info!(
                     "[{}] {}",
@@ -237,7 +237,7 @@ async fn run_from_cli(cli: BaseCli) -> Result<()> {
         }
         Commands::List { mod_type } => match mod_type {
             Some(ModListTypes::Local) | None => {
-                let db = LocalDatabase::fetch(&config)?;
+                let db = LocalDatabase::fetch(&config.owml_path)?;
                 let mut output = String::new();
                 output += &format!(
                     "Found {} Installed Mods at {}:\n(+): Enabled\n(-): Disabled\n\n",
@@ -259,7 +259,7 @@ async fn run_from_cli(cli: BaseCli) -> Result<()> {
                 info!("{}", &output);
             }
             Some(ModListTypes::Remote) => {
-                let db = RemoteDatabase::fetch(&config).await?;
+                let db = RemoteDatabase::fetch(&config.database_url).await?;
                 let mut output = String::new();
                 output += &format!("Found {} Remote Mods:\n", db.mods.values().len());
                 for remote_mod in db.mods.values() {
@@ -277,8 +277,8 @@ async fn run_from_cli(cli: BaseCli) -> Result<()> {
             }
         },
         Commands::Info { unique_name } => {
-            let remote_db = RemoteDatabase::fetch(&config).await?;
-            let local_db = LocalDatabase::fetch(&config)?;
+            let remote_db = RemoteDatabase::fetch(&config.database_url).await?;
+            let local_db = LocalDatabase::fetch(&config.owml_path)?;
             let local_mod = local_db.get_mod(unique_name);
             let remote_mod = remote_db.get_mod(unique_name);
             let installed = local_mod.is_some();
@@ -342,8 +342,8 @@ async fn run_from_cli(cli: BaseCli) -> Result<()> {
             overwrite,
             prerelease,
         } => {
-            let remote_db = RemoteDatabase::fetch(&config).await?;
-            let local_db = LocalDatabase::fetch(&config)?;
+            let remote_db = RemoteDatabase::fetch(&config.database_url).await?;
+            let local_db = LocalDatabase::fetch(&config.owml_path)?;
             let local_mod = local_db.get_mod(unique_name);
             let mut flag = true;
 
@@ -364,18 +364,18 @@ async fn run_from_cli(cli: BaseCli) -> Result<()> {
         }
         Commands::InstallZip { zip_path } => {
             info!("Installing From {}", zip_path.to_str().unwrap());
-            let local_db = LocalDatabase::fetch(&config)?;
+            let local_db = LocalDatabase::fetch(&config.owml_path)?;
             let new_mod = install_mod_from_zip(zip_path, &config, &local_db)?;
             info!("Installed {}!", new_mod.manifest.name);
         }
         Commands::InstallUrl { url } => {
-            let local_db = LocalDatabase::fetch(&config)?;
+            let local_db = LocalDatabase::fetch(&config.owml_path)?;
             info!("Installing From {}", url);
             let new_mod = install_mod_from_url(url, &config, &local_db).await?;
             info!("Installed {}!", new_mod.manifest.name);
         }
         Commands::Uninstall { unique_name } => {
-            let db = LocalDatabase::fetch(&config)?;
+            let db = LocalDatabase::fetch(&config.owml_path)?;
             let local_mod = db.get_mod(unique_name);
             if let Some(local_mod) = local_mod {
                 info!(
@@ -390,20 +390,20 @@ async fn run_from_cli(cli: BaseCli) -> Result<()> {
             }
         }
         Commands::Export => {
-            let local_db = LocalDatabase::fetch(&config)?;
+            let local_db = LocalDatabase::fetch(&config.owml_path)?;
             println!("{}", export_mods(&local_db)?);
         }
         Commands::Import {
             file_path,
             disable_missing,
         } => {
-            let remote_db = RemoteDatabase::fetch(&config).await?;
-            let local_db = LocalDatabase::fetch(&config)?;
+            let remote_db = RemoteDatabase::fetch(&config.database_url).await?;
+            let local_db = LocalDatabase::fetch(&config.owml_path)?;
             import_mods(&config, &local_db, &remote_db, file_path, *disable_missing).await?;
         }
         Commands::Update => {
-            let remote_db = RemoteDatabase::fetch(&config).await?;
-            let local_db = LocalDatabase::fetch(&config)?;
+            let remote_db = RemoteDatabase::fetch(&config.database_url).await?;
+            let local_db = LocalDatabase::fetch(&config.owml_path)?;
             let updated = update_all(&config, &local_db, &remote_db).await?;
             if updated {
                 info!("Update Complete!");
@@ -412,19 +412,14 @@ async fn run_from_cli(cli: BaseCli) -> Result<()> {
             }
         }
         Commands::Enable { unique_name } | Commands::Disable { unique_name } => {
-            let db = LocalDatabase::fetch(&config)?;
+            let db = LocalDatabase::fetch(&config.owml_path)?;
             let enable = matches!(cli.command, Commands::Enable { unique_name: _ });
             if unique_name == "*" || unique_name == "all" {
                 for local_mod in db.mods.values() {
-                    toggle_mod(&PathBuf::from(&local_mod.mod_path), &db, enable, false)?;
+                    toggle_mod(&local_mod.manifest.unique_name, &db, enable, false)?;
                 }
             } else {
-                let mod_path = db.get_mod_path(unique_name);
-                if let Some(mod_path) = mod_path {
-                    toggle_mod(&mod_path, &db, enable, r)?;
-                } else {
-                    info!("Mod {} is not installed", unique_name);
-                }
+                toggle_mod(unique_name, &db, enable, r)?;
             }
         }
         Commands::LogServer { port } => {
@@ -432,7 +427,7 @@ async fn run_from_cli(cli: BaseCli) -> Result<()> {
         }
         Commands::Run { force, port } => {
             info!("Attempting to launch game...");
-            let local_db = LocalDatabase::fetch(&config)?;
+            let local_db = LocalDatabase::fetch(&config.owml_path)?;
             if !*force && has_errors(&local_db) {
                 error!("Errors found, refusing to launch");
                 info!("Run `owmods validate` to see issues");
@@ -460,23 +455,23 @@ async fn run_from_cli(cli: BaseCli) -> Result<()> {
         }
         Commands::Open { identifier } => {
             info!("Opening {}", identifier);
-            let local_db = LocalDatabase::fetch(&config)?;
+            let local_db = LocalDatabase::fetch(&config.owml_path)?;
             open_shortcut(identifier, &config, &local_db)?;
         }
         Commands::Readme { unique_name } => {
             info!("Opening README for {}", unique_name);
-            let remote_db = RemoteDatabase::fetch(&config).await?;
+            let remote_db = RemoteDatabase::fetch(&config.database_url).await?;
             open_readme(unique_name, &remote_db)?;
         }
         Commands::Validate { fix_deps } => {
-            let local_db = LocalDatabase::fetch(&config)?;
+            let local_db = LocalDatabase::fetch(&config.owml_path)?;
             info!("Checking For Issues...");
             let mut flag = false;
             if *fix_deps {
-                let remote_db = RemoteDatabase::fetch(&config).await?;
+                let remote_db = RemoteDatabase::fetch(&config.database_url).await?;
                 validate::fix_deps(&config, &local_db, &remote_db).await?;
             }
-            for local_mod in local_db.active().iter() {
+            for local_mod in local_db.active() {
                 let name = &local_mod.manifest.name;
                 if !*fix_deps {
                     let (missing, disabled) = validate::check_deps(local_mod, &local_db);

@@ -45,6 +45,7 @@ const commandInfo = {
     runGame: $<EmptyCommand>("run_game"),
     clearLogs: $<ActionCommand<{ port: number }>>("clear_logs"),
     stopLogging: $<ActionCommand<{ port: number }>>("stop_logging"),
+    getLogLines: $<CommandInfo<{ port: number, filterType?: number | undefined }, number[]>>("get_log_lines"),
     exportMods: $<ActionCommand<{ path: string }>>("export_mods"),
     importMods: $<ActionCommand<{ path: string }>>("import_mods")
 };

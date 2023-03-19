@@ -1,0 +1,8 @@
+{
+  "gamePath": "C:/Program Files (x86)/Steam/steamapps/common/Outer Wilds",
+  "debugMode": true,
+  "forceExe": true,
+  "incrementalGC": true,
+  "owmlPath": "Z:\\home\\bean\\.local\\share\\ow-mod-man\\OWML\\",
+  "socketPort": 42609
+}

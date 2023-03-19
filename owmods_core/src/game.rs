@@ -3,9 +3,12 @@ use anyhow::Result;
 use std::path::PathBuf;
 use tokio::process::Command;
 
+// TODO: Better docs here, linux prefix setup isn't finalized yet so don't wanna write stuff rn
+
 #[cfg(not(windows))]
 const LINUX_GAME_PATH: &str = "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Outer Wilds";
 
+/// Launch the game using the given port for logs
 #[cfg(windows)]
 pub async fn launch_game(config: &Config, port: &u16) -> Result<()> {
     let owml_path = PathBuf::from(&config.owml_path);
@@ -26,6 +29,7 @@ pub async fn setup_wine_prefix(config: &Config) -> Result<Config> {
     Ok(config.clone()) // Never reached so idc
 }
 
+/// Launch the game using the given port for logs
 #[cfg(not(windows))]
 pub async fn launch_game(config: &Config, port: &u16) -> Result<()> {
     use crate::mods::OWMLConfig;

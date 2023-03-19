@@ -19,6 +19,8 @@ log = { version = "0.4.17", features = ["std", "serde"] }
 rust-fuzzy-search = "0.1.1"
 typeshare = "1.0.0"
 tempdir = "0.3.7"
+regex = "1.7.1"
+chrono = "0.4.23"
 
 [features]
 default = ["custom-protocol"]

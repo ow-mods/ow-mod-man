@@ -3,13 +3,15 @@ import { TranslationContext, TranslationMap } from "@components/common/Translati
 import { useTheme } from "@hooks";
 import { getCurrent } from "@tauri-apps/api/window";
 import { SocketMessageType, Theme } from "@types";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import LogHeader from "@components/logs/LogHeader";
 import LogList from "@components/logs/LogList";
 import CenteredSpinner from "@components/common/CenteredSpinner";
-import { listen } from "@tauri-apps/api/event";
+import { startConsoleLogListen } from "../../logging";
 
 export type LogFilter = keyof typeof SocketMessageType | "Any";
+
+startConsoleLogListen();
 
 const thisWindow = getCurrent();
 
@@ -51,47 +53,46 @@ const App = () => {
             .catch(console.warn);
     }, [guiConfig?.language]);
 
-    const [logsLen, setLogsLen] = useState(0);
+    const filterToPass = useMemo(() => {
+        if (activeFilter === "Any") {
+            return undefined
+        } else {
+            return Object.keys(SocketMessageType).indexOf(activeFilter);
+        }
+    }, [activeFilter]);
 
     const onClear = useCallback(() => {
-        commands.clearLogs({ port }).then(() => setLogsLen(0));
+        commands.clearLogs({ port }).catch(console.warn);
     }, []);
 
-    useEffect(() => {
-        let cancel = false;
-        listen(`GAME-LOG-${port}`, (e) => {
-            if (cancel) return;
-            setLogsLen(e.payload as number);
-        });
-        return () => {
-            cancel = true;
-        };
-    });
+    const [status, logLines, err] = hooks.getLogLines(`LOG-UPDATE-${port}`, { port, filterType: filterToPass });
 
-    if (guiConfig === null) {
+    if (guiConfig === null || status === "Loading") {
         return <CenteredSpinner />;
+    } else if (status === "Error") {
+        return <div className="center">{err!.toString()}</div>;
+    } else {
+        return (
+            <TranslationContext.Provider value={guiConfig!.language}>
+                <main className="logs container">
+                    <LogHeader
+                        logsLen={logLines?.length ?? 0}
+                        autoScroll={autoScroll}
+                        setAutoScroll={setAutoScroll}
+                        activeFilter={activeFilter}
+                        setActiveFilter={setActiveFilter}
+                        onClear={onClear}
+                    />
+                    <LogList
+                        autoScroll={autoScroll}
+                        activeFilter={activeFilter}
+                        logLines={logLines ?? []}
+                        port={port}
+                    />
+                </main>
+            </TranslationContext.Provider>
+        );
     }
-
-    return (
-        <TranslationContext.Provider value={guiConfig!.language}>
-            <main className="logs container">
-                <LogHeader
-                    logsLen={logsLen}
-                    autoScroll={autoScroll}
-                    setAutoScroll={setAutoScroll}
-                    activeFilter={activeFilter}
-                    setActiveFilter={setActiveFilter}
-                    onClear={onClear}
-                />
-                <LogList
-                    autoScroll={autoScroll}
-                    activeFilter={activeFilter}
-                    logsLen={logsLen ?? 0}
-                    port={port}
-                />
-            </main>
-        </TranslationContext.Provider>
-    );
 };
 
 export default App;

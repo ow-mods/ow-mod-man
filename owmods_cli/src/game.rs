@@ -3,7 +3,7 @@ use std::io::{stdin, Read};
 use anyhow::Result;
 use log::{debug, error, info, warn};
 use owmods_core::{
-    alerts::{get_warnings, save_warning_shown},
+    alerts::get_warnings,
     config::Config,
     db::LocalDatabase,
     game::launch_game,
@@ -42,7 +42,10 @@ pub async fn start_just_logs(port: &u16) -> Result<()> {
 }
 
 pub async fn start_game(local_db: &LocalDatabase, config: &Config, port: &u16) -> Result<()> {
-    let warnings = get_warnings(local_db, config)?;
+    let names = config.viewed_alerts.iter().map(|n| n.as_str()).collect();
+    let warnings = get_warnings(local_db.active().collect(), names);
+
+    let mut config = config.clone();
 
     for (unique_name, warning) in warnings {
         let start_banner = format!("====== Warning For {} ======", unique_name);
@@ -52,14 +55,16 @@ pub async fn start_game(local_db: &LocalDatabase, config: &Config, port: &u16) -
             start_banner, warning.title, warning.body, end_banner
         );
         stdin().read_exact(&mut [0])?;
-        save_warning_shown(unique_name, config)?;
+        config.set_warning_shown(unique_name);
     }
+
+    config.save()?;
 
     let server = LogServer::new(*port).await?;
     let port = server.port;
     try_join!(
         server.listen(&handle_game_log, true),
-        launch_game(config, &port)
+        launch_game(&config, &port)
     )?;
     Ok(())
 }

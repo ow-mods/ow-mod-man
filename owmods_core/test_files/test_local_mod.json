@@ -1,0 +1,8 @@
+{
+    "name": "Test Mod $num$",
+    "uniqueName": "Example.TestMod$num$",
+    "description": "Test",
+    "filename": "Test.dll",
+    "author": "Example",
+    "version": "2.9.0"
+}

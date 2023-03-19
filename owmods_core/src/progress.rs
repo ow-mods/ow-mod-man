@@ -1,9 +1,12 @@
 use log::info;
 use serde::Serialize;
 
+/// Type of progres bar
 #[derive(Clone, Serialize, Debug)]
 pub enum ProgressType {
+    /// We know an amount that's incrementing (ex: 10/90, 11/90, etc).
     Definite,
+    /// We don't know an amount and are just waiting.
     Indefinite,
 }
 
@@ -16,10 +19,14 @@ impl ProgressType {
     }
 }
 
+/// The action this progress bar is reporting
 #[derive(Clone, Serialize, Debug)]
 pub enum ProgressAction {
+    /// We're downloading a file
     Download,
+    /// We're extracting a ZIP archive
     Extract,
+    /// We're working with a wine prefix
     Wine,
 }
 
@@ -56,16 +63,31 @@ pub struct ProgressMessagePayload {
     pub msg: String,
 }
 
+/// Payload sent when a progress bar is updated
 #[derive(Clone, Serialize)]
 pub enum ProgressPayload {
+    /// Payload sent when a progress bar is started
     Start(ProgressStartPayload),
+    /// Payload sent when a progress bar is incremented
     Increment(ProgressIncrementPayload),
+    /// Payload sent when a progress bar's message is updated
     Msg(ProgressMessagePayload),
+    /// Payload sent when a progress bar has finished its task
     Finish(ProgressMessagePayload),
     Unknown,
 }
 
 impl ProgressPayload {
+    /// Parse a progress bar payload from a log line
+    ///
+    /// ## Returns
+    ///
+    /// The payload the log line contains.
+    ///
+    /// ## Panics
+    ///
+    /// If we cannot parse the line, this method should only be used when we know the line is valid
+    ///
     pub fn parse(input: &str) -> Self {
         let (action, rest) = input.split_once('|').unwrap();
         let (id, args) = rest.split_once('|').unwrap();
@@ -99,6 +121,7 @@ impl ProgressPayload {
     }
 }
 
+/// Represents a progress bar
 pub struct ProgressBar {
     id: String,
     len: u64,
@@ -137,5 +160,76 @@ impl ProgressBar {
 
     pub fn finish(&self, msg: &str) {
         info!(target: "progress", "Finish|{}|{}", self.id, msg);
+    }
+}
+
+#[cfg(test)]
+mod tests {
+
+    use super::*;
+
+    #[test]
+    fn test_progress_start() {
+        let start = ProgressPayload::parse("Start|test|50|Definite|Download|Test Download");
+        match start {
+            ProgressPayload::Start(ProgressStartPayload {
+                id,
+                len,
+                msg,
+                progress_type,
+                progress_action,
+            }) => {
+                assert_eq!(id, "test");
+                assert_eq!(len, 50);
+                assert!(matches!(progress_type, ProgressType::Definite));
+                assert!(matches!(progress_action, ProgressAction::Download));
+                assert_eq!(msg, "Test Download");
+            }
+            _ => {
+                panic!("Start Payload Not Start!")
+            }
+        }
+    }
+
+    #[test]
+    fn test_progress_inc() {
+        let inc = ProgressPayload::parse("Increment|test|30");
+        match inc {
+            ProgressPayload::Increment(ProgressIncrementPayload { id, progress }) => {
+                assert_eq!(id, "test");
+                assert_eq!(progress, 30);
+            }
+            _ => {
+                panic!("Inc Payload Not Inc!");
+            }
+        }
+    }
+
+    #[test]
+    fn test_progress_msg() {
+        let msg = ProgressPayload::parse("Msg|test|Test Msg");
+        match msg {
+            ProgressPayload::Msg(ProgressMessagePayload { id, msg }) => {
+                assert_eq!(id, "test");
+                assert_eq!(msg, "Test Msg");
+            }
+            _ => {
+                panic!("Msg Payload Not Msg!");
+            }
+        }
+    }
+
+    #[test]
+    fn test_progress_finish() {
+        let finish = ProgressPayload::parse("Finish|test|Finished");
+        match finish {
+            ProgressPayload::Finish(ProgressMessagePayload { id, msg }) => {
+                assert_eq!(id, "test");
+                assert_eq!(msg, "Finished");
+            }
+            _ => {
+                panic!("Finish Payload Not Finish!");
+            }
+        }
     }
 }

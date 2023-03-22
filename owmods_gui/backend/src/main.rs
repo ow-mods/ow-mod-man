@@ -22,15 +22,16 @@ mod game;
 mod gui_config;
 mod logging;
 
+type StatePart<T> = Arc<TokioLock<T>>;
 type LogPort = u16;
 type LogMessages = HashMap<LogPort, (Vec<SocketMessage>, BufWriter<File>)>;
 
 pub struct State {
-    local_db: Arc<TokioLock<LocalDatabase>>,
-    remote_db: Arc<TokioLock<RemoteDatabase>>,
-    config: Arc<TokioLock<Config>>,
-    gui_config: Arc<TokioLock<GuiConfig>>,
-    log_files: Arc<TokioLock<LogMessages>>,
+    local_db: StatePart<LocalDatabase>,
+    remote_db: StatePart<RemoteDatabase>,
+    config: StatePart<Config>,
+    gui_config: StatePart<GuiConfig>,
+    log_files: StatePart<LogMessages>,
 }
 
 fn main() -> Result<(), Box<dyn Error>> {

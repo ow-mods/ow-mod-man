@@ -22,9 +22,9 @@ use tauri::api::dialog;
 use tauri::Manager;
 use tokio::try_join;
 
-use crate::State;
+use crate::{LogPort, State};
 
-use crate::game::{get_logs_indices, make_log_window, show_warnings, write_log};
+use crate::game::{get_logs_indices, make_log_window, show_warnings, write_log, GameMessage};
 use crate::gui_config::GuiConfig;
 
 fn e_to_str(e: anyhow::Error) -> String {
@@ -241,33 +241,21 @@ pub async fn install_mod(
 }
 
 #[tauri::command]
-pub async fn install_url(
-    url: &str,
-    handle: tauri::AppHandle,
-    state: tauri::State<'_, State>,
-) -> Result<(), String> {
-    handle.emit_all("INSTALL-START", url).ok();
+pub async fn install_url(url: &str, state: tauri::State<'_, State>) -> Result<(), String> {
     let conf = state.config.read().await;
     let db = state.local_db.read().await;
     install_mod_from_url(url, &conf, &db)
         .await
         .map_err(e_to_str)?;
-    handle.emit_all("INSTALL-FINISH", url).ok();
     Ok(())
 }
 
 #[tauri::command]
-pub async fn install_zip(
-    path: &str,
-    handle: tauri::AppHandle,
-    state: tauri::State<'_, State>,
-) -> Result<(), String> {
-    handle.emit_all("INSTALL-START", path).ok();
+pub async fn install_zip(path: &str, state: tauri::State<'_, State>) -> Result<(), String> {
     let conf = state.config.read().await;
     let db = state.local_db.read().await;
     println!("Installing {}", path);
     install_mod_from_zip(&PathBuf::from(path), &conf, &db).map_err(e_to_str)?;
-    handle.emit_all("INSTALL-FINISH", path).ok();
     Ok(())
 }
 
@@ -407,12 +395,7 @@ pub async fn get_updatable_mods(state: tauri::State<'_, State>) -> Result<Vec<St
 }
 
 #[tauri::command]
-pub async fn update_mod(
-    unique_name: &str,
-    state: tauri::State<'_, State>,
-    handle: tauri::AppHandle,
-) -> Result<(), String> {
-    handle.emit_all("INSTALL-START", unique_name).ok();
+pub async fn update_mod(unique_name: &str, state: tauri::State<'_, State>) -> Result<(), String> {
     let config = state.config.read().await;
     let local_db = state.local_db.read().await;
     let remote_db = state.remote_db.read().await;
@@ -432,7 +415,6 @@ pub async fn update_mod(
         .await
         .map_err(e_to_str)?;
     }
-    handle.emit_all("INSTALL-FINISH", unique_name).ok();
     Ok(())
 }
 
@@ -440,25 +422,29 @@ pub async fn update_mod(
 pub async fn update_all_mods(
     unique_names: Vec<String>,
     state: tauri::State<'_, State>,
-    handle: tauri::AppHandle,
 ) -> Result<(), String> {
-    handle.emit_all("INSTALL-START", "").ok();
     let config = state.config.read().await;
     let local_db = state.local_db.read().await;
     let remote_db = state.remote_db.read().await;
     install_mods_parallel(unique_names, &config, &remote_db, &local_db)
         .await
         .map_err(e_to_str)?;
-    handle.emit_all("INSTALL-FINISH", "").ok();
     Ok(())
 }
 
 #[tauri::command]
-pub async fn run_game(
-    state: tauri::State<'_, State>,
-    handle: tauri::AppHandle,
-    window: tauri::Window,
-) -> Result<(), String> {
+pub async fn start_logs(handle: tauri::AppHandle) -> Result<(), String> {
+    make_log_window(&handle).await.map_err(e_to_str)?;
+    Ok(())
+}
+
+#[tauri::command]
+pub async fn active_log(state: tauri::State<'_, State>) -> Result<bool, String> {
+    Ok(state.game_log.read().await.is_some())
+}
+
+#[tauri::command]
+pub async fn run_game(state: tauri::State<'_, State>, window: tauri::Window) -> Result<(), String> {
     // We have to clone here to prevent locking everything else while the game is running
     let config = state.config.read().await.clone();
     {
@@ -473,7 +459,7 @@ pub async fn run_game(
     let port = log_server.port;
     let logs_path = get_app_path()
         .map_err(e_to_str)?
-        .join(format!("logs/{}.log", Local::now().timestamp()));
+        .join(format!("game_logs/{}.log", Local::now().timestamp()));
     create_all_parents(&logs_path).map_err(e_to_str)?;
     let file = File::options()
         .read(true)
@@ -482,24 +468,20 @@ pub async fn run_game(
         .open(&logs_path)
         .map_err(|e| format!("Couldn't create log file: {:?}", e))?;
     {
-        let mut log_map = state.log_files.write().await;
+        let mut log_file = state.game_log.write().await;
         let writer = BufWriter::new(file);
-        log_map.insert(port, (vec![], writer));
+        *log_file = Some((vec![], writer));
     }
-    let log_window = make_log_window(&handle, port).await.map_err(e_to_str)?;
-    let handle_log = |msg: &SocketMessage, _: &str| {
+    let handle_log = |msg: &SocketMessage, _: &u16| {
         let msg = msg.clone();
-        let logs_map = state.log_files.clone();
-        let window_handle = log_window.app_handle();
+        let logs_map = state.game_log.clone();
+        let window_handle = window.app_handle();
         tokio::spawn(async move {
-            let mut map = logs_map.write().await;
-            let log_file = map.get_mut(&port);
-            if let Some((lines, writer)) = log_file {
+            let mut log_file = logs_map.write().await;
+            if let Some((lines, writer)) = log_file.as_mut() {
                 write_log(writer, &msg).unwrap();
-                lines.push(msg);
-                window_handle
-                    .emit_all(&format!("LOG-UPDATE-{port}"), "")
-                    .ok();
+                lines.push(GameMessage::new(port, msg));
+                window_handle.emit_all("LOG-UPDATE", "").ok();
             }
         });
     };
@@ -513,63 +495,59 @@ pub async fn run_game(
 
 #[tauri::command]
 pub async fn clear_logs(
-    port: u16,
     handle: tauri::AppHandle,
     state: tauri::State<'_, State>,
 ) -> Result<(), String> {
-    let mut map = state.log_files.write().await;
-    let dir = map.get_mut(&port);
-    if let Some((lines, _)) = dir {
+    let mut data = state.game_log.write().await;
+    if let Some((lines, _)) = data.as_mut() {
         lines.clear();
         handle
-            .emit_all(&format!("LOG-UPDATE-{port}"), "")
+            .emit_all("LOG-UPDATE", "")
             .map_err(|e| format!("Can't Send Event: {:?}", e))?;
     }
     Ok(())
 }
 
 #[tauri::command]
-pub async fn stop_logging(port: u16, state: tauri::State<'_, State>) -> Result<(), String> {
-    let mut map = state.log_files.write().await;
-    let dir = map.remove(&port);
-    if let Some((_, mut writer)) = dir {
+pub async fn stop_logging(state: tauri::State<'_, State>) -> Result<(), String> {
+    let mut logs = state.game_log.write().await;
+    if let Some((_, ref mut writer)) = logs.as_mut() {
         writer
             .flush()
             .map_err(|e| format!("Error flushing buffer: {:?}", e))?;
-        drop(writer);
     }
+    *logs = None;
     Ok(())
 }
 
 #[tauri::command]
 pub async fn get_log_lines(
-    port: u16,
+    filter_port: Option<LogPort>,
     filter_type: Option<SocketMessageType>,
     state: tauri::State<'_, State>,
 ) -> Result<Vec<usize>, String> {
-    let map = state.log_files.read().await;
-    if let Some((lines, _)) = map.get(&port) {
-        let lines = get_logs_indices(lines, filter_type).map_err(e_to_str)?;
+    let logs = state.game_log.read().await;
+    if let Some((lines, _)) = logs.as_ref() {
+        let lines = get_logs_indices(lines, filter_port, filter_type).map_err(e_to_str)?;
         Ok(lines)
     } else {
-        Err("Log File Not Found".to_string())
+        Err("Log Server Not Running".to_string())
     }
 }
 
 #[tauri::command]
 pub async fn get_game_message(
-    port: u16,
     line: usize,
     state: tauri::State<'_, State>,
-) -> Result<SocketMessage, String> {
-    let map = state.log_files.read().await;
-    if let Some((lines, _)) = map.get(&port) {
+) -> Result<GameMessage, String> {
+    let logs = state.game_log.read().await;
+    if let Some((lines, _)) = logs.as_ref() {
         let msg = lines
             .get(line)
             .ok_or_else(|| "Invalid Log Line".to_string())?;
         Ok(msg.clone())
     } else {
-        Err("Log File Not Found".to_string())
+        Err("Log Server Not Running".to_string())
     }
 }
 

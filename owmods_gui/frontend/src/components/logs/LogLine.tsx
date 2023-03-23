@@ -3,7 +3,6 @@ import { SocketMessageType } from "@types";
 import { CSSProperties, memo, useEffect, useMemo, useRef } from "react";
 
 export interface LogLineProps {
-    port: number;
     index: number;
     line: number;
     style: CSSProperties;
@@ -13,11 +12,13 @@ export interface LogLineProps {
 const LogLine = memo(
     (props: LogLineProps) => {
         const divRef = useRef<HTMLDivElement>(null);
-        const [status, msg, err] = hooks.getLogLine("", { port: props.port, line: props.line });
+        const [status, msg, err] = hooks.getLogLine("", { line: props.line });
 
         const messageType = useMemo(() => {
-            return Object.keys(SocketMessageType)[(msg?.messageType as unknown as number) ?? 0];
-        }, [msg?.messageType]);
+            return Object.keys(SocketMessageType)[
+                (msg?.message.messageType as unknown as number) ?? 0
+            ];
+        }, [msg?.message.messageType]);
 
         useEffect(() => {
             if (divRef.current) {
@@ -33,13 +34,14 @@ const LogLine = memo(
             return (
                 <div style={props.style}>
                     <div ref={divRef} className="log-line">
-                        <span className="sender">{msg?.senderName ?? "Unknown"}</span>
-                        <span className={`message type-${msgClassName}`}>{msg?.message}</span>
+                        <span className="sender">{msg?.message.senderName ?? "Unknown"}</span>
+                        <span className={`message type-${msgClassName}`}>
+                            {msg?.message.message}
+                        </span>
                     </div>
                 </div>
             );
         }
-
     },
     (current, next) =>
         current.line === next.line &&

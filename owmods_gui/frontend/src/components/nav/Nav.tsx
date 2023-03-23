@@ -45,7 +45,7 @@ const Nav = () => {
     }, []);
 
     const onPlay = useCallback(() => {
-        commands.runGame().catch(console.warn);
+        commands.startLogs().catch(console.warn);
     }, []);
 
     const onExport = useCallback(() => {

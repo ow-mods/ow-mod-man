@@ -1,6 +1,5 @@
 use anyhow::anyhow;
 use anyhow::Result;
-use log::info;
 use serde::{Deserialize, Serialize};
 use serde_repr::{Deserialize_repr, Serialize_repr};
 use tokio::{
@@ -71,14 +70,14 @@ impl SocketMessage {
     }
 }
 
-/// A server used to listen to logs from the gae
+/// A server used to listen to logs from the game
 pub struct LogServer {
     pub port: u16,
     listener: TcpListener,
 }
 
 impl LogServer {
-    /// Create and bind a log server to the given port, pass potr 0 to auto-assign.
+    /// Create and bind a log server to the given port, pass port 0 to auto-assign.
     /// **IMPORTANT:** If you pass port 0 make sure to get the port after binding. Otherwise the port you have and the port the server is bound to won't match.
     ///
     /// ## Returns
@@ -102,16 +101,15 @@ impl LogServer {
     ///
     pub async fn listen(
         self,
-        f: impl Fn(&SocketMessage, &str),
+        f: impl Fn(&SocketMessage, &u16),
         disconnect_on_quit: bool,
     ) -> Result<()> {
-        let target = format!("game:{}", self.port);
         f(
             &SocketMessage::make_internal(
                 format!("Ready to receive game logs on port {}!", self.port),
                 SocketMessageType::Info,
             ),
-            &target,
+            &self.port,
         );
         let mut keep_going = true;
         while keep_going {
@@ -121,7 +119,7 @@ impl LogServer {
                     "====== Client Connected To Console ======".to_string(),
                     SocketMessageType::Info,
                 ),
-                &target,
+                &self.port,
             );
             if let Ok((mut stream, _)) = stream {
                 let mut reader = BufReader::new(&mut stream);
@@ -138,12 +136,11 @@ impl LogServer {
                         Ok(message) => {
                             match message.message_type {
                                 SocketMessageType::Quit => {
-                                    info!(target: &target, "Quit Message Received");
                                     keep_going = !disconnect_on_quit;
                                     break;
                                 }
                                 _ => {
-                                    f(&message, &target);
+                                    f(&message, &self.port);
                                 }
                             };
                         }
@@ -153,7 +150,7 @@ impl LogServer {
                                     format!("Invalid Log From Game Received: {:?}", why),
                                     SocketMessageType::Error,
                                 ),
-                                &target,
+                                &self.port,
                             );
                         }
                     }
@@ -165,7 +162,7 @@ impl LogServer {
                         "Invalid Log Received!".to_string(),
                         SocketMessageType::Error,
                     ),
-                    &target,
+                    &self.port,
                 );
             }
             f(
@@ -173,7 +170,7 @@ impl LogServer {
                     "====== Client Disconnected From Console ======".to_string(),
                     SocketMessageType::Info,
                 ),
-                &target,
+                &self.port,
             );
         }
         Ok(())
@@ -209,7 +206,7 @@ mod tests {
             let server = LogServer::new(0).await.unwrap();
             let port = server.port;
             let count_ref = Mutex::new(0);
-            let handle_log = |msg: &SocketMessage, _: &str| {
+            let handle_log = |msg: &SocketMessage, _: &u16| {
                 let mut counter = count_ref.lock().unwrap();
                 match *counter {
                     0 => {

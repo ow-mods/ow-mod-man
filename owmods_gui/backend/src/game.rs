@@ -10,18 +10,34 @@ use owmods_core::{
     db::LocalDatabase,
     socket::{SocketMessage, SocketMessageType},
 };
+use serde::Serialize;
 use tauri::{api::dialog, AppHandle, Window, WindowBuilder};
+use typeshare::typeshare;
 
-pub async fn make_log_window(handle: &AppHandle, port: u16) -> Result<Window> {
-    let label = format!("game-{port}");
+use crate::LogPort;
+
+#[typeshare]
+#[derive(Serialize, Clone, Debug)]
+pub struct GameMessage {
+    port: LogPort,
+    message: SocketMessage,
+}
+
+impl GameMessage {
+    pub fn new(port: LogPort, message: SocketMessage) -> Self {
+        Self { port, message }
+    }
+}
+
+pub async fn make_log_window(handle: &AppHandle) -> Result<Window> {
     let log_window = WindowBuilder::new(
         handle,
-        &label,
+        "game",
         tauri::WindowUrl::App("/logs/index.html".parse()?),
     );
     let window = log_window
         .center()
-        .title(format!("Game Logs (Port {port})"))
+        .title("Game Logs")
         .min_inner_size(450.0, 450.0)
         .enable_clipboard_access()
         .build()?;
@@ -55,14 +71,18 @@ pub fn write_log(writer: &mut BufWriter<File>, msg: &SocketMessage) -> Result<()
 }
 
 pub fn get_logs_indices(
-    lines: &Vec<SocketMessage>,
+    lines: &Vec<GameMessage>,
+    filter_port: Option<LogPort>,
     filter_type: Option<SocketMessageType>,
 ) -> Result<Vec<usize>> {
     let mut indices: Vec<usize> = vec![];
-    if let Some(filter_type) = filter_type {
+    if filter_port.is_some() || filter_type.is_some() {
         let mut line_number = 0;
         for line in lines {
-            if line.message_type == filter_type {
+            let matches_port = filter_port.is_none() || line.port == *filter_port.as_ref().unwrap();
+            let matches_type = filter_type.is_none()
+                || line.message.message_type == *filter_type.as_ref().unwrap();
+            if matches_port && matches_type {
                 indices.push(line_number);
                 line_number += 1;
             }

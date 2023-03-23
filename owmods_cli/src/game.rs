@@ -11,10 +11,10 @@ use owmods_core::{
 };
 use tokio::try_join;
 
-fn handle_game_log(message: &SocketMessage, target: &str) {
+fn handle_game_log(message: &SocketMessage, target: &u16) {
     let unknown = &"Unknown".to_string();
     let out_message = format!(
-        "[{}::{}][{:?}] {}",
+        "[{target}][{}::{}][{:?}] {}",
         message.sender_name.as_ref().unwrap_or(unknown),
         message.sender_type.as_ref().unwrap_or(unknown),
         message.message_type,
@@ -25,13 +25,13 @@ fn handle_game_log(message: &SocketMessage, target: &str) {
         | SocketMessageType::Info
         | SocketMessageType::Success
         | SocketMessageType::Quit => {
-            info!(target: target, "{}", out_message)
+            info!("{}", out_message)
         }
         SocketMessageType::Error | SocketMessageType::Fatal => {
-            error!(target: target, "{}", out_message)
+            error!("{}", out_message)
         }
-        SocketMessageType::Warning => warn!(target: target, "{}", out_message),
-        SocketMessageType::Debug => debug!(target: target, "{}", out_message),
+        SocketMessageType::Warning => warn!("{}", out_message),
+        SocketMessageType::Debug => debug!("{}", out_message),
     }
 }
 

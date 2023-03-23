@@ -8,6 +8,7 @@ import LogHeader from "@components/logs/LogHeader";
 import LogList from "@components/logs/LogList";
 import CenteredSpinner from "@components/common/CenteredSpinner";
 import { startConsoleLogListen } from "../../logging";
+import { listen } from "@tauri-apps/api/event";
 
 export type LogFilter = keyof typeof SocketMessageType | "Any";
 
@@ -15,15 +16,13 @@ startConsoleLogListen();
 
 const thisWindow = getCurrent();
 
-const port = parseInt(thisWindow.label.split("-")[1]);
-
 let unlisten: () => void = () => null;
 
 thisWindow
     .onCloseRequested((e) => {
         e.preventDefault();
         commands
-            .stopLogging({ port })
+            .stopLogging()
             .catch(console.warn)
             .finally(() => {
                 unlisten();
@@ -33,6 +32,13 @@ thisWindow
     .then((u) => {
         unlisten = u;
     });
+
+const ports: number[] = [];
+
+listen("GAME-START", (e) => {
+    const port = e.payload as number;
+    if (!ports.includes(port)) ports.push(port);
+});
 
 const App = () => {
     const [activeFilter, setActiveFilter] = useState<LogFilter>("Any");
@@ -46,28 +52,30 @@ const App = () => {
         thisWindow
             .setTitle(
                 TranslationMap[guiConfig?.language ?? "English"]["LOGS_TITLE"].replace(
-                    "$port$",
-                    port.toString()
+                    "$ports$",
+                    ports.join(", ")
                 )
             )
             .catch(console.warn);
-    }, [guiConfig?.language]);
+    }, [guiConfig?.language, ports]);
 
     const filterToPass = useMemo(() => {
         if (activeFilter === "Any") {
-            return undefined
+            return undefined;
         } else {
             return Object.keys(SocketMessageType).indexOf(activeFilter);
         }
     }, [activeFilter]);
 
     const onClear = useCallback(() => {
-        commands.clearLogs({ port }).catch(console.warn);
+        commands.clearLogs().catch(console.warn);
     }, []);
 
-    const [status, logLines, err] = hooks.getLogLines(`LOG-UPDATE-${port}`, { port, filterType: filterToPass });
+    const [status, logLines, err] = hooks.getLogLines(`LOG-UPDATE`, { filterType: filterToPass });
 
-    if (guiConfig === null || status === "Loading") {
+    console.debug(logLines);
+
+    if (guiConfig === null || (status === "Loading" && logLines === null)) {
         return <CenteredSpinner />;
     } else if (status === "Error") {
         return <div className="center">{err!.toString()}</div>;
@@ -87,7 +95,6 @@ const App = () => {
                         autoScroll={autoScroll}
                         activeFilter={activeFilter}
                         logLines={logLines ?? []}
-                        port={port}
                     />
                 </main>
             </TranslationContext.Provider>

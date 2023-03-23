@@ -3,16 +3,16 @@
     windows_subsystem = "windows"
 )]
 
-use std::{collections::HashMap, error::Error, fs::File, io::BufWriter, sync::Arc};
+use std::{error::Error, fs::File, io::BufWriter, sync::Arc};
 
 use commands::*;
+use game::GameMessage;
 use gui_config::GuiConfig;
 use log::{set_boxed_logger, set_max_level};
 use logging::Logger;
 use owmods_core::{
     config::Config,
     db::{LocalDatabase, RemoteDatabase},
-    socket::SocketMessage,
 };
 
 use tokio::sync::RwLock as TokioLock;
@@ -24,14 +24,14 @@ mod logging;
 
 type StatePart<T> = Arc<TokioLock<T>>;
 type LogPort = u16;
-type LogMessages = HashMap<LogPort, (Vec<SocketMessage>, BufWriter<File>)>;
+type LogMessages = Option<(Vec<GameMessage>, BufWriter<File>)>;
 
 pub struct State {
     local_db: StatePart<LocalDatabase>,
     remote_db: StatePart<RemoteDatabase>,
     config: StatePart<Config>,
     gui_config: StatePart<GuiConfig>,
-    log_files: StatePart<LogMessages>,
+    game_log: StatePart<LogMessages>,
 }
 
 fn main() -> Result<(), Box<dyn Error>> {
@@ -44,7 +44,7 @@ fn main() -> Result<(), Box<dyn Error>> {
             remote_db: Arc::new(TokioLock::new(RemoteDatabase::default())),
             config: Arc::new(TokioLock::new(config)),
             gui_config: Arc::new(TokioLock::new(gui_config)),
-            log_files: Arc::new(TokioLock::new(HashMap::new())),
+            game_log: Arc::new(TokioLock::new(None)),
         })
         .setup(move |app| {
             set_boxed_logger(Box::new(Logger::new(app.handle())))
@@ -78,6 +78,8 @@ fn main() -> Result<(), Box<dyn Error>> {
             get_updatable_mods,
             update_mod,
             update_all_mods,
+            active_log,
+            start_logs,
             run_game,
             clear_logs,
             stop_logging,

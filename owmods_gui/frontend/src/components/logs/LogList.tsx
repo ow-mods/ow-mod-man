@@ -8,7 +8,6 @@ export interface LogListProps {
     logLines: number[];
     activeFilter: LogFilter;
     autoScroll: boolean;
-    port: number;
 }
 
 const LogList = memo((props: LogListProps) => {
@@ -16,7 +15,6 @@ const LogList = memo((props: LogListProps) => {
     const logSizes = useRef<Record<number, number>>({});
 
     const reportSize = useCallback((i: number, l: number, size: number) => {
-        console.debug(`${l} reported ${size}!`);
         logSizes.current[l] = size;
         listRef.current?.resetAfterIndex(i);
     }, []);
@@ -46,7 +44,6 @@ const LogList = memo((props: LogListProps) => {
                         {({ index, style }) => (
                             <LogLine
                                 reportSize={reportSize}
-                                port={props.port}
                                 index={index}
                                 line={props.logLines[index]}
                                 key={index}

@@ -1,6 +1,6 @@
 import { LoadState, useTauri } from "@hooks";
 import { invoke } from "@tauri-apps/api";
-import { Config, GuiConfig, LocalMod, OWMLConfig, RemoteMod, SocketMessage } from "@types";
+import { Config, GuiConfig, LocalMod, OWMLConfig, RemoteMod, GameMessage } from "@types";
 
 type CommandInfo<P, R> = [P, R];
 type GetCommand<V> = CommandInfo<Record<string, never>, V>;
@@ -26,7 +26,7 @@ const commandInfo = {
     getUpdatableMods: $<GetCommand<string[]>>("get_updatable_mods"),
     getLocalMod: $<ModCommand<LocalMod>>("get_local_mod"),
     getRemoteMod: $<ModCommand<RemoteMod>>("get_remote_mod"),
-    getLogLine: $<CommandInfo<{ port: number; line: number }, SocketMessage>>("get_game_message"),
+    getLogLine: $<CommandInfo<{ line: number }, GameMessage>>("get_game_message"),
     toggleMod: $<ActionCommand<{ uniqueName: string; enabled: boolean }>>("toggle_mod"),
     toggleAll: $<ActionCommand<{ enabled: boolean }>>("toggle_all"),
     openModFolder: $<ModAction>("open_mod_folder"),
@@ -42,10 +42,18 @@ const commandInfo = {
     saveOwmlConfig: $<ActionCommand<{ owmlConfig: OWMLConfig }>>("save_owml_config"),
     updateMod: $<ModAction>("update_mod"),
     updateAll: $<ActionCommand<{ uniqueNames: string[] }>>("update_all_mods"),
+    logsAreActive: $<GetCommand<boolean>>("active_log"),
+    startLogs: $<EmptyCommand>("start_logs"),
     runGame: $<EmptyCommand>("run_game"),
-    clearLogs: $<ActionCommand<{ port: number }>>("clear_logs"),
-    stopLogging: $<ActionCommand<{ port: number }>>("stop_logging"),
-    getLogLines: $<CommandInfo<{ port: number, filterType?: number | undefined }, number[]>>("get_log_lines"),
+    clearLogs: $<EmptyCommand>("clear_logs"),
+    stopLogging: $<EmptyCommand>("stop_logging"),
+    getLogLines:
+        $<
+            CommandInfo<
+                { filterPort?: number | undefined; filterType?: number | undefined },
+                number[]
+            >
+        >("get_log_lines"),
     exportMods: $<ActionCommand<{ path: string }>>("export_mods"),
     importMods: $<ActionCommand<{ path: string }>>("import_mods")
 };

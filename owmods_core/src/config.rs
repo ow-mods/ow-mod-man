@@ -78,7 +78,9 @@ impl Config {
 
     fn read(path: &Path) -> Result<Self> {
         debug!("Reading Config From {}", path.to_str().unwrap());
-        deserialize_from_json(path)
+        let mut new_conf: Config = deserialize_from_json(path)?;
+        new_conf.path = path.to_path_buf();
+        Ok(new_conf)
     }
 
     /// Get the config from the provided path (or default one), creating a default file if it doesn't exist.

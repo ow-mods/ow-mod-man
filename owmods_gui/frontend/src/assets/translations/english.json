@@ -1,6 +1,6 @@
 {
     "APP_TITLE": "Outer Wilds Mod Manager",
-    "LOGS_TITLE": "Game Logs (Port $port$)",
+    "LOGS_TITLE": "Game Logs (Port $ports$)",
     "ABOUT": "About",
     "DISMISS": "Dismiss",
     "VERSION": "Version: $version$",

@@ -77,14 +77,12 @@ pub fn get_logs_indices(
 ) -> Result<Vec<usize>> {
     let mut indices: Vec<usize> = vec![];
     if filter_port.is_some() || filter_type.is_some() {
-        let mut line_number = 0;
-        for line in lines {
+        for (line_number, line) in lines.iter().enumerate() {
             let matches_port = filter_port.is_none() || line.port == *filter_port.as_ref().unwrap();
             let matches_type = filter_type.is_none()
                 || line.message.message_type == *filter_type.as_ref().unwrap();
             if matches_port && matches_type {
                 indices.push(line_number);
-                line_number += 1;
             }
         }
     } else {

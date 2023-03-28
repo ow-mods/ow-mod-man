@@ -73,8 +73,7 @@ impl RemoteDatabase {
     pub async fn fetch(url: &str) -> Result<RemoteDatabase> {
         debug!("Fetching Remote DB At {}", url);
         let resp = reqwest::get(url).await?;
-        let raw = resp.text().await?;
-        let raw_db: RawRemoteDatabase = serde_json::from_str(&raw)?;
+        let raw_db: RawRemoteDatabase = resp.json().await?;
         debug!("Success, Constructing Mod Map");
         Ok(Self::from(raw_db))
     }

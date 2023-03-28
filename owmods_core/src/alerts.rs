@@ -24,8 +24,7 @@ pub struct Alert {
 ///
 pub async fn fetch_alert(url: &str) -> Result<Alert> {
     debug!("Fetching {}", url);
-    let txt = reqwest::get(url).await?.text().await?;
-    let alert: Alert = serde_json::from_str(&txt)?;
+    let alert: Alert = reqwest::get(url).await?.json().await?;
     Ok(alert)
 }
 

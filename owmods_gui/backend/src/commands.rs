@@ -481,10 +481,13 @@ pub async fn run_game(state: tauri::State<'_, State>, window: tauri::Window) -> 
             if let Some((lines, writer)) = log_file.as_mut() {
                 write_log(writer, &msg).unwrap();
                 lines.push(GameMessage::new(port, msg));
-                window_handle.emit_all("LOG-UPDATE", "").ok();
+                window_handle
+                    .emit_all("LOG-UPDATE", "")
+                    .expect("Can't Send Event");
             }
         });
     };
+    window.emit("GAME-START", &port).expect("Can't Send Event");
     try_join!(
         log_server.listen(&handle_log, false),
         launch_game(&config, &port)

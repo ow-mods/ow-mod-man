@@ -3,7 +3,7 @@ import { TranslationContext, TranslationMap } from "@components/common/Translati
 import { useTheme } from "@hooks";
 import { getCurrent } from "@tauri-apps/api/window";
 import { SocketMessageType, Theme } from "@types";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import LogHeader from "@components/logs/LogHeader";
 import LogList from "@components/logs/LogList";
 import CenteredSpinner from "@components/common/CenteredSpinner";
@@ -40,9 +40,18 @@ listen("GAME-START", (e) => {
     if (!ports.includes(port)) ports.push(port);
 });
 
+const getFilterToPass = (activeFilter: LogFilter) => {
+    if (activeFilter === "Any") {
+        return undefined;
+    } else {
+        return Object.keys(SocketMessageType).indexOf(activeFilter);
+    }
+};
+
 const App = () => {
     const [activeFilter, setActiveFilter] = useState<LogFilter>("Any");
     const [autoScroll, setAutoScroll] = useState(true);
+    const [logLines, setLogLines] = useState<number[]>([]);
 
     const guiConfig = hooks.getGuiConfig("GUI_CONFIG_RELOAD")[1];
 
@@ -59,26 +68,28 @@ const App = () => {
             .catch(console.warn);
     }, [guiConfig?.language, ports]);
 
-    const filterToPass = useMemo(() => {
-        if (activeFilter === "Any") {
-            return undefined;
-        } else {
-            return Object.keys(SocketMessageType).indexOf(activeFilter);
-        }
-    }, [activeFilter]);
-
     const onClear = useCallback(() => {
         commands.clearLogs().catch(console.warn);
+        setLogLines([]);
     }, []);
 
-    const [status, logLines, err] = hooks.getLogLines(`LOG-UPDATE`, { filterType: filterToPass });
+    useEffect(() => {
+        let cancel = false;
+        listen("LOG-UPDATE", () => {
+            if (cancel) return;
+            commands.getLogLines({ filterType: getFilterToPass(activeFilter) }).then(setLogLines);
+        }).catch(console.warn);
+        return () => {
+            cancel = true;
+        };
+    }, []);
 
-    console.debug(logLines);
+    useEffect(() => {
+        commands.getLogLines({ filterType: getFilterToPass(activeFilter) }).then(setLogLines);
+    }, [activeFilter]);
 
-    if (guiConfig === null || (status === "Loading" && logLines === null)) {
+    if (guiConfig === null || logLines === null) {
         return <CenteredSpinner />;
-    } else if (status === "Error") {
-        return <div className="center">{err!.toString()}</div>;
     } else {
         return (
             <TranslationContext.Provider value={guiConfig!.language}>

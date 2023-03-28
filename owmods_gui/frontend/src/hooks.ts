@@ -25,7 +25,9 @@ export const useTauri = <T>(
         if (status !== "Loading") {
             for (const eventToSubscribe of events) {
                 listen(eventToSubscribe, () => setStatus("Loading")).catch((e) => {
+                    console.debug(eventName, "~~TRY_FIRE~~");
                     if (cancel) return;
+                    console.debug(eventName, "~~FIRE~~");
                     setStatus("Error");
                     setError(e);
                 });
@@ -34,6 +36,7 @@ export const useTauri = <T>(
             commandFn()
                 .then((data) => {
                     if (cancel) return;
+                    if (eventName !== "") console.debug(eventName, data);
                     setData(data as T);
                     setStatus("Done");
                 })

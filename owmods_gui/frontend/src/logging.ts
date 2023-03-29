@@ -1,18 +1,13 @@
 import { listen } from "@tauri-apps/api/event";
+import { LogPayload } from "@types";
 
 type LogType = "DEBUG" | "INFO" | "WARNING" | "ERROR";
 
-interface LogMessage {
-    log_type: LogType;
-    target?: string;
-    message: string;
-}
-
 export const startConsoleLogListen = () => {
     listen("LOG", (e) => {
-        const msg = e.payload as LogMessage;
+        const msg = e.payload as LogPayload;
         if (msg.target !== "progress" && !msg.target?.startsWith("game")) {
-            switch (msg.log_type) {
+            switch (msg.logType as LogType) {
                 case "DEBUG":
                     console.debug(msg.message);
                     break;

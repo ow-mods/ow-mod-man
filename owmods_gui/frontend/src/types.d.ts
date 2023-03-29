@@ -101,6 +101,12 @@ export interface GuiConfig {
     watchFs: boolean;
 }
 
+export interface LogPayload {
+    logType: Level;
+    target: string;
+    message: string;
+}
+
 /** Represents the type of message sent from the game */
 export enum SocketMessageType {
     Message = "message",

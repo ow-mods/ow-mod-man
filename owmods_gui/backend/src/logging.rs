@@ -1,21 +1,57 @@
+use std::{
+    fs::File,
+    io::{BufWriter, Write},
+    sync::{Arc, Mutex},
+};
+
+use anyhow::Result;
+use chrono::Local;
 use log::{Level, STATIC_MAX_LEVEL};
-use owmods_core::progress::ProgressPayload;
+use owmods_core::{file::get_app_path, progress::ProgressPayload};
 use serde::Serialize;
+use std::fs::create_dir_all;
 use tauri::{AppHandle, Manager};
+use typeshare::typeshare;
 
 pub struct Logger {
     app: AppHandle,
+    writer: Arc<Mutex<BufWriter<File>>>,
 }
 
+#[typeshare]
 #[derive(Serialize, Clone)]
+#[serde(rename_all = "camelCase")]
 struct LogPayload {
     log_type: Level,
+    target: String,
     message: String,
 }
 
 impl Logger {
     pub fn new(app: AppHandle) -> Self {
-        Self { app }
+        let now = Local::now();
+        let logs_path = get_app_path()
+            .expect("Couldn't Make Log File")
+            .join("logs")
+            .join(now.format("%d_%m_%Y").to_string())
+            .join(format!("{}.log", now.format("%H_%M_%S")));
+        create_dir_all(logs_path.parent().unwrap()).unwrap();
+        let file = File::create(logs_path).expect("Couldn't Make Log File");
+        let writer = BufWriter::new(file);
+        Self {
+            app,
+            writer: Arc::new(Mutex::new(writer)),
+        }
+    }
+
+    pub fn write_log_to_file(&self, log_type: Level, message: &str) -> Result<()> {
+        let mut writer = self.writer.lock().unwrap();
+        let now = Local::now().format("%H:%M:%S");
+        let message = format!("[{}][{}] {}", now, log_type, message);
+        println!("{}", message);
+        writeln!(writer, "{}", message)?;
+        writer.flush()?;
+        Ok(())
     }
 }
 
@@ -38,11 +74,17 @@ impl log::Log for Logger {
                 ProgressPayload::Unknown => Ok(()),
             }
         } else if self.enabled(record.metadata()) {
+            let message = format!("{}", record.args());
+            self.write_log_to_file(record.level(), &message)
+                .unwrap_or_else(|e| {
+                    println!("FAILED TO WRITE LOG: {:?}", e);
+                });
             self.app.emit_all(
                 "LOG",
                 LogPayload {
                     log_type: record.level(),
-                    message: format!("{}", record.args()),
+                    target: record.target().to_string(),
+                    message,
                 },
             )
         } else {

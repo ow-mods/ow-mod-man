@@ -458,11 +458,11 @@ pub async fn run_game(state: tauri::State<'_, State>, window: tauri::Window) -> 
     let log_server = LogServer::new(0).await.map_err(e_to_str)?;
     let port = log_server.port;
     let now = Local::now();
-    let logs_path = get_app_path().map_err(e_to_str)?.join(format!(
-        "game_logs/{}/{}.log",
-        now.format("%d_%m_%Y"),
-        now.format("%H_%M_%S")
-    ));
+    let logs_path = get_app_path()
+        .map_err(e_to_str)?
+        .join("game_logs")
+        .join(now.format("%d_%m_%Y").to_string())
+        .join(format!("{}.log", now.format("%H_%M_%S")));
     create_all_parents(&logs_path).map_err(e_to_str)?;
     let file = File::options()
         .read(true)

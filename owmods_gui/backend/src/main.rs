@@ -47,8 +47,17 @@ fn main() -> Result<(), Box<dyn Error>> {
             game_log: Arc::new(TokioLock::new(None)),
         })
         .setup(move |app| {
-            set_boxed_logger(Box::new(Logger::new(app.handle())))
-                .map(|_| set_max_level(log::LevelFilter::Debug))?;
+            let logger = Logger::new(app.handle());
+            logger
+                .write_log_to_file(
+                    log::Level::Info,
+                    &format!(
+                        "Start of Outer Wilds Mod Manager v{}",
+                        env!("CARGO_PKG_VERSION")
+                    ),
+                )
+                .ok();
+            set_boxed_logger(Box::new(logger)).map(|_| set_max_level(log::LevelFilter::Debug))?;
             Ok(())
         })
         .invoke_handler(tauri::generate_handler![

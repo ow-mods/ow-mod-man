@@ -50,7 +50,11 @@ const commandInfo = {
     getLogLines:
         $<
             CommandInfo<
-                { filterPort?: number | undefined; filterType?: number | undefined },
+                {
+                    filterPort?: number | undefined;
+                    filterType?: number | undefined;
+                    search: string;
+                },
                 number[]
             >
         >("get_log_lines"),

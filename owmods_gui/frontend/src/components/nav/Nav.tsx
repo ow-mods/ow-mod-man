@@ -5,7 +5,6 @@ import {
     BsInfoCircleFill,
     BsArrowRepeat,
     BsBoxArrowInDown,
-    BsFilterLeft,
     BsBoxArrowUpRight
 } from "react-icons/bs";
 
@@ -27,17 +26,15 @@ const Nav = () => {
     const openInstallFrom = useRef<() => void>(() => null);
     const openAbout = useRef<() => void>(() => null);
 
-    const [refresh, runGame, help, settings, installFrom, about, exportLabel, logs] =
-        useTranslations([
-            "REFRESH",
-            "RUN_GAME",
-            "HELP",
-            "SETTINGS",
-            "INSTALL_FROM",
-            "ABOUT",
-            "EXPORT_MODS",
-            "LOGS"
-        ]);
+    const [refresh, runGame, help, settings, installFrom, about, exportLabel] = useTranslations([
+        "REFRESH",
+        "RUN_GAME",
+        "HELP",
+        "SETTINGS",
+        "INSTALL_FROM",
+        "ABOUT",
+        "EXPORT_MODS"
+    ]);
 
     const onRefresh = useCallback(() => {
         commands.refreshLocalDb().catch(console.warn);
@@ -100,9 +97,6 @@ const Nav = () => {
                         </NavButton>
                         <NavButton onClick={() => openAbout.current?.()}>
                             {about} <Icon iconType={BsInfoCircleFill} />
-                        </NavButton>
-                        <NavButton>
-                            {logs} <Icon iconType={BsFilterLeft} />
                         </NavButton>
                     </NavMore>
                 </ul>

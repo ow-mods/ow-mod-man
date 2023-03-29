@@ -74,14 +74,24 @@ pub fn get_logs_indices(
     lines: &Vec<GameMessage>,
     filter_port: Option<LogPort>,
     filter_type: Option<SocketMessageType>,
+    search: &str,
 ) -> Result<Vec<usize>> {
     let mut indices: Vec<usize> = vec![];
-    if filter_port.is_some() || filter_type.is_some() {
+    let search = search.to_ascii_lowercase();
+    if filter_port.is_some() || filter_type.is_some() || !search.trim().is_empty() {
         for (line_number, line) in lines.iter().enumerate() {
             let matches_port = filter_port.is_none() || line.port == *filter_port.as_ref().unwrap();
             let matches_type = filter_type.is_none()
                 || line.message.message_type == *filter_type.as_ref().unwrap();
-            if matches_port && matches_type {
+            let matches_search = search.is_empty()
+                || line.message.message.to_ascii_lowercase().contains(&search)
+                || line
+                    .message
+                    .sender_name
+                    .as_ref()
+                    .map(|v| v.to_ascii_lowercase().contains(&search))
+                    .unwrap_or(false);
+            if matches_port && matches_type && matches_search {
                 indices.push(line_number);
             }
         }

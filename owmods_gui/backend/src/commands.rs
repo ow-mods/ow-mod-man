@@ -58,11 +58,16 @@ fn search<'a, T>(
 }
 
 #[tauri::command]
-pub async fn initial_setup(state: tauri::State<'_, State>) -> Result<(), String> {
+pub async fn initial_setup(
+    handle: tauri::AppHandle,
+    state: tauri::State<'_, State>,
+) -> Result<(), String> {
     let mut config = state.config.write().await;
     *config = Config::get(None).map_err(e_to_str)?;
     let mut gui_config = state.gui_config.write().await;
     *gui_config = GuiConfig::get().map_err(e_to_str)?;
+    handle.emit_all("GUI_CONFIG_RELOAD", "").ok();
+    handle.emit_all("CONFIG_RELOAD", "").ok();
     Ok(())
 }
 
@@ -530,11 +535,12 @@ pub async fn stop_logging(state: tauri::State<'_, State>) -> Result<(), String> 
 pub async fn get_log_lines(
     filter_port: Option<LogPort>,
     filter_type: Option<SocketMessageType>,
+    search: &str,
     state: tauri::State<'_, State>,
 ) -> Result<Vec<usize>, String> {
     let logs = state.game_log.read().await;
     if let Some((lines, _)) = logs.as_ref() {
-        let lines = get_logs_indices(lines, filter_port, filter_type).map_err(e_to_str)?;
+        let lines = get_logs_indices(lines, filter_port, filter_type, search).map_err(e_to_str)?;
         Ok(lines)
     } else {
         Err("Log Server Not Running".to_string())

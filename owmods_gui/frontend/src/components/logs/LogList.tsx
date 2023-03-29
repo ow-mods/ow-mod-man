@@ -7,6 +7,7 @@ import { LogFilter } from "./LogApp";
 export interface LogListProps {
     logLines: number[];
     activeFilter: LogFilter;
+    search: string;
     autoScroll: boolean;
 }
 
@@ -14,11 +15,16 @@ const LogList = memo((props: LogListProps) => {
     const logLen = props.logLines.length;
     const logSizes = useRef<Record<number, number>>({});
 
+    console.debug(logSizes);
+
     const reportSize = useCallback((i: number, l: number, size: number) => {
         logSizes.current[l] = size;
         listRef.current?.resetAfterIndex(i);
     }, []);
-    const getSize = useCallback((i: number) => logSizes.current[i] ?? 40, []);
+    const getSize = useCallback(
+        (i: number) => logSizes.current[props.logLines[i]] ?? 40,
+        [props.logLines, logSizes.current]
+    );
 
     useEffect(() => {
         if (props.autoScroll) {

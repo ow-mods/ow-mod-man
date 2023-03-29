@@ -50,8 +50,15 @@ const getFilterToPass = (activeFilter: LogFilter) => {
 
 const App = () => {
     const [activeFilter, setActiveFilter] = useState<LogFilter>("Any");
+    const [activeSearch, setActiveSearch] = useState<string>("");
     const [autoScroll, setAutoScroll] = useState(true);
     const [logLines, setLogLines] = useState<number[]>([]);
+
+    const fetchLogLines = useCallback(() => {
+        commands
+            .getLogLines({ filterType: getFilterToPass(activeFilter), search: activeSearch })
+            .then(setLogLines);
+    }, [activeFilter, activeSearch]);
 
     const guiConfig = hooks.getGuiConfig("GUI_CONFIG_RELOAD")[1];
 
@@ -77,7 +84,7 @@ const App = () => {
         let cancel = false;
         listen("LOG-UPDATE", () => {
             if (cancel) return;
-            commands.getLogLines({ filterType: getFilterToPass(activeFilter) }).then(setLogLines);
+            fetchLogLines();
         }).catch(console.warn);
         return () => {
             cancel = true;
@@ -85,8 +92,8 @@ const App = () => {
     }, []);
 
     useEffect(() => {
-        commands.getLogLines({ filterType: getFilterToPass(activeFilter) }).then(setLogLines);
-    }, [activeFilter]);
+        fetchLogLines();
+    }, [activeFilter, activeSearch]);
 
     if (guiConfig === null || logLines === null) {
         return <CenteredSpinner />;
@@ -100,11 +107,14 @@ const App = () => {
                         setAutoScroll={setAutoScroll}
                         activeFilter={activeFilter}
                         setActiveFilter={setActiveFilter}
+                        activeSearch={activeSearch}
+                        setActiveSearch={setActiveSearch}
                         onClear={onClear}
                     />
                     <LogList
                         autoScroll={autoScroll}
                         activeFilter={activeFilter}
+                        search={activeSearch}
                         logLines={logLines ?? []}
                     />
                 </main>

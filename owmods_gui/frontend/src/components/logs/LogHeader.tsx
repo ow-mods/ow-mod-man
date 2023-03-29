@@ -1,6 +1,6 @@
 import { useTranslations } from "@hooks";
 import { SocketMessageType } from "@types";
-import { memo } from "react";
+import { memo, useCallback, useRef, useState } from "react";
 import { LogFilter } from "./LogApp";
 
 export interface LogHeaderProps {
@@ -9,23 +9,49 @@ export interface LogHeaderProps {
     setActiveFilter: (filter: LogFilter) => void;
     autoScroll: boolean;
     setAutoScroll: (newValue: boolean) => void;
+    activeSearch: string;
+    setActiveSearch: (newSearch: string) => void;
     onClear: () => void;
 }
 
 const LogHeader = memo(
     (props: LogHeaderProps) => {
-        const [filterLabel, autoScrollLabel, anyLabel, clearLabel] = useTranslations([
+        const [tempSearch, setTempSearch] = useState<string>("");
+        const searchTimeout = useRef<number | undefined>(undefined);
+        const [filterLabel, searchLogs, autoScrollLabel, anyLabel, clearLabel] = useTranslations([
             "FILTER",
+            "SEARCH_LOGS",
             "AUTO_SCROLL",
             "ANY",
             "CLEAR_LOGS"
         ]);
+
+        const onSearchChange = useCallback(
+            (val: string) => {
+                setTempSearch(val);
+                if (searchTimeout) clearTimeout(searchTimeout.current);
+                searchTimeout.current = setTimeout(() => {
+                    props.setActiveSearch(val);
+                }, 200);
+            },
+            [tempSearch]
+        );
 
         const filterTranslations = useTranslations(Object.keys(SocketMessageType));
 
         return (
             <>
                 <div className="log-actions">
+                    <label htmlFor="search">
+                        {searchLogs}
+                        <input
+                            type="text"
+                            id="search"
+                            value={tempSearch}
+                            onChange={(e) => onSearchChange(e.target.value)}
+                            placeholder="Search"
+                        />
+                    </label>
                     <label htmlFor="filter">
                         {filterLabel}
                         <select
@@ -60,13 +86,15 @@ const LogHeader = memo(
                             onChange={(e) => props.setAutoScroll(e.target.checked)}
                         />
                     </label>
-                    <a
-                        href={props.logsLen === 0 ? undefined : "#"}
-                        role="button"
-                        onClick={() => props.onClear()}
-                    >
-                        {clearLabel}
-                    </a>
+                    <div>
+                        <a
+                            href={props.logsLen === 0 ? undefined : "#"}
+                            role="button"
+                            onClick={() => props.onClear()}
+                        >
+                            {clearLabel}
+                        </a>
+                    </div>
                 </div>
             </>
         );

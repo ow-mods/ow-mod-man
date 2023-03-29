@@ -13,15 +13,25 @@ $log-border: 1px solid var(--accent-bg);
 .log-actions {
     display: flex;
     flex-direction: row;
+    align-content: center;
+    justify-content: center;
+    height: fit-content;
+}
+
+.log-actions > input {
+    margin-bottom: 0 !important;
+    align-self: center;
 }
 
 .log-actions > label {
     display: flex;
     width: 50%;
+    height: 100%;
     margin: $margin;
 }
 
-.log-actions > label[for="filter"] {
+.log-actions > label[for="filter"],
+.log-actions > label[for="search"] {
     flex-direction: column;
 }
 
@@ -35,8 +45,14 @@ $log-border: 1px solid var(--accent-bg);
     margin-left: $margin;
 }
 
-.log-actions > a[role="button"] {
-    height: fit-content;
+.log-actions > div {
+    margin: $margin;
+    display: flex;
+    align-content: center;
+    height: 100%;
+}
+
+.log-actions a[role="button"] {
     align-self: center;
     white-space: nowrap;
     margin: 0 $margin;

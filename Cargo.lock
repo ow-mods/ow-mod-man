@@ -2123,6 +2123,7 @@ dependencies = [
  "directories",
  "futures",
  "glob",
+ "lazy_static",
  "log",
  "opener",
  "reqwest",

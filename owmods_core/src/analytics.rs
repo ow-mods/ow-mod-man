@@ -1,12 +1,17 @@
 use std::time::{SystemTime, UNIX_EPOCH};
 
 use anyhow::Result;
+use lazy_static::lazy_static;
 use log::{debug, warn};
 use reqwest::Client;
 use serde::Serialize;
 
 const MEASUREMENT_ID: &str = "G-2QQN7V5WE1";
 const API_KEY: Option<&str> = option_env!("ANALYTICS_API_KEY");
+
+lazy_static! {
+    static ref ANALYTICS_ID: String = uuid::Uuid::new_v4().hyphenated().to_string();
+}
 
 /// Represents an event sent to GAnalytics when an action is performed on a mod
 #[derive(Serialize, Debug, Clone)]
@@ -46,10 +51,8 @@ struct AnalyticsPayload {
 
 impl AnalyticsPayload {
     pub fn new(event_name: &AnalyticsEventName, unique_name: &str) -> Self {
-        let client_id = uuid::Uuid::new_v4();
         Self {
-            // TODO: Make this global or smth ig? Does it rly matter?
-            client_id: client_id.hyphenated().to_string(),
+            client_id: ANALYTICS_ID.to_string(),
             timestamp_micros: SystemTime::now()
                 .duration_since(UNIX_EPOCH)
                 .unwrap()

@@ -16,6 +16,7 @@ use crate::{
 /// Represents an error with a [LocalMod]
 #[typeshare]
 #[derive(Serialize, Clone)]
+#[serde(tag = "errorType", content = "payload")]
 pub enum ModValidationError {
     /// The mod's manifest was invalid, contains the error encountered when loading it
     InvalidManifest(String),

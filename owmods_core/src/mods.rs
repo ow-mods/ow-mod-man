@@ -81,7 +81,7 @@ pub struct LocalMod {
     pub manifest: ModManifest,
 }
 
-/// Represent a mod that completely failed to load
+/// Represents a mod that completely failed to load
 #[typeshare]
 #[derive(Serialize, Clone)]
 pub struct FailedMod {

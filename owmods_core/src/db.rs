@@ -16,11 +16,7 @@ use super::mods::{LocalMod, ModManifest, RemoteMod};
 use super::toggle::get_mod_enabled;
 
 fn fix_version(version: &str) -> &str {
-    let mut str = version;
-    while str.starts_with('v') {
-        str = str.strip_prefix('v').unwrap_or(str);
-    }
-    str
+    version.trim_start_matches('v')
 }
 
 /// Used internally to construct an actual [RemoteDatabase]

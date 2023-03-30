@@ -46,9 +46,15 @@ export interface ModReadMe {
 /** Represents an installed mod */
 export interface LocalMod {
     enabled: boolean;
-    errors: string[];
+    errors: ModValidationError[];
     mod_path: string;
     manifest: ModManifest;
+}
+
+/** Represents a mod that completely failed to load */
+export interface FailedMod {
+    error: ModValidationError;
+    mod_path: string;
 }
 
 /** Represents a manifest file for a local mod. */
@@ -118,6 +124,19 @@ export enum SocketMessageType {
     Fatal = "fatal",
     Debug = "debug"
 }
+
+/** Represents an error with a [LocalMod] */
+export type ModValidationError =
+    /** The mod's manifest was invalid, contains the error encountered when loading it */
+    | { errorType: "InvalidManifest"; payload: string }
+    /** The mod is missing a dependency that needs to be installed, contains the unique name of the missing dep */
+    | { errorType: "MissingDep"; payload: string }
+    /** A dependency of the mod is disabled, contains the unique name of the disabled dep */
+    | { errorType: "DisabledDep"; payload: string }
+    /** There's another enabled mod that conflicts with this one, contains the conflicting mod */
+    | { errorType: "ConflictingMod"; payload: string }
+    /** The DLL the mod specifies in its `manifest.json` doesn't exist, contains the path (if even present) to the DLL specified by the mod */
+    | { errorType: "MissingDLL"; payload?: string };
 
 export enum Theme {
     White = "White",

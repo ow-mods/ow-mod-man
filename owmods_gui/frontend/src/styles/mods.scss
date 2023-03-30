@@ -88,6 +88,14 @@ $row-border: 1px solid var(--accent-bg);
     font-size: large;
 }
 
+.mod-actions .mod-warning {
+    color: orange;
+}
+
+.mod-actions .mod-error {
+    color: #b8211c;
+}
+
 .mod-authors {
     color: var(--primary-muted);
 }

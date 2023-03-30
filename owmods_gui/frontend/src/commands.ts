@@ -47,19 +47,20 @@ const commandInfo = {
     runGame: $<EmptyCommand>("run_game"),
     clearLogs: $<EmptyCommand>("clear_logs"),
     stopLogging: $<EmptyCommand>("stop_logging"),
-    getLogLines:
-        $<
-            CommandInfo<
-                {
-                    filterPort?: number | undefined;
-                    filterType?: number | undefined;
-                    search: string;
-                },
-                number[]
-            >
-        >("get_log_lines"),
+    getLogLines: $<
+        CommandInfo<
+            {
+                filterPort?: number | undefined;
+                filterType?: number | undefined;
+                search: string;
+            },
+            number[]
+        >
+    >("get_log_lines"),
     exportMods: $<ActionCommand<{ path: string }>>("export_mods"),
-    importMods: $<ActionCommand<{ path: string }>>("import_mods")
+    importMods: $<ActionCommand<{ path: string }>>("import_mods"),
+    fixDeps: $<ActionCommand<{ uniqueName: string }>>("fix_mod_deps"),
+    checkDBForIssues: $<GetCommand<boolean>>("db_has_issues")
 };
 
 type Command = keyof typeof commandInfo;

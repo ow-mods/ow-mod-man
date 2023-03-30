@@ -12,7 +12,7 @@ import NavButton from "@components/nav/NavButton";
 import { IconContext } from "react-icons";
 import Icon from "@components/common/Icon";
 import NavMore from "./NavMore";
-import { useCallback, useRef } from "react";
+import { useCallback, useRef, useState } from "react";
 import SettingsModal from "@components/modals/SettingsModal";
 import InstallFromModal from "@components/modals/InstallFromModal";
 import AboutModal from "@components/modals/AboutModal";
@@ -20,20 +20,35 @@ import Downloads from "../downloads/Downloads";
 import { useTranslations } from "@hooks";
 import { commands } from "@commands";
 import { dialog } from "@tauri-apps/api";
+import CenteredSpinner from "@components/common/CenteredSpinner";
 
 const Nav = () => {
     const openSettings = useRef<() => void>(() => null);
     const openInstallFrom = useRef<() => void>(() => null);
     const openAbout = useRef<() => void>(() => null);
 
-    const [refresh, runGame, help, settings, installFrom, about, exportLabel] = useTranslations([
+    const [areLogsStarting, setLogsStarting] = useState<boolean>(false);
+
+    const [
+        refresh,
+        runGame,
+        help,
+        settings,
+        installFrom,
+        about,
+        exportLabel,
+        confirm,
+        launchAnyway
+    ] = useTranslations([
         "REFRESH",
         "RUN_GAME",
         "HELP",
         "SETTINGS",
         "INSTALL_FROM",
         "ABOUT",
-        "EXPORT_MODS"
+        "EXPORT_MODS",
+        "CONFIRM",
+        "LAUNCH_ANYWAY"
     ]);
 
     const onRefresh = useCallback(() => {
@@ -42,7 +57,31 @@ const Nav = () => {
     }, []);
 
     const onPlay = useCallback(() => {
-        commands.startLogs().catch(console.warn);
+        const start = () =>
+            commands
+                .startLogs()
+                .then(() => setLogsStarting(false))
+                .catch(console.warn);
+        setLogsStarting(true);
+        commands.checkDBForIssues().then((hasIssues) => {
+            // TODO: Make an options menu item to skip this check
+            if (hasIssues) {
+                dialog
+                    .ask(launchAnyway, {
+                        type: "warning",
+                        title: confirm
+                    })
+                    .then((yes) => {
+                        if (yes) {
+                            start();
+                        } else {
+                            setLogsStarting(false);
+                        }
+                    });
+            } else {
+                start();
+            }
+        });
     }, []);
 
     const onExport = useCallback(() => {
@@ -76,9 +115,13 @@ const Nav = () => {
                     </NavButton>
                 </ul>
                 <ul>
-                    <NavButton onClick={onPlay} labelPlacement="bottom" ariaLabel={runGame}>
-                        <Icon iconClassName="main-icon" iconType={BsPlayFill} />
-                    </NavButton>
+                    {areLogsStarting ? (
+                        <CenteredSpinner />
+                    ) : (
+                        <NavButton onClick={onPlay} labelPlacement="bottom" ariaLabel={runGame}>
+                            <Icon iconClassName="main-icon" iconType={BsPlayFill} />
+                        </NavButton>
+                    )}
                 </ul>
                 <ul>
                     <NavButton labelPlacement="bottom" ariaLabel={help}>

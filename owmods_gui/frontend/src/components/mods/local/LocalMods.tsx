@@ -1,10 +1,14 @@
 import { commands, hooks } from "@commands";
 import CenteredSpinner from "@components/common/CenteredSpinner";
+import ModValidationModal, {
+    OpenModValidationModalPayload
+} from "@components/modals/ModValidationModal";
 import { useTranslations } from "@hooks";
 import { memo, useCallback, useEffect, useRef, useState } from "react";
 import LocalModRow from "./LocalModRow";
 
 const LocalMods = memo(() => {
+    const openValidationModal = useRef<(p: OpenModValidationModalPayload) => void>(() => null);
     const [filter, setFilter] = useState("");
     const [tempFilter, setTempFilter] = useState("");
     const activeTimeout = useRef<number | undefined>(undefined);
@@ -38,6 +42,13 @@ const LocalMods = memo(() => {
         }, 450);
     };
 
+    const onValidationIconClicked = useCallback(
+        (p: OpenModValidationModalPayload) => {
+            openValidationModal.current(p);
+        },
+        [openValidationModal.current]
+    );
+
     if (status === "Loading" && mods === null) {
         return <CenteredSpinner className="mod-list" />;
     } else if (status === "Error") {
@@ -45,6 +56,7 @@ const LocalMods = memo(() => {
     } else {
         return (
             <>
+                <ModValidationModal open={openValidationModal} />
                 {(filter.length >= 0 || mods!.length !== 0) && (
                     <div className="local-toolbar">
                         <input
@@ -70,7 +82,13 @@ const LocalMods = memo(() => {
                     {filter !== tempFilter ? (
                         <CenteredSpinner />
                     ) : (
-                        mods!.map((m) => <LocalModRow key={m} uniqueName={m} />)
+                        mods!.map((m) => (
+                            <LocalModRow
+                                key={m}
+                                uniqueName={m}
+                                onValidationClick={onValidationIconClicked}
+                            />
+                        ))
                     )}
                 </div>
             </>

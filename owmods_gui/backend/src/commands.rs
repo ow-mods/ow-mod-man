@@ -1,3 +1,4 @@
+use std::cmp::Ordering;
 use std::fs::File;
 use std::io::{BufWriter, Write};
 use std::path::{Path, PathBuf};
@@ -17,6 +18,7 @@ use owmods_core::open::{open_readme, open_shortcut};
 use owmods_core::remove::remove_mod;
 use owmods_core::socket::{LogServer, SocketMessage, SocketMessageType};
 use owmods_core::updates::check_mod_needs_update;
+use owmods_core::validate::fix_deps;
 use rust_fuzzy_search::fuzzy_compare;
 use tauri::api::dialog;
 use tauri::Manager;
@@ -53,7 +55,7 @@ fn search<'a, T>(
             final_score.map(|score| (m, score))
         })
         .collect();
-    scores.sort_by(|(_, a), (_, b)| b.total_cmp(a));
+    scores.sort_by(|(_, a), (_, b)| a.total_cmp(b).reverse());
     scores.iter().map(|(m, _)| *m).collect()
 }
 
@@ -94,7 +96,27 @@ pub async fn get_local_mods(
     let db = state.local_db.read().await;
     let mut mods: Vec<&LocalMod> = db.valid().collect();
     if filter.is_empty() {
-        mods.sort_by(|a, b| a.manifest.name.cmp(&b.manifest.name));
+        mods.sort_by(|a, b| {
+            let errors_ord = a.errors.len().cmp(&b.errors.len()).reverse();
+            let name_ord = a.manifest.name.cmp(&b.manifest.name);
+            match errors_ord {
+                Ordering::Equal => name_ord,
+                Ordering::Less => {
+                    if a.enabled {
+                        errors_ord
+                    } else {
+                        name_ord
+                    }
+                }
+                Ordering::Greater => {
+                    if b.enabled {
+                        errors_ord
+                    } else {
+                        name_ord
+                    }
+                }
+            }
+        });
     } else {
         mods = search(mods, &filter.to_ascii_lowercase(), |m| {
             vec![
@@ -584,4 +606,25 @@ pub async fn import_mods(path: String, state: tauri::State<'_, State>) -> Result
         .await
         .map_err(e_to_str)?;
     Ok(())
+}
+
+#[tauri::command]
+pub async fn fix_mod_deps(unique_name: &str, state: tauri::State<'_, State>) -> Result<(), String> {
+    let config = state.config.read().await;
+    let local_db = state.local_db.read().await;
+    let remote_db = state.remote_db.read().await;
+    let local_mod = local_db
+        .get_mod(unique_name)
+        .ok_or_else(|| format!("Can't find mod {}", unique_name))?;
+    fix_deps(local_mod, &config, &local_db, &remote_db)
+        .await
+        .map_err(e_to_str)?;
+    Ok(())
+}
+
+#[tauri::command]
+pub async fn db_has_issues(state: tauri::State<'_, State>) -> Result<bool, String> {
+    let local_db = state.local_db.read().await;
+    let has_errors = local_db.active().any(|m| !m.errors.is_empty());
+    Ok(has_errors)
 }

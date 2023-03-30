@@ -474,7 +474,9 @@ async fn run_from_cli(cli: BaseCli) -> Result<()> {
             if *fix {
                 info!("Trying to fix dependency issues...");
                 let remote_db = RemoteDatabase::fetch(&config.database_url).await?;
-                fix_deps(&config, &local_db, &remote_db).await?;
+                for local_mod in local_db.active() {
+                    fix_deps(local_mod, &config, &local_db, &remote_db).await?;
+                }
                 info!("Done! Checking for other issues...")
             } else {
                 info!("Checking for issues...");

@@ -46,7 +46,7 @@ pub async fn make_log_window(handle: &AppHandle) -> Result<Window> {
 
 pub fn show_warnings(window: &Window, local_db: &LocalDatabase, config: &Config) -> Result<Config> {
     let warnings = get_warnings(
-        local_db.mods.values().collect(),
+        local_db.valid().collect(),
         config.viewed_alerts.iter().map(|s| s.as_str()).collect(),
     );
     let mut config = config.clone();

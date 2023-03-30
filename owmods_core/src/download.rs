@@ -438,6 +438,7 @@ pub async fn install_mod_from_db(
 mod tests {
     use super::*;
     use crate::file::serialize_to_json;
+    use crate::mods::UnsafeLocalMod;
     use crate::test_utils::{get_test_file, make_test_dir};
     use std::fs::read_to_string;
     const TEST_URL: &str =
@@ -619,9 +620,10 @@ mod tests {
             new_mod.manifest.dependencies = Some(vec!["Bwc9876.SaveEditor".to_string()]);
             new_mod.manifest.paths_to_preserve = Some(vec!["manifest.json".to_string()]);
             serialize_to_json(&new_mod.manifest, &target_path.join("manifest.json"), true).unwrap();
-            local_db
-                .mods
-                .insert("Bwc9876.TimeSaver".to_string(), new_mod);
+            local_db.mods.insert(
+                "Bwc9876.TimeSaver".to_string(),
+                UnsafeLocalMod::Valid(new_mod),
+            );
             install_mod_from_db(
                 &"Bwc9876.TimeSaver".to_string(),
                 &config,
@@ -662,12 +664,14 @@ mod tests {
                 true,
             )
             .unwrap();
-            local_db
-                .mods
-                .insert("Bwc9876.TimeSaver".to_string(), new_mod);
-            local_db
-                .mods
-                .insert("Bwc9876.SaveEditor".to_string(), new_mod_2);
+            local_db.mods.insert(
+                "Bwc9876.TimeSaver".to_string(),
+                UnsafeLocalMod::Valid(new_mod),
+            );
+            local_db.mods.insert(
+                "Bwc9876.SaveEditor".to_string(),
+                UnsafeLocalMod::Valid(new_mod_2),
+            );
             install_mod_from_db(
                 &"Bwc9876.TimeSaver".to_string(),
                 &config,

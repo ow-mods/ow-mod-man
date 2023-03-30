@@ -8,7 +8,10 @@ use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use typeshare::typeshare;
 
-use crate::file::{deserialize_from_json, serialize_to_json};
+use crate::{
+    file::{deserialize_from_json, serialize_to_json},
+    validate::ModValidationError,
+};
 
 use super::config::Config;
 
@@ -73,9 +76,35 @@ pub struct ModReadMe {
 #[derive(Clone, Serialize)]
 pub struct LocalMod {
     pub enabled: bool,
-    pub errors: Vec<String>,
+    pub errors: Vec<ModValidationError>,
     pub mod_path: String,
     pub manifest: ModManifest,
+}
+
+/// Represent a mod that completely failed to load
+#[typeshare]
+#[derive(Serialize, Clone)]
+pub struct FailedMod {
+    pub error: ModValidationError,
+    pub mod_path: String,
+}
+
+/// Represents a `LocalMod` that we aren't sure loaded successfully
+#[allow(clippy::large_enum_variant)]
+pub enum UnsafeLocalMod {
+    Valid(LocalMod),
+    Invalid(FailedMod),
+}
+
+impl UnsafeLocalMod {
+    pub fn get_errs(&self) -> Vec<&ModValidationError> {
+        match self {
+            Self::Invalid(m) => {
+                vec![&m.error]
+            }
+            Self::Valid(m) => m.errors.iter().collect(),
+        }
+    }
 }
 
 #[cfg(test)]

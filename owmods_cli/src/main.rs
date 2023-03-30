@@ -6,6 +6,7 @@ use clap::{Parser, Subcommand};
 use colored::Colorize;
 use game::start_just_logs;
 use log::{debug, error, info, warn, LevelFilter};
+use owmods_core::validate::fix_deps;
 use owmods_core::{
     alerts::fetch_alert,
     config::Config,
@@ -20,7 +21,6 @@ use owmods_core::{
     remove::remove_mod,
     toggle::toggle_mod,
     updates::update_all,
-    validate::{self, has_errors},
 };
 
 mod game;
@@ -28,6 +28,7 @@ mod logging;
 use logging::Logger;
 
 use crate::game::start_game;
+use crate::logging::log_mod_validation_errors;
 
 #[derive(Parser)]
 #[command(author, version, about, long_about = None)]
@@ -161,7 +162,7 @@ enum Commands {
     )]
     Validate {
         #[arg(short = 'f', long = "fix-deps", help = "Try to fix dependency issues")]
-        fix_deps: bool,
+        fix: bool,
     },
     #[command(about = "Clear which mod warnings were already shown")]
     ClearWarnings,
@@ -244,7 +245,7 @@ async fn run_from_cli(cli: BaseCli) -> Result<()> {
                     db.mods.len(),
                     config.owml_path
                 );
-                let mut mods: Vec<&LocalMod> = db.mods.values().collect();
+                let mut mods: Vec<&LocalMod> = db.valid().collect();
                 mods.sort_by(|a, b| b.enabled.cmp(&a.enabled));
                 for local_mod in mods.iter() {
                     output += &format!(
@@ -415,7 +416,7 @@ async fn run_from_cli(cli: BaseCli) -> Result<()> {
             let db = LocalDatabase::fetch(&config.owml_path)?;
             let enable = matches!(cli.command, Commands::Enable { unique_name: _ });
             if unique_name == "*" || unique_name == "all" {
-                for local_mod in db.mods.values() {
+                for local_mod in db.valid() {
                     toggle_mod(&local_mod.manifest.unique_name, &db, enable, false)?;
                 }
             } else {
@@ -428,7 +429,12 @@ async fn run_from_cli(cli: BaseCli) -> Result<()> {
         Commands::Run { force, port } => {
             info!("Attempting to launch game...");
             let local_db = LocalDatabase::fetch(&config.owml_path)?;
-            if !*force && has_errors(&local_db) {
+            let mut flag = false;
+            for local_mod in local_db.invalid() {
+                flag = true;
+                log_mod_validation_errors(local_mod, &local_db);
+            }
+            if !*force && flag {
                 error!("Errors found, refusing to launch");
                 info!("Run `owmods validate` to see issues");
                 info!("...or run with -f to launch anyway");
@@ -463,31 +469,20 @@ async fn run_from_cli(cli: BaseCli) -> Result<()> {
             let remote_db = RemoteDatabase::fetch(&config.database_url).await?;
             open_readme(unique_name, &remote_db)?;
         }
-        Commands::Validate { fix_deps } => {
+        Commands::Validate { fix } => {
             let local_db = LocalDatabase::fetch(&config.owml_path)?;
-            info!("Checking For Issues...");
-            let mut flag = false;
-            if *fix_deps {
+            if *fix {
+                info!("Trying to fix dependency issues...");
                 let remote_db = RemoteDatabase::fetch(&config.database_url).await?;
-                validate::fix_deps(&config, &local_db, &remote_db).await?;
+                fix_deps(&config, &local_db, &remote_db).await?;
+                info!("Done! Checking for other issues...")
+            } else {
+                info!("Checking for issues...");
             }
-            for local_mod in local_db.active() {
-                let name = &local_mod.manifest.name;
-                if !*fix_deps {
-                    let (missing, disabled) = validate::check_deps(local_mod, &local_db);
-                    for missing in missing.iter() {
-                        warn!("{}: Missing Dependency {}", name, missing);
-                        flag = true;
-                    }
-                    for disabled in disabled.iter() {
-                        warn!("{}: Disabled Dependency {}", name, disabled.manifest.name);
-                        flag = true;
-                    }
-                }
-                for conflicting in validate::check_conflicts(local_mod, &local_db).iter() {
-                    warn!("{}: Conflicts With {}", name, conflicting);
-                    flag = true;
-                }
+            let mut flag = false;
+            for local_mod in local_db.invalid() {
+                flag = true;
+                log_mod_validation_errors(local_mod, &local_db);
             }
             if flag {
                 error!("Issues found, run with -f to fix dependency issues, or disable conflicting mods");

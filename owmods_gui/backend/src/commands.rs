@@ -92,7 +92,7 @@ pub async fn get_local_mods(
     state: tauri::State<'_, State>,
 ) -> Result<Vec<String>, ()> {
     let db = state.local_db.read().await;
-    let mut mods: Vec<&LocalMod> = db.mods.values().collect();
+    let mut mods: Vec<&LocalMod> = db.valid().collect();
     if filter.is_empty() {
         mods.sort_by(|a, b| a.manifest.name.cmp(&b.manifest.name));
     } else {
@@ -202,7 +202,7 @@ pub async fn toggle_mod(
 #[tauri::command]
 pub async fn toggle_all(enabled: bool, state: tauri::State<'_, State>) -> Result<(), String> {
     let local_db = state.local_db.read().await;
-    for local_mod in local_db.mods.values() {
+    for local_mod in local_db.valid() {
         owmods_core::toggle::toggle_mod(&local_mod.manifest.unique_name, &local_db, enabled, false)
             .map_err(e_to_str)?;
     }
@@ -219,7 +219,7 @@ pub async fn install_mod(
     let local_db = state.local_db.read().await;
     let remote_db = state.remote_db.read().await;
     let conf = state.config.read().await;
-    if let Some(current_mod) = local_db.mods.get(unique_name) {
+    if let Some(current_mod) = local_db.get_mod(unique_name) {
         let res = dialog::blocking::confirm(
             Some(&window),
             "Reinstall?",
@@ -384,7 +384,7 @@ pub async fn get_updatable_mods(state: tauri::State<'_, State>) -> Result<Vec<St
     let local_db = state.local_db.read().await;
     let remote_db = state.remote_db.read().await;
     let config = state.config.read().await;
-    for local_mod in local_db.mods.values() {
+    for local_mod in local_db.valid() {
         let (needs_update, _) = check_mod_needs_update(local_mod, &remote_db);
         if needs_update {
             updates.push(local_mod.manifest.unique_name.clone());

@@ -6,10 +6,15 @@ use std::{
 
 use colored::Colorize;
 use indicatif::{MultiProgress, ProgressBar, ProgressStyle};
-use log::Level;
-use owmods_core::progress::{
-    ProgressAction, ProgressIncrementPayload, ProgressMessagePayload, ProgressPayload,
-    ProgressStartPayload, ProgressType,
+use log::{error, warn, Level};
+use owmods_core::{
+    db::LocalDatabase,
+    mods::UnsafeLocalMod,
+    progress::{
+        ProgressAction, ProgressIncrementPayload, ProgressMessagePayload, ProgressPayload,
+        ProgressStartPayload, ProgressType,
+    },
+    validate::ModValidationError,
 };
 
 const PROGRESS_TEMPLATE: &str = "{spinner} {wide_msg} [{bar:100.green/cyan}]";
@@ -111,5 +116,53 @@ impl log::Log for Logger {
 
     fn flush(&self) {
         todo!()
+    }
+}
+
+pub fn log_mod_validation_errors(local_mod: &UnsafeLocalMod, local_db: &LocalDatabase) {
+    let name: &str = match local_mod {
+        UnsafeLocalMod::Valid(m) => m.manifest.name.as_ref(),
+        UnsafeLocalMod::Invalid(m) => m.mod_path.as_ref(),
+    };
+    for err in local_mod.get_errs() {
+        match err {
+            ModValidationError::MissingDLL(path) => match path {
+                Some(path) => {
+                    warn!(
+                        "The DLL specified in {}'s manifest.json ({}) appears to be missing",
+                        name, path
+                    )
+                }
+                None => {
+                    warn!("{} has no DLL specified", name)
+                }
+            },
+            ModValidationError::DisabledDep(unique_name) => {
+                let dep_name = local_db
+                    .get_mod(unique_name)
+                    .map(|m| &m.manifest.name)
+                    .unwrap_or(unique_name);
+                error!(
+                    "{} requires {}, but it's disabled! (run \"owmods check --fix\" to auto-fix)",
+                    name, dep_name
+                );
+            }
+            ModValidationError::MissingDep(unique_name) => {
+                error!(
+                    "{} requires {}, but it's missing! (run \"owmods check --fix\" to auto-fix)",
+                    name, unique_name
+                );
+            }
+            ModValidationError::ConflictingMod(unique_name) => {
+                let conflict_name = local_db
+                    .get_mod(unique_name)
+                    .map(|m| &m.manifest.name)
+                    .unwrap_or(unique_name);
+                warn!("{} conflicts with {}!", name, conflict_name);
+            }
+            ModValidationError::InvalidManifest(why) => {
+                error!("Could not load manifest for {}: {}", name, why);
+            }
+        }
     }
 }

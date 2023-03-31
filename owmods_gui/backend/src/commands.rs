@@ -315,6 +315,8 @@ pub async fn save_config(
     state: tauri::State<'_, State>,
     handle: tauri::AppHandle,
 ) -> Result<(), String> {
+    let mut config = config.clone();
+    config.path = Config::default_path().map_err(e_to_str)?;
     config.save().map_err(e_to_str)?;
     {
         let mut conf_lock = state.config.write().await;

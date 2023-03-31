@@ -33,6 +33,7 @@ pub struct GuiConfig {
     rainbow: bool,
     language: Language,
     watch_fs: bool,
+    no_warning: bool,
 }
 
 impl Default for GuiConfig {
@@ -42,6 +43,7 @@ impl Default for GuiConfig {
             rainbow: false,
             language: Language::English,
             watch_fs: true,
+            no_warning: false,
         }
     }
 }

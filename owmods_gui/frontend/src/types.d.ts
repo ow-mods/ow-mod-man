@@ -105,6 +105,7 @@ export interface GuiConfig {
     rainbow: boolean;
     language: Language;
     watchFs: boolean;
+    noWarning: boolean;
 }
 
 export interface LogPayload {

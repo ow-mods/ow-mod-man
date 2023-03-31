@@ -63,9 +63,10 @@ const Nav = () => {
                 .then(() => setLogsStarting(false))
                 .catch(console.warn);
         setLogsStarting(true);
-        commands.checkDBForIssues().then((hasIssues) => {
-            // TODO: Make an options menu item to skip this check
-            if (hasIssues) {
+        const task = async () => {
+            const hasIssues = await commands.checkDBForIssues();
+            const skipWarning = (await commands.getGuiConfig()).noWarning;
+            if (!skipWarning && hasIssues) {
                 dialog
                     .ask(launchAnyway, {
                         type: "warning",
@@ -81,7 +82,8 @@ const Nav = () => {
             } else {
                 start();
             }
-        });
+        };
+        task();
     }, []);
 
     const onExport = useCallback(() => {

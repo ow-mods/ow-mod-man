@@ -8,7 +8,6 @@ export interface IconProps {
 }
 
 // "Pure" icon component, use to prevent expensive rerenders
-// TODO: Actually test this. Im on chromebook rn and react dev tools is blocked :(
 const Icon = memo(
     (props: IconProps) => {
         return (

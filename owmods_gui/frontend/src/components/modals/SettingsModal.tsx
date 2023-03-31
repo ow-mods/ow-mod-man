@@ -143,6 +143,7 @@ const SettingsForm = (props: SettingsFormProps) => {
         rainbow,
         language,
         watchFs,
+        disableWarning,
         gamePath,
         forceExe,
         debugMode,
@@ -159,6 +160,7 @@ const SettingsForm = (props: SettingsFormProps) => {
         "RAINBOW",
         "LANGUAGE",
         "WATCH_FS",
+        "DISABLE_WARNING",
         "GAME_PATH",
         "FORCE_EXE",
         "DEBUG_MODE",
@@ -265,6 +267,12 @@ const SettingsForm = (props: SettingsFormProps) => {
                 value={guiConfig.watchFs}
                 label={watchFs}
                 id="watchFs"
+            />
+            <SettingsSwitch
+                onChange={handleGui}
+                value={guiConfig.noWarning}
+                label={disableWarning}
+                id="noWarning"
             />
             <h4>{owmlSettingsLabel}</h4>
             <SettingsFolder

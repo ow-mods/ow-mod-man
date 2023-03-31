@@ -41,6 +41,7 @@
     "RAINBOW": "Rainbow Mode",
     "LANGUAGE": "Language",
     "WATCH_FS": "Watch File System",
+    "DISABLE_WARNING": "Disable Game Start Issues Warning",
     "SHOW_FOLDER": "Open Folder",
     "UNINSTALL": "Uninstall",
     "BY": "v$version$ by $author$",

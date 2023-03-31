@@ -163,6 +163,12 @@ pub fn log_mod_validation_errors(local_mod: &UnsafeLocalMod, local_db: &LocalDat
             ModValidationError::InvalidManifest(why) => {
                 error!("Could not load manifest for {}: {}", name, why);
             }
+            ModValidationError::DuplicateMod(other_path) => {
+                error!(
+                    "Mod at {} was already loaded from {}, this may indicate duplicate mods",
+                    name, other_path
+                );
+            }
         }
     }
 }

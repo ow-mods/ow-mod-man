@@ -264,15 +264,30 @@ impl LocalDatabase {
         let glob_matches = glob(mods_path.join("*").join("manifest.json").to_str().unwrap())?;
         for entry in glob_matches {
             let entry = entry?;
+            let path = entry
+                .parent()
+                .ok_or_else(|| anyhow!("Invalid Manifest!"))?
+                .to_str()
+                .unwrap()
+                .to_string();
             let local_mod = Self::read_local_mod(&entry);
             if let Ok(local_mod) = local_mod {
-                mods.insert(
-                    local_mod.manifest.unique_name.to_owned(),
-                    UnsafeLocalMod::Valid(local_mod),
-                );
-            } else if let Some(parent) = entry.parent() {
+                if let Some(UnsafeLocalMod::Valid(other)) =
+                    mods.get(&local_mod.manifest.unique_name)
+                {
+                    let failed_mod = FailedMod {
+                        mod_path: path.to_string(),
+                        error: ModValidationError::DuplicateMod(other.mod_path.to_string()),
+                    };
+                    mods.insert(path.to_string(), UnsafeLocalMod::Invalid(failed_mod));
+                } else {
+                    mods.insert(
+                        local_mod.manifest.unique_name.to_owned(),
+                        UnsafeLocalMod::Valid(local_mod),
+                    );
+                }
+            } else {
                 let err = format!("{:?}", local_mod.err().unwrap());
-                let path = parent.to_str().unwrap().to_string();
                 warn!("Failed to load mod at {}: {:?}", path, err);
                 let failed_mod = FailedMod {
                     mod_path: path.to_string(),
@@ -290,6 +305,8 @@ impl LocalDatabase {
 
 #[cfg(test)]
 mod tests {
+    // TODO: Tests for invalid/duplicate mods
+
     use crate::constants::DEFAULT_DB_URL;
 
     use super::*;

@@ -28,6 +28,8 @@ pub enum ModValidationError {
     ConflictingMod(String),
     /// The DLL the mod specifies in its `manifest.json` doesn't exist, contains the path (if even present) to the DLL specified by the mod
     MissingDLL(Option<String>),
+    /// There's another mod already in the DB with this mod's unique name, contains the path of the other mod that has the same unique name
+    DuplicateMod(String),
 }
 
 fn check_mod_dll(local_mod: &LocalMod) -> Option<ModValidationError> {

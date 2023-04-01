@@ -222,8 +222,30 @@ impl OWMLConfig {
         serialize_to_json(self, path, true)
     }
 
+    const DEFAULT_CONFIG_NAME: &str = "OWML.DefaultConfig.json";
+
+    #[cfg(not(windows))]
     fn load_default(config: &Config) -> Result<OWMLConfig> {
-        deserialize_from_json(&Path::new(&config.owml_path).join("OWML.DefaultConfig.json"))
+        use anyhow::anyhow;
+        use directories::UserDirs;
+
+        const LINUX_GAME_PATH: &str = ".steam/steam/steamapps/common/Outer Wilds/";
+
+        let path = Path::new(&config.owml_path).join(Self::DEFAULT_CONFIG_NAME);
+        let mut conf: OWMLConfig = deserialize_from_json(&path)?;
+        let dirs = UserDirs::new().ok_or_else(|| anyhow!("Can't get user data dir"))?;
+        conf.game_path = dirs
+            .home_dir()
+            .join(LINUX_GAME_PATH)
+            .to_str()
+            .unwrap()
+            .to_string();
+        Ok(conf)
+    }
+
+    #[cfg(windows)]
+    fn load_default(config: &Config) -> Result<OWMLConfig> {
+        deserialize_from_json(&Path::new(&config.owml_path).join(Self::DEFAULT_CONFIG_NAME))
     }
 
     fn write(owml_config: &OWMLConfig, config: &Config) -> Result<()> {

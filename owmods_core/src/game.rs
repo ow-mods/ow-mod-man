@@ -40,23 +40,13 @@ fn fix_dlls(config: &Config) -> Result<()> {
 #[cfg(not(windows))]
 pub async fn launch_game(config: &Config, port: &u16) -> Result<()> {
     use crate::mods::OWMLConfig;
-    use anyhow::anyhow;
-    use directories::UserDirs;
     use log::{error, info};
     use std::process::Stdio;
 
-    const LINUX_GAME_PATH: &str = ".steam/steam/steamapps/common/Outer Wilds/";
-
     fix_dlls(config)?;
 
+    // Sometimes OWML.Launcher.exe doesn't like setting the socket port, just do it ourselves.
     let mut owml_config = OWMLConfig::get(config)?;
-    let dirs = UserDirs::new().ok_or_else(|| anyhow!("Can't get user data dir"))?;
-    owml_config.game_path = dirs
-        .home_dir()
-        .join(LINUX_GAME_PATH)
-        .to_str()
-        .unwrap()
-        .to_string();
     owml_config.socket_port = *port;
     owml_config.save(config)?;
 

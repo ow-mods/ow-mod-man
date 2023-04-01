@@ -12,11 +12,12 @@ use owmods_core::download::{
 };
 use owmods_core::file::{create_all_parents, get_app_path};
 use owmods_core::game::launch_game;
-use owmods_core::mods::{LocalMod, OWMLConfig, RemoteMod};
+use owmods_core::mods::{OWMLConfig, RemoteMod, UnsafeLocalMod};
 use owmods_core::open::{open_readme, open_shortcut};
-use owmods_core::remove::remove_mod;
+use owmods_core::remove::{remove_failed_mod, remove_mod};
 use owmods_core::socket::{LogServer, SocketMessage, SocketMessageType};
 use owmods_core::updates::check_mod_needs_update;
+use owmods_core::validate::fix_deps;
 use rust_fuzzy_search::fuzzy_compare;
 use tauri::api::dialog;
 use tauri::Manager;
@@ -53,7 +54,7 @@ fn search<'a, T>(
             final_score.map(|score| (m, score))
         })
         .collect();
-    scores.sort_by(|(_, a), (_, b)| b.total_cmp(a));
+    scores.sort_by(|(_, a), (_, b)| a.total_cmp(b).reverse());
     scores.iter().map(|(m, _)| *m).collect()
 }
 
@@ -92,21 +93,26 @@ pub async fn get_local_mods(
     state: tauri::State<'_, State>,
 ) -> Result<Vec<String>, ()> {
     let db = state.local_db.read().await;
-    let mut mods: Vec<&LocalMod> = db.mods.values().collect();
+    let mut mods: Vec<&UnsafeLocalMod> = db.all().collect();
     if filter.is_empty() {
-        mods.sort_by(|a, b| a.manifest.name.cmp(&b.manifest.name));
+        mods.sort_by(|a, b| {
+            let name_ord = a.get_name().cmp(b.get_name());
+            let errors_ord = a.get_errs().len().cmp(&b.get_errs().len()).reverse();
+            errors_ord.then(name_ord)
+        });
     } else {
-        mods = search(mods, &filter.to_ascii_lowercase(), |m| {
-            vec![
+        mods = search(mods, &filter.to_ascii_lowercase(), |m| match m {
+            UnsafeLocalMod::Invalid(m) => vec![m.display_path.to_ascii_lowercase()],
+            UnsafeLocalMod::Valid(m) => vec![
                 m.manifest.name.to_ascii_lowercase(),
                 m.manifest.author.to_ascii_lowercase(),
                 m.manifest.unique_name.to_ascii_lowercase(),
-            ]
+            ],
         });
     }
     Ok(mods
         .into_iter()
-        .map(|m| m.manifest.unique_name.clone())
+        .map(|m| m.get_unique_name().clone())
         .collect())
 }
 
@@ -114,12 +120,19 @@ pub async fn get_local_mods(
 pub async fn get_local_mod(
     unique_name: &str,
     state: tauri::State<'_, State>,
-) -> Result<Option<LocalMod>, ()> {
+) -> Result<Option<UnsafeLocalMod>, String> {
     if unique_name == OWML_UNIQUE_NAME {
         let config = state.config.read().await;
-        Ok(LocalDatabase::get_owml(&config.owml_path))
+        let owml = LocalDatabase::get_owml(&config.owml_path)
+            .ok_or_else(|| "Couldn't Find OWML!".to_string())?;
+        Ok(Some(UnsafeLocalMod::Valid(owml)))
     } else {
-        Ok(state.local_db.read().await.get_mod(unique_name).cloned())
+        Ok(state
+            .local_db
+            .read()
+            .await
+            .get_mod_unsafe(unique_name)
+            .cloned())
     }
 }
 
@@ -202,7 +215,7 @@ pub async fn toggle_mod(
 #[tauri::command]
 pub async fn toggle_all(enabled: bool, state: tauri::State<'_, State>) -> Result<(), String> {
     let local_db = state.local_db.read().await;
-    for local_mod in local_db.mods.values() {
+    for local_mod in local_db.valid() {
         owmods_core::toggle::toggle_mod(&local_mod.manifest.unique_name, &local_db, enabled, false)
             .map_err(e_to_str)?;
     }
@@ -219,7 +232,7 @@ pub async fn install_mod(
     let local_db = state.local_db.read().await;
     let remote_db = state.remote_db.read().await;
     let conf = state.config.read().await;
-    if let Some(current_mod) = local_db.mods.get(unique_name) {
+    if let Some(current_mod) = local_db.get_mod(unique_name) {
         let res = dialog::blocking::confirm(
             Some(&window),
             "Reinstall?",
@@ -278,6 +291,26 @@ pub async fn uninstall_mod(
 }
 
 #[tauri::command]
+pub async fn uninstall_broken_mod(
+    mod_path: &str,
+    state: tauri::State<'_, State>,
+) -> Result<(), String> {
+    let db = state.local_db.read().await;
+    let local_mod = db
+        .get_mod_unsafe(mod_path)
+        .ok_or_else(|| format!("Mod {} not found", mod_path))?;
+    match local_mod {
+        UnsafeLocalMod::Invalid(m) => {
+            remove_failed_mod(m).map_err(e_to_str)?;
+        }
+        _ => {
+            return Err("This mod is valid, refusing to remove".to_string());
+        }
+    }
+    Ok(())
+}
+
+#[tauri::command]
 pub async fn open_mod_readme(
     unique_name: &str,
     state: tauri::State<'_, State>,
@@ -293,6 +326,8 @@ pub async fn save_config(
     state: tauri::State<'_, State>,
     handle: tauri::AppHandle,
 ) -> Result<(), String> {
+    let mut config = config.clone();
+    config.path = Config::default_path().map_err(e_to_str)?;
     config.save().map_err(e_to_str)?;
     {
         let mut conf_lock = state.config.write().await;
@@ -384,7 +419,7 @@ pub async fn get_updatable_mods(state: tauri::State<'_, State>) -> Result<Vec<St
     let local_db = state.local_db.read().await;
     let remote_db = state.remote_db.read().await;
     let config = state.config.read().await;
-    for local_mod in local_db.mods.values() {
+    for local_mod in local_db.valid() {
         let (needs_update, _) = check_mod_needs_update(local_mod, &remote_db);
         if needs_update {
             updates.push(local_mod.manifest.unique_name.clone());
@@ -450,7 +485,6 @@ pub async fn active_log(state: tauri::State<'_, State>) -> Result<bool, String> 
 
 #[tauri::command]
 pub async fn run_game(state: tauri::State<'_, State>, window: tauri::Window) -> Result<(), String> {
-    // We have to clone here to prevent locking everything else while the game is running
     let config = state.config.read().await.clone();
     {
         let local_db = state.local_db.read().await;
@@ -584,4 +618,25 @@ pub async fn import_mods(path: String, state: tauri::State<'_, State>) -> Result
         .await
         .map_err(e_to_str)?;
     Ok(())
+}
+
+#[tauri::command]
+pub async fn fix_mod_deps(unique_name: &str, state: tauri::State<'_, State>) -> Result<(), String> {
+    let config = state.config.read().await;
+    let local_db = state.local_db.read().await;
+    let remote_db = state.remote_db.read().await;
+    let local_mod = local_db
+        .get_mod(unique_name)
+        .ok_or_else(|| format!("Can't find mod {}", unique_name))?;
+    fix_deps(local_mod, &config, &local_db, &remote_db)
+        .await
+        .map_err(e_to_str)?;
+    Ok(())
+}
+
+#[tauri::command]
+pub async fn db_has_issues(state: tauri::State<'_, State>) -> Result<bool, String> {
+    let local_db = state.local_db.read().await;
+    let has_errors = local_db.active().any(|m| !m.errors.is_empty());
+    Ok(has_errors)
 }

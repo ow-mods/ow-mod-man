@@ -72,6 +72,7 @@ fn main() -> Result<(), Box<dyn Error>> {
             toggle_mod,
             toggle_all,
             uninstall_mod,
+            uninstall_broken_mod,
             install_mod,
             install_url,
             install_zip,
@@ -95,7 +96,9 @@ fn main() -> Result<(), Box<dyn Error>> {
             get_log_lines,
             get_game_message,
             export_mods,
-            import_mods
+            import_mods,
+            fix_mod_deps,
+            db_has_issues
         ])
         .run(tauri::generate_context!())
         .expect("Error while running tauri application.");

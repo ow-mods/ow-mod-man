@@ -27,3 +27,4 @@ serde_repr = "0.1.10"
 uuid = { version = "1.3.0", features = ["v4", "fast-rng"] }
 typeshare = "1.0.0"
 tokio-test = "0.4.2"
+lazy_static = "1.4.0"

@@ -15,7 +15,6 @@ use crate::{
 #[serde(rename_all = "camelCase")]
 pub struct Config {
     pub owml_path: String,
-    pub wine_prefix: Option<String>,
     pub database_url: String,
     pub alert_url: String,
     pub viewed_alerts: Vec<String>,
@@ -34,7 +33,6 @@ impl Config {
         let path = path.unwrap_or(Self::default_path()?);
         Ok(Self {
             owml_path: String::from(""),
-            wine_prefix: None,
             database_url: String::from(DEFAULT_DB_URL),
             alert_url: String::from(DEFAULT_ALERT_URL),
             viewed_alerts: vec![],

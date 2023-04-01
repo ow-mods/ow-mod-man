@@ -43,7 +43,7 @@ pub async fn import_mods(
     let mut needed_install: Vec<String> = vec![];
 
     if disable_missing {
-        for local_mod in local_db.mods.values() {
+        for local_mod in local_db.valid() {
             let mod_path = &PathBuf::from(&local_mod.mod_path);
             if get_mod_enabled(mod_path)? {
                 toggle_mod(&local_mod.manifest.unique_name, local_db, false, false)?;

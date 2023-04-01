@@ -15,7 +15,8 @@
         "confirm": true,
         "open": true,
         "message": true,
-        "save": true
+        "save": true,
+        "ask": true
       },
       "app": {
         "all": true,

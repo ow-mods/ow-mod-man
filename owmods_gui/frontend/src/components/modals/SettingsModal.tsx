@@ -1,8 +1,7 @@
-import { ChangeEvent, MutableRefObject, ReactNode, useEffect, useRef, useState } from "react";
+import { ChangeEvent, MutableRefObject, ReactNode, useRef, useState } from "react";
 import { Config, GuiConfig, Language, OWMLConfig, Theme } from "@types";
 import Modal, { ModalWrapperProps } from "./Modal";
 import { useTranslation, useTranslations } from "@hooks";
-import { os } from "@tauri-apps/api";
 import { commands, hooks } from "@commands";
 import { OpenFileInput } from "@components/common/FileInput";
 
@@ -131,18 +130,17 @@ const SettingsForm = (props: SettingsFormProps) => {
     const [config, setConfig] = useState<Config>(props.initialConfig);
     const [owmlConfig, setOwmlConfig] = useState<OWMLConfig>(props.initialOwmlConfig);
     const [guiConfig, setGuiConfig] = useState<GuiConfig>(props.initialGuiConfig);
-    const [platform, setPlatform] = useState("windows");
 
     const [
         generalSettings,
         dbUrl,
         alertUrl,
         owmlPath,
-        winePrefix,
         theme,
         rainbow,
         language,
         watchFs,
+        disableWarning,
         gamePath,
         forceExe,
         debugMode,
@@ -154,11 +152,11 @@ const SettingsForm = (props: SettingsFormProps) => {
         "DB_URL",
         "ALERT_URL",
         "OWML_PATH",
-        "WINE_PREFIX",
         "THEME",
         "RAINBOW",
         "LANGUAGE",
         "WATCH_FS",
+        "DISABLE_WARNING",
         "GAME_PATH",
         "FORCE_EXE",
         "DEBUG_MODE",
@@ -187,10 +185,6 @@ const SettingsForm = (props: SettingsFormProps) => {
     const handleGui = (e: ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
         setGuiConfig({ ...guiConfig, [e.target.id]: getVal(e.target) });
     };
-
-    useEffect(() => {
-        os.platform().then(setPlatform);
-    }, []);
 
     props.save.current = () => {
         const task = async () => {
@@ -229,14 +223,6 @@ const SettingsForm = (props: SettingsFormProps) => {
                 label={owmlPath}
                 id="owmlPath"
             />
-            {platform === "linux" && (
-                <SettingsFolder
-                    onChange={handleConf}
-                    value={config.winePrefix ?? ""}
-                    label={winePrefix}
-                    id="winePrefix"
-                />
-            )}
             <h4>{guiSettingsLabel}</h4>
             <SettingsSelect
                 onChange={handleGui}
@@ -265,6 +251,12 @@ const SettingsForm = (props: SettingsFormProps) => {
                 value={guiConfig.watchFs}
                 label={watchFs}
                 id="watchFs"
+            />
+            <SettingsSwitch
+                onChange={handleGui}
+                value={guiConfig.noWarning}
+                label={disableWarning}
+                id="noWarning"
             />
             <h4>{owmlSettingsLabel}</h4>
             <SettingsFolder

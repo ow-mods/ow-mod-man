@@ -8,7 +8,10 @@ use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use typeshare::typeshare;
 
-use crate::file::{deserialize_from_json, serialize_to_json};
+use crate::{
+    file::{deserialize_from_json, serialize_to_json},
+    validate::ModValidationError,
+};
 
 use super::config::Config;
 
@@ -71,11 +74,86 @@ pub struct ModReadMe {
 /// Represents an installed mod
 #[typeshare]
 #[derive(Clone, Serialize)]
+#[serde(rename_all = "camelCase")]
 pub struct LocalMod {
     pub enabled: bool,
-    pub errors: Vec<String>,
+    pub errors: Vec<ModValidationError>,
     pub mod_path: String,
     pub manifest: ModManifest,
+}
+
+/// Represents a mod that completely failed to load
+#[typeshare]
+#[derive(Serialize, Clone)]
+#[serde(rename_all = "camelCase")]
+pub struct FailedMod {
+    pub error: ModValidationError,
+    pub mod_path: String,
+    pub display_path: String,
+}
+
+/// Represents a `LocalMod` that we aren't sure loaded successfully
+#[typeshare]
+#[derive(Serialize, Clone)]
+#[serde(tag = "loadState", content = "mod", rename_all = "camelCase")]
+#[allow(clippy::large_enum_variant)]
+pub enum UnsafeLocalMod {
+    Valid(LocalMod),
+    Invalid(FailedMod),
+}
+
+impl UnsafeLocalMod {
+    /// Get errors for a mod,
+    /// - If this is a [UnsafeLocalMod::Valid] we get all validation errors,
+    /// - If it's a [UnsafeLocalMod::Invalid] we get a vec with the error that occurred when loading
+    ///
+    pub fn get_errs(&self) -> Vec<&ModValidationError> {
+        match self {
+            Self::Invalid(m) => {
+                vec![&m.error]
+            }
+            Self::Valid(m) => {
+                if m.enabled {
+                    m.errors.iter().collect()
+                } else {
+                    vec![]
+                }
+            }
+        }
+    }
+
+    /// Get the unique name for a mod,
+    /// - If this is a [UnsafeLocalMod::Valid] we get the unique name,
+    /// - If it's a [UnsafeLocalMod::Invalid] we get the mod path
+    ///
+    pub fn get_unique_name(&self) -> &String {
+        match self {
+            Self::Invalid(m) => &m.mod_path,
+            Self::Valid(m) => &m.manifest.unique_name,
+        }
+    }
+
+    /// Get the name for a mod,
+    /// - If this is a [UnsafeLocalMod::Valid] we get the name in the manifest,
+    /// - If it's a [UnsafeLocalMod::Invalid] we just get the mod path
+    ///
+    pub fn get_name(&self) -> &String {
+        match self {
+            Self::Invalid(m) => &m.display_path,
+            Self::Valid(m) => &m.manifest.name,
+        }
+    }
+
+    /// Get enabled for a mod,
+    /// - If this is a [UnsafeLocalMod::Valid] we get is the mod is enabled in `config.json`,
+    /// - If it's a [UnsafeLocalMod::Invalid] we get false always
+    ///
+    pub fn get_enabled(&self) -> bool {
+        match self {
+            Self::Invalid(_) => false,
+            Self::Valid(m) => m.enabled,
+        }
+    }
 }
 
 #[cfg(test)]
@@ -193,8 +271,30 @@ impl OWMLConfig {
         serialize_to_json(self, path, true)
     }
 
+    const DEFAULT_CONFIG_NAME: &str = "OWML.DefaultConfig.json";
+
+    #[cfg(not(windows))]
     fn load_default(config: &Config) -> Result<OWMLConfig> {
-        deserialize_from_json(&Path::new(&config.owml_path).join("OWML.DefaultConfig.json"))
+        use anyhow::anyhow;
+        use directories::UserDirs;
+
+        const LINUX_GAME_PATH: &str = ".steam/steam/steamapps/common/Outer Wilds/";
+
+        let path = Path::new(&config.owml_path).join(Self::DEFAULT_CONFIG_NAME);
+        let mut conf: OWMLConfig = deserialize_from_json(&path)?;
+        let dirs = UserDirs::new().ok_or_else(|| anyhow!("Can't get user data dir"))?;
+        conf.game_path = dirs
+            .home_dir()
+            .join(LINUX_GAME_PATH)
+            .to_str()
+            .unwrap()
+            .to_string();
+        Ok(conf)
+    }
+
+    #[cfg(windows)]
+    fn load_default(config: &Config) -> Result<OWMLConfig> {
+        deserialize_from_json(&Path::new(&config.owml_path).join(Self::DEFAULT_CONFIG_NAME))
     }
 
     fn write(owml_config: &OWMLConfig, config: &Config) -> Result<()> {

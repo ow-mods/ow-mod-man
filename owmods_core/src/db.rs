@@ -4,24 +4,22 @@ use std::path::{Path, PathBuf};
 use anyhow::anyhow;
 use anyhow::Result;
 use glob::glob;
-use log::{debug, error};
+use log::{debug, warn};
 use serde::Deserialize;
 
 use crate::constants::OWML_UNIQUE_NAME;
 use crate::file::{deserialize_from_json, fix_json_file};
+use crate::mods::{FailedMod, UnsafeLocalMod};
+use crate::validate::{check_mod, ModValidationError};
 
 use super::mods::{LocalMod, ModManifest, RemoteMod};
 use super::toggle::get_mod_enabled;
 
 fn fix_version(version: &str) -> &str {
-    let mut str = version;
-    while str.starts_with('v') {
-        str = str.strip_prefix('v').unwrap_or(str);
-    }
-    str
+    version.trim_start_matches('v')
 }
 
-/// Used intermittently to construct an actual `RemoteDatabase`
+/// Used internally to construct an actual [RemoteDatabase]
 #[derive(Deserialize)]
 #[serde(rename_all = "camelCase")]
 struct RawRemoteDatabase {
@@ -37,7 +35,7 @@ pub struct RemoteDatabase {
 /// Represents the local (on the local PC) database of mods.
 #[derive(Default)]
 pub struct LocalDatabase {
-    pub mods: HashMap<String, LocalMod>,
+    pub mods: HashMap<String, UnsafeLocalMod>,
 }
 
 impl From<RawRemoteDatabase> for RemoteDatabase {
@@ -117,9 +115,11 @@ impl LocalDatabase {
         debug!("Begin construction of local db at {}", owml_path);
         let mods_path = PathBuf::from(owml_path).join("Mods");
         Ok(if mods_path.is_dir() {
-            Self {
+            let mut new_db = Self {
                 mods: Self::get_local_mods(&mods_path)?,
-            }
+            };
+            new_db.validate();
+            new_db
         } else {
             Self::default()
         })
@@ -132,7 +132,31 @@ impl LocalDatabase {
     /// An option of the mod found, set to `None` if the mod isn't there
     ///
     pub fn get_mod(&self, unique_name: &str) -> Option<&LocalMod> {
+        let local_mod = self.mods.get(unique_name);
+        if let Some(UnsafeLocalMod::Valid(local_mod)) = local_mod {
+            Some(local_mod)
+        } else {
+            None
+        }
+    }
+
+    /// Get an UnsafeLocalMod from the database, this will also grab mods that failed to load
+    ///
+    /// ## Returns
+    ///
+    /// An [UnsafeLocalMod] that may or may not have loaded successfully
+    ///
+    pub fn get_mod_unsafe(&self, unique_name: &str) -> Option<&UnsafeLocalMod> {
         self.mods.get(unique_name)
+    }
+
+    fn get_mod_mut(&mut self, unique_name: &str) -> Option<&mut LocalMod> {
+        let local_mod = self.mods.get_mut(unique_name);
+        if let Some(UnsafeLocalMod::Valid(local_mod)) = local_mod {
+            Some(local_mod)
+        } else {
+            None
+        }
     }
 
     /// Gets OWML as a LocalMod object
@@ -192,23 +216,98 @@ impl LocalDatabase {
     /// An Iterator for mods that are installed and enabled.
     ///
     pub fn active(&self) -> impl Iterator<Item = &LocalMod> {
-        self.mods.values().filter(|m| m.enabled)
+        self.valid().filter(|m| m.enabled)
     }
 
-    fn get_local_mods(mods_path: &Path) -> Result<HashMap<String, LocalMod>> {
-        let mut mods: HashMap<String, LocalMod> = HashMap::new();
-        let glob_matches = glob(mods_path.join("*").join("manifest.json").to_str().unwrap())?;
+    /// Returns an iterator for all installed and valid mods
+    ///
+    /// ## Returns
+    ///
+    /// An Iterator for all mods that are installed, and have a valid manifest
+    ///
+    pub fn valid(&self) -> impl Iterator<Item = &LocalMod> {
+        self.all().filter_map(|m| match m {
+            UnsafeLocalMod::Valid(m) => Some(m),
+            _ => None,
+        })
+    }
+
+    /// Returns an iterator of all mods with validation errors, including [FailedMod]s
+    ///
+    /// ## Returns
+    ///
+    /// An iterator containing all mods that failed to load or have validation errors
+    ///
+    pub fn invalid(&self) -> impl Iterator<Item = &UnsafeLocalMod> {
+        self.all().filter(|m| match m {
+            UnsafeLocalMod::Invalid(_) => true,
+            UnsafeLocalMod::Valid(valid_mod) => !valid_mod.errors.is_empty(),
+        })
+    }
+
+    /// Returns an iterator over all mods in the database, valid or no
+    ///
+    /// ## Returns
+    ///
+    /// An iterator over all the mods in the database, note how it's [UnsafeLocalMod] and not [LocalMod]
+    ///
+    pub fn all(&self) -> impl Iterator<Item = &UnsafeLocalMod> {
+        self.mods.values()
+    }
+
+    /// Validates deps, conflicts, etc for all mods in the DB and places errors in each mods' errors Vec
+    fn validate(&mut self) {
+        let names: Vec<String> = self
+            .valid()
+            .map(|m| m.manifest.unique_name.clone())
+            .collect();
+        for name in names {
+            // Safe unwrap bc we're iterating over `valid`
+            let local_mod = self.get_mod(&name).unwrap();
+            let errors = check_mod(local_mod, self);
+            self.get_mod_mut(&name).unwrap().errors = errors;
+        }
+    }
+
+    fn get_local_mods(mods_path: &Path) -> Result<HashMap<String, UnsafeLocalMod>> {
+        let mut mods: HashMap<String, UnsafeLocalMod> = HashMap::new();
+        let glob_matches = glob(mods_path.join("**").join("manifest.json").to_str().unwrap())?;
         for entry in glob_matches {
             let entry = entry?;
+            let parent = entry.parent().ok_or_else(|| anyhow!("Invalid Manifest!"))?;
+            let path = parent.to_str().unwrap().to_string();
+            let display_path = parent
+                .strip_prefix(mods_path)
+                .unwrap_or(parent)
+                .to_str()
+                .unwrap()
+                .to_string();
             let local_mod = Self::read_local_mod(&entry);
             if let Ok(local_mod) = local_mod {
-                mods.insert(local_mod.manifest.unique_name.to_owned(), local_mod);
+                if let Some(UnsafeLocalMod::Valid(other)) =
+                    mods.get(&local_mod.manifest.unique_name)
+                {
+                    let failed_mod = FailedMod {
+                        mod_path: path.to_string(),
+                        display_path,
+                        error: ModValidationError::DuplicateMod(other.mod_path.to_string()),
+                    };
+                    mods.insert(path.to_string(), UnsafeLocalMod::Invalid(failed_mod));
+                } else {
+                    mods.insert(
+                        local_mod.manifest.unique_name.to_owned(),
+                        UnsafeLocalMod::Valid(local_mod),
+                    );
+                }
             } else {
-                error!(
-                    "Error loading mod {}: {:?}",
-                    entry.to_str().unwrap(),
-                    local_mod.err().unwrap()
-                );
+                let err = format!("{:?}", local_mod.err().unwrap());
+                warn!("Failed to load mod at {}: {:?}", path, err);
+                let failed_mod = FailedMod {
+                    mod_path: path.to_string(),
+                    display_path,
+                    error: ModValidationError::InvalidManifest(err),
+                };
+                mods.insert(path.to_string(), UnsafeLocalMod::Invalid(failed_mod));
             }
         }
         Ok(mods)
@@ -217,7 +316,9 @@ impl LocalDatabase {
 
 #[cfg(test)]
 mod tests {
-    use crate::constants::DEFAULT_DB_URL;
+    // TODO: Tests for invalid/duplicate mods
+
+    use crate::{constants::DEFAULT_DB_URL, test_utils::get_test_file};
 
     use super::*;
 
@@ -263,9 +364,9 @@ mod tests {
 
     #[test]
     fn test_local_db_fetch() {
-        let mods_path = Path::new(env!("CARGO_MANIFEST_DIR")).join("test_files");
+        let mods_path = get_test_file("");
         let db = LocalDatabase::fetch(mods_path.to_str().unwrap()).unwrap();
-        assert_eq!(db.mods.len(), 2);
+        assert_eq!(db.valid().count(), 2);
         assert_eq!(
             db.get_mod("Bwc9876.TimeSaver").unwrap().manifest.name,
             "TimeSaver"
@@ -274,9 +375,47 @@ mod tests {
 
     #[test]
     fn test_local_db_get_owml() {
-        let mods_path = Path::new(env!("CARGO_MANIFEST_DIR")).join("test_files");
+        let mods_path = get_test_file("");
         let owml = LocalDatabase::get_owml(mods_path.to_str().unwrap());
         assert!(owml.is_some());
         assert_eq!(owml.unwrap().manifest.name, "OWML");
+    }
+
+    #[test]
+    fn test_local_db_invalid_manifest() {
+        let mods_path = get_test_file("Invalid");
+        let db = LocalDatabase::fetch(mods_path.to_str().unwrap()).unwrap();
+        let bad_mod_path = mods_path.join("Mods").join("Invalid.Manifest");
+        let bad_mod = db.get_mod_unsafe(bad_mod_path.to_str().unwrap()).unwrap();
+        if let UnsafeLocalMod::Invalid(bad_mod) = bad_mod {
+            assert_eq!(bad_mod.mod_path, bad_mod_path.to_str().unwrap());
+            if let ModValidationError::InvalidManifest(e) = &bad_mod.error {
+                dbg!(&e);
+                assert!(e.to_ascii_lowercase().contains("string"));
+            } else {
+                panic!("Wrong Error on bad_mod!");
+            }
+        } else {
+            panic!("Mod valid when it shouldn't be!");
+        }
+    }
+
+    #[test]
+    fn test_local_db_dupe_mods() {
+        let mods_path = get_test_file("Invalid");
+        let db = LocalDatabase::fetch(mods_path.to_str().unwrap()).unwrap();
+        let bad_mod_path = mods_path.join("Mods").join("Dupe.Mod2");
+        let other_mod_path = mods_path.join("Mods").join("Dupe.Mod1");
+        let bad_mod = db.get_mod_unsafe(bad_mod_path.to_str().unwrap()).unwrap();
+        if let UnsafeLocalMod::Invalid(bad_mod) = bad_mod {
+            assert_eq!(bad_mod.mod_path, bad_mod_path.to_str().unwrap());
+            if let ModValidationError::DuplicateMod(other) = &bad_mod.error {
+                assert_eq!(other, other_mod_path.to_str().unwrap());
+            } else {
+                panic!("Wrong Error on bad_mod!");
+            }
+        } else {
+            panic!("Mod valid when it shouldn't be!");
+        }
     }
 }

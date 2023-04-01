@@ -63,7 +63,7 @@ pub async fn update_all(
 ) -> Result<bool> {
     let mut needs_update: Vec<&RemoteMod> = vec![];
 
-    for local_mod in local_db.mods.values() {
+    for local_mod in local_db.valid() {
         let (update, remote_mod) = check_mod_needs_update(local_mod, remote_db);
         if update {
             info!(

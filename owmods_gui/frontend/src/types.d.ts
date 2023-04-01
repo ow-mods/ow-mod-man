@@ -5,7 +5,6 @@
 /** Represents the core config, contains critical info needed by the core API */
 export interface Config {
     owmlPath: string;
-    winePrefix?: string;
     databaseUrl: string;
     alertUrl: string;
     viewedAlerts: string[];
@@ -46,9 +45,16 @@ export interface ModReadMe {
 /** Represents an installed mod */
 export interface LocalMod {
     enabled: boolean;
-    errors: string[];
-    mod_path: string;
+    errors: ModValidationError[];
+    modPath: string;
     manifest: ModManifest;
+}
+
+/** Represents a mod that completely failed to load */
+export interface FailedMod {
+    error: ModValidationError;
+    modPath: string;
+    displayPath: string;
 }
 
 /** Represents a manifest file for a local mod. */
@@ -99,6 +105,7 @@ export interface GuiConfig {
     rainbow: boolean;
     language: Language;
     watchFs: boolean;
+    noWarning: boolean;
 }
 
 export interface LogPayload {
@@ -106,6 +113,11 @@ export interface LogPayload {
     target: string;
     message: string;
 }
+
+/** Represents a `LocalMod` that we aren't sure loaded successfully */
+export type UnsafeLocalMod =
+    | { loadState: "valid"; mod: LocalMod }
+    | { loadState: "invalid"; mod: FailedMod };
 
 /** Represents the type of message sent from the game */
 export enum SocketMessageType {
@@ -118,6 +130,21 @@ export enum SocketMessageType {
     Fatal = "fatal",
     Debug = "debug"
 }
+
+/** Represents an error with a [LocalMod] */
+export type ModValidationError =
+    /** The mod's manifest was invalid, contains the error encountered when loading it */
+    | { errorType: "InvalidManifest"; payload: string }
+    /** The mod is missing a dependency that needs to be installed, contains the unique name of the missing dep */
+    | { errorType: "MissingDep"; payload: string }
+    /** A dependency of the mod is disabled, contains the unique name of the disabled dep */
+    | { errorType: "DisabledDep"; payload: string }
+    /** There's another enabled mod that conflicts with this one, contains the conflicting mod */
+    | { errorType: "ConflictingMod"; payload: string }
+    /** The DLL the mod specifies in its `manifest.json` doesn't exist, contains the path (if even present) to the DLL specified by the mod */
+    | { errorType: "MissingDLL"; payload?: string }
+    /** There's another mod already in the DB with this mod's unique name, contains the path of the other mod that has the same unique name */
+    | { errorType: "DuplicateMod"; payload: string };
 
 export enum Theme {
     White = "White",

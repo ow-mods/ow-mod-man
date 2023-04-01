@@ -2,7 +2,10 @@ use std::{fs::remove_dir_all, path::PathBuf};
 
 use anyhow::Result;
 
-use crate::{db::LocalDatabase, mods::LocalMod};
+use crate::{
+    db::LocalDatabase,
+    mods::{FailedMod, LocalMod},
+};
 
 /// Uninstall a mod
 ///
@@ -28,12 +31,23 @@ pub fn remove_mod(local_mod: &LocalMod, db: &LocalDatabase, recursive: bool) -> 
     Ok(())
 }
 
+/// Removes a [FailedMod]
+///
+/// ## Errors
+///
+/// If we can't delete the folder
+pub fn remove_failed_mod(failed_mod: &FailedMod) -> Result<()> {
+    remove_dir_all(PathBuf::from(&failed_mod.mod_path))?;
+    Ok(())
+}
+
 #[cfg(test)]
 mod tests {
 
     use crate::{
         config::Config,
         download::install_mod_from_zip,
+        mods::UnsafeLocalMod,
         test_utils::{get_test_file, make_test_dir},
     };
 
@@ -88,6 +102,12 @@ mod tests {
         new_mod.manifest.dependencies = Some(vec!["Bwc9876.SaveEditor".to_string()]);
         db.mods
             .get_mut("Bwc9876.SaveEditor")
+            .map(|m| match m {
+                UnsafeLocalMod::Valid(m) => m,
+                _ => {
+                    panic!("Mod Install Failed!")
+                }
+            })
             .unwrap()
             .manifest
             .dependencies = Some(vec!["Bwc9876.TimeSaver".to_string()]);

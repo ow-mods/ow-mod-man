@@ -2,7 +2,6 @@ use std::fs::File;
 use std::io::{BufWriter, Write};
 use std::path::{Path, PathBuf};
 
-use chrono::Local;
 use owmods_core::config::Config;
 use owmods_core::constants::OWML_UNIQUE_NAME;
 use owmods_core::db::{LocalDatabase, RemoteDatabase};
@@ -21,6 +20,8 @@ use owmods_core::validate::fix_deps;
 use rust_fuzzy_search::fuzzy_compare;
 use tauri::api::dialog;
 use tauri::Manager;
+use time::macros::format_description;
+use time::OffsetDateTime;
 use tokio::try_join;
 
 use crate::{LogPort, State};
@@ -496,12 +497,19 @@ pub async fn run_game(state: tauri::State<'_, State>, window: tauri::Window) -> 
     }
     let log_server = LogServer::new(0).await.map_err(e_to_str)?;
     let port = log_server.port;
-    let now = Local::now();
+    let now = OffsetDateTime::now_utc();
     let logs_path = get_app_path()
         .map_err(e_to_str)?
         .join("game_logs")
-        .join(now.format("%d_%m_%Y").to_string())
-        .join(format!("{}.log", now.format("%H_%M_%S")));
+        .join(
+            now.format(format_description!("[day]-[month]-[year]"))
+                .unwrap(),
+        )
+        .join(format!(
+            "{}.log",
+            now.format(format_description!("[hour]-[minute]-[second]"))
+                .unwrap()
+        ));
     create_all_parents(&logs_path).map_err(e_to_str)?;
     let file = File::options()
         .read(true)

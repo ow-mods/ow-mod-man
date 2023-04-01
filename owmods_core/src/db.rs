@@ -390,7 +390,6 @@ mod tests {
         if let UnsafeLocalMod::Invalid(bad_mod) = bad_mod {
             assert_eq!(bad_mod.mod_path, bad_mod_path.to_str().unwrap());
             if let ModValidationError::InvalidManifest(e) = &bad_mod.error {
-                dbg!(&e);
                 assert!(e.to_ascii_lowercase().contains("string"));
             } else {
                 panic!("Wrong Error on bad_mod!");

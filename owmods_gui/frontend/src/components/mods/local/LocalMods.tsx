@@ -14,8 +14,6 @@ const LocalMods = memo(() => {
     const activeTimeout = useRef<number | undefined>(undefined);
     const [status, mods, err] = hooks.getLocalMods("LOCAL-REFRESH", { filter });
 
-    console.debug(mods);
-
     useEffect(() => {
         commands.refreshLocalDb();
     }, []);

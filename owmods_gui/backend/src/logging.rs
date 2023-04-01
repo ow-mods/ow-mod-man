@@ -5,12 +5,13 @@ use std::{
 };
 
 use anyhow::Result;
-use chrono::Local;
 use log::{Level, STATIC_MAX_LEVEL};
 use owmods_core::{file::get_app_path, progress::ProgressPayload};
 use serde::Serialize;
 use std::fs::create_dir_all;
 use tauri::{AppHandle, Manager};
+use time::macros::format_description;
+use time::OffsetDateTime;
 use typeshare::typeshare;
 
 pub struct Logger {
@@ -29,12 +30,19 @@ struct LogPayload {
 
 impl Logger {
     pub fn new(app: AppHandle) -> Self {
-        let now = Local::now();
+        let now = OffsetDateTime::now_utc();
         let logs_path = get_app_path()
             .expect("Couldn't Make Log File")
             .join("logs")
-            .join(now.format("%d_%m_%Y").to_string())
-            .join(format!("{}.log", now.format("%H_%M_%S")));
+            .join(
+                now.format(format_description!("[day]-[month]-[year]"))
+                    .unwrap(),
+            )
+            .join(format!(
+                "{}.log",
+                now.format(format_description!("[hour]-[minute]-[second]"))
+                    .unwrap()
+            ));
         create_dir_all(logs_path.parent().unwrap()).unwrap();
         let file = File::create(logs_path).expect("Couldn't Make Log File");
         let writer = BufWriter::new(file);
@@ -46,7 +54,9 @@ impl Logger {
 
     pub fn write_log_to_file(&self, log_type: Level, message: &str) -> Result<()> {
         let mut writer = self.writer.lock().unwrap();
-        let now = Local::now().format("%H:%M:%S");
+        let now = OffsetDateTime::now_utc()
+            .format(format_description!("[hour]:[minute]:[second]"))
+            .unwrap();
         let message = format!("[{}][{}] {}", now, log_type, message);
         println!("{}", message);
         writeln!(writer, "{}", message)?;

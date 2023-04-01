@@ -152,7 +152,6 @@ const SettingsForm = (props: SettingsFormProps) => {
         "DB_URL",
         "ALERT_URL",
         "OWML_PATH",
-        "WINE_PREFIX",
         "THEME",
         "RAINBOW",
         "LANGUAGE",

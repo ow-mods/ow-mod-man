@@ -106,8 +106,9 @@ impl Config {
 #[cfg(test)]
 mod tests {
 
+    use crate::test_utils::make_test_dir;
+
     use super::*;
-    use tempdir::TempDir;
 
     #[test]
     pub fn test_config_default() {
@@ -118,7 +119,7 @@ mod tests {
 
     #[test]
     pub fn test_config_save() {
-        let dir = TempDir::new("owmods_test").unwrap();
+        let dir = make_test_dir();
         let path = dir.path().join("settings.json");
         let mut config = Config::default(Some(path.clone())).unwrap();
         config.database_url = "test".to_string();
@@ -131,7 +132,7 @@ mod tests {
 
     #[test]
     pub fn test_config_get_new() {
-        let dir = TempDir::new("owmods_test").unwrap();
+        let dir = make_test_dir();
         let path = dir.path().join("settings.json");
         let config = Config::get(Some(path)).unwrap();
         assert!(Config::default_path().unwrap().is_file());
@@ -141,7 +142,7 @@ mod tests {
 
     #[test]
     pub fn test_config_get_existing() {
-        let dir = TempDir::new("owmods_test").unwrap();
+        let dir = make_test_dir();
         let path = dir.path().join("settings.json");
         let mut config = Config::default(Some(path.clone())).unwrap();
         config.owml_path = "/different/path".to_string();

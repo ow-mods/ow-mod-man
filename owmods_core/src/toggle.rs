@@ -99,7 +99,7 @@ mod tests {
 
     use std::fs::remove_file;
 
-    use tempdir::TempDir;
+    use tempfile::TempDir;
 
     use crate::{
         config::Config,

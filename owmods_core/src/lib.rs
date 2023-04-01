@@ -53,10 +53,10 @@ pub mod validate;
 mod test_utils {
     use std::path::{Path, PathBuf};
 
-    use tempdir::TempDir;
+    use tempfile::TempDir;
 
     pub fn make_test_dir() -> TempDir {
-        TempDir::new("owmods_test").unwrap()
+        TempDir::new().unwrap()
     }
 
     pub fn get_test_file(path: &str) -> PathBuf {

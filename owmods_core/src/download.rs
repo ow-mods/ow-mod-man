@@ -9,7 +9,7 @@ use anyhow::anyhow;
 use anyhow::Result;
 use futures::{stream::FuturesUnordered, StreamExt};
 use log::{debug, info};
-use tempdir::TempDir;
+use tempfile::TempDir;
 use zip::ZipArchive;
 
 use crate::{
@@ -212,7 +212,7 @@ pub async fn download_and_install_owml(config: &Config, owml: &RemoteMod) -> Res
         Ok(PathBuf::from(&config.owml_path))
     }?;
 
-    let temp_dir = TempDir::new("owmods")?;
+    let temp_dir = TempDir::new()?;
     let download_path = temp_dir.path().join("OWML.zip");
     download_zip(url, &download_path).await?;
     extract_zip(&download_path, &target_path, "OWML")?;
@@ -279,7 +279,7 @@ pub async fn install_mod_from_url(
 ) -> Result<LocalMod> {
     let zip_name = get_end_of_url(url).replace(".zip", "");
 
-    let temp_dir = TempDir::new("owmods")?;
+    let temp_dir = TempDir::new()?;
     let download_path = temp_dir.path().join(format!("{}.zip", zip_name));
 
     download_zip(url, &download_path).await?;

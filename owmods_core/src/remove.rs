@@ -2,7 +2,10 @@ use std::{fs::remove_dir_all, path::PathBuf};
 
 use anyhow::Result;
 
-use crate::{db::LocalDatabase, mods::LocalMod};
+use crate::{
+    db::LocalDatabase,
+    mods::{FailedMod, LocalMod},
+};
 
 /// Uninstall a mod
 ///
@@ -25,6 +28,16 @@ pub fn remove_mod(local_mod: &LocalMod, db: &LocalDatabase, recursive: bool) -> 
             }
         }
     }
+    Ok(())
+}
+
+/// Removes a [FailedMod]
+///
+/// ## Errors
+///
+/// If we can't delete the folder
+pub fn remove_failed_mod(failed_mod: &FailedMod) -> Result<()> {
+    remove_dir_all(PathBuf::from(&failed_mod.mod_path))?;
     Ok(())
 }
 

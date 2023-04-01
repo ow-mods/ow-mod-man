@@ -5,7 +5,7 @@ import ModValidationModal, {
 } from "@components/modals/ModValidationModal";
 import { useTranslations } from "@hooks";
 import { memo, useCallback, useEffect, useRef, useState } from "react";
-import LocalModRow from "./LocalModRow";
+import UnsafeModRow from "./UnsafeModRow";
 
 const LocalMods = memo(() => {
     const openValidationModal = useRef<(p: OpenModValidationModalPayload) => void>(() => null);
@@ -13,6 +13,8 @@ const LocalMods = memo(() => {
     const [tempFilter, setTempFilter] = useState("");
     const activeTimeout = useRef<number | undefined>(undefined);
     const [status, mods, err] = hooks.getLocalMods("LOCAL-REFRESH", { filter });
+
+    console.debug(mods);
 
     useEffect(() => {
         commands.refreshLocalDb();
@@ -83,10 +85,10 @@ const LocalMods = memo(() => {
                         <CenteredSpinner />
                     ) : (
                         mods!.map((m) => (
-                            <LocalModRow
+                            <UnsafeModRow
                                 key={m}
                                 uniqueName={m}
-                                onValidationClick={onValidationIconClicked}
+                                onValidationClicked={onValidationIconClicked}
                             />
                         ))
                     )}

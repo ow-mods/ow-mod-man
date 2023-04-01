@@ -1,6 +1,6 @@
 import { LoadState, useTauri } from "@hooks";
 import { invoke } from "@tauri-apps/api";
-import { Config, GuiConfig, LocalMod, OWMLConfig, RemoteMod, GameMessage } from "@types";
+import { Config, GuiConfig, OWMLConfig, RemoteMod, GameMessage, UnsafeLocalMod } from "@types";
 
 type CommandInfo<P, R> = [P, R];
 type GetCommand<V> = CommandInfo<Record<string, never>, V>;
@@ -24,7 +24,7 @@ const commandInfo = {
     getLocalMods: $<CommandInfo<{ filter: string }, string[]>>("get_local_mods"),
     getRemoteMods: $<CommandInfo<{ filter: string }, string[]>>("get_remote_mods"),
     getUpdatableMods: $<GetCommand<string[]>>("get_updatable_mods"),
-    getLocalMod: $<ModCommand<LocalMod>>("get_local_mod"),
+    getLocalMod: $<ModCommand<UnsafeLocalMod>>("get_local_mod"),
     getRemoteMod: $<ModCommand<RemoteMod>>("get_remote_mod"),
     getLogLine: $<CommandInfo<{ line: number }, GameMessage>>("get_game_message"),
     toggleMod: $<ActionCommand<{ uniqueName: string; enabled: boolean }>>("toggle_mod"),
@@ -32,6 +32,7 @@ const commandInfo = {
     openModFolder: $<ModAction>("open_mod_folder"),
     openModReadme: $<ModAction>("open_mod_readme"),
     uninstallMod: $<ModAction>("uninstall_mod"),
+    uninstallBrokenMod: $<ActionCommand<{ modPath: string }>>("uninstall_broken_mod"),
     installMod: $<CommandInfo<{ uniqueName: string; prerelease?: boolean }, void>>("install_mod"),
     installUrl: $<ActionCommand<{ url: string }>>("install_url"),
     installZip: $<ActionCommand<{ path: string }>>("install_zip"),

@@ -46,14 +46,15 @@ export interface ModReadMe {
 export interface LocalMod {
     enabled: boolean;
     errors: ModValidationError[];
-    mod_path: string;
+    modPath: string;
     manifest: ModManifest;
 }
 
 /** Represents a mod that completely failed to load */
 export interface FailedMod {
     error: ModValidationError;
-    mod_path: string;
+    modPath: string;
+    displayPath: string;
 }
 
 /** Represents a manifest file for a local mod. */
@@ -112,6 +113,11 @@ export interface LogPayload {
     target: string;
     message: string;
 }
+
+/** Represents a `LocalMod` that we aren't sure loaded successfully */
+export type UnsafeLocalMod =
+    | { loadState: "valid"; mod: LocalMod }
+    | { loadState: "invalid"; mod: FailedMod };
 
 /** Represents the type of message sent from the game */
 export enum SocketMessageType {

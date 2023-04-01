@@ -6,6 +6,7 @@ import { memo, useCallback, useMemo, useState } from "react";
 import { BsArrowUp } from "react-icons/bs";
 import ModActionButton from "../ModActionButton";
 import ModHeader from "../ModHeader";
+import { LocalMod } from "@types";
 
 export interface UpdateModRowProps {
     uniqueName: string;
@@ -15,8 +16,11 @@ export interface UpdateModRowProps {
 const UpdateModRow = memo(
     (props: UpdateModRowProps) => {
         const [remoteStatus, remoteMod, err1] = hooks.getRemoteMod("REMOTE-REFRESH", props);
-        const [localStatus, localMod, err2] = hooks.getLocalMod("LOCAL-REFRESH", props);
+        const [localStatus, unsafeLocalMod, err2] = hooks.getLocalMod("LOCAL-REFRESH", props);
         const [updating, setUpdating] = useState(false);
+
+        // Assertion is safe bc we're only iterating over valid mods
+        const localMod = unsafeLocalMod?.mod as LocalMod | null;
 
         const subtitleString = useMemo(
             () => `${localMod?.manifest.version ?? "v0"} 🡢 ${remoteMod?.version ?? "v0"}`,

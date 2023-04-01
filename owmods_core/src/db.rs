@@ -140,6 +140,16 @@ impl LocalDatabase {
         }
     }
 
+    /// Get an UnsafeLocalMod from the database, this will also grab mods that failed to load
+    ///
+    /// ## Returns
+    ///
+    /// An [UnsafeLocalMod] that may or may not have loaded successfully
+    ///
+    pub fn get_mod_unsafe(&self, unique_name: &str) -> Option<&UnsafeLocalMod> {
+        self.mods.get(unique_name)
+    }
+
     fn get_mod_mut(&mut self, unique_name: &str) -> Option<&mut LocalMod> {
         let local_mod = self.mods.get_mut(unique_name);
         if let Some(UnsafeLocalMod::Valid(local_mod)) = local_mod {
@@ -261,12 +271,14 @@ impl LocalDatabase {
 
     fn get_local_mods(mods_path: &Path) -> Result<HashMap<String, UnsafeLocalMod>> {
         let mut mods: HashMap<String, UnsafeLocalMod> = HashMap::new();
-        let glob_matches = glob(mods_path.join("*").join("manifest.json").to_str().unwrap())?;
+        let glob_matches = glob(mods_path.join("**").join("manifest.json").to_str().unwrap())?;
         for entry in glob_matches {
             let entry = entry?;
-            let path = entry
-                .parent()
-                .ok_or_else(|| anyhow!("Invalid Manifest!"))?
+            let parent = entry.parent().ok_or_else(|| anyhow!("Invalid Manifest!"))?;
+            let path = parent.to_str().unwrap().to_string();
+            let display_path = parent
+                .strip_prefix(mods_path)
+                .unwrap_or(parent)
                 .to_str()
                 .unwrap()
                 .to_string();
@@ -277,6 +289,7 @@ impl LocalDatabase {
                 {
                     let failed_mod = FailedMod {
                         mod_path: path.to_string(),
+                        display_path,
                         error: ModValidationError::DuplicateMod(other.mod_path.to_string()),
                     };
                     mods.insert(path.to_string(), UnsafeLocalMod::Invalid(failed_mod));
@@ -291,12 +304,10 @@ impl LocalDatabase {
                 warn!("Failed to load mod at {}: {:?}", path, err);
                 let failed_mod = FailedMod {
                     mod_path: path.to_string(),
+                    display_path,
                     error: ModValidationError::InvalidManifest(err),
                 };
-                mods.insert(
-                    entry.to_str().unwrap().to_string(),
-                    UnsafeLocalMod::Invalid(failed_mod),
-                );
+                mods.insert(path.to_string(), UnsafeLocalMod::Invalid(failed_mod));
             }
         }
         Ok(mods)

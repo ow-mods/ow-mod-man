@@ -72,6 +72,7 @@ fn main() -> Result<(), Box<dyn Error>> {
             toggle_mod,
             toggle_all,
             uninstall_mod,
+            uninstall_broken_mod,
             install_mod,
             install_url,
             install_zip,

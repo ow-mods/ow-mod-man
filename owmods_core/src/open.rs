@@ -2,6 +2,7 @@ use crate::{
     config::Config,
     constants::{DB_REPO_URL, OWML_DOCS_URL, WEBSITE_URL},
     db::{LocalDatabase, RemoteDatabase},
+    mods::UnsafeLocalMod,
 };
 use anyhow::anyhow;
 use anyhow::Result;
@@ -25,8 +26,11 @@ pub fn open_shortcut(identifier: &str, conf: &Config, local_db: &LocalDatabase) 
 
     if target.is_empty() {
         let path: &str = local_db
-            .get_mod(identifier)
-            .map(|m| m.mod_path.as_ref())
+            .get_mod_unsafe(identifier)
+            .map(|m| match m {
+                UnsafeLocalMod::Invalid(m) => &m.mod_path,
+                UnsafeLocalMod::Valid(m) => &m.mod_path,
+            })
             .ok_or_else(|| anyhow!("Mod {} not found", identifier))?;
         opener::open(path)?;
     } else {

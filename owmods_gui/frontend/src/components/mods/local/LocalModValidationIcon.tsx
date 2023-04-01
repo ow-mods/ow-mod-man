@@ -25,7 +25,8 @@ const LocalModValidationIcon = (props: LocalModValidationIconProps) => {
                 (e) =>
                     e.errorType === "MissingDep" ||
                     e.errorType === "DisabledDep" ||
-                    e.errorType === "InvalidManifest"
+                    e.errorType === "InvalidManifest" ||
+                    e.errorType === "DuplicateMod"
             ) !== undefined;
 
         return (

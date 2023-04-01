@@ -80,6 +80,7 @@
     "FIX": "Fix Issues",
     "DONT_FIX": "Don't Fix",
     "LAUNCH_ANYWAY": "Issues have been detected with your mod configuration that may result in broken or unloaded mods, continue nevertheless?",
+    "CANT_LOAD": "Error While Loading",
     "White": "White",
     "Blue": "Blue",
     "Pink": "Pink",
@@ -101,5 +102,6 @@
     "DisabledDep": "Dependency $payload$ is installed, but it's disabled",
     "ConflictingMod": "This mod conflicts with $payload$",
     "MissingDLL": "Unable to find DLL file specified (\"$payload$\")",
+    "DuplicateMod": "A mod with this unique name was already loaded from $payload$",
     "_": "Translation Not Implemented, Report This!"
 }

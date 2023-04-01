@@ -5,7 +5,7 @@ use anyhow::Result;
 use clap::{Parser, Subcommand};
 use colored::Colorize;
 use game::start_just_logs;
-use log::{debug, error, info, warn, LevelFilter};
+use log::{error, info, warn, LevelFilter};
 use owmods_core::validate::fix_deps;
 use owmods_core::{
     alerts::fetch_alert,
@@ -14,7 +14,6 @@ use owmods_core::{
     download::{
         download_and_install_owml, install_mod_from_db, install_mod_from_url, install_mod_from_zip,
     },
-    game::setup_wine_prefix,
     io::{export_mods, import_mods},
     mods::LocalMod,
     open::{open_readme, open_shortcut},
@@ -440,24 +439,7 @@ async fn run_from_cli(cli: BaseCli) -> Result<()> {
                 info!("...or run with -f to launch anyway");
                 return Ok(());
             }
-            if cfg!(windows) || config.wine_prefix.is_some() {
-                start_game(&local_db, &config, port).await?;
-            } else {
-                info!("Hey there! Before you can run the game we'll need to setup a wine prefix.",);
-                info!("You can either set wine_prefix in ~/.local/share/ow-mod-man/settings.json.",);
-                info!("Or we can set one up for you, you'll need wine and winetricks installed.",);
-                println!("Set up a wine prefix now? (y/n)");
-                let mut answer = String::new();
-                std::io::stdin().read_line(&mut answer)?;
-                if answer.trim().to_ascii_lowercase() == "y" {
-                    info!("Alright! We'll need about 10 minutes to set up, during setup dialog boxes will appear so make sure to go through them.");
-                    info!("When prompted to restart, select \"Restart Later\"");
-                    debug!("Begin creating wine prefix");
-                    let new_conf = setup_wine_prefix(&config).await?;
-                    info!("Success! Launching the game now...");
-                    start_game(&local_db, &new_conf, port).await?;
-                }
-            }
+            start_game(&local_db, &config, port).await?;
         }
         Commands::Open { identifier } => {
             info!("Opening {}", identifier);

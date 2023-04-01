@@ -318,7 +318,7 @@ impl LocalDatabase {
 mod tests {
     // TODO: Tests for invalid/duplicate mods
 
-    use crate::constants::DEFAULT_DB_URL;
+    use crate::{constants::DEFAULT_DB_URL, test_utils::get_test_file};
 
     use super::*;
 
@@ -364,9 +364,9 @@ mod tests {
 
     #[test]
     fn test_local_db_fetch() {
-        let mods_path = Path::new(env!("CARGO_MANIFEST_DIR")).join("test_files");
+        let mods_path = get_test_file("");
         let db = LocalDatabase::fetch(mods_path.to_str().unwrap()).unwrap();
-        assert_eq!(db.mods.len(), 2);
+        assert_eq!(db.valid().count(), 2);
         assert_eq!(
             db.get_mod("Bwc9876.TimeSaver").unwrap().manifest.name,
             "TimeSaver"
@@ -375,9 +375,47 @@ mod tests {
 
     #[test]
     fn test_local_db_get_owml() {
-        let mods_path = Path::new(env!("CARGO_MANIFEST_DIR")).join("test_files");
+        let mods_path = get_test_file("");
         let owml = LocalDatabase::get_owml(mods_path.to_str().unwrap());
         assert!(owml.is_some());
         assert_eq!(owml.unwrap().manifest.name, "OWML");
+    }
+
+    #[test]
+    fn test_local_db_invalid_manifest() {
+        let mods_path = get_test_file("Invalid");
+        let db = LocalDatabase::fetch(mods_path.to_str().unwrap()).unwrap();
+        let bad_mod_path = mods_path.join("Mods").join("Invalid.Manifest");
+        let bad_mod = db.get_mod_unsafe(bad_mod_path.to_str().unwrap()).unwrap();
+        if let UnsafeLocalMod::Invalid(bad_mod) = bad_mod {
+            assert_eq!(bad_mod.mod_path, bad_mod_path.to_str().unwrap());
+            if let ModValidationError::InvalidManifest(e) = &bad_mod.error {
+                dbg!(&e);
+                assert!(e.to_ascii_lowercase().contains("string"));
+            } else {
+                panic!("Wrong Error on bad_mod!");
+            }
+        } else {
+            panic!("Mod valid when it shouldn't be!");
+        }
+    }
+
+    #[test]
+    fn test_local_db_dupe_mods() {
+        let mods_path = get_test_file("Invalid");
+        let db = LocalDatabase::fetch(mods_path.to_str().unwrap()).unwrap();
+        let bad_mod_path = mods_path.join("Mods").join("Dupe.Mod2");
+        let other_mod_path = mods_path.join("Mods").join("Dupe.Mod1");
+        let bad_mod = db.get_mod_unsafe(bad_mod_path.to_str().unwrap()).unwrap();
+        if let UnsafeLocalMod::Invalid(bad_mod) = bad_mod {
+            assert_eq!(bad_mod.mod_path, bad_mod_path.to_str().unwrap());
+            if let ModValidationError::DuplicateMod(other) = &bad_mod.error {
+                assert_eq!(other, other_mod_path.to_str().unwrap());
+            } else {
+                panic!("Wrong Error on bad_mod!");
+            }
+        } else {
+            panic!("Mod valid when it shouldn't be!");
+        }
     }
 }

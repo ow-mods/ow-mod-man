@@ -1,8 +1,7 @@
-import { ChangeEvent, MutableRefObject, ReactNode, useEffect, useRef, useState } from "react";
+import { ChangeEvent, MutableRefObject, ReactNode, useRef, useState } from "react";
 import { Config, GuiConfig, Language, OWMLConfig, Theme } from "@types";
 import Modal, { ModalWrapperProps } from "./Modal";
 import { useTranslation, useTranslations } from "@hooks";
-import { os } from "@tauri-apps/api";
 import { commands, hooks } from "@commands";
 import { OpenFileInput } from "@components/common/FileInput";
 
@@ -131,14 +130,12 @@ const SettingsForm = (props: SettingsFormProps) => {
     const [config, setConfig] = useState<Config>(props.initialConfig);
     const [owmlConfig, setOwmlConfig] = useState<OWMLConfig>(props.initialOwmlConfig);
     const [guiConfig, setGuiConfig] = useState<GuiConfig>(props.initialGuiConfig);
-    const [platform, setPlatform] = useState("windows");
 
     const [
         generalSettings,
         dbUrl,
         alertUrl,
         owmlPath,
-        winePrefix,
         theme,
         rainbow,
         language,
@@ -190,10 +187,6 @@ const SettingsForm = (props: SettingsFormProps) => {
         setGuiConfig({ ...guiConfig, [e.target.id]: getVal(e.target) });
     };
 
-    useEffect(() => {
-        os.platform().then(setPlatform);
-    }, []);
-
     props.save.current = () => {
         const task = async () => {
             await commands.saveConfig({ config });
@@ -231,14 +224,6 @@ const SettingsForm = (props: SettingsFormProps) => {
                 label={owmlPath}
                 id="owmlPath"
             />
-            {platform === "linux" && (
-                <SettingsFolder
-                    onChange={handleConf}
-                    value={config.winePrefix ?? ""}
-                    label={winePrefix}
-                    id="winePrefix"
-                />
-            )}
             <h4>{guiSettingsLabel}</h4>
             <SettingsSelect
                 onChange={handleGui}

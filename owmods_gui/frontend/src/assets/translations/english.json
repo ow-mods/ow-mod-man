@@ -30,7 +30,6 @@
     "DB_URL": "Database URL",
     "ALERT_URL": "Alert URL",
     "OWML_PATH": "OWML Path",
-    "WINE_PREFIX": "Wine Prefix",
     "GAME_PATH": "Game Path",
     "FORCE_EXE": "Force Exe",
     "DEBUG_MODE": "Debug Mode",

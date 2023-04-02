@@ -6,8 +6,24 @@ import { listen } from "@tauri-apps/api/event";
 import { useEffect, useState } from "react";
 import { BsExclamationTriangleFill } from "react-icons/bs";
 import Modal, { ModalWrapperProps } from "./Modal";
+import { ProtocolInstallType, ProtocolPayload } from "@types";
+import { UserAttentionType, getCurrent } from "@tauri-apps/api/window";
 
 type SourceType = "UNIQUE_NAME" | "URL" | "ZIP" | "JSON";
+
+const getSourceTypeFromProtocol = (installType: ProtocolInstallType): SourceType | null => {
+    console.debug(installType);
+    switch (installType) {
+        case "installMod":
+            return "UNIQUE_NAME";
+        case "installURL":
+            return "URL";
+        case "installPreRelease":
+            return "UNIQUE_NAME";
+        default:
+            return null;
+    }
+};
 
 const InstallFromModal = (props: ModalWrapperProps) => {
     const [source, setSource] = useState<SourceType>("UNIQUE_NAME");
@@ -63,18 +79,23 @@ const InstallFromModal = (props: ModalWrapperProps) => {
 
     useEffect(() => {
         let cancel = false;
-        listen("PROTOCOL_INSTALL_URL", ({ payload }) => {
+        listen("PROTOCOL_INVOKE", ({ payload }) => {
             if (cancel) return;
-            setSource("URL");
-            setTarget(payload as string);
-            props.open?.current();
+            const protocolPayload = payload as ProtocolPayload;
+            const sourceType = getSourceTypeFromProtocol(protocolPayload.installType);
+            if (sourceType !== null) {
+                setSource(sourceType);
+                setTarget(protocolPayload.payload);
+                if (
+                    protocolPayload.installType === "installPreRelease" ||
+                    protocolPayload.installType === "installMod"
+                ) {
+                    setPrerelease(protocolPayload.installType === "installPreRelease");
+                }
+                props.open?.current();
+                getCurrent().requestUserAttention(UserAttentionType.Informational);
+            }
         }).catch(console.warn);
-        listen("PROTOCOL_INSTALL_UNIQUE_NAME", ({ payload }) => {
-            if (cancel) return;
-            setSource("UNIQUE_NAME");
-            setTarget(payload as string);
-            props.open?.current();
-        });
         return () => {
             cancel = true;
         };
@@ -96,6 +117,7 @@ const InstallFromModal = (props: ModalWrapperProps) => {
                             setTarget("");
                             setSource(e.target.value as SourceType);
                         }}
+                        value={source}
                         id="source"
                     >
                         <option value="UNIQUE_NAME">{uniqueNameLabel}</option>

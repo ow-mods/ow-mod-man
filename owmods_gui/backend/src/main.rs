@@ -8,19 +8,22 @@ use std::{error::Error, fs::File, io::BufWriter, sync::Arc};
 use commands::*;
 use game::GameMessage;
 use gui_config::GuiConfig;
-use log::{set_boxed_logger, set_max_level};
+use log::{debug, set_boxed_logger, set_max_level, warn};
 use logging::Logger;
 use owmods_core::{
     config::Config,
     db::{LocalDatabase, RemoteDatabase},
 };
 
+use protocol::{ProtocolInstallType, ProtocolPayload};
+use tauri::Manager;
 use tokio::sync::RwLock as TokioLock;
 
 mod commands;
 mod game;
 mod gui_config;
 mod logging;
+mod protocol;
 
 type StatePart<T> = Arc<TokioLock<T>>;
 type LogPort = u16;
@@ -37,6 +40,8 @@ pub struct State {
 fn main() -> Result<(), Box<dyn Error>> {
     let config = Config::default(None)?;
     let gui_config = GuiConfig::default();
+
+    tauri_plugin_deep_link::prepare("com.bwc9876.owmods-gui");
 
     tauri::Builder::default()
         .manage(State {
@@ -58,6 +63,27 @@ fn main() -> Result<(), Box<dyn Error>> {
                 )
                 .ok();
             set_boxed_logger(Box::new(logger)).map(|_| set_max_level(log::LevelFilter::Debug))?;
+
+            let handle = app.handle();
+
+            let res = tauri_plugin_deep_link::register("owmods", move |request| {
+                let protocol_payload = ProtocolPayload::parse(&request);
+                match protocol_payload.install_type {
+                    ProtocolInstallType::Unknown => {}
+                    _ => {
+                        debug!(
+                            "Invoking {:?} with {} from protocol",
+                            protocol_payload.install_type, protocol_payload.payload
+                        );
+                        handle.emit_all("PROTOCOL_INVOKE", protocol_payload).ok();
+                    }
+                }
+            });
+
+            if let Err(why) = res {
+                warn!("Failed to register URI handler: {:?}", why);
+            }
+
             Ok(())
         })
         .invoke_handler(tauri::generate_handler![

@@ -121,6 +121,24 @@ export interface LogPayload {
     message: string;
 }
 
+/**
+ * Represents a payload receive by a protocol handler (link from the website)
+ * All URLs should start with owmods://
+ * Then they should follow with the install type they want like `install-mod` or `install-url`
+ * Finally they should have the payload for the install
+ *
+ * If an invalid install type is given the [ProtocolInstallType] will be set to [ProtocolInstallType::Unknown]
+ *
+ * Some examples of valid URIs are:
+ * - owmods://install-mod/Bwc9876.TimeSaver
+ * - owmods://install-url/https://example.com/Mod.zip
+ * - owmods://install-prerelease/Raicuparta.NomaiVR
+ */
+export interface ProtocolPayload {
+    installType: ProtocolInstallType;
+    payload: string;
+}
+
 /** Represents a `LocalMod` that we aren't sure loaded successfully */
 export type UnsafeLocalMod =
     | { loadState: "valid"; mod: LocalMod }
@@ -168,4 +186,11 @@ export enum Theme {
 export enum Language {
     English = "English",
     Wario = "Wario"
+}
+
+export enum ProtocolInstallType {
+    InstallMod = "installMod",
+    InstallURL = "installURL",
+    InstallPreRelease = "installPreRelease",
+    Unknown = "unknown"
 }

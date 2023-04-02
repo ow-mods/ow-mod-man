@@ -2,6 +2,7 @@ use std::fs::File;
 use std::io::{BufWriter, Write};
 use std::path::{Path, PathBuf};
 
+use owmods_core::alerts::{fetch_alert, Alert};
 use owmods_core::config::Config;
 use owmods_core::constants::OWML_UNIQUE_NAME;
 use owmods_core::db::{LocalDatabase, RemoteDatabase};
@@ -647,4 +648,10 @@ pub async fn db_has_issues(state: tauri::State<'_, State>) -> Result<bool, Strin
     let local_db = state.local_db.read().await;
     let has_errors = local_db.active().any(|m| !m.errors.is_empty());
     Ok(has_errors)
+}
+
+#[tauri::command]
+pub async fn get_alert(state: tauri::State<'_, State>) -> Result<Alert, String> {
+    let config = state.config.read().await;
+    fetch_alert(&config.alert_url).await.map_err(e_to_str)
 }

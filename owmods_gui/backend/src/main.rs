@@ -98,7 +98,8 @@ fn main() -> Result<(), Box<dyn Error>> {
             export_mods,
             import_mods,
             fix_mod_deps,
-            db_has_issues
+            db_has_issues,
+            get_alert
         ])
         .run(tauri::generate_context!())
         .expect("Error while running tauri application.");

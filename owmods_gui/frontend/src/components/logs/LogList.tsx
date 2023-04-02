@@ -15,8 +15,6 @@ const LogList = memo((props: LogListProps) => {
     const logLen = props.logLines.length;
     const logSizes = useRef<Record<number, number>>({});
 
-    console.debug(logSizes);
-
     const reportSize = useCallback((i: number, l: number, size: number) => {
         logSizes.current[l] = size;
         listRef.current?.resetAfterIndex(i);

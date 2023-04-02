@@ -55,3 +55,17 @@ details[role="list"] a:hover {
 details[role="list"] a svg {
     margin-right: $margin;
 }
+
+span.alert-row {
+    z-index: 100;
+    position: fixed;
+    left: 0;
+    right: 0;
+    top: 0;
+    display: block;
+    text-align: center;
+    width: 100%;
+    padding: $margin-sm;
+    margin-top: 0;
+    background-color: var(--accent-bg);
+}

@@ -11,6 +11,7 @@ import { commands, hooks } from "@commands";
 import { useTheme } from "@hooks";
 import { Theme } from "@types";
 import CenteredSpinner from "./common/CenteredSpinner";
+import AlertBar from "./alerts/AlertBar";
 
 startConsoleLogListen();
 
@@ -70,6 +71,7 @@ const App = () => {
                 <main className="container">
                     <OwmlSetupModal open={openOwmlSetup} />
                     <header>
+                        <AlertBar />
                         <Nav />
                     </header>
                     <Tabs />

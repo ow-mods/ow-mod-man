@@ -1,6 +1,14 @@
 import { LoadState, useTauri } from "@hooks";
 import { invoke } from "@tauri-apps/api";
-import { Config, GuiConfig, OWMLConfig, RemoteMod, GameMessage, UnsafeLocalMod } from "@types";
+import {
+    Config,
+    GuiConfig,
+    OWMLConfig,
+    RemoteMod,
+    GameMessage,
+    UnsafeLocalMod,
+    Alert
+} from "@types";
 
 type CommandInfo<P, R> = [P, R];
 type GetCommand<V> = CommandInfo<Record<string, never>, V>;
@@ -61,7 +69,8 @@ const commandInfo = {
     exportMods: $<ActionCommand<{ path: string }>>("export_mods"),
     importMods: $<ActionCommand<{ path: string }>>("import_mods"),
     fixDeps: $<ActionCommand<{ uniqueName: string }>>("fix_mod_deps"),
-    checkDBForIssues: $<GetCommand<boolean>>("db_has_issues")
+    checkDBForIssues: $<GetCommand<boolean>>("db_has_issues"),
+    getAlert: $<GetCommand<Alert>>("get_alert")
 };
 
 type Command = keyof typeof commandInfo;

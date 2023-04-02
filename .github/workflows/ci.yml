@@ -20,7 +20,7 @@ jobs:
       - name: Install Build Dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y libgtk-3-dev libwebkit2gtk-4.0-dev libayatana-appindicator3-dev librsvg2-dev
+          sudo apt-get install -y libgtk-3-dev libwebkit2gtk-4.0-dev librsvg2-dev
           
       - name: Setup Rust Toolchain
         uses: actions-rs/toolchain@v1
@@ -37,7 +37,10 @@ jobs:
       - name: Setup Rust Cache
         uses: Swatinem/rust-cache@v2
         with:
-          shared-key: "rs-cache"
+          workspaces: |
+            ./owmods_core -> target
+            ./owmods_cli -> target
+            ./owmods_gui/backend -> target
 
       - name: Make Stub Dist Dir
         run: mkdir owmods_gui/dist

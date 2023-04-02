@@ -39,6 +39,9 @@ jobs:
         with:
           shared-key: "rs-cache"
 
+      - name: Make Stub Dist Dir
+        run: mkdir owmods_gui/dist
+
       - name: Check Clippy
         uses: actions-rs/cargo@v1
         with:

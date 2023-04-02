@@ -10,6 +10,12 @@ Check out the [mods website](https://outerwildsmods.com/mod-manager/) for instru
 
 ## Building
 
+Prerequisites:
+
+- rust
+- cargo
+- pnpm
+
 You'll need the tauri CLI installed, so run:
 
 ```sh
@@ -44,10 +50,14 @@ cargo tauri build
 
 Builds are located in `target/` at the root of the repo.
 
+### On Debian
+
+On debian you need to install some dependencies with apt:
+
+```sh
+sudo apt-get install -y libgtk-3-dev libwebkit2gtk-4.0-dev libayatana-appindicator3-dev librsvg2-dev
+```
+
 ### build.rs Error in `backend/`
 
 Just create an empty `dist/` folder next to `backend`, tauri expects one to be there from vite but it isn't since you haven't ran it yet.
-
-## Contributing
-
-**Format and lint your code with `pnpm prettify` and `pnpm lint`**.

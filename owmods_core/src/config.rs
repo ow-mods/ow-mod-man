@@ -134,8 +134,8 @@ mod tests {
     pub fn test_config_get_new() {
         let dir = make_test_dir();
         let path = dir.path().join("settings.json");
-        let config = Config::get(Some(path)).unwrap();
-        assert!(Config::default_path().unwrap().is_file());
+        let config = Config::get(Some(path.clone())).unwrap();
+        assert!(path.is_file());
         assert_eq!(config.database_url, DEFAULT_DB_URL.to_string());
         dir.close().unwrap();
     }

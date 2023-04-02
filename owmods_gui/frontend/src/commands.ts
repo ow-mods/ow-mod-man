@@ -1,5 +1,5 @@
 import { LoadState, useTauri } from "@hooks";
-import { invoke } from "@tauri-apps/api";
+import { dialog, invoke } from "@tauri-apps/api";
 import {
     Config,
     GuiConfig,
@@ -75,16 +75,25 @@ const commandInfo = {
 
 type Command = keyof typeof commandInfo;
 
-const makeInvoke = (key: Command) => {
+const makeInvoke = (key: Command, forceNoDisplayErr?: boolean) => {
     const name = commandInfo[key];
-    return (payload?: (typeof name)[0]) =>
-        invoke(name as unknown as string, payload ?? {}) as Promise<(typeof name)[1]>;
+    return (payload?: (typeof name)[0], displayErr?: boolean) => {
+        const promise = invoke(name as unknown as string, payload ?? {}) as Promise<
+            (typeof name)[1]
+        >;
+        if (!(forceNoDisplayErr ?? false) && (displayErr ?? true)) {
+            promise.catch((e) => {
+                dialog.message(e, { type: "error", title: `Error (${name})` });
+            });
+        }
+        return promise;
+    };
 };
 
 const makeHook = (key: Command) => {
     const name = commandInfo[key];
     return (eventName: string, payload?: (typeof name)[0]) => {
-        const fn = makeInvoke(key);
+        const fn = makeInvoke(key, true);
         return useTauri<(typeof name)[1]>(
             eventName,
             () => fn(payload ?? {}) as unknown as Promise<(typeof name)[1]>,
@@ -94,7 +103,10 @@ const makeHook = (key: Command) => {
 };
 
 export type Commands = {
-    [T in Command]: (payload?: (typeof commandInfo)[T][0]) => Promise<(typeof commandInfo)[T][1]>;
+    [T in Command]: (
+        payload?: (typeof commandInfo)[T][0],
+        displayErr?: boolean
+    ) => Promise<(typeof commandInfo)[T][1]>;
 };
 
 export type Hooks = {

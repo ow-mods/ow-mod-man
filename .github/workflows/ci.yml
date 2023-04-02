@@ -2,6 +2,11 @@ name: Continuous Integration
 
 on:
   push:
+    paths-ignore:
+      - .github/workflows/release.yml
+      - "**/README.md"
+      - "**/CONTRIBUTING.md"
+      - "LICENSE"
     branches:
       - main
   pull_request:

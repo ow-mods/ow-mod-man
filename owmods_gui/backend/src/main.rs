@@ -127,6 +127,7 @@ fn main() -> Result<(), Box<dyn Error>> {
             db_has_issues,
             get_alert
         ])
+        .plugin(tauri_plugin_window_state::Builder::default().build())
         .run(tauri::generate_context!())
         .expect("Error while running tauri application.");
     Ok(())

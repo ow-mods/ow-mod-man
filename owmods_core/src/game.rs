@@ -3,9 +3,6 @@ use anyhow::Result;
 use std::path::PathBuf;
 use tokio::process::Command;
 
-#[cfg(not(windows))]
-#[cfg(not(windows))]
-
 /// Launch the game using the given port for logs
 #[cfg(windows)]
 pub async fn launch_game(config: &Config, port: &u16) -> Result<()> {

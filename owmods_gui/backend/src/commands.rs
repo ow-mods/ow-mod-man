@@ -82,10 +82,10 @@ pub async fn refresh_local_db(
     let conf = state.config.read().await;
     {
         let mut db = state.local_db.write().await;
-        handle.emit_all("LOCAL-REFRESH", "").ok();
         let local_db = LocalDatabase::fetch(&conf.owml_path);
         *db = local_db.unwrap_or_else(|_| LocalDatabase::default());
     }
+    handle.emit_all("LOCAL-REFRESH", "").ok();
     Ok(())
 }
 
@@ -146,10 +146,10 @@ pub async fn refresh_remote_db(
     let conf = state.config.read().await;
     {
         let mut db = state.remote_db.write().await;
-        handle.emit_all("REMOTE-REFRESH", "").ok();
         let remote_db = RemoteDatabase::fetch(&conf.database_url).await;
         *db = remote_db.unwrap_or_else(|_| RemoteDatabase::default());
     }
+    handle.emit_all("REMOTE-REFRESH", "").ok();
     Ok(())
 }
 

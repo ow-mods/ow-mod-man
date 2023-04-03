@@ -67,6 +67,7 @@ jobs:
             ${{ runner.os }}-pnpm-store-
 
       - name: Install Frontend Dependencies
+        working-directory: owmods_gui/frontend
         run: pnpm install
 
       - name: Build GUI

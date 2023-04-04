@@ -1,0 +1,37 @@
+name: Feature Request
+description: Request a feature you'd like to see in a later release
+labels: ["enhancement", "triage"]
+assignees: ["Bwc9876"]
+body:
+  - type: dropdown
+    id: package
+    attributes:
+      label: Package
+      description: Where would you like to see this feature?
+      multiple: true
+      options:
+        - Graphical Interface
+        - Command Line Interface
+        - Core Package
+        - Other
+    validations:
+      required: true
+  - type: textarea
+    id: feature
+    attributes:
+      label: Feature
+      description: Describe the feature you'd like to see.
+    validations:
+      required: true
+  - type: dropdown
+    id: platform
+    attributes:
+      label: Platform
+      description: Does this feature relate to a certain platform? If so, select an option below
+      multiple: true
+      options:
+        - Windows
+        - Linux
+        - Steam Deck
+    validations:
+      required: false

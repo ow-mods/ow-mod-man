@@ -1,0 +1,36 @@
+name: Bug Report
+description: File A Bug Report
+labels: ["bug", "triage"]
+assignees: ["Bwc9876"]
+body:
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What Happened?
+      description: Please described what happened
+    validations:
+      required: true
+  - type: dropdown
+    id: package
+    attributes:
+      label: Package
+      description: Where does this bug occur
+      multiple: true
+      options:
+        - Graphical Interface
+        - Command Line Interface
+        - Core Package
+        - Other
+    validations:
+      required: true
+  - type: dropdown
+    id: platform
+    attributes:
+      label: Platform
+      description: Does this bug only happen on a certain platform? If you don't know, put the platform you were using when it occurred.
+      options:
+        - Windows
+        - Linux
+        - Steam Deck
+    validations:
+      required: true

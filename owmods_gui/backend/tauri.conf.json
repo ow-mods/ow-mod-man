@@ -68,7 +68,7 @@
       }
     },
     "security": {
-      "csp": "default-src 'self'"
+      "csp": "default-src 'self'; style-src 'nonce-MTo3NTM0NTo0MTQ5Nzc5Mjk6MTY4MDU2OTI2Nw=='; style-src 'nonce-MTo3NTM0NDo2ODU4MDc3MDU6MTY4MDU2OTIwMA=='"
     },
     "updater": {
       "active": true,

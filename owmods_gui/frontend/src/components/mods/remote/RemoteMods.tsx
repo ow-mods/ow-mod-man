@@ -37,23 +37,27 @@ const RemoteMods = memo(() => {
         const remoteMods = mods!;
         res = (
             <div className="mod-list remote">
-                <AutoSizer defaultHeight={1000} defaultWidth={1000}>
-                    {({ width, height }) => (
-                        <>
+                <div>
+                    <AutoSizer
+                        nonce="MTo3NTM0NDo2ODU4MDc3MDU6MTY4MDU2OTIwMA=="
+                        defaultHeight={1000}
+                        defaultWidth={1000}
+                    >
+                        {({ width, height }) => (
                             <FixedSizeList
                                 itemCount={remoteMods.length}
                                 itemSize={120}
                                 itemKey={(index) => remoteMods[index]}
-                                width={width}
-                                height={height}
+                                width={width ?? 1000}
+                                height={height ?? 1000}
                             >
                                 {({ index, style }) => (
                                     <RemoteModRow style={style} uniqueName={remoteMods[index]} />
                                 )}
                             </FixedSizeList>
-                        </>
-                    )}
-                </AutoSizer>
+                        )}
+                    </AutoSizer>
+                </div>
             </div>
         );
     }

@@ -4,7 +4,7 @@ Each package has different prerequisites for compiling/building, please look at 
 
 ## Commit Names
 
-When performing changes on a specific package, try to prefix the name with the package you're changin, see below:
+When performing changes on a specific package, try to prefix the name with the package you're changing, see below:
 
 - For the core package: `[CORE] Made changes to core`
 - For the cli package: `[CLI] Made changes to the CLI`

@@ -45,7 +45,6 @@ impl Logger {
         let pb = match payload.progress_action {
             ProgressAction::Download => self.multi.insert(0, pb),
             ProgressAction::Extract => self.multi.insert_from_back(0, pb),
-            _ => self.multi.add(pb),
         };
         self.bars.lock().unwrap().insert(payload.id, pb);
     }

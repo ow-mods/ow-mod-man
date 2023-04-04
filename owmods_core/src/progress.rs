@@ -1,7 +1,7 @@
 use log::info;
 use serde::Serialize;
 
-/// Type of progres bar
+/// Type of progress bar
 #[derive(Clone, Serialize, Debug)]
 pub enum ProgressType {
     /// We know an amount that's incrementing (ex: 10/90, 11/90, etc).
@@ -26,8 +26,6 @@ pub enum ProgressAction {
     Download,
     /// We're extracting a ZIP archive
     Extract,
-    /// We're working with a wine prefix
-    Wine,
 }
 
 impl ProgressAction {
@@ -35,7 +33,6 @@ impl ProgressAction {
         match input {
             "Download" => ProgressAction::Download,
             "Extract" => ProgressAction::Extract,
-            "Wine" => ProgressAction::Wine,
             _ => ProgressAction::Download,
         }
     }

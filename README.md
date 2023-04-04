@@ -23,7 +23,5 @@ This is the monorepo for the new <a href="https://www.mobiusdigitalgames.com/out
 | **Platform** |  **Supported** |
 |:------------:|:--------------:|
 | **Windows**  | ✅             |
-| **Linux**    | ✅*            |
-| **Deck**     | 🔜*            |
-
-\* Quantum Space Buddies Currently Has Issues
+| **Linux**    | ✅             |
+| **Deck**     | 🔜             |

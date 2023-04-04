@@ -139,6 +139,7 @@ enum Commands {
         )]
         port: u16,
     },
+    #[command(about = "Run a server to listen for log messages on")]
     LogServer {
         #[arg(
             short = 'p',

@@ -1,5 +1,6 @@
 .mod-list {
     display: flex;
+    flex: 1 1 auto;
     flex-direction: column;
     flex-grow: 1;
     min-width: 0;
@@ -10,6 +11,10 @@
 
 .mod-list.remote::-webkit-scrollbar {
     display: none;
+}
+
+.mod-list.remote > div {
+    flex: 1 1 auto;
 }
 
 .remote-mod-search {

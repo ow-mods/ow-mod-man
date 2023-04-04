@@ -72,7 +72,25 @@ impl RemoteDatabase {
         debug!("Fetching Remote DB At {}", url);
         let resp = reqwest::get(url).await?;
         let raw_db: RawRemoteDatabase = resp.json().await?;
-        debug!("Success, Constructing Mod Map");
+        debug!("Success, Constructing Remote Mod Map");
+        Ok(Self::from(raw_db))
+    }
+
+    /// Fetch the database but block the current thread while doing so
+    ///
+    /// ## Returns
+    ///
+    /// An object containing a hashmap of unique names to mods.
+    ///
+    /// ## Errors
+    ///
+    /// If we can't fetch the JSON file for whatever reason.
+    ///
+    pub fn fetch_blocking(url: &str) -> Result<RemoteDatabase> {
+        debug!("Fetching Remote DB At {}", url);
+        let resp = reqwest::blocking::get(url)?;
+        let raw_db: RawRemoteDatabase = resp.json()?;
+        debug!("Success, Constructing Remote Mod Map");
         Ok(Self::from(raw_db))
     }
 

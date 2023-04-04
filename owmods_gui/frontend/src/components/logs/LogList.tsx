@@ -36,14 +36,15 @@ const LogList = memo((props: LogListProps) => {
 
     return (
         <div className="log-list">
-            <AutoSizer>
+            <AutoSizer nonce="MTo3NTM0NTo0MTQ5Nzc5Mjk6MTY4MDU2OTI2Nw==">
                 {(size) => (
                     <VariableSizeList
                         ref={listRef}
                         overscanCount={0}
                         itemCount={logLen ?? 0}
                         itemSize={getSize}
-                        {...size}
+                        width={size.width ?? 1000}
+                        height={size.height ?? 1000}
                     >
                         {({ index, style }) => (
                             <LogLine

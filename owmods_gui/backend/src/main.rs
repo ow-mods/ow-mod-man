@@ -38,15 +38,18 @@ pub struct State {
 }
 
 fn main() -> Result<(), Box<dyn Error>> {
-    let config = Config::default(None)?;
-    let gui_config = GuiConfig::default();
+    let config = Config::get(None).unwrap_or(Config::default(None)?);
+    let gui_config = GuiConfig::get().unwrap_or(GuiConfig::default());
+    let local_db = LocalDatabase::fetch(&config.owml_path).unwrap_or(LocalDatabase::default());
+    let remote_db =
+        RemoteDatabase::fetch_blocking(&config.database_url).unwrap_or(RemoteDatabase::default());
 
     tauri_plugin_deep_link::prepare("com.bwc9876.owmods-gui");
 
     tauri::Builder::default()
         .manage(State {
-            local_db: Arc::new(TokioLock::new(LocalDatabase::default())),
-            remote_db: Arc::new(TokioLock::new(RemoteDatabase::default())),
+            local_db: Arc::new(TokioLock::new(local_db)),
+            remote_db: Arc::new(TokioLock::new(remote_db)),
             config: Arc::new(TokioLock::new(config)),
             gui_config: Arc::new(TokioLock::new(gui_config)),
             game_log: Arc::new(TokioLock::new(None)),

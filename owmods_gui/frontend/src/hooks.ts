@@ -21,11 +21,9 @@ export const useTauri = <T>(
     const events = useMemo(() => (Array.isArray(eventName) ? eventName : [eventName]), [eventName]);
 
     useEffect(() => {
-        let cancel = false;
         if (status !== "Loading") {
             for (const eventToSubscribe of events) {
                 listen(eventToSubscribe, () => setStatus("Loading")).catch((e) => {
-                    if (cancel) return;
                     setStatus("Error");
                     setError(e);
                 });
@@ -33,19 +31,14 @@ export const useTauri = <T>(
         } else {
             commandFn()
                 .then((data) => {
-                    if (cancel) return;
                     setData(data as T);
                     setStatus("Done");
                 })
                 .catch((e) => {
-                    if (cancel) return;
                     setError(e as string);
                     setStatus("Error");
                 });
         }
-        return () => {
-            cancel = true;
-        };
     }, [status]);
 
     useEffect(() => {

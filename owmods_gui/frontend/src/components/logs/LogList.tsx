@@ -5,6 +5,7 @@ import { VariableSizeList } from "react-window";
 import { LogFilter } from "./LogApp";
 
 export interface LogListProps {
+    port: number;
     logLines: number[];
     activeFilter: LogFilter;
     search: string;
@@ -48,6 +49,7 @@ const LogList = memo((props: LogListProps) => {
                     >
                         {({ index, style }) => (
                             <LogLine
+                                port={props.port}
                                 reportSize={reportSize}
                                 index={index}
                                 line={props.logLines[index]}

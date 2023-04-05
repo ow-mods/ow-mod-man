@@ -3,7 +3,7 @@
     windows_subsystem = "windows"
 )]
 
-use std::{error::Error, fs::File, io::BufWriter, sync::Arc};
+use std::{collections::HashMap, error::Error, fs::File, io::BufWriter, sync::Arc};
 
 use commands::*;
 use game::GameMessage;
@@ -27,7 +27,7 @@ mod protocol;
 
 type StatePart<T> = Arc<TokioLock<T>>;
 type LogPort = u16;
-type LogMessages = Option<(Vec<GameMessage>, BufWriter<File>)>;
+type LogMessages = HashMap<LogPort, (Vec<GameMessage>, BufWriter<File>)>;
 
 pub struct State {
     local_db: StatePart<LocalDatabase>,
@@ -52,7 +52,7 @@ fn main() -> Result<(), Box<dyn Error>> {
             remote_db: Arc::new(TokioLock::new(remote_db)),
             config: Arc::new(TokioLock::new(config)),
             gui_config: Arc::new(TokioLock::new(gui_config)),
-            game_log: Arc::new(TokioLock::new(None)),
+            game_log: Arc::new(TokioLock::new(HashMap::new())),
         })
         .setup(move |app| {
             let logger = Logger::new(app.handle());

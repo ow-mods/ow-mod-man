@@ -34,7 +34,7 @@ const commandInfo = {
     getUpdatableMods: $<GetCommand<string[]>>("get_updatable_mods"),
     getLocalMod: $<ModCommand<UnsafeLocalMod>>("get_local_mod"),
     getRemoteMod: $<ModCommand<RemoteMod>>("get_remote_mod"),
-    getLogLine: $<CommandInfo<{ line: number }, GameMessage>>("get_game_message"),
+    getLogLine: $<CommandInfo<{ port: number; line: number }, GameMessage>>("get_game_message"),
     toggleMod: $<ActionCommand<{ uniqueName: string; enabled: boolean }>>("toggle_mod"),
     toggleAll: $<ActionCommand<{ enabled: boolean }>>("toggle_all"),
     openModFolder: $<ModAction>("open_mod_folder"),
@@ -51,15 +51,15 @@ const commandInfo = {
     saveOwmlConfig: $<ActionCommand<{ owmlConfig: OWMLConfig }>>("save_owml_config"),
     updateMod: $<ModAction>("update_mod"),
     updateAll: $<ActionCommand<{ uniqueNames: string[] }>>("update_all_mods"),
-    logsAreActive: $<GetCommand<boolean>>("active_log"),
+    logsAreActive: $<CommandInfo<{ port: number }, boolean>>("active_log"),
     startLogs: $<EmptyCommand>("start_logs"),
     runGame: $<EmptyCommand>("run_game"),
-    clearLogs: $<EmptyCommand>("clear_logs"),
-    stopLogging: $<EmptyCommand>("stop_logging"),
+    clearLogs: $<ActionCommand<{ port: number }>>("clear_logs"),
+    stopLogging: $<ActionCommand<{ port: number }>>("stop_logging"),
     getLogLines: $<
         CommandInfo<
             {
-                filterPort?: number | undefined;
+                port: number;
                 filterType?: number | undefined;
                 search: string;
             },

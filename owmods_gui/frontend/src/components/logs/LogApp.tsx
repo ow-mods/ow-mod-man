@@ -1,44 +1,17 @@
 import { commands, hooks } from "@commands";
 import { TranslationContext, TranslationMap } from "@components/common/TranslationContext";
 import { useTheme } from "@hooks";
-import { getCurrent } from "@tauri-apps/api/window";
 import { SocketMessageType, Theme } from "@types";
 import { useCallback, useEffect, useState } from "react";
 import LogHeader from "@components/logs/LogHeader";
 import LogList from "@components/logs/LogList";
 import CenteredSpinner from "@components/common/CenteredSpinner";
-import { startConsoleLogListen } from "../../logging";
 import { listen } from "@tauri-apps/api/event";
+import { getCurrent } from "@tauri-apps/api/window";
 
 export type LogFilter = keyof typeof SocketMessageType | "Any";
 
-startConsoleLogListen();
-
 const thisWindow = getCurrent();
-
-let unlisten: () => void = () => null;
-
-thisWindow
-    .onCloseRequested((e) => {
-        e.preventDefault();
-        commands
-            .stopLogging()
-            .catch(console.warn)
-            .finally(() => {
-                unlisten();
-                thisWindow.close();
-            });
-    })
-    .then((u) => {
-        unlisten = u;
-    });
-
-const ports: number[] = [];
-
-listen("GAME-START", (e) => {
-    const port = e.payload as number;
-    if (!ports.includes(port)) ports.push(port);
-});
 
 const getFilterToPass = (activeFilter: LogFilter) => {
     if (activeFilter === "Any") {
@@ -48,7 +21,7 @@ const getFilterToPass = (activeFilter: LogFilter) => {
     }
 };
 
-const App = () => {
+const App = ({ port }: { port: number }) => {
     const [activeFilter, setActiveFilter] = useState<LogFilter>("Any");
     const [activeSearch, setActiveSearch] = useState<string>("");
     const [autoScroll, setAutoScroll] = useState(true);
@@ -56,8 +29,9 @@ const App = () => {
 
     const fetchLogLines = useCallback(() => {
         commands
-            .getLogLines({ filterType: getFilterToPass(activeFilter), search: activeSearch })
-            .then(setLogLines);
+            .getLogLines({ port, filterType: getFilterToPass(activeFilter), search: activeSearch })
+            .then(setLogLines)
+            .catch(() => null);
     }, [activeFilter, activeSearch]);
 
     const guiConfig = hooks.getGuiConfig("GUI_CONFIG_RELOAD")[1];
@@ -68,22 +42,22 @@ const App = () => {
         thisWindow
             .setTitle(
                 TranslationMap[guiConfig?.language ?? "English"]["LOGS_TITLE"].replace(
-                    "$ports$",
-                    ports.join(", ")
+                    "$port$",
+                    port.toString()
                 )
             )
             .catch(console.warn);
-    }, [guiConfig?.language, ports]);
+    }, [guiConfig?.language, port]);
 
     const onClear = useCallback(() => {
-        commands.clearLogs().catch(console.warn);
+        commands.clearLogs({ port }).catch(console.warn);
         setLogLines([]);
     }, []);
 
     useEffect(() => {
         let cancel = false;
-        listen("LOG-UPDATE", () => {
-            if (cancel) return;
+        listen("LOG-UPDATE", (e) => {
+            if (cancel || (e.payload as number) !== port) return;
             fetchLogLines();
         }).catch(console.warn);
         return () => {
@@ -112,6 +86,7 @@ const App = () => {
                         onClear={onClear}
                     />
                     <LogList
+                        port={port}
                         autoScroll={autoScroll}
                         activeFilter={activeFilter}
                         search={activeSearch}

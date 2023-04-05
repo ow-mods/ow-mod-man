@@ -3,6 +3,7 @@ import { SocketMessageType } from "@types";
 import { CSSProperties, memo, useEffect, useMemo, useRef } from "react";
 
 export interface LogLineProps {
+    port: number;
     index: number;
     line: number;
     style: CSSProperties;
@@ -12,7 +13,7 @@ export interface LogLineProps {
 const LogLine = memo(
     (props: LogLineProps) => {
         const divRef = useRef<HTMLDivElement>(null);
-        const [status, msg, err] = hooks.getLogLine("", { line: props.line });
+        const [status, msg, err] = hooks.getLogLine("", { port: props.port, line: props.line });
 
         const messageType = useMemo(() => {
             return Object.keys(SocketMessageType)[

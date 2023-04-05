@@ -37,6 +37,7 @@ fn fix_dlls(config: &Config) -> Result<()> {
 #[cfg(not(windows))]
 pub async fn launch_game(config: &Config, port: &u16) -> Result<()> {
     use crate::mods::OWMLConfig;
+    use anyhow::anyhow;
     use log::{error, info};
     use std::process::Stdio;
 
@@ -54,7 +55,8 @@ pub async fn launch_game(config: &Config, port: &u16) -> Result<()> {
         .arg("-consolePort")
         .arg(port.to_string())
         .current_dir(PathBuf::from(&config.owml_path))
-        .spawn()?;
+        .spawn()
+        .map_err(|e| anyhow!("Couldn't Run OWML: {:?}. Is Mono installed/working?", e))?;
 
     let res = child.wait_with_output().await;
 
@@ -63,8 +65,8 @@ pub async fn launch_game(config: &Config, port: &u16) -> Result<()> {
             if !res.status.success() {
                 info!(
                     "{:?}\n{:?}",
-                    String::from_utf8(res.stdout),
-                    String::from_utf8(res.stderr)
+                    String::from_utf8(res.stdout).unwrap_or("".to_string()),
+                    String::from_utf8(res.stderr).unwrap_or("".to_string())
                 );
             }
         }

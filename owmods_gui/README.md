@@ -3,7 +3,7 @@
 # owmods_gui
 
 <p align="center">
-<img src="https://raw.githubusercontent.com/Bwc9876/ow-mod-man/main/owmods_gui/frontend/src/assets/images/logo.png" alt="OWMM Logo"/><br/>
+<a href="https://github.com/Bwc9876/ow-mod-man"><img src="https://raw.githubusercontent.com/Bwc9876/ow-mod-man/main/owmods_gui/frontend/src/assets/images/logo.png" alt="OWMM Logo"/></a><br/>
 The GUI Version Of The Manager.<br/>
 <a href="https://github.com/Bwc9876/ow-mod-man/tree/dev/owmods_core">Core</a><b> |</b>
 <a href="https://github.com/Bwc9876/ow-mod-man/tree/dev/owmods_cli">CLI</a><b> |</b>

@@ -1,6 +1,14 @@
+<!-- markdownlint-disable MD030 MD033 -->
+
 # owmods_gui
 
-> **CURRENTLY A WORK IN PROGRESS!!**
+<p align="center">
+<img src="https://raw.githubusercontent.com/Bwc9876/ow-mod-man/main/owmods_gui/frontend/src/assets/images/logo.png" alt="OWMM Logo"/><br/>
+The GUI Version Of The Manager.<br/>
+<a href="owmods_core">Core</a><b> |</b>
+<a href="owmods_cli">CLI</a><b> |</b>
+<a href="owmods_gui"><b>GUI</b></a>
+</p>
 
 The GUI Version Of The Manager. Created with Tauri, React, Vite, TypeScript, and Pico CSS.
 

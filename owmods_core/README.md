@@ -1,6 +1,6 @@
 <!-- markdownlint-disable MD030 MD033 -->
 
-# owmods-core
+# Outer Wilds Mod Manager Core Package
 
 <p align="center">
 <a href="https://github.com/Bwc9876/ow-mod-man"><img src="https://raw.githubusercontent.com/Bwc9876/ow-mod-man/main/owmods_gui/frontend/src/assets/images/logo.png" alt="OWMM Logo"/></a><br/>

@@ -25,3 +25,11 @@ This is the monorepo for the new <a href="https://www.mobiusdigitalgames.com/out
 | **Windows**  | ✅             |
 | **Linux**    | ✅             |
 | **Deck**     | 🔜             |
+
+## Credits
+
+- Main Author: [Bwc9876](https://github.com/Bwc9876)
+- Old Mod Manager and the rest of the OW mods infrastructure author: [Raicuparta](https://github.com/Raicuparta)
+- Help with Linux Support:
+  - [JohnCorby](https://github.com/JohnCorby)
+  - [BUNN1E5](https://github.com/BUNN1E5)

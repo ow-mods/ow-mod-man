@@ -6,9 +6,10 @@ version = "0.1.0"
 edition = "2021"
 readme = "./README.md"
 repository = "https://github.com/Bwc9876/ow-mod-man/"
+license-file = "../LICENSE"
 
 [dependencies]
-owmods_core = {path = "../owmods_core"}
+owmods_core = { version = "0.1.0", path = "../owmods_core"}
 clap = { version = "4.1.1", features = ["derive"] }
 colored = "2.0.0"
 anyhow = "1.0.68"

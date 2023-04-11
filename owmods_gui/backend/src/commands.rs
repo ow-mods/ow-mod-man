@@ -679,3 +679,16 @@ pub async fn get_watcher_paths(state: tauri::State<'_, State>) -> Result<Vec<Str
             .to_string(),
     ])
 }
+
+#[tauri::command]
+pub async fn pop_protocol_url(
+    state: tauri::State<'_, State>,
+    handle: tauri::AppHandle,
+) -> Result<(), String> {
+    let mut protocol_url = state.protocol_url.write().await;
+    if let Some(url) = protocol_url.as_ref() {
+        handle.emit_all("PROTOCOL_INVOKE", url).ok();
+    }
+    *protocol_url = None;
+    Ok(())
+}

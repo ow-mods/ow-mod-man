@@ -39,6 +39,7 @@ pub struct State {
     config: StatePart<Config>,
     gui_config: StatePart<GuiConfig>,
     game_log: StatePart<LogMessages>,
+    protocol_url: StatePart<Option<ProtocolPayload>>,
 }
 
 fn main() -> Result<(), Box<dyn Error>> {
@@ -49,6 +50,8 @@ fn main() -> Result<(), Box<dyn Error>> {
 
     tauri_plugin_deep_link::prepare("com.bwc9876.owmods-gui");
 
+    let url = std::env::args().nth(1).map(|s| ProtocolPayload::parse(&s));
+
     tauri::Builder::default()
         .manage(State {
             local_db: manage(local_db),
@@ -56,6 +59,7 @@ fn main() -> Result<(), Box<dyn Error>> {
             config: manage(config),
             gui_config: manage(gui_config),
             game_log: manage(HashMap::new()),
+            protocol_url: manage(url),
         })
         .setup(move |app| {
             let logger = Logger::new(app.handle());
@@ -132,7 +136,8 @@ fn main() -> Result<(), Box<dyn Error>> {
             fix_mod_deps,
             db_has_issues,
             get_alert,
-            get_watcher_paths
+            get_watcher_paths,
+            pop_protocol_url
         ])
         .plugin(tauri_plugin_window_state::Builder::default().build())
         .plugin(tauri_plugin_fs_watch::init())

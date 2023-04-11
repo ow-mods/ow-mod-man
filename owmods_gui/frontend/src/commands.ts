@@ -71,7 +71,8 @@ const commandInfo = {
     fixDeps: $<ActionCommand<{ uniqueName: string }>>("fix_mod_deps"),
     checkDBForIssues: $<GetCommand<boolean>>("db_has_issues"),
     getAlert: $<GetCommand<Alert>>("get_alert"),
-    getWatcherPaths: $<GetCommand<string[]>>("get_watcher_paths")
+    getWatcherPaths: $<GetCommand<string[]>>("get_watcher_paths"),
+    popProtocolURL: $<EmptyCommand>("pop_protocol_url")
 };
 
 type Command = keyof typeof commandInfo;

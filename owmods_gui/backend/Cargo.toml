@@ -22,6 +22,7 @@ regex = "1.7.1"
 time = { version = "0.3.20", features = ["macros"] }
 tauri-plugin-deep-link = "0.1.0"
 tauri-plugin-window-state = { git = "https://github.com/tauri-apps/plugins-workspace", branch = "dev" }
+tauri-plugin-fs-watch = { git = "https://github.com/tauri-apps/plugins-workspace", branch = "dev" }
 
 [features]
 default = ["custom-protocol"]

@@ -29,6 +29,10 @@ type StatePart<T> = Arc<TokioLock<T>>;
 type LogPort = u16;
 type LogMessages = HashMap<LogPort, (Vec<GameMessage>, BufWriter<File>)>;
 
+fn manage<T>(obj: T) -> StatePart<T> {
+    Arc::new(TokioLock::new(obj))
+}
+
 pub struct State {
     local_db: StatePart<LocalDatabase>,
     remote_db: StatePart<RemoteDatabase>,
@@ -39,20 +43,19 @@ pub struct State {
 
 fn main() -> Result<(), Box<dyn Error>> {
     let config = Config::get(None).unwrap_or(Config::default(None)?);
-    let gui_config = GuiConfig::get().unwrap_or(GuiConfig::default());
-    let local_db = LocalDatabase::fetch(&config.owml_path).unwrap_or(LocalDatabase::default());
-    let remote_db =
-        RemoteDatabase::fetch_blocking(&config.database_url).unwrap_or(RemoteDatabase::default());
+    let gui_config = GuiConfig::get().unwrap_or_default();
+    let local_db = LocalDatabase::fetch(&config.owml_path).unwrap_or_default();
+    let remote_db = RemoteDatabase::fetch_blocking(&config.database_url).unwrap_or_default();
 
     tauri_plugin_deep_link::prepare("com.bwc9876.owmods-gui");
 
     tauri::Builder::default()
         .manage(State {
-            local_db: Arc::new(TokioLock::new(local_db)),
-            remote_db: Arc::new(TokioLock::new(remote_db)),
-            config: Arc::new(TokioLock::new(config)),
-            gui_config: Arc::new(TokioLock::new(gui_config)),
-            game_log: Arc::new(TokioLock::new(HashMap::new())),
+            local_db: manage(local_db),
+            remote_db: manage(remote_db),
+            config: manage(config),
+            gui_config: manage(gui_config),
+            game_log: manage(HashMap::new()),
         })
         .setup(move |app| {
             let logger = Logger::new(app.handle());
@@ -128,9 +131,11 @@ fn main() -> Result<(), Box<dyn Error>> {
             import_mods,
             fix_mod_deps,
             db_has_issues,
-            get_alert
+            get_alert,
+            get_watcher_paths
         ])
         .plugin(tauri_plugin_window_state::Builder::default().build())
+        .plugin(tauri_plugin_fs_watch::init())
         .run(tauri::generate_context!())
         .expect("Error while running tauri application.");
     Ok(())

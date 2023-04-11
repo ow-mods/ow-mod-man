@@ -20,7 +20,7 @@ use owmods_core::updates::check_mod_needs_update;
 use owmods_core::validate::fix_deps;
 use rust_fuzzy_search::fuzzy_compare;
 use tauri::api::dialog;
-use tauri::Manager;
+use tauri::{AppHandle, Manager};
 use time::macros::format_description;
 use time::OffsetDateTime;
 use tokio::try_join;
@@ -60,6 +60,10 @@ fn search<'a, T>(
     scores.iter().map(|(m, _)| *m).collect()
 }
 
+fn toggle_fs_watch(handle: &AppHandle, enabled: bool) {
+    handle.emit_all("TOGGLE_FS_WATCH", enabled).ok();
+}
+
 #[tauri::command]
 pub async fn initial_setup(
     handle: tauri::AppHandle,
@@ -79,6 +83,7 @@ pub async fn refresh_local_db(
     handle: tauri::AppHandle,
     state: tauri::State<'_, State>,
 ) -> Result<(), String> {
+    toggle_fs_watch(&handle, false);
     let conf = state.config.read().await;
     {
         let mut db = state.local_db.write().await;
@@ -86,6 +91,7 @@ pub async fn refresh_local_db(
         *db = local_db.unwrap_or_else(|_| LocalDatabase::default());
     }
     handle.emit_all("LOCAL-REFRESH", "").ok();
+    toggle_fs_watch(&handle, true);
     Ok(())
 }
 
@@ -143,6 +149,7 @@ pub async fn refresh_remote_db(
     handle: tauri::AppHandle,
     state: tauri::State<'_, State>,
 ) -> Result<(), String> {
+    toggle_fs_watch(&handle, false);
     let conf = state.config.read().await;
     {
         let mut db = state.remote_db.write().await;
@@ -150,6 +157,7 @@ pub async fn refresh_remote_db(
         *db = remote_db.unwrap_or_else(|_| RemoteDatabase::default());
     }
     handle.emit_all("REMOTE-REFRESH", "").ok();
+    toggle_fs_watch(&handle, true);
     Ok(())
 }
 
@@ -656,4 +664,18 @@ pub async fn db_has_issues(state: tauri::State<'_, State>) -> Result<bool, Strin
 pub async fn get_alert(state: tauri::State<'_, State>) -> Result<Alert, String> {
     let config = state.config.read().await;
     fetch_alert(&config.alert_url).await.map_err(e_to_str)
+}
+
+#[tauri::command]
+pub async fn get_watcher_paths(state: tauri::State<'_, State>) -> Result<Vec<String>, String> {
+    let config = state.config.read().await;
+    Ok(vec![
+        config.owml_path.clone(),
+        GuiConfig::path().unwrap().to_str().unwrap().to_string(),
+        Config::default_path()
+            .unwrap()
+            .to_str()
+            .unwrap()
+            .to_string(),
+    ])
 }

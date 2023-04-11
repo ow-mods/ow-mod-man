@@ -3,7 +3,6 @@ import {
     BsQuestion,
     BsGearFill,
     BsInfoCircleFill,
-    BsArrowRepeat,
     BsBoxArrowInDown,
     BsBoxArrowUpRight
 } from "react-icons/bs";
@@ -21,6 +20,7 @@ import { useTranslations } from "@hooks";
 import { commands } from "@commands";
 import { dialog } from "@tauri-apps/api";
 import CenteredSpinner from "@components/common/CenteredSpinner";
+import NavRefreshButton from "./NavRefresh";
 
 const Nav = () => {
     const openSettings = useRef<() => void>(() => null);
@@ -29,32 +29,17 @@ const Nav = () => {
 
     const [areLogsStarting, setLogsStarting] = useState<boolean>(false);
 
-    const [
-        refresh,
-        runGame,
-        help,
-        settings,
-        installFrom,
-        about,
-        exportLabel,
-        confirm,
-        launchAnyway
-    ] = useTranslations([
-        "REFRESH",
-        "RUN_GAME",
-        "HELP",
-        "SETTINGS",
-        "INSTALL_FROM",
-        "ABOUT",
-        "EXPORT_MODS",
-        "CONFIRM",
-        "LAUNCH_ANYWAY"
-    ]);
-
-    const onRefresh = useCallback(() => {
-        commands.refreshLocalDb().catch(console.warn);
-        commands.refreshRemoteDb().catch(console.warn);
-    }, []);
+    const [runGame, help, settings, installFrom, about, exportLabel, confirm, launchAnyway] =
+        useTranslations([
+            "RUN_GAME",
+            "HELP",
+            "SETTINGS",
+            "INSTALL_FROM",
+            "ABOUT",
+            "EXPORT_MODS",
+            "CONFIRM",
+            "LAUNCH_ANYWAY"
+        ]);
 
     const onPlay = useCallback(() => {
         const start = () =>
@@ -112,9 +97,7 @@ const Nav = () => {
             <nav>
                 <ul>
                     <Downloads />
-                    <NavButton onClick={onRefresh} labelPlacement="bottom" ariaLabel={refresh}>
-                        <Icon iconType={BsArrowRepeat} />
-                    </NavButton>
+                    <NavRefreshButton />
                 </ul>
                 <ul>
                     {areLogsStarting ? (

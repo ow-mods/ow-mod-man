@@ -70,7 +70,8 @@ const commandInfo = {
     importMods: $<ActionCommand<{ path: string }>>("import_mods"),
     fixDeps: $<ActionCommand<{ uniqueName: string }>>("fix_mod_deps"),
     checkDBForIssues: $<GetCommand<boolean>>("db_has_issues"),
-    getAlert: $<GetCommand<Alert>>("get_alert")
+    getAlert: $<GetCommand<Alert>>("get_alert"),
+    getWatcherPaths: $<GetCommand<string[]>>("get_watcher_paths")
 };
 
 type Command = keyof typeof commandInfo;

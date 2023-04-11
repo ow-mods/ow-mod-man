@@ -368,7 +368,7 @@ pub async fn install_mod_from_db(
     if recursive {
         let mut to_install: Vec<String> = new_mod.manifest.dependencies.unwrap_or_default();
         let mut installed: Vec<String> = local_db
-            .active()
+            .valid()
             .filter_map(|m| {
                 if m.manifest.unique_name == *unique_name {
                     None

@@ -17,8 +17,8 @@ dependencies:
         specifier: ^4.8.0
         version: 4.8.0(react@18.2.0)
     react-virtualized-auto-sizer:
-        specifier: ^1.0.13
-        version: 1.0.13(react-dom@18.2.0)(react@18.2.0)
+        specifier: ^1.0.14
+        version: 1.0.14(react-dom@18.2.0)(react@18.2.0)
     react-window:
         specifier: ^1.8.8
         version: 1.8.8(react-dom@18.2.0)(react@18.2.0)
@@ -58,14 +58,14 @@ devDependencies:
         specifier: ^2.8.7
         version: 2.8.7
     sass:
-        specifier: ^1.61.0
-        version: 1.61.0
+        specifier: ^1.62.0
+        version: 1.62.0
     typescript:
         specifier: ^4.9.5
         version: 4.9.5
     vite:
         specifier: ^4.2.1
-        version: 4.2.1(sass@1.61.0)
+        version: 4.2.1(sass@1.62.0)
     vite-plugin-html:
         specifier: ^3.2.0
         version: 3.2.0(vite@4.2.1)
@@ -1078,7 +1078,7 @@ packages:
             "@babel/plugin-transform-react-jsx-source": 7.19.6(@babel/core@7.21.4)
             magic-string: 0.27.0
             react-refresh: 0.14.0
-            vite: 4.2.1(sass@1.61.0)
+            vite: 4.2.1(sass@1.62.0)
         transitivePeerDependencies:
             - supports-color
         dev: true
@@ -1294,7 +1294,7 @@ packages:
         hasBin: true
         dependencies:
             caniuse-lite: 1.0.30001477
-            electron-to-chromium: 1.4.357
+            electron-to-chromium: 1.4.359
             node-releases: 2.0.10
             update-browserslist-db: 1.0.10(browserslist@4.21.5)
         dev: true
@@ -1655,10 +1655,10 @@ packages:
             jake: 10.8.5
         dev: true
 
-    /electron-to-chromium@1.4.357:
+    /electron-to-chromium@1.4.359:
         resolution:
             {
-                integrity: sha512-UTkCbNTAcGXABmEnQrGcW4m3cG6fcyBfD4KDF0iyEAlbrGZiY9dmslyDAGOD1Kr5biN2F743Y30aRCOtau35Vw==
+                integrity: sha512-OoVcngKCIuNXtZnsYoqlCvr0Cf3NIPzDIgwUfI9bdTFjXCrr79lI0kwQstLPZ7WhCezLlGksZk/BFAzoXC7GDw==
             }
         dev: true
 
@@ -3214,10 +3214,10 @@ packages:
         engines: { node: ">=0.10.0" }
         dev: true
 
-    /react-virtualized-auto-sizer@1.0.13(react-dom@18.2.0)(react@18.2.0):
+    /react-virtualized-auto-sizer@1.0.14(react-dom@18.2.0)(react@18.2.0):
         resolution:
             {
-                integrity: sha512-iazB2jnZz93jgjo66/rMlrshQ0M67Y7CRSGJRu/BkWH5H63OcC0YL6dBxJZ+etHDjZT6qnUm4PKRjOJx9yF51w==
+                integrity: sha512-UW9AiHYF2uo/8YgPYEtWHtwssFpHt/oQxs+uroTUcNI3W9/dP/+DVwQ47d2Xp3v2jVWlBuiOT+NBV2z6jam9XQ==
             }
         peerDependencies:
             react: ^15.3.0 || ^16.0.0-alpha || ^17.0.0 || ^18.0.0-rc
@@ -3371,10 +3371,10 @@ packages:
             is-regex: 1.1.4
         dev: true
 
-    /sass@1.61.0:
+    /sass@1.62.0:
         resolution:
             {
-                integrity: sha512-PDsN7BrVkNZK2+dj/dpKQAWZavbAQ87IXqVvw2+oEYI+GwlTWkvbQtL7F2cCNbMqJEYKPh1EcjSxsnqIb/kyaQ==
+                integrity: sha512-Q4USplo4pLYgCi+XlipZCWUQz5pkg/ruSSgJ0WRDSb/+3z9tXUOkQ7QPYn4XrhZKYAK4HlpaQecRwKLJX6+DBg==
             }
         engines: { node: ">=14.0.0" }
         hasBin: true
@@ -3738,10 +3738,10 @@ packages:
             html-minifier-terser: 6.1.0
             node-html-parser: 5.4.2
             pathe: 0.2.0
-            vite: 4.2.1(sass@1.61.0)
+            vite: 4.2.1(sass@1.62.0)
         dev: true
 
-    /vite@4.2.1(sass@1.61.0):
+    /vite@4.2.1(sass@1.62.0):
         resolution:
             {
                 integrity: sha512-7MKhqdy0ISo4wnvwtqZkjke6XN4taqQ2TBaTccLIpOKv7Vp2h4Y+NpmWCnGDeSvvn45KxvWgGyb0MkHvY1vgbg==
@@ -3773,7 +3773,7 @@ packages:
             postcss: 8.4.21
             resolve: 1.22.2
             rollup: 3.20.2
-            sass: 1.61.0
+            sass: 1.62.0
         optionalDependencies:
             fsevents: 2.3.2
         dev: true

@@ -1,6 +1,7 @@
 # Build Output
 target
-owmods_cli/manpage
+dist/
+owmods.tar.zst
 
 # Logs
 *.log

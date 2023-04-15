@@ -1,0 +1,57 @@
+name: Create CLI Release
+
+on:
+  workflow_dispatch:
+    
+jobs:
+  release:
+    permissions:
+      contents: write
+    strategy:
+      fail-fast: false
+      matrix:
+        platform: [ubuntu-20.04, windows-latest]
+    runs-on: ${{ matrix.platform }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Setup Rust Toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+
+      - name: Setup Rust Cache
+        uses: Swatinem/rust-cache@v2
+
+      - name: Get Package Version
+        id: pkg-version
+        run: echo "version=$(cargo metadata --no-deps --format-version=1 --no-default-features | jq '.packages[] | select(.name==\"owmods_cli\") | .version')" >> $GITHUB_OUTPUT
+
+      - name: Build CLI
+        run: cargo build -p owmods_cli --release
+
+      - name: Generate Dist Folder
+        if: ${{ matrix.platform == "ubuntu-20.04" }}
+        run: cargo xtask dist_cli
+
+      - name: Archive Dist Files
+        if: ${{ matrix.platform == "ubuntu-20.04" }}
+        run: tar --zstd -cfowmods.tar.zst -C target/release owmods  -C ../../dist/cli/ man completions
+
+      - name: Upload CLI
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: cli_v${{ steps.pkg-version.outputs.version }}
+          fail_on_unmatched_files: false
+          generate_release_notes: false
+          draft: true
+          files: |
+            owmods.tar.zst
+            target/release/owmods
+            target/release/owmods.exe
+
+      
+
+      

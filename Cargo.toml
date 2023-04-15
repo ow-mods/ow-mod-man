@@ -2,7 +2,8 @@
 members = [
   "owmods_core",
   "owmods_cli",
-  "owmods_gui/backend"
+  "owmods_gui/backend",
+  "xtask"
 ]
 
 [profile.release]

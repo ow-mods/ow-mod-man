@@ -4,7 +4,7 @@ use clap::{command, Parser, Subcommand, ValueHint};
 use clap_complete::Shell;
 
 #[derive(Parser)]
-#[command(author, version, about, long_about = None)]
+#[command(name="owmods", author, version, about, long_about = None)]
 pub struct BaseCli {
     #[command(subcommand)]
     pub command: Commands,

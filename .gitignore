@@ -1,5 +1,6 @@
 # Build Output
 target
+owmods_cli/manpage
 
 # Logs
 *.log

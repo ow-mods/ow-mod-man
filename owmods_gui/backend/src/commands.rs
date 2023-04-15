@@ -539,7 +539,13 @@ pub async fn run_game(state: tauri::State<'_, State>, window: tauri::Window) -> 
             let mut game_log = logs_map.write().await;
             if let Some((lines, writer)) = game_log.get_mut(&port) {
                 write_log(writer, &msg).unwrap();
-                lines.push(GameMessage::new(port, msg));
+                let msg = GameMessage::new(port, msg);
+                if matches!(msg.message.message_type, SocketMessageType::Fatal) {
+                    window_handle
+                        .emit_all("LOG-FATAL", &msg)
+                        .expect("Couldn't Send Event");
+                }
+                lines.push(msg);
                 window_handle
                     .emit_all("LOG-UPDATE", port)
                     .expect("Can't Send Event");

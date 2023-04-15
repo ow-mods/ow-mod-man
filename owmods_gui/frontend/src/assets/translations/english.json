@@ -81,6 +81,7 @@
     "DONT_FIX": "Don't Fix",
     "LAUNCH_ANYWAY": "Issues have been detected with your mod configuration that may result in broken or unloaded mods, continue nevertheless?",
     "CANT_LOAD": "Error While Loading",
+    "FATAL_ERROR": "Fatal Error",
     "White": "White",
     "Blue": "Blue",
     "Pink": "Pink",

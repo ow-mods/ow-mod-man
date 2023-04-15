@@ -1,13 +1,14 @@
 import { commands, hooks } from "@commands";
 import { TranslationContext, TranslationMap } from "@components/common/TranslationContext";
-import { useTheme } from "@hooks";
-import { SocketMessageType, Theme } from "@types";
+import { useTheme, useTranslation } from "@hooks";
+import { GameMessage, SocketMessageType, Theme } from "@types";
 import { useCallback, useEffect, useState } from "react";
 import LogHeader from "@components/logs/LogHeader";
 import LogList from "@components/logs/LogList";
 import CenteredSpinner from "@components/common/CenteredSpinner";
 import { listen } from "@tauri-apps/api/event";
 import { getCurrent } from "@tauri-apps/api/window";
+import { dialog } from "@tauri-apps/api";
 
 export type LogFilter = keyof typeof SocketMessageType | "Any";
 
@@ -26,6 +27,8 @@ const App = ({ port }: { port: number }) => {
     const [activeSearch, setActiveSearch] = useState<string>("");
     const [autoScroll, setAutoScroll] = useState(true);
     const [logLines, setLogLines] = useState<number[]>([]);
+
+    const fatalErrorLabel = useTranslation("FATAL_ERROR");
 
     const fetchLogLines = useCallback(() => {
         commands
@@ -60,6 +63,14 @@ const App = ({ port }: { port: number }) => {
             if (cancel || (e.payload as number) !== port) return;
             fetchLogLines();
         }).catch(console.warn);
+        listen("LOG-FATAL", (e) => {
+            const msg = e.payload as GameMessage;
+            if (cancel || msg.port !== port) return;
+            dialog.message(`[${msg.message.senderName ?? "Unknown"}]: ${msg.message.message}`, {
+                type: "error",
+                title: fatalErrorLabel
+            });
+        });
         return () => {
             cancel = true;
         };

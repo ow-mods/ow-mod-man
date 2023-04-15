@@ -20,8 +20,8 @@ use crate::LogPort;
 #[typeshare]
 #[derive(Serialize, Clone, Debug)]
 pub struct GameMessage {
-    port: LogPort,
-    message: SocketMessage,
+    pub port: LogPort,
+    pub message: SocketMessage,
 }
 
 impl GameMessage {

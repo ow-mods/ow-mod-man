@@ -28,6 +28,32 @@ Some command shortcuts exist for convenience
 - `uninstall` -> `rm`
 - `readme` -> `man`
 
+### Autocomplete
+
+How to use value hints and generate shell completions.
+Usage with zsh:
+
+```console
+owmods generate-completions zsh > /usr/local/share/zsh/site-functions/_owmods
+compinit
+```
+
+Bash:
+
+```console
+owmods generate-completions bash > /usr/local/share/bash-completions/completions/_owmods
+compinit
+```
+
+Fish:
+
+```console
+owmods generate-completions fish > owmods_autocomplete.fish
+. ./owmods_autocomplete.fish
+```
+
+Check [clap_complete docs](https://docs.rs/clap_complete/latest/clap_complete/shells/enum.Shell.html#variants) for a list of all supported shells.
+
 ## Building
 
 This package requires rust and cargo to build.

@@ -43,7 +43,7 @@ jobs:
       - name: Upload CLI
         uses: softprops/action-gh-release@v1
         with:
-          releaseName: Outer Wilds Mod Manager CLI Version ${{ steps.pkg-version.outputs.version }}
+          name: Outer Wilds Mod Manager CLI Version ${{ steps.pkg-version.outputs.version }}
           tag_name: cli_v${{ steps.pkg-version.outputs.version }}
           fail_on_unmatched_files: false
           generate_release_notes: false

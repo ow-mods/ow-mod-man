@@ -30,7 +30,7 @@ jobs:
       - name: Upload Core
         uses: softprops/action-gh-release@v1
         with:
-          releaseName: Outer Wilds Mod Manager Core Version ${{ steps.pkg-version.outputs.version }}
+          name: Outer Wilds Mod Manager Core Version ${{ steps.pkg-version.outputs.version }}
           tag_name: core_v${{ steps.pkg-version.outputs.version }}
           generate_release_notes: false
           draft: true

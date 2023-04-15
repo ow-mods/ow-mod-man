@@ -33,7 +33,7 @@ jobs:
 
       - name: Get Package Version
         id: pkg-version
-        run: echo "version=$(cargo metadata --no-deps --format-version=1 --no-default-features | jq '.packages[] | select(.name=="owmods_gui") | .version')" >> $GITHUB_OUTPUT
+        run: echo "version=$(cargo metadata --no-deps --format-version=1 --no-default-features | jq -r '.packages[] | select(.name=="owmods_gui") | .version')" >> $GITHUB_OUTPUT
 
       - name: Setup Node
         uses: actions/setup-node@v3
@@ -73,7 +73,7 @@ jobs:
         with:
           tagName: gui_v${{ steps.pkg-version.outputs.version }}
           includeUpdaterJson: true
-          releaseName: 'Outer Wilds Mod Manager Version __VERSION__'
+          releaseName: 'Outer Wilds Mod Manager GUI Version __VERSION__'
           releaseBody: 'See the assets to download and install this version.'
           releaseDraft: true
           prerelease: false

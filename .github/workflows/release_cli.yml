@@ -27,7 +27,7 @@ jobs:
 
       - name: Get Package Version
         id: pkg-version
-        run: echo "version=$(cargo metadata --no-deps --format-version=1 --no-default-features | jq '.packages[] | select(.name=="owmods_cli") | .version')" >> $GITHUB_OUTPUT
+        run: echo "version=$(cargo metadata --no-deps --format-version=1 --no-default-features | jq -r '.packages[] | select(.name=="owmods_cli") | .version')" >> $GITHUB_OUTPUT
 
       - name: Build CLI
         run: cargo build -p owmods_cli --release
@@ -43,6 +43,7 @@ jobs:
       - name: Upload CLI
         uses: softprops/action-gh-release@v1
         with:
+          releaseName: Outer Wilds Mod Manager CLI Version ${{ steps.pkg-version.outputs.version }}
           tag_name: cli_v${{ steps.pkg-version.outputs.version }}
           fail_on_unmatched_files: false
           generate_release_notes: false

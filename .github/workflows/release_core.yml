@@ -22,7 +22,7 @@ jobs:
 
       - name: Get Package Version
         id: pkg-version
-        run: echo "version=$(cargo metadata --no-deps --format-version=1 --no-default-features | jq '.packages[] | select(.name=="owmods_core") | .version')" >> $GITHUB_OUTPUT
+        run: echo "version=$(cargo metadata --no-deps --format-version=1 --no-default-features | jq -r '.packages[] | select(.name=="owmods_core") | .version')" >> $GITHUB_OUTPUT
 
       - name: Build Core
         run: cargo package -p owmods_core
@@ -30,8 +30,8 @@ jobs:
       - name: Upload Core
         uses: softprops/action-gh-release@v1
         with:
+          releaseName: Outer Wilds Mod Manager Core Version ${{ steps.pkg-version.outputs.version }}
           tag_name: core_v${{ steps.pkg-version.outputs.version }}
-          fail_on_unmatched_files: false
           generate_release_notes: false
           draft: true
           files: |

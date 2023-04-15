@@ -2319,7 +2319,7 @@ dependencies = [
 
 [[package]]
 name = "owmods_core"
-version = "0.2.1"
+version = "0.2.0"
 dependencies = [
  "anyhow",
  "directories",
@@ -2343,7 +2343,7 @@ dependencies = [
 
 [[package]]
 name = "owmods_gui"
-version = "0.2.0"
+version = "0.2.1"
 dependencies = [
  "anyhow",
  "log",

@@ -27,7 +27,7 @@ jobs:
 
       - name: Get Package Version
         id: pkg-version
-        run: echo "version=$(cargo metadata --no-deps --format-version=1 --no-default-features | jq '.packages[] | select(.name==\"owmods_cli\") | .version')" >> $GITHUB_OUTPUT
+        run: echo "version=$(cargo metadata --no-deps --format-version=1 --no-default-features | jq '.packages[] | select(.name=="owmods_cli") | .version')" >> $GITHUB_OUTPUT
 
       - name: Build CLI
         run: cargo build -p owmods_cli --release

@@ -33,7 +33,7 @@ jobs:
 
       - name: Get Package Version
         id: pkg-version
-        run: echo "version=$(cargo metadata --no-deps --format-version=1 --no-default-features | jq '.packages[] | select(.name==\"owmods_gui\") | .version')" >> $GITHUB_OUTPUT
+        run: echo "version=$(cargo metadata --no-deps --format-version=1 --no-default-features | jq '.packages[] | select(.name=="owmods_gui") | .version')" >> $GITHUB_OUTPUT
 
       - name: Setup Node
         uses: actions/setup-node@v3

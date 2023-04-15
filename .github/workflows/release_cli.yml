@@ -33,11 +33,11 @@ jobs:
         run: cargo build -p owmods_cli --release
 
       - name: Generate Dist Folder
-        if: ${{ matrix.platform == "ubuntu-20.04" }}
+        if: matrix.platform == 'ubuntu-20.04'
         run: cargo xtask dist_cli
 
       - name: Archive Dist Files
-        if: ${{ matrix.platform == "ubuntu-20.04" }}
+        if: matrix.platform == 'ubuntu-20.04'
         run: tar --zstd -cfowmods.tar.zst -C target/release owmods  -C ../../dist/cli/ man completions
 
       - name: Upload CLI

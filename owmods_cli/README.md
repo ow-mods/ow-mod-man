@@ -1,6 +1,14 @@
-# owmods-cli
+<!-- markdownlint-disable MD030 MD033 -->
 
-The CLI interface for the mod manager, built using clap.
+# Outer Wilds Mod Manager CLI
+
+<p align="center">
+<a href="https://github.com/Bwc9876/ow-mod-man"><img src="https://raw.githubusercontent.com/Bwc9876/ow-mod-man/main/owmods_gui/frontend/src/assets/images/logo.png" alt="OWMM Logo"/></a><br/>
+The CLI interface for the mod manager, built using clap.<br/>
+<a href="https://github.com/Bwc9876/ow-mod-man/tree/main/owmods_core">Core</a><b> |</b>
+<a href="https://github.com/Bwc9876/ow-mod-man/tree/main/owmods_cli"><b>CLI</b></a><b> |</b>
+<a href="https://github.com/Bwc9876/ow-mod-man/tree/main/owmods_gui">GUI</a>
+</p>
 
 ## Usage
 
@@ -19,6 +27,32 @@ Some command shortcuts exist for convenience
 - `disable` -> `d`
 - `uninstall` -> `rm`
 - `readme` -> `man`
+
+### Autocomplete
+
+How to use value hints and generate shell completions.
+Usage with zsh:
+
+```console
+owmods generate-completions zsh > /usr/local/share/zsh/site-functions/_owmods
+compinit
+```
+
+Bash:
+
+```console
+owmods generate-completions bash > /usr/local/share/bash-completions/completions/_owmods
+compinit
+```
+
+Fish:
+
+```console
+owmods generate-completions fish > owmods_autocomplete.fish
+. ./owmods_autocomplete.fish
+```
+
+Check [clap_complete docs](https://docs.rs/clap_complete/latest/clap_complete/shells/enum.Shell.html#variants) for a list of all supported shells.
 
 ## Building
 

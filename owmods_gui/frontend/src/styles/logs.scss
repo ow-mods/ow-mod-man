@@ -106,6 +106,11 @@ $log-border: 1px solid var(--accent-bg);
     color: var(--log-warning);
 }
 
+.log-line .message.type-fatal {
+    font-weight: bolder;
+    color: var(--log-error);
+}
+
 .log-line .message.type-error {
     color: var(--log-error);
 }

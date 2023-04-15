@@ -1,0 +1,42 @@
+name: Create Core Release
+
+on:
+  workflow_dispatch:
+    
+jobs:
+  release:
+    permissions:
+      contents: write
+    runs-on: ubuntu-20.04
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Setup Rust Toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+
+      - name: Setup Rust Cache
+        uses: Swatinem/rust-cache@v2
+
+      - name: Get Package Version
+        id: pkg-version
+        run: echo "version=$(cargo metadata --no-deps --format-version=1 --no-default-features | jq '.packages[] | select(.name==\"owmods_core\") | .version')" >> $GITHUB_OUTPUT
+
+      - name: Build Core
+        run: cargo package -p owmods_core
+
+      - name: Upload Core
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: core_v${{ steps.pkg-version.outputs.version }}
+          fail_on_unmatched_files: false
+          generate_release_notes: false
+          draft: true
+          files: |
+            target/package/owmods_core-${{ steps.pkg-version.outputs.version }}.crate
+
+      
+
+      

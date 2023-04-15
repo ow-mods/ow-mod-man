@@ -95,7 +95,9 @@ const InstallFromModal = (props: ModalWrapperProps) => {
                 props.open?.current();
                 getCurrent().requestUserAttention(UserAttentionType.Informational);
             }
-        }).catch(console.warn);
+        })
+            .then(() => commands.popProtocolURL())
+            .catch(console.warn);
         return () => {
             cancel = true;
         };

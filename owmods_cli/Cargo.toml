@@ -2,19 +2,26 @@
 name = "owmods_cli"
 authors = ["Bwc9876 <bwc9876@gmail.com>"]
 description = "A CLI Tool To Manage OWML Mods"
-version = "0.1.0"
+version = "0.2.0"
 edition = "2021"
 readme = "./README.md"
 repository = "https://github.com/Bwc9876/ow-mod-man/"
+license-file = "../LICENSE"
 
 [dependencies]
-owmods_core = {path = "../owmods_core"}
+owmods_core = { version = "0.2.0", path = "../owmods_core"}
 clap = { version = "4.1.1", features = ["derive"] }
 colored = "2.0.0"
 anyhow = "1.0.68"
 indicatif = { version = "0.17.3", features = ["improved_unicode"] }
 tokio = { version = "1.25.0", features = ["macros"] }
 log = { version = "0.4.17", features = ["std"] }
+clap_complete = "4.2.0"
+
+[build-dependencies]
+clap = { version = "4.1.1", features = ["derive"] }
+clap_complete = "4.2.0"
+clap_mangen = "0.2.10"
 
 [[bin]]
 name = "owmods"

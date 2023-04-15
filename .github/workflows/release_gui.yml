@@ -1,12 +1,7 @@
-name: Create Release
+name: Create GUI Release
 
 on:
   workflow_dispatch:
-    inputs:
-      tag:
-        type: string
-        description: Version Tag
-        required: true
 
 jobs:
   release:
@@ -35,6 +30,10 @@ jobs:
 
       - name: Setup Rust Cache
         uses: Swatinem/rust-cache@v2
+
+      - name: Get Package Version
+        id: pkg-version
+        run: echo "version=$(cargo metadata --no-deps --format-version=1 --no-default-features | jq '.packages[] | select(.name==\"owmods_gui\") | .version')" >> $GITHUB_OUTPUT
 
       - name: Setup Node
         uses: actions/setup-node@v3
@@ -72,23 +71,9 @@ jobs:
           TAURI_PRIVATE_KEY: ${{ secrets.TAURI_PRIVATE_KEY }}
           TAURI_KEY_PASSWORD: ${{ secrets.TAURI_KEY_PASSWORD }}
         with:
-          tagName: ${{ inputs.tag }}
+          tagName: gui_v${{ steps.pkg-version.outputs.version }}
           includeUpdaterJson: true
           releaseName: 'Outer Wilds Mod Manager Version __VERSION__'
           releaseBody: 'See the assets to download and install this version.'
           releaseDraft: true
           prerelease: false
-
-      - name: Build CLI
-        run: cargo build -p owmods_cli --release
-
-      - name: Upload CLI
-        uses: softprops/action-gh-release@v1
-        with:
-          tag_name: ${{ inputs.tag }}
-          fail_on_unmatched_files: false
-          generate_release_notes: false
-          draft: true
-          files: |
-            target/release/owmods
-            target/release/owmods.exe

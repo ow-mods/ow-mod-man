@@ -20,7 +20,7 @@ use owmods_core::updates::check_mod_needs_update;
 use owmods_core::validate::fix_deps;
 use rust_fuzzy_search::fuzzy_compare;
 use tauri::api::dialog;
-use tauri::Manager;
+use tauri::{AppHandle, Manager};
 use time::macros::format_description;
 use time::OffsetDateTime;
 use tokio::try_join;
@@ -60,6 +60,10 @@ fn search<'a, T>(
     scores.iter().map(|(m, _)| *m).collect()
 }
 
+fn toggle_fs_watch(handle: &AppHandle, enabled: bool) {
+    handle.emit_all("TOGGLE_FS_WATCH", enabled).ok();
+}
+
 #[tauri::command]
 pub async fn initial_setup(
     handle: tauri::AppHandle,
@@ -79,6 +83,7 @@ pub async fn refresh_local_db(
     handle: tauri::AppHandle,
     state: tauri::State<'_, State>,
 ) -> Result<(), String> {
+    toggle_fs_watch(&handle, false);
     let conf = state.config.read().await;
     {
         let mut db = state.local_db.write().await;
@@ -86,6 +91,7 @@ pub async fn refresh_local_db(
         *db = local_db.unwrap_or_else(|_| LocalDatabase::default());
     }
     handle.emit_all("LOCAL-REFRESH", "").ok();
+    toggle_fs_watch(&handle, true);
     Ok(())
 }
 
@@ -143,6 +149,7 @@ pub async fn refresh_remote_db(
     handle: tauri::AppHandle,
     state: tauri::State<'_, State>,
 ) -> Result<(), String> {
+    toggle_fs_watch(&handle, false);
     let conf = state.config.read().await;
     {
         let mut db = state.remote_db.write().await;
@@ -150,6 +157,7 @@ pub async fn refresh_remote_db(
         *db = remote_db.unwrap_or_else(|_| RemoteDatabase::default());
     }
     handle.emit_all("REMOTE-REFRESH", "").ok();
+    toggle_fs_watch(&handle, true);
     Ok(())
 }
 
@@ -481,8 +489,8 @@ pub async fn start_logs(handle: tauri::AppHandle) -> Result<(), String> {
 }
 
 #[tauri::command]
-pub async fn active_log(state: tauri::State<'_, State>) -> Result<bool, String> {
-    Ok(state.game_log.read().await.is_some())
+pub async fn active_log(port: LogPort, state: tauri::State<'_, State>) -> Result<bool, String> {
+    Ok(state.game_log.read().await.get(&port).is_some())
 }
 
 #[tauri::command]
@@ -507,7 +515,7 @@ pub async fn run_game(state: tauri::State<'_, State>, window: tauri::Window) -> 
                 .unwrap(),
         )
         .join(format!(
-            "{}.log",
+            "{}_{port}.log",
             now.format(format_description!("[hour]-[minute]-[second]"))
                 .unwrap()
         ));
@@ -519,21 +527,27 @@ pub async fn run_game(state: tauri::State<'_, State>, window: tauri::Window) -> 
         .open(&logs_path)
         .map_err(|e| format!("Couldn't create log file: {:?}", e))?;
     {
-        let mut log_file = state.game_log.write().await;
+        let mut game_log = state.game_log.write().await;
         let writer = BufWriter::new(file);
-        *log_file = Some((vec![], writer));
+        game_log.insert(port, (vec![], writer));
     }
     let handle_log = |msg: &SocketMessage, _: &u16| {
         let msg = msg.clone();
         let logs_map = state.game_log.clone();
         let window_handle = window.app_handle();
         tokio::spawn(async move {
-            let mut log_file = logs_map.write().await;
-            if let Some((lines, writer)) = log_file.as_mut() {
+            let mut game_log = logs_map.write().await;
+            if let Some((lines, writer)) = game_log.get_mut(&port) {
                 write_log(writer, &msg).unwrap();
-                lines.push(GameMessage::new(port, msg));
+                let msg = GameMessage::new(port, msg);
+                if matches!(msg.message.message_type, SocketMessageType::Fatal) {
+                    window_handle
+                        .emit_all("LOG-FATAL", &msg)
+                        .expect("Couldn't Send Event");
+                }
+                lines.push(msg);
                 window_handle
-                    .emit_all("LOG-UPDATE", "")
+                    .emit_all("LOG-UPDATE", port)
                     .expect("Can't Send Event");
             }
         });
@@ -549,11 +563,12 @@ pub async fn run_game(state: tauri::State<'_, State>, window: tauri::Window) -> 
 
 #[tauri::command]
 pub async fn clear_logs(
+    port: LogPort,
     handle: tauri::AppHandle,
     state: tauri::State<'_, State>,
 ) -> Result<(), String> {
     let mut data = state.game_log.write().await;
-    if let Some((lines, _)) = data.as_mut() {
+    if let Some((lines, _)) = data.get_mut(&port) {
         lines.clear();
         handle
             .emit_all("LOG-UPDATE", "")
@@ -563,27 +578,27 @@ pub async fn clear_logs(
 }
 
 #[tauri::command]
-pub async fn stop_logging(state: tauri::State<'_, State>) -> Result<(), String> {
+pub async fn stop_logging(port: LogPort, state: tauri::State<'_, State>) -> Result<(), String> {
     let mut logs = state.game_log.write().await;
-    if let Some((_, ref mut writer)) = logs.as_mut() {
+    if let Some((_, ref mut writer)) = logs.get_mut(&port) {
         writer
             .flush()
             .map_err(|e| format!("Error flushing buffer: {:?}", e))?;
     }
-    *logs = None;
+    logs.remove(&port);
     Ok(())
 }
 
 #[tauri::command]
 pub async fn get_log_lines(
-    filter_port: Option<LogPort>,
+    port: LogPort,
     filter_type: Option<SocketMessageType>,
     search: &str,
     state: tauri::State<'_, State>,
 ) -> Result<Vec<usize>, String> {
     let logs = state.game_log.read().await;
-    if let Some((lines, _)) = logs.as_ref() {
-        let lines = get_logs_indices(lines, filter_port, filter_type, search).map_err(e_to_str)?;
+    if let Some((lines, _)) = logs.get(&port) {
+        let lines = get_logs_indices(lines, filter_type, search).map_err(e_to_str)?;
         Ok(lines)
     } else {
         Err("Log Server Not Running".to_string())
@@ -592,11 +607,12 @@ pub async fn get_log_lines(
 
 #[tauri::command]
 pub async fn get_game_message(
+    port: LogPort,
     line: usize,
     state: tauri::State<'_, State>,
 ) -> Result<GameMessage, String> {
     let logs = state.game_log.read().await;
-    if let Some((lines, _)) = logs.as_ref() {
+    if let Some((lines, _)) = logs.get(&port) {
         let msg = lines
             .get(line)
             .ok_or_else(|| "Invalid Log Line".to_string())?;
@@ -654,4 +670,31 @@ pub async fn db_has_issues(state: tauri::State<'_, State>) -> Result<bool, Strin
 pub async fn get_alert(state: tauri::State<'_, State>) -> Result<Alert, String> {
     let config = state.config.read().await;
     fetch_alert(&config.alert_url).await.map_err(e_to_str)
+}
+
+#[tauri::command]
+pub async fn get_watcher_paths(state: tauri::State<'_, State>) -> Result<Vec<String>, String> {
+    let config = state.config.read().await;
+    Ok(vec![
+        config.owml_path.clone(),
+        GuiConfig::path().unwrap().to_str().unwrap().to_string(),
+        Config::default_path()
+            .unwrap()
+            .to_str()
+            .unwrap()
+            .to_string(),
+    ])
+}
+
+#[tauri::command]
+pub async fn pop_protocol_url(
+    state: tauri::State<'_, State>,
+    handle: tauri::AppHandle,
+) -> Result<(), String> {
+    let mut protocol_url = state.protocol_url.write().await;
+    if let Some(url) = protocol_url.as_ref() {
+        handle.emit_all("PROTOCOL_INVOKE", url).ok();
+    }
+    *protocol_url = None;
+    Ok(())
 }

@@ -1,12 +1,10 @@
-use std::path::PathBuf;
-
 use anyhow::anyhow;
 use anyhow::Result;
-use clap::{Parser, Subcommand};
+use clap::CommandFactory;
+use clap::Parser;
 use colored::Colorize;
 use game::start_just_logs;
 use log::{error, info, warn, LevelFilter};
-use owmods_core::validate::fix_deps;
 use owmods_core::{
     alerts::fetch_alert,
     config::Config,
@@ -20,160 +18,18 @@ use owmods_core::{
     remove::remove_mod,
     toggle::toggle_mod,
     updates::update_all,
+    validate::fix_deps,
 };
 
+mod cli;
 mod game;
 mod logging;
+
+use cli::{BaseCli, Commands, ModListTypes};
 use logging::Logger;
 
 use crate::game::start_game;
 use crate::logging::log_mod_validation_errors;
-
-#[derive(Parser)]
-#[command(author, version, about, long_about = None)]
-struct BaseCli {
-    #[command(subcommand)]
-    command: Commands,
-    #[arg(
-        global = true,
-        short = 'r',
-        long = "recursive",
-        help = "Apply the action recursively (to all dependencies)"
-    )]
-    recursive: bool,
-    #[arg(global = true, long = "debug", help = "Enable debug output")]
-    debug: bool,
-}
-
-#[derive(Subcommand)]
-enum Commands {
-    #[command(about = "Print Version")]
-    Version,
-    #[command(about = "Install/Update OWML (default installs to %APPDATA%/ow-mod-man/OWML)")]
-    Setup { owml_path: Option<PathBuf> },
-    #[command(
-        about = "View the current database alert (if there is one)",
-        alias = "alerts"
-    )]
-    Alert,
-    #[command(about = "Updates all mods", alias = "up")]
-    Update,
-    #[command(
-        about = "List local (installed) or remote (in the database) mods",
-        alias = "ls"
-    )]
-    List {
-        #[command(subcommand)]
-        mod_type: Option<ModListTypes>,
-    },
-    #[command(about = "View info about a specific mod")]
-    Info { unique_name: String },
-    #[command(
-        about = "Enable a mod (use -r to enable dependencies too)",
-        alias = "e"
-    )]
-    Enable { unique_name: String },
-    #[command(
-        about = "Disable a mod (use -r to disable dependencies too)",
-        alias = "d"
-    )]
-    Disable { unique_name: String },
-    #[command(
-        about = "Install a mod (use -r to auto-install dependencies)",
-        alias = "i"
-    )]
-    Install {
-        unique_name: String,
-        #[arg(
-            short = 'o',
-            long = "overwrite",
-            help = "Overwrite existing installation"
-        )]
-        overwrite: bool,
-        #[arg(
-            short = 'p',
-            long = "prerelease",
-            help = "Install the prerelease of this mod"
-        )]
-        prerelease: bool,
-    },
-    #[command(
-        about = "Install a mod from a .zip file (-r not supported)",
-        alias = "iz"
-    )]
-    InstallZip { zip_path: PathBuf },
-    #[command(about = "Install a mod from a URL (-r not supported)", alias = "iu")]
-    InstallUrl { url: String },
-    #[command(
-        about = "Uninstall a mod (use -r to uninstall dependencies too)",
-        alias = "rm"
-    )]
-    Uninstall { unique_name: String },
-    #[command(about = "Export enabled mods to stdout as JSON")]
-    Export,
-    #[command(
-        about = "Import mods from a .json file (installs if not there, enables if already installed)"
-    )]
-    Import {
-        file_path: PathBuf,
-        #[arg(
-            short = 'd',
-            long = "disable-missing",
-            help = "Disable mods that aren't present in the file"
-        )]
-        disable_missing: bool,
-    },
-    #[command(about = "Run the game")]
-    Run {
-        #[arg(
-            short = 'f',
-            long = "force",
-            help = "Force the game to run even if there's conflicting mods or missing dependencies"
-        )]
-        force: bool,
-        #[arg(
-            short = 'p',
-            long = "port",
-            help = "Port to use for logging",
-            default_value = "0"
-        )]
-        port: u16,
-    },
-    LogServer {
-        #[arg(
-            short = 'p',
-            long = "port",
-            help = "Port to use for logging",
-            default_value = "0"
-        )]
-        port: u16,
-    },
-    #[command(about = "Quickly open something")]
-    Open {
-        #[arg(help = "db, owml, owml_docs, website, or a mod's unique name")]
-        identifier: String,
-    },
-    #[command(about = "Open the readme for a mod", alias = "man")]
-    Readme { unique_name: String },
-    #[command(
-        about = "Validate local mods for missing dependencies and conflicts",
-        alias = "check"
-    )]
-    Validate {
-        #[arg(short = 'f', long = "fix-deps", help = "Try to fix dependency issues")]
-        fix: bool,
-    },
-    #[command(about = "Clear which mod warnings were already shown")]
-    ClearWarnings,
-}
-
-#[derive(Subcommand)]
-enum ModListTypes {
-    #[command(about = "Show the mods that are currently installed")]
-    Local,
-    #[command(about = "Show all mods in the database (may want to use grep/find with this!)")]
-    Remote,
-}
 
 async fn run_from_cli(cli: BaseCli) -> Result<()> {
     let r = cli.recursive;
@@ -480,6 +336,11 @@ async fn run_from_cli(cli: BaseCli) -> Result<()> {
             new_config.save()?;
             info!("Warnings Cleared");
         }
+        Commands::GenerateCompletions { shell } => {
+            let mut cmd = BaseCli::command();
+            let name = cmd.get_name().to_string();
+            clap_complete::generate(*shell, &mut cmd, name, &mut std::io::stdout());
+        }
     }
     Ok(())
 }
@@ -496,16 +357,14 @@ fn yes_no(v: bool) -> String {
 async fn main() {
     let cli = BaseCli::parse();
     let logger = Logger::default();
-    let err = log::set_boxed_logger(Box::new(logger)).map(|_| {
+    if let Err(why) = log::set_boxed_logger(Box::new(logger)) {
+        println!("Error setting up logger: {why:?}");
+    } else {
         log::set_max_level(if cli.debug {
             LevelFilter::Trace
         } else {
             LevelFilter::Info
-        })
-    });
-    if err.is_err() {
-        println!("Error setting up logger");
-    } else {
+        });
         let res = run_from_cli(cli).await;
         match res {
             Ok(_) => {}

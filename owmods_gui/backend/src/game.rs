@@ -1,6 +1,7 @@
 use std::{
     fs::File,
     io::{BufWriter, Write},
+    time::{SystemTime, UNIX_EPOCH},
 };
 
 use anyhow::Result;
@@ -19,8 +20,8 @@ use crate::LogPort;
 #[typeshare]
 #[derive(Serialize, Clone, Debug)]
 pub struct GameMessage {
-    port: LogPort,
-    message: SocketMessage,
+    pub port: LogPort,
+    pub message: SocketMessage,
 }
 
 impl GameMessage {
@@ -30,9 +31,13 @@ impl GameMessage {
 }
 
 pub async fn make_log_window(handle: &AppHandle) -> Result<Window> {
+    let epoch = SystemTime::now()
+        .duration_since(UNIX_EPOCH)
+        .unwrap()
+        .as_millis();
     let log_window = WindowBuilder::new(
         handle,
-        "game",
+        format!("game-{epoch}"),
         tauri::WindowUrl::App("/logs/index.html".parse()?),
     );
     let window = log_window
@@ -72,15 +77,13 @@ pub fn write_log(writer: &mut BufWriter<File>, msg: &SocketMessage) -> Result<()
 
 pub fn get_logs_indices(
     lines: &Vec<GameMessage>,
-    filter_port: Option<LogPort>,
     filter_type: Option<SocketMessageType>,
     search: &str,
 ) -> Result<Vec<usize>> {
     let mut indices: Vec<usize> = vec![];
     let search = search.to_ascii_lowercase();
-    if filter_port.is_some() || filter_type.is_some() || !search.trim().is_empty() {
+    if filter_type.is_some() || !search.trim().is_empty() {
         for (line_number, line) in lines.iter().enumerate() {
-            let matches_port = filter_port.is_none() || line.port == *filter_port.as_ref().unwrap();
             let matches_type = filter_type.is_none()
                 || line.message.message_type == *filter_type.as_ref().unwrap();
             let matches_search = search.is_empty()
@@ -91,7 +94,7 @@ pub fn get_logs_indices(
                     .as_ref()
                     .map(|v| v.to_ascii_lowercase().contains(&search))
                     .unwrap_or(false);
-            if matches_port && matches_type && matches_search {
+            if matches_type && matches_search {
                 indices.push(line_number);
             }
         }

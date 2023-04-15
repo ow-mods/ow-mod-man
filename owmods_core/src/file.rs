@@ -76,10 +76,12 @@ pub fn fix_json(txt: &str) -> String {
 
 /// Removes the BOM on a JSON file
 pub fn fix_json_file(path: &Path) -> Result<()> {
-    let txt = read_to_string(path)?;
-    let txt = fix_json(&txt);
-    let mut file = File::create(path)?;
-    write!(file, "{}", txt)?;
+    let txt_old = read_to_string(path)?;
+    let txt = fix_json(&txt_old);
+    if txt != txt_old {
+        let mut file = File::create(path)?;
+        write!(file, "{}", txt)?;
+    }
     Ok(())
 }
 

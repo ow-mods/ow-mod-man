@@ -49,7 +49,7 @@ impl Default for GuiConfig {
 }
 
 impl GuiConfig {
-    fn path() -> Result<PathBuf, anyhow::Error> {
+    pub fn path() -> Result<PathBuf, anyhow::Error> {
         let path = get_app_path()?.join("gui_settings.json");
         Ok(path)
     }

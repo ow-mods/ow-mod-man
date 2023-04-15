@@ -259,7 +259,7 @@ impl LocalDatabase {
     pub fn invalid(&self) -> impl Iterator<Item = &UnsafeLocalMod> {
         self.all().filter(|m| match m {
             UnsafeLocalMod::Invalid(_) => true,
-            UnsafeLocalMod::Valid(valid_mod) => !valid_mod.errors.is_empty(),
+            UnsafeLocalMod::Valid(valid_mod) => valid_mod.enabled && !valid_mod.errors.is_empty(),
         })
     }
 

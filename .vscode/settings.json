@@ -21,5 +21,9 @@
     "wineboot",
     "WINEPREFIX",
     "winetricks"
-]
+],
+"yaml.schemas": {
+    "https://json.schemastore.org/github-issue-config.json": "file:///home/bean/Documents/GitHub/ow-mod-man/.github/ISSUE_TEMPLATE/config.yml"
+},
+"rust-analyzer.showUnlinkedFileNotification": false
 }

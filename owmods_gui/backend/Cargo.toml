@@ -1,6 +1,6 @@
 [package]
 name = "owmods_gui"
-version = "0.1.0"
+version = "0.2.0"
 edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
@@ -9,7 +9,7 @@ edition = "2021"
 tauri-build = { version = "1.2.1", features = [] }
 
 [dependencies]
-owmods_core = { path = "../../owmods_core" }
+owmods_core = { version = "0.2.0", path = "../../owmods_core" }
 serde_json = "1.0"
 serde = { version = "1.0", features = ["derive"] }
 tauri = { version = "1.2.4", features = ["app-all", "dialog-ask", "dialog-confirm", "dialog-message", "dialog-open", "dialog-save", "os-all", "shell-open", "updater", "window-close", "window-set-title"] }
@@ -22,6 +22,7 @@ regex = "1.7.1"
 time = { version = "0.3.20", features = ["macros"] }
 tauri-plugin-deep-link = "0.1.0"
 tauri-plugin-window-state = { git = "https://github.com/tauri-apps/plugins-workspace", branch = "dev" }
+tauri-plugin-fs-watch = { git = "https://github.com/tauri-apps/plugins-workspace", branch = "dev" }
 
 [features]
 default = ["custom-protocol"]

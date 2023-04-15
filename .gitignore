@@ -1,5 +1,7 @@
 # Build Output
 target
+dist/
+owmods.tar.zst
 
 # Logs
 *.log

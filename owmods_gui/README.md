@@ -1,6 +1,14 @@
-# owmods_gui
+<!-- markdownlint-disable MD030 MD033 -->
 
-> **CURRENTLY A WORK IN PROGRESS!!**
+# Outer Wilds Mod Manager GUI
+
+<p align="center">
+<a href="https://github.com/Bwc9876/ow-mod-man"><img src="https://raw.githubusercontent.com/Bwc9876/ow-mod-man/main/owmods_gui/frontend/src/assets/images/logo.png" alt="OWMM Logo"/></a><br/>
+The GUI Version Of The Manager.<br/>
+<a href="https://github.com/Bwc9876/ow-mod-man/tree/main/owmods_core">Core</a><b> |</b>
+<a href="https://github.com/Bwc9876/ow-mod-man/tree/main/owmods_cli">CLI</a><b> |</b>
+<a href="https://github.com/Bwc9876/ow-mod-man/tree/main/owmods_gui"><b>GUI</b></a>
+</p>
 
 The GUI Version Of The Manager. Created with Tauri, React, Vite, TypeScript, and Pico CSS.
 

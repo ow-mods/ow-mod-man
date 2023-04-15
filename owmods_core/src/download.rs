@@ -325,8 +325,8 @@ pub async fn install_mods_parallel(
     Ok(installed)
 }
 
-/// Install mod from the databse with the given unique name.
-/// This should be the preffered method when installing a specific mod.
+/// Install mod from the database with the given unique name.
+/// This should be the preferred method when installing a specific mod.
 /// It can also install prereleases and auto-install dependencies (recursively) as well.
 /// This will also send analytics events given you set `ANALYTICS_API_KEY`.
 ///
@@ -368,7 +368,7 @@ pub async fn install_mod_from_db(
     if recursive {
         let mut to_install: Vec<String> = new_mod.manifest.dependencies.unwrap_or_default();
         let mut installed: Vec<String> = local_db
-            .active()
+            .valid()
             .filter_map(|m| {
                 if m.manifest.unique_name == *unique_name {
                     None

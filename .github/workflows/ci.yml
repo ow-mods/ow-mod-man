@@ -1,9 +1,10 @@
 name: Continuous Integration
 
 on:
+  workflow_dispatch:
   push:
     paths-ignore:
-      - .github/workflows/release.yml
+      - .github/**
       - "**/README.md"
       - "**/CONTRIBUTING.md"
       - "LICENSE"

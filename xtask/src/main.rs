@@ -1,10 +1,12 @@
 use std::path::PathBuf;
 
 use anyhow::Result;
-use cli_tasks::{generate_completions, generate_man_files, generate_pkg_build};
+use cli_tasks::{generate_cli_pkg_build, generate_completions, generate_man_files};
+use gui_tasks::generate_gui_pkg_build;
 use regex::RegexBuilder;
 
 mod cli_tasks;
+mod gui_tasks;
 
 pub fn get_out_dir() -> Result<PathBuf> {
     let out_dir = std::path::PathBuf::from(std::env::var_os("CARGO_MANIFEST_DIR").unwrap())
@@ -35,7 +37,8 @@ fn main() -> Result<()> {
             println!("Generating Man Pages...");
             generate_man_files()?;
         }
-        "cli_pkg_build" => generate_pkg_build()?,
+        "cli_pkg_build" => generate_cli_pkg_build()?,
+        "gui_pkg_build" => generate_gui_pkg_build()?,
         _ => panic!("Invalid Command: {cmd}"),
     }
     Ok(())

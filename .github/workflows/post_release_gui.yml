@@ -1,6 +1,7 @@
 name: Post GUI Release
 
 on:
+  workflow_dispatch:
   push:
     tags:
       - "gui_v*"

@@ -1,6 +1,7 @@
 name: Post CLI Release
 
 on:
+  workflow_dispatch:
   push:
     tags:
       - "cli_v*"

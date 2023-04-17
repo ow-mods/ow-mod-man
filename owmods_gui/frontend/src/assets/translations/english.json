@@ -8,6 +8,7 @@
     "DOWNLOADS": "Downloads",
     "NO_DOWNLOADS": "No Downloads",
     "USE_PRERELEASE": "Use Prerelease",
+    "PRERELEASE_WARNING": "Prereleases are experimental versions of mods that may not work correctly. Are you sure you want to install?",
     "CONTINUE": "Continue",
     "CLEAR_DOWNLOADS": "Clear All",
     "CLEAR_LOGS": "Clear Logs",

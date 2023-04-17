@@ -24,12 +24,12 @@ dependencies:
         version: 1.8.8(react-dom@18.2.0)(react@18.2.0)
     tauri-plugin-fs-watch-api:
         specifier: github:tauri-apps/tauri-plugin-fs-watch
-        version: github.com/tauri-apps/tauri-plugin-fs-watch/3bb757ff970248efaa654084a339761bd607e2aa
+        version: github.com/tauri-apps/tauri-plugin-fs-watch/a79f496e97b9a5a5e647dd42a12e35e2c9b9119c
 
 devDependencies:
     "@types/react":
-        specifier: ^18.0.35
-        version: 18.0.35
+        specifier: ^18.0.37
+        version: 18.0.37
     "@types/react-dom":
         specifier: ^18.0.11
         version: 18.0.11
@@ -864,7 +864,7 @@ packages:
                 integrity: sha512-O38bPbI2CWtgw/OoQoY+BRelw7uysmXbWvw3nLWO21H1HSh+GOlqPuXshJfjmpNlKiiSDG9cc1JZAaMmVdcTlw==
             }
         dependencies:
-            "@types/react": 18.0.35
+            "@types/react": 18.0.37
         dev: true
 
     /@types/react-virtualized-auto-sizer@1.0.1:
@@ -873,7 +873,7 @@ packages:
                 integrity: sha512-GH8sAnBEM5GV9LTeiz56r4ZhMOUSrP43tAQNSRVxNexDjcNKLCEtnxusAItg1owFUFE6k0NslV26gqVClVvong==
             }
         dependencies:
-            "@types/react": 18.0.35
+            "@types/react": 18.0.37
         dev: true
 
     /@types/react-window@1.8.5:
@@ -882,13 +882,13 @@ packages:
                 integrity: sha512-V9q3CvhC9Jk9bWBOysPGaWy/Z0lxYcTXLtLipkt2cnRj1JOSFNF7wqGpkScSXMgBwC+fnVRg/7shwgddBG5ICw==
             }
         dependencies:
-            "@types/react": 18.0.35
+            "@types/react": 18.0.37
         dev: true
 
-    /@types/react@18.0.35:
+    /@types/react@18.0.37:
         resolution:
             {
-                integrity: sha512-6Laome31HpetaIUGFWl1VQ3mdSImwxtFZ39rh059a1MNnKGqBpC88J6NJ8n/Is3Qx7CefDGLgf/KhN/sYCf7ag==
+                integrity: sha512-4yaZZtkRN3ZIQD3KSEwkfcik8s0SWV+82dlJot1AbGYHCzJkWP3ENBY6wYeDRmKZ6HkrgoGAmR2HqdwYGp6OEw==
             }
         dependencies:
             "@types/prop-types": 15.7.5
@@ -1293,7 +1293,7 @@ packages:
         engines: { node: ^6 || ^7 || ^8 || ^9 || ^10 || ^11 || ^12 || >=13.7 }
         hasBin: true
         dependencies:
-            caniuse-lite: 1.0.30001479
+            caniuse-lite: 1.0.30001480
             electron-to-chromium: 1.4.365
             node-releases: 2.0.10
             update-browserslist-db: 1.0.11(browserslist@4.21.5)
@@ -1334,10 +1334,10 @@ packages:
             tslib: 2.5.0
         dev: true
 
-    /caniuse-lite@1.0.30001479:
+    /caniuse-lite@1.0.30001480:
         resolution:
             {
-                integrity: sha512-6nuRFim5dx8Eu2tO+KJ9PiBdPHs7WB5Hdf+klDcyefyEuOAcfhihIv7pS+JFknJLUiNQbm1AJYKm0c9QOlQS/Q==
+                integrity: sha512-q7cpoPPvZYgtyC4VaBSN0Bt+PJ4c4EYRf0DrduInOz2SkFpHD5p3LnvEpqBp7UnJn+8x1Ogl1s38saUxe+ihQQ==
             }
         dev: true
 
@@ -3298,10 +3298,10 @@ packages:
         engines: { node: ">=4" }
         dev: true
 
-    /resolve@1.22.3:
+    /resolve@1.22.2:
         resolution:
             {
-                integrity: sha512-P8ur/gp/AmbEzjr729bZnLjXK5Z+4P0zhIJgBgzqRih7hL7BOukHGtSTA3ACMY467GRFz3duQsi0bDZdR7DKdw==
+                integrity: sha512-Sb+mjNHOULsBv818T40qSPeRiuWLyaGMa5ewydRLFimneixmVy2zdivRl+AF6jaYPC8ERxGDmFSiqui6SfPd+g==
             }
         hasBin: true
         dependencies:
@@ -3340,10 +3340,10 @@ packages:
             glob: 7.2.3
         dev: true
 
-    /rollup@3.20.3:
+    /rollup@3.20.4:
         resolution:
             {
-                integrity: sha512-u6/O1X42CAZ79rbk+smyONJQLTpwFBL7InpRa/AVWia5lq60w5J/PUsVHCOgSolN0X9R2GjQ41fZm3x28Hk1lA==
+                integrity: sha512-n7J4tuctZXUErM9Uc916httwqmTc63zzCr2+TLCiSCpfO/Xuk3g/marGN1IlRJZi+QF3XMYx75PxXRfZDVgaRw==
             }
         engines: { node: ">=14.18.0", npm: ">=8.0.0" }
         hasBin: true
@@ -3771,8 +3771,8 @@ packages:
         dependencies:
             esbuild: 0.17.17
             postcss: 8.4.22
-            resolve: 1.22.3
-            rollup: 3.20.3
+            resolve: 1.22.2
+            rollup: 3.20.4
             sass: 1.62.0
         optionalDependencies:
             fsevents: 2.3.2
@@ -3854,10 +3854,10 @@ packages:
         engines: { node: ">=10" }
         dev: true
 
-    github.com/tauri-apps/tauri-plugin-fs-watch/3bb757ff970248efaa654084a339761bd607e2aa:
+    github.com/tauri-apps/tauri-plugin-fs-watch/a79f496e97b9a5a5e647dd42a12e35e2c9b9119c:
         resolution:
             {
-                tarball: https://codeload.github.com/tauri-apps/tauri-plugin-fs-watch/tar.gz/3bb757ff970248efaa654084a339761bd607e2aa
+                tarball: https://codeload.github.com/tauri-apps/tauri-plugin-fs-watch/tar.gz/a79f496e97b9a5a5e647dd42a12e35e2c9b9119c
             }
         name: tauri-plugin-fs-watch-api
         version: 0.0.0

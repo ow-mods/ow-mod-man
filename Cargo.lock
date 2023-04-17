@@ -3492,7 +3492,7 @@ dependencies = [
 [[package]]
 name = "tauri-plugin-fs-watch"
 version = "0.1.0"
-source = "git+https://github.com/tauri-apps/plugins-workspace?branch=dev#cea1d4f7b54b94354e8100daf804b810c680efd7"
+source = "git+https://github.com/tauri-apps/plugins-workspace?branch=dev#5c79b6ae3025e4179c99ce83a98fbd029ba5282d"
 dependencies = [
  "log",
  "notify",
@@ -3506,7 +3506,7 @@ dependencies = [
 [[package]]
 name = "tauri-plugin-window-state"
 version = "0.1.0"
-source = "git+https://github.com/tauri-apps/plugins-workspace?branch=dev#cea1d4f7b54b94354e8100daf804b810c680efd7"
+source = "git+https://github.com/tauri-apps/plugins-workspace?branch=dev#5c79b6ae3025e4179c99ce83a98fbd029ba5282d"
 dependencies = [
  "bincode",
  "bitflags 2.1.0",

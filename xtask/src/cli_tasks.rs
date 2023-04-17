@@ -44,7 +44,7 @@ pub fn generate_completions() -> Result<()> {
     Ok(())
 }
 
-pub fn generate_pkg_build() -> Result<()> {
+pub fn generate_cli_pkg_build() -> Result<()> {
     let version = get_pkg_version(include_str!("../../owmods_cli/Cargo.toml"));
     let pkgbuild = include_str!("cli_templates/PKGBUILD").replace("~~VERSION~~", version);
     let out_dir = get_out_dir()?.join("cli").join("pkgbuild");

@@ -10,7 +10,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        platform: [ubuntu-20.04, windows-latest]
+        platform: [ubuntu-20.04]
     runs-on: ${{ matrix.platform }}
 
     steps:
@@ -27,22 +27,23 @@ jobs:
 
       - name: Get Package Version
         id: pkg-version
-        run: echo "version=$(cargo metadata --no-deps --format-version=1 --no-default-features | jq '.packages[] | select(.name==\"owmods_cli\") | .version')" >> $GITHUB_OUTPUT
+        run: echo "version=$(cargo metadata --no-deps --format-version=1 --no-default-features | jq -r '.packages[] | select(.name=="owmods_cli") | .version')" >> $GITHUB_OUTPUT
 
       - name: Build CLI
         run: cargo build -p owmods_cli --release
 
       - name: Generate Dist Folder
-        if: ${{ matrix.platform == "ubuntu-20.04" }}
+        if: matrix.platform == 'ubuntu-20.04'
         run: cargo xtask dist_cli
 
       - name: Archive Dist Files
-        if: ${{ matrix.platform == "ubuntu-20.04" }}
+        if: matrix.platform == 'ubuntu-20.04'
         run: tar --zstd -cfowmods.tar.zst -C target/release owmods  -C ../../dist/cli/ man completions
 
       - name: Upload CLI
         uses: softprops/action-gh-release@v1
         with:
+          name: Outer Wilds Mod Manager CLI Version ${{ steps.pkg-version.outputs.version }}
           tag_name: cli_v${{ steps.pkg-version.outputs.version }}
           fail_on_unmatched_files: false
           generate_release_notes: false

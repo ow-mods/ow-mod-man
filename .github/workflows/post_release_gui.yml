@@ -1,10 +1,10 @@
-name: Post CLI Release
+name: Post GUI Release
 
 on:
   workflow_dispatch:
   push:
     tags:
-      - "cli_v*"
+      - "gui_v*"
 
 jobs:
   publish:
@@ -22,23 +22,15 @@ jobs:
       - name: Setup Rust Cache
         uses: Swatinem/rust-cache@v2
 
-      - name: Publish To Crates.io
-        uses: actions-rs/cargo@v1
-        env:
-          CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
-        with:
-          command: publish
-          args: -p owmods_cli
-
       - name: Create PKGBUILD
-        run: cargo xtask cli_pkg_build
+        run: cargo xtask gui_pkg_build
 
       - name: Publish AUR package
         uses: KSXGitHub/github-actions-deploy-aur@v2
         with:
-          pkgname: owmods-cli-bin
+          pkgname: owmods-gui-bin
           updpkgsums: true
-          pkgbuild: ./dist/cli/pkgbuild/PKGBUILD
+          pkgbuild: ./dist/gui/pkgbuild/PKGBUILD
           commit_username: ${{ secrets.AUR_USERNAME }}
           commit_email: ${{ secrets.AUR_EMAIL }}
           ssh_private_key: ${{ secrets.AUR_SSH_PRIVATE_KEY }}

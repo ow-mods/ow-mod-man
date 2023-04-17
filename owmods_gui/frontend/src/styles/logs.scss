@@ -7,6 +7,7 @@
 $log-border: 1px solid var(--accent-bg);
 
 .log-list {
+    scroll-behavior: auto !important;
     flex-grow: 1;
 }
 

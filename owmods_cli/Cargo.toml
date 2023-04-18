@@ -8,6 +8,9 @@ readme = "./README.md"
 repository = "https://github.com/Bwc9876/ow-mod-man/"
 license-file = "../LICENSE"
 
+[package.metadata.deb]
+depends = "libssl1.1"
+
 [dependencies]
 owmods_core = { version = "0.2.0", path = "../owmods_core"}
 clap = { version = "4.1.1", features = ["derive"] }

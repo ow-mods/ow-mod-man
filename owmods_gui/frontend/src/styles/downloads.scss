@@ -85,7 +85,11 @@ a.clear-downloads svg {
     background-color: var(--primary-muted);
 }
 
-.downloads-row.download-done svg {
+.downloads-row.download-done svg.download-icon-success {
+    display: initial;
+}
+
+.downloads-row.download-failed svg.download-icon-failure {
     display: initial;
 }
 

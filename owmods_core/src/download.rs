@@ -49,7 +49,7 @@ async fn download_zip(url: &str, target_path: &Path) -> Result<()> {
     let request = client.get(url);
 
     let mut stream = File::create(target_path)?;
-    let mut download = request.send().await?;
+    let mut download = request.send().await?.error_for_status()?;
 
     let file_size = download.content_length().unwrap_or(0);
 
@@ -63,6 +63,7 @@ async fn download_zip(url: &str, target_path: &Path) -> Result<()> {
         target_path.to_str().unwrap(),
         file_size,
         &format!("Downloading {}", zip_name),
+        &format!("Failed to download {}", zip_name),
         progress_type,
         ProgressAction::Download,
     );
@@ -72,7 +73,7 @@ async fn download_zip(url: &str, target_path: &Path) -> Result<()> {
         stream.write_all(&chunk)?;
     }
 
-    progress.finish(&format!("Downloaded {}", zip_name));
+    progress.finish(true, &format!("Downloaded {}", zip_name));
 
     Ok(())
 }
@@ -122,17 +123,18 @@ fn extract_zip(zip_path: &PathBuf, target_path: &PathBuf, display_name: &str) ->
         zip_path.to_str().unwrap(),
         target_path.to_str().unwrap()
     );
-    let progress = ProgressBar::new(
+    let mut progress = ProgressBar::new(
         zip_path.to_str().unwrap(),
         0,
-        "Extracting...",
+        &format!("Extracting {display_name}"),
+        &format!("Failed To Extract {display_name}"),
         ProgressType::Indefinite,
         ProgressAction::Extract,
     );
     let file = File::open(zip_path)?;
     let mut archive = ZipArchive::new(file)?;
     archive.extract(target_path)?;
-    progress.finish(&format!("Extracted {display_name}!"));
+    progress.finish(true, &format!("Extracted {display_name}!"));
     Ok(())
 }
 
@@ -161,6 +163,7 @@ fn extract_mod_zip(
         zip_path.to_str().unwrap(),
         archive.len().try_into().unwrap(),
         &format!("Extracting {}", zip_name),
+        &format!("Failed To Extract {}", zip_name),
         ProgressType::Definite,
         ProgressAction::Extract,
     );
@@ -193,7 +196,7 @@ fn extract_mod_zip(
     }
 
     let new_mod = LocalDatabase::read_local_mod(&target_path.join("manifest.json"))?;
-    progress.finish(&format!("Installed {}", new_mod.manifest.name));
+    progress.finish(true, &format!("Installed {}", new_mod.manifest.name));
     Ok(new_mod)
 }
 

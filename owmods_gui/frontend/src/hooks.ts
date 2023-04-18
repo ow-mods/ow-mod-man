@@ -64,8 +64,10 @@ export const useTauriCount = (incEvent: string, decEvent: string, initial?: numb
         }).catch(console.warn);
         listen(decEvent, () => {
             if (cancel) return;
-            countRef.current--;
-            setCount(countRef.current);
+            if (countRef.current !== 0) {
+                countRef.current--;
+                setCount(countRef.current);
+            }
         }).catch(console.warn);
         return () => {
             cancel = true;

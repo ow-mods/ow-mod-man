@@ -273,6 +273,23 @@ impl LocalDatabase {
         self.mods.values()
     }
 
+    /// Returns an iterator over all mods that are dependent on the given mod
+    ///
+    /// Please note this only checks direct dependence, it doesn't go up the dependency tree and add every parent
+    ///
+    /// ## Returns
+    ///
+    /// An iterator over all mods that are dependent on the given mod
+    ///
+    pub fn dependent<'a>(&'a self, local_mod: &'a LocalMod) -> impl Iterator<Item = &'a LocalMod> {
+        self.valid().filter(|m| {
+            m.manifest
+                .dependencies
+                .as_ref()
+                .map_or(false, |deps| deps.contains(&local_mod.manifest.unique_name))
+        })
+    }
+
     /// Validates deps, conflicts, etc for all mods in the DB and places errors in each mods' errors Vec
     fn validate(&mut self) {
         let names: Vec<String> = self

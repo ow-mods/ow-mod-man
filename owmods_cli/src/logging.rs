@@ -142,13 +142,13 @@ pub fn log_mod_validation_errors(local_mod: &UnsafeLocalMod, local_db: &LocalDat
                     .map(|m| &m.manifest.name)
                     .unwrap_or(unique_name);
                 error!(
-                    "{} requires {}, but it's disabled! (run \"owmods check --fix\" to auto-fix)",
+                    "{} requires {}, but it's disabled! (run \"owmods check --fix-deps\" to auto-fix)",
                     name, dep_name
                 );
             }
             ModValidationError::MissingDep(unique_name) => {
                 error!(
-                    "{} requires {}, but it's missing! (run \"owmods check --fix\" to auto-fix)",
+                    "{} requires {}, but it's missing! (run \"owmods check --fix-deps\" to auto-fix)",
                     name, unique_name
                 );
             }

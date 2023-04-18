@@ -308,13 +308,14 @@ async fn run_from_cli(cli: BaseCli) -> Result<()> {
             open_readme(unique_name, &remote_db)?;
         }
         Commands::Validate { fix } => {
-            let local_db = LocalDatabase::fetch(&config.owml_path)?;
+            let mut local_db = LocalDatabase::fetch(&config.owml_path)?;
             if *fix {
                 info!("Trying to fix dependency issues...");
                 let remote_db = RemoteDatabase::fetch(&config.database_url).await?;
                 for local_mod in local_db.active() {
                     fix_deps(local_mod, &config, &local_db, &remote_db).await?;
                 }
+                local_db = LocalDatabase::fetch(&config.owml_path)?;
                 info!("Done! Checking for other issues...")
             } else {
                 info!("Checking for issues...");

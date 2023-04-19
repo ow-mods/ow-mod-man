@@ -113,6 +113,7 @@ export interface GuiConfig {
     language: Language;
     watchFs: boolean;
     noWarning: boolean;
+    logMultiWindow: boolean;
 }
 
 export interface LogPayload {

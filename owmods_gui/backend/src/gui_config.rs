@@ -5,8 +5,9 @@ use serde::{Deserialize, Serialize};
 use typeshare::typeshare;
 
 #[typeshare]
-#[derive(Serialize, Deserialize, Clone)]
+#[derive(Default, Serialize, Deserialize, Clone)]
 pub enum Theme {
+    #[default]
     White,
     Blue,
     Green,
@@ -19,33 +20,37 @@ pub enum Theme {
 }
 
 #[typeshare]
-#[derive(Serialize, Deserialize, Clone)]
+#[derive(Default, Serialize, Deserialize, Clone)]
 pub enum Language {
+    #[default]
     English,
     Wario,
 }
 
-#[typeshare]
-#[derive(Serialize, Deserialize, Clone)]
-#[serde(rename_all = "camelCase")]
-pub struct GuiConfig {
-    theme: Theme,
-    rainbow: bool,
-    language: Language,
-    watch_fs: bool,
-    no_warning: bool,
+const fn _default_true() -> bool {
+    true
 }
 
-impl Default for GuiConfig {
-    fn default() -> Self {
-        Self {
-            theme: Theme::White,
-            rainbow: false,
-            language: Language::English,
-            watch_fs: true,
-            no_warning: false,
-        }
-    }
+const fn _default_false() -> bool {
+    false
+}
+
+#[typeshare]
+#[derive(Default, Serialize, Deserialize, Clone)]
+#[serde(rename_all = "camelCase")]
+pub struct GuiConfig {
+    #[serde(default = "Theme::default")]
+    theme: Theme,
+    #[serde(default = "_default_false")]
+    rainbow: bool,
+    #[serde(default = "Language::default")]
+    language: Language,
+    #[serde(default = "_default_true")]
+    watch_fs: bool,
+    #[serde(default = "_default_false")]
+    no_warning: bool,
+    #[serde(default = "_default_false")]
+    pub log_multi_window: bool,
 }
 
 impl GuiConfig {

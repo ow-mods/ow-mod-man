@@ -141,6 +141,7 @@ const SettingsForm = (props: SettingsFormProps) => {
         language,
         watchFs,
         disableWarning,
+        logMultiWindow,
         gamePath,
         forceExe,
         debugMode,
@@ -157,6 +158,7 @@ const SettingsForm = (props: SettingsFormProps) => {
         "LANGUAGE",
         "WATCH_FS",
         "DISABLE_WARNING",
+        "LOG_MULTI_WINDOW",
         "GAME_PATH",
         "FORCE_EXE",
         "DEBUG_MODE",
@@ -257,6 +259,12 @@ const SettingsForm = (props: SettingsFormProps) => {
                 value={guiConfig.noWarning}
                 label={disableWarning}
                 id="noWarning"
+            />
+            <SettingsSwitch
+                onChange={handleGui}
+                value={guiConfig.logMultiWindow}
+                label={logMultiWindow}
+                id="logMultiWindow"
             />
             <h4>{owmlSettingsLabel}</h4>
             <SettingsFolder

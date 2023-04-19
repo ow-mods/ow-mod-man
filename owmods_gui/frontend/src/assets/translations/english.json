@@ -42,6 +42,7 @@
     "LANGUAGE": "Language",
     "WATCH_FS": "Watch File System",
     "DISABLE_WARNING": "Disable Game Start Issues Warning",
+    "LOG_MULTI_WINDOW": "Use Multiple Windows For Logs",
     "SHOW_FOLDER": "Open Folder",
     "UNINSTALL": "Uninstall",
     "BY": "v$version$ by $author$",

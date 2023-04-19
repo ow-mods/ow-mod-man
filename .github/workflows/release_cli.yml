@@ -46,7 +46,7 @@ jobs:
 
       - name: Generate Deb File
         if: matrix.platform == 'ubuntu-20.04'
-        run: cargo deb
+        run: cargo deb -p owmods_cli
 
       - name: Upload CLI
         uses: softprops/action-gh-release@v1

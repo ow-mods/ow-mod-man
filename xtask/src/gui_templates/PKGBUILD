@@ -1,6 +1,6 @@
 # Maintainer: Bwc9876 <bwc9876@gmail.com>
 pkgname=owmods-gui-bin
-_appname=ow-mod-manager
+_appname=outer-wilds-mod-manager
 pkgver=~~VERSION~~
 pkgrel=1
 pkgdesc="A GUI To Manage Outer Wilds Mods"
@@ -13,10 +13,10 @@ sha256sums=()
 
 package() {
     tar xpf data.tar.gz -C ${srcdir}
-    install -Dm755 usr/bin/ow-mod-manager ${pkgdir}/usr/bin/ow-mod-manager
-    install -Dm755 usr/share/applications/ow-mod-manager.desktop ${pkgdir}/usr/share/applications/ow-mod-manager.desktop
+    install -Dm755 usr/bin/${_appname} ${pkgdir}/usr/bin/${_appname}
+    install -Dm755 usr/share/applications/${_appname}.desktop ${pkgdir}/usr/share/applications/${_appname}.desktop
 
-    install -Dm644 "usr/share/icons/hicolor/128x128/apps/ow-mod-manager.png" "$pkgdir/usr/share/icons/hicolor/128x128/apps/ow-mod-manager.png"
-    install -Dm644 "usr/share/icons/hicolor/256x256@2/apps/ow-mod-manager.png" "$pkgdir/usr/share/icons/hicolor/256x256@2/apps/ow-mod-manager.png"
-    install -Dm644 "usr/share/icons/hicolor/32x32/apps/ow-mod-manager.png" "$pkgdir/usr/share/icons/hicolor/32x32/apps/ow-mod-manager.png"
+    install -Dm644 "usr/share/icons/hicolor/128x128/apps/${_appname}.png" "$pkgdir/usr/share/icons/hicolor/128x128/apps/${_appname}.png"
+    install -Dm644 "usr/share/icons/hicolor/256x256@2/apps/${_appname}.png" "$pkgdir/usr/share/icons/hicolor/256x256@2/apps/${_appname}.png"
+    install -Dm644 "usr/share/icons/hicolor/32x32/apps/${_appname}.png" "$pkgdir/usr/share/icons/hicolor/32x32/apps/${_appname}.png"
 }

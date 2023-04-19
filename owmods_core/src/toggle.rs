@@ -84,7 +84,29 @@ pub fn toggle_mod(
             for dep in deps.iter() {
                 let dep_mod = local_db.get_mod(dep);
                 if let Some(dep_mod) = dep_mod {
-                    toggle_mod(&dep_mod.manifest.unique_name, local_db, enabled, recursive)?;
+                    if enabled {
+                        toggle_mod(&dep_mod.manifest.unique_name, local_db, enabled, recursive)?;
+                    } else {
+                        let mut flag = true;
+                        for dependent_mod in local_db.dependent(dep_mod).filter(|m| m.enabled) {
+                            if dependent_mod.manifest.unique_name != local_mod.manifest.unique_name
+                            {
+                                warn!(
+                                    "Not disabling {} as it's also needed by {}",
+                                    dep_mod.manifest.name, dependent_mod.manifest.name
+                                );
+                                flag = false;
+                            }
+                        }
+                        if flag {
+                            toggle_mod(
+                                &dep_mod.manifest.unique_name,
+                                local_db,
+                                enabled,
+                                recursive,
+                            )?;
+                        }
+                    }
                 } else {
                     warn!("Dependency {} Was Not Found, Ignoring.", dep);
                 }
@@ -104,7 +126,7 @@ mod tests {
     use crate::{
         config::Config,
         download::install_mod_from_zip,
-        mods::LocalMod,
+        mods::{LocalMod, UnsafeLocalMod},
         test_utils::{get_test_file, make_test_dir},
     };
 
@@ -132,6 +154,88 @@ mod tests {
         toggle_mod("Bwc9876.TimeSaver", &db, true, false).unwrap();
         let new_mod = LocalDatabase::read_local_mod(&mod_path.join("manifest.json")).unwrap();
         assert!(new_mod.enabled);
+        dir.close().unwrap();
+    }
+
+    #[test]
+    fn test_mod_toggle_recursive() {
+        let dir = make_test_dir();
+        let test_path = get_test_file("Bwc9876.TimeSaver.zip");
+        let test_path_2 = get_test_file("Bwc9876.SaveEditor.zip");
+        let mut config = Config::default(None).unwrap();
+        config.owml_path = dir.path().join("").to_str().unwrap().to_string();
+        let db = LocalDatabase::default();
+        install_mod_from_zip(&test_path, &config, &db).unwrap();
+        install_mod_from_zip(&test_path_2, &config, &db).unwrap();
+        let mut db = LocalDatabase::fetch(&config.owml_path).unwrap();
+        let mut new_mod = db.get_mod("Bwc9876.TimeSaver").unwrap().clone();
+        new_mod.manifest.dependencies = Some(vec!["Bwc9876.SaveEditor".to_string()]);
+        *db.mods.get_mut(&String::from("Bwc9876.TimeSaver")).unwrap() =
+            UnsafeLocalMod::Valid(new_mod);
+        toggle_mod("Bwc9876.TimeSaver", &db, false, true).unwrap();
+        let new_mod = db.get_mod("Bwc9876.SaveEditor").unwrap().clone();
+        let mod_path = PathBuf::from(new_mod.mod_path);
+        let new_mod = LocalDatabase::read_local_mod(&mod_path.join("manifest.json")).unwrap();
+        assert!(!new_mod.enabled);
+        dir.close().unwrap();
+    }
+
+    #[test]
+    fn test_mod_toggle_recursive_other_dependent() {
+        let dir = make_test_dir();
+        let test_path = get_test_file("Bwc9876.TimeSaver.zip");
+        let test_path_2 = get_test_file("Bwc9876.SaveEditor.zip");
+        let mut config = Config::default(None).unwrap();
+        config.owml_path = dir.path().join("").to_str().unwrap().to_string();
+        let db = LocalDatabase::default();
+        install_mod_from_zip(&test_path, &config, &db).unwrap();
+        install_mod_from_zip(&test_path_2, &config, &db).unwrap();
+        let mut db = LocalDatabase::fetch(&config.owml_path).unwrap();
+        let mut new_mod = db.get_mod("Bwc9876.TimeSaver").unwrap().clone();
+        new_mod.manifest.dependencies = Some(vec!["Bwc9876.SaveEditor".to_string()]);
+        *db.mods.get_mut(&String::from("Bwc9876.TimeSaver")).unwrap() =
+            UnsafeLocalMod::Valid(new_mod);
+        let mut test_mod = LocalMod::get_test(0);
+        test_mod.manifest.dependencies = Some(vec![String::from("Bwc9876.SaveEditor")]);
+        db.mods.insert(
+            test_mod.manifest.unique_name.clone(),
+            UnsafeLocalMod::Valid(test_mod),
+        );
+        toggle_mod("Bwc9876.TimeSaver", &db, false, true).unwrap();
+        let new_mod = db.get_mod("Bwc9876.SaveEditor").unwrap().clone();
+        let mod_path = PathBuf::from(new_mod.mod_path);
+        let new_mod = LocalDatabase::read_local_mod(&mod_path.join("manifest.json")).unwrap();
+        assert!(new_mod.enabled);
+        dir.close().unwrap();
+    }
+
+    #[test]
+    fn test_mod_toggle_recursive_other_dependent_but_disabled() {
+        let dir = make_test_dir();
+        let test_path = get_test_file("Bwc9876.TimeSaver.zip");
+        let test_path_2 = get_test_file("Bwc9876.SaveEditor.zip");
+        let mut config = Config::default(None).unwrap();
+        config.owml_path = dir.path().join("").to_str().unwrap().to_string();
+        let db = LocalDatabase::default();
+        install_mod_from_zip(&test_path, &config, &db).unwrap();
+        install_mod_from_zip(&test_path_2, &config, &db).unwrap();
+        let mut db = LocalDatabase::fetch(&config.owml_path).unwrap();
+        let mut new_mod = db.get_mod("Bwc9876.TimeSaver").unwrap().clone();
+        new_mod.manifest.dependencies = Some(vec!["Bwc9876.SaveEditor".to_string()]);
+        *db.mods.get_mut(&String::from("Bwc9876.TimeSaver")).unwrap() =
+            UnsafeLocalMod::Valid(new_mod);
+        let mut test_mod = LocalMod::get_test(0);
+        test_mod.manifest.dependencies = Some(vec![String::from("Bwc9876.SaveEditor")]);
+        test_mod.enabled = false;
+        db.mods.insert(
+            test_mod.manifest.unique_name.clone(),
+            UnsafeLocalMod::Valid(test_mod),
+        );
+        toggle_mod("Bwc9876.TimeSaver", &db, false, true).unwrap();
+        let new_mod = db.get_mod("Bwc9876.SaveEditor").unwrap().clone();
+        let mod_path = PathBuf::from(new_mod.mod_path);
+        let new_mod = LocalDatabase::read_local_mod(&mod_path.join("manifest.json")).unwrap();
+        assert!(!new_mod.enabled);
         dir.close().unwrap();
     }
 

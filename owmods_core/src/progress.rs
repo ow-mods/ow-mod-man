@@ -60,6 +60,13 @@ pub struct ProgressMessagePayload {
     pub msg: String,
 }
 
+#[derive(Clone, Serialize)]
+pub struct ProgressFinishPayload {
+    pub id: String,
+    pub success: bool,
+    pub msg: String,
+}
+
 /// Payload sent when a progress bar is updated
 #[derive(Clone, Serialize)]
 pub enum ProgressPayload {
@@ -70,7 +77,7 @@ pub enum ProgressPayload {
     /// Payload sent when a progress bar's message is updated
     Msg(ProgressMessagePayload),
     /// Payload sent when a progress bar has finished its task
-    Finish(ProgressMessagePayload),
+    Finish(ProgressFinishPayload),
     Unknown,
 }
 
@@ -109,10 +116,14 @@ impl ProgressPayload {
                 id: id.to_string(),
                 msg: args.to_string(),
             }),
-            "Finish" => ProgressPayload::Finish(ProgressMessagePayload {
-                id: id.to_string(),
-                msg: args.to_string(),
-            }),
+            "Finish" => {
+                let (success, r) = args.split_once('|').unwrap();
+                ProgressPayload::Finish(ProgressFinishPayload {
+                    id: id.to_string(),
+                    success: success == "true",
+                    msg: r.to_string(),
+                })
+            }
             _ => ProgressPayload::Unknown,
         }
     }
@@ -123,6 +134,8 @@ pub struct ProgressBar {
     id: String,
     len: u64,
     progress: u64,
+    failure_message: String,
+    complete: bool,
 }
 
 impl ProgressBar {
@@ -130,6 +143,7 @@ impl ProgressBar {
         id: &str,
         len: u64,
         msg: &str,
+        failure_message: &str,
         progress_type: ProgressType,
         progress_action: ProgressAction,
     ) -> Self {
@@ -137,6 +151,8 @@ impl ProgressBar {
             id: id.to_string(),
             len,
             progress: 0,
+            failure_message: failure_message.to_string(),
+            complete: false,
         };
         info!(target: "progress", "Start|{}|{}|{:?}|{:?}|{}", id, len, progress_type, progress_action, msg);
         new
@@ -155,8 +171,19 @@ impl ProgressBar {
         info!(target: "progress", "Msg|{}|{}", self.id, msg);
     }
 
-    pub fn finish(&self, msg: &str) {
-        info!(target: "progress", "Finish|{}|{}", self.id, msg);
+    pub fn finish(&mut self, success: bool, msg: &str) {
+        self.complete = true;
+        let msg = if success { msg } else { &self.failure_message };
+        info!(target: "progress", "Finish|{}|{}|{}", self.id, success, msg);
+    }
+}
+
+impl Drop for ProgressBar {
+    fn drop(&mut self) {
+        dbg!(&self.complete);
+        if !self.complete {
+            self.finish(false, "");
+        }
     }
 }
 
@@ -218,10 +245,11 @@ mod tests {
 
     #[test]
     fn test_progress_finish() {
-        let finish = ProgressPayload::parse("Finish|test|Finished");
+        let finish = ProgressPayload::parse("Finish|test|true|Finished");
         match finish {
-            ProgressPayload::Finish(ProgressMessagePayload { id, msg }) => {
+            ProgressPayload::Finish(ProgressFinishPayload { id, success, msg }) => {
                 assert_eq!(id, "test");
+                assert!(success);
                 assert_eq!(msg, "Finished");
             }
             _ => {

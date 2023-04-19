@@ -2,12 +2,13 @@ import Icon from "@components/common/Icon";
 import { useTranslation, useTranslations } from "@hooks";
 import { listen } from "@tauri-apps/api/event";
 import { useEffect, useRef, useState } from "react";
-import { BsCheck2, BsTrashFill } from "react-icons/bs";
+import { BsCheck2, BsTrashFill, BsXCircleFill } from "react-icons/bs";
 
 interface ActiveDownloadProps {
     id: string;
     progressAction: "Download" | "Extract" | "Wine";
     progressType: "Definite" | "Indefinite";
+    failed: boolean;
     msg: string;
     progress: number;
     len: number;
@@ -25,6 +26,7 @@ interface ProgressMessagePayload {
 
 interface ProgressFinishPayload {
     id: string;
+    success: boolean;
     msg: string;
 }
 
@@ -32,13 +34,16 @@ const ActiveDownload = (props: ActiveDownloadProps) => {
     return (
         <div
             className={`downloads-row${
-                props.progressAction === "Extract" && props.progress >= props.len
-                    ? " download-done"
+                props.progressAction === "Extract" || (props.failed && props.progress >= props.len)
+                    ? props.failed
+                        ? " download-failed"
+                        : " download-done"
                     : ""
             }`}
         >
             <p className="download-header fix-icons">
-                <Icon iconType={BsCheck2} /> {props.msg}
+                <Icon iconClassName="download-icon-failure" iconType={BsXCircleFill} />
+                <Icon iconClassName="download-icon-success" iconType={BsCheck2} /> {props.msg}
             </p>
             <progress
                 value={
@@ -59,12 +64,7 @@ const DownloadsPopout = () => {
 
     const downloadsRef = useRef(downloads);
 
-    // useEffect(() => {
-    //     downloadsRef.current = downloads;
-    // }, [downloads]);
-
     useEffect(() => {
-        // Necessary evil, can't unsubscribe bc everything is async
         let cancelled = false;
         listen("PROGRESS-START", (p) => {
             if (cancelled) return;
@@ -109,6 +109,11 @@ const DownloadsPopout = () => {
                 if (current.progressType === "Indefinite") {
                     current.progress = 1;
                 }
+                downloadsRef.current = { ...downloadsRef.current, [current.id]: current };
+                setDownloads(downloadsRef.current);
+            } else if (!payload.success) {
+                current.failed = true;
+                current.msg = payload.msg;
                 downloadsRef.current = { ...downloadsRef.current, [current.id]: current };
                 setDownloads(downloadsRef.current);
             }

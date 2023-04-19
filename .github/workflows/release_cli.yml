@@ -25,6 +25,10 @@ jobs:
       - name: Setup Rust Cache
         uses: Swatinem/rust-cache@v2
 
+      - name: Install Deb Generator
+        if: matrix.platform == 'ubuntu-20.04'
+        run: cargo install cargo-deb
+
       - name: Get Package Version
         id: pkg-version
         run: echo "version=$(cargo metadata --no-deps --format-version=1 --no-default-features | jq -r '.packages[] | select(.name=="owmods_cli") | .version')" >> $GITHUB_OUTPUT
@@ -40,6 +44,10 @@ jobs:
         if: matrix.platform == 'ubuntu-20.04'
         run: tar --zstd -cfowmods.tar.zst -C target/release owmods  -C ../../dist/cli/ man completions
 
+      - name: Generate Deb File
+        if: matrix.platform == 'ubuntu-20.04'
+        run: cargo deb
+
       - name: Upload CLI
         uses: softprops/action-gh-release@v1
         with:
@@ -50,6 +58,7 @@ jobs:
           draft: true
           files: |
             owmods.tar.zst
+            target/debian/owmods-cli_${{ steps.pkg-version.outputs.version }}_amd64.deb
             target/release/owmods
             target/release/owmods.exe
 

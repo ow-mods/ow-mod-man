@@ -483,8 +483,23 @@ pub async fn update_all_mods(
 }
 
 #[tauri::command]
-pub async fn start_logs(handle: tauri::AppHandle) -> Result<(), String> {
-    make_log_window(&handle).await.map_err(e_to_str)?;
+pub async fn start_logs(
+    state: tauri::State<'_, State>,
+    handle: tauri::AppHandle,
+) -> Result<(), String> {
+    let game_logs = state.game_log.read().await;
+    let gui_config = state.gui_config.read().await;
+    if gui_config.log_multi_window || game_logs.keys().count() == 0 {
+        drop(game_logs);
+        drop(gui_config);
+        make_log_window(&handle).await.map_err(e_to_str)?;
+    } else {
+        drop(gui_config);
+        let config = state.config.read().await.clone();
+        let port = *game_logs.keys().next().unwrap_or(&0);
+        drop(game_logs);
+        launch_game(&config, &port).await.map_err(e_to_str)?;
+    }
     Ok(())
 }
 
@@ -499,6 +514,7 @@ pub async fn run_game(state: tauri::State<'_, State>, window: tauri::Window) -> 
     {
         let local_db = state.local_db.read().await;
         let new_config = show_warnings(&window, &local_db, &config).map_err(e_to_str)?;
+        new_config.save().map_err(e_to_str)?;
         {
             let mut config = state.config.write().await;
             *config = new_config;

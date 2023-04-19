@@ -4,9 +4,10 @@ on:
   workflow_dispatch:
   push:
     paths-ignore:
+      - README.md
       - .github/**
-      - "**/README.md"
-      - "**/CONTRIBUTING.md"
+      - "*.md"
+      - "**/*.md"
       - "LICENSE"
     branches:
       - main

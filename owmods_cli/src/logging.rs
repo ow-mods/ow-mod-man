@@ -11,8 +11,8 @@ use owmods_core::{
     db::LocalDatabase,
     mods::UnsafeLocalMod,
     progress::{
-        ProgressAction, ProgressIncrementPayload, ProgressMessagePayload, ProgressPayload,
-        ProgressStartPayload, ProgressType,
+        ProgressAction, ProgressFinishPayload, ProgressIncrementPayload, ProgressMessagePayload,
+        ProgressPayload, ProgressStartPayload, ProgressType,
     },
     validate::ModValidationError,
 };
@@ -67,10 +67,13 @@ impl Logger {
             .set_message(payload.msg.to_string());
     }
 
-    fn finish(&self, payload: ProgressMessagePayload) {
+    fn finish(&self, payload: ProgressFinishPayload) {
         let bars = self.bars.lock().unwrap();
         let pb = bars.get::<String>(&payload.id).unwrap();
         pb.set_message(payload.msg.to_string());
+        if !payload.success {
+            pb.set_position(pb.length().unwrap_or(1));
+        }
         pb.finish();
     }
 }
@@ -142,13 +145,13 @@ pub fn log_mod_validation_errors(local_mod: &UnsafeLocalMod, local_db: &LocalDat
                     .map(|m| &m.manifest.name)
                     .unwrap_or(unique_name);
                 error!(
-                    "{} requires {}, but it's disabled! (run \"owmods check --fix\" to auto-fix)",
+                    "{} requires {}, but it's disabled! (run \"owmods check --fix-deps\" to auto-fix)",
                     name, dep_name
                 );
             }
             ModValidationError::MissingDep(unique_name) => {
                 error!(
-                    "{} requires {}, but it's missing! (run \"owmods check --fix\" to auto-fix)",
+                    "{} requires {}, but it's missing! (run \"owmods check --fix-deps\" to auto-fix)",
                     name, unique_name
                 );
             }

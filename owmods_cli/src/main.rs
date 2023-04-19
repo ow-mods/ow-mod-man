@@ -5,6 +5,8 @@ use clap::Parser;
 use colored::Colorize;
 use game::start_just_logs;
 use log::{error, info, warn, LevelFilter};
+use owmods_core::mods::UnsafeLocalMod;
+use owmods_core::remove::remove_failed_mod;
 use owmods_core::{
     alerts::fetch_alert,
     config::Config,
@@ -232,17 +234,40 @@ async fn run_from_cli(cli: BaseCli) -> Result<()> {
         }
         Commands::Uninstall { unique_name } => {
             let db = LocalDatabase::fetch(&config.owml_path)?;
-            let local_mod = db.get_mod(unique_name);
-            if let Some(local_mod) = local_mod {
-                info!(
-                    "Uninstalling {}{}...",
-                    unique_name,
-                    if r { " and dependencies" } else { "" }
-                );
-                remove_mod(local_mod, &db, r)?;
-                info!("Done");
+            if unique_name == "all" {
+                let mut answer = String::new();
+                warn!("WARNING: This will uninstall ALL MODS. Continue? (yes/no)");
+                std::io::stdin().read_line(&mut answer)?;
+                if answer.trim() == "yes" {
+                    info!("Uninstalling all mods...");
+                    for local_mod in db.all() {
+                        info!("Uninstalling {}...", local_mod.get_name());
+                        match local_mod {
+                            UnsafeLocalMod::Invalid(local_mod) => {
+                                remove_failed_mod(local_mod)?;
+                            }
+                            UnsafeLocalMod::Valid(local_mod) => {
+                                remove_mod(local_mod, &db, false)?;
+                            }
+                        }
+                    }
+                    info!("Complete");
+                } else {
+                    warn!("Aborting");
+                }
             } else {
-                error!("Mod {} Is Not Installed", unique_name);
+                let local_mod = db.get_mod(unique_name);
+                if let Some(local_mod) = local_mod {
+                    info!(
+                        "Uninstalling {}{}...",
+                        unique_name,
+                        if r { " and dependencies" } else { "" }
+                    );
+                    remove_mod(local_mod, &db, r)?;
+                    info!("Done");
+                } else {
+                    error!("Mod {} Is Not Installed", unique_name);
+                }
             }
         }
         Commands::Export => {
@@ -308,13 +333,14 @@ async fn run_from_cli(cli: BaseCli) -> Result<()> {
             open_readme(unique_name, &remote_db)?;
         }
         Commands::Validate { fix } => {
-            let local_db = LocalDatabase::fetch(&config.owml_path)?;
+            let mut local_db = LocalDatabase::fetch(&config.owml_path)?;
             if *fix {
                 info!("Trying to fix dependency issues...");
                 let remote_db = RemoteDatabase::fetch(&config.database_url).await?;
                 for local_mod in local_db.active() {
                     fix_deps(local_mod, &config, &local_db, &remote_db).await?;
                 }
+                local_db = LocalDatabase::fetch(&config.owml_path)?;
                 info!("Done! Checking for other issues...")
             } else {
                 info!("Checking for issues...");

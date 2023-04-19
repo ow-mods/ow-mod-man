@@ -4,8 +4,9 @@ import Icon from "@components/common/Icon";
 import ModActionButton from "@components/mods/ModActionButton";
 import ModHeader from "@components/mods/ModHeader";
 import { useTranslation, useTranslations } from "@hooks";
+import { dialog } from "@tauri-apps/api";
 import { CSSProperties, memo, useCallback, useState } from "react";
-import { BsArrowDown, BsGlobe } from "react-icons/bs";
+import { BsArrowDown, BsGlobe, BsHammer } from "react-icons/bs";
 
 // Stolen from mods website, Rai will never catch me!
 const magnitudeMap = [
@@ -45,11 +46,14 @@ const RemoteModRow = memo((props: RemoteModRowProps) => {
 
     const [downloading, setDownloading] = useState(false);
 
-    const [noDescription, installTooltip, websiteTooltip] = useTranslations([
-        "NO_DESCRIPTION",
-        "INSTALL",
-        "OPEN_WEBSITE"
-    ]);
+    const [noDescription, installTooltip, websiteTooltip, usePrerelease, prereleaseWarning] =
+        useTranslations([
+            "NO_DESCRIPTION",
+            "INSTALL",
+            "OPEN_WEBSITE",
+            "USE_PRERELEASE",
+            "PRERELEASE_WARNING"
+        ]);
 
     const subtitle = useTranslation("BY", {
         author: mod?.authorDisplay ?? mod?.author ?? "",
@@ -65,6 +69,23 @@ const RemoteModRow = memo((props: RemoteModRowProps) => {
                 commands.refreshLocalDb().catch(console.error);
             })
             .catch(console.error);
+    }, [props.uniqueName]);
+
+    const onPrerelease = useCallback(() => {
+        const task = async () => {
+            const result = await dialog.ask(prereleaseWarning, { title: usePrerelease });
+            if (result) {
+                setDownloading(true);
+                commands
+                    .installMod({ uniqueName: props.uniqueName, prerelease: true })
+                    .then(() => {
+                        setDownloading(false);
+                        commands.refreshLocalDb().catch(console.error);
+                    })
+                    .catch(console.error);
+            }
+        };
+        task();
     }, [props.uniqueName]);
 
     const onReadme = useCallback(() => {
@@ -90,9 +111,16 @@ const RemoteModRow = memo((props: RemoteModRowProps) => {
                     {downloading ? (
                         <div className="center" aria-busy></div>
                     ) : (
-                        <ModActionButton onClick={onInstall} ariaLabel={installTooltip}>
-                            <Icon iconType={BsArrowDown} />
-                        </ModActionButton>
+                        <>
+                            <ModActionButton onClick={onInstall} ariaLabel={installTooltip}>
+                                <Icon iconType={BsArrowDown} />
+                            </ModActionButton>
+                            {mod?.prerelease !== null && (
+                                <ModActionButton onClick={onPrerelease} ariaLabel={usePrerelease}>
+                                    <Icon iconType={BsHammer} />
+                                </ModActionButton>
+                            )}
+                        </>
                     )}
                     <ModActionButton onClick={onReadme} ariaLabel={websiteTooltip}>
                         <Icon iconType={BsGlobe} />

@@ -121,7 +121,9 @@ pub async fn fix_deps(
             _ => {}
         }
     }
-    info!("Installing {} Missing Dependencies", missing.len());
+    if !missing.is_empty() {
+        info!("Installing {} Missing Dependencies", missing.len());
+    }
     install_mods_parallel(missing, config, remote_db, db).await?;
     Ok(())
 }

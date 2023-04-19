@@ -116,6 +116,15 @@ $row-border: 1px solid var(--accent-bg);
     margin-bottom: $margin-sm;
 }
 
+.mod-row.local .mod-name {
+    font-weight: light;
+    color: var(--primary-muted);
+}
+
+.mod-row.local:has(input:checked) .mod-name {
+    color: var(--body-color);
+}
+
 .local-toolbar {
     margin: $margin-md 0;
     display: flex;

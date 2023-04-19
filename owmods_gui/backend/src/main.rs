@@ -46,7 +46,7 @@ fn main() -> Result<(), Box<dyn Error>> {
     let config = Config::get(None).unwrap_or(Config::default(None)?);
     let gui_config = GuiConfig::get().unwrap_or_default();
     let local_db = LocalDatabase::fetch(&config.owml_path).unwrap_or_default();
-    let remote_db = RemoteDatabase::fetch_blocking(&config.database_url).unwrap_or_default();
+    let remote_db = RemoteDatabase::default();
 
     tauri_plugin_deep_link::prepare("com.bwc9876.owmods-gui");
 

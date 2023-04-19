@@ -21,24 +21,24 @@
         "react": "^18.2.0",
         "react-dom": "^18.2.0",
         "react-icons": "^4.8.0",
-        "react-virtualized-auto-sizer": "^1.0.14",
-        "react-window": "^1.8.8",
+        "react-virtualized-auto-sizer": "^1.0.15",
+        "react-window": "^1.8.9",
         "tauri-plugin-fs-watch-api": "github:tauri-apps/tauri-plugin-fs-watch"
     },
     "devDependencies": {
-        "@types/react": "^18.0.35",
+        "@types/react": "^18.0.37",
         "@types/react-dom": "^18.0.11",
         "@types/react-virtualized-auto-sizer": "^1.0.1",
         "@types/react-window": "^1.8.5",
-        "@typescript-eslint/eslint-plugin": "^5.58.0",
-        "@typescript-eslint/parser": "^5.58.0",
+        "@typescript-eslint/eslint-plugin": "^5.59.0",
+        "@typescript-eslint/parser": "^5.59.0",
         "@vitejs/plugin-react": "^3.1.0",
         "eslint": "^8.38.0",
         "eslint-plugin-react": "^7.32.2",
         "prettier": "^2.8.7",
         "sass": "^1.62.0",
         "typescript": "^4.9.5",
-        "vite": "^4.2.1",
+        "vite": "^4.2.2",
         "vite-plugin-html": "^3.2.0"
     }
 }

@@ -39,7 +39,7 @@
       "category": "Game",
       "copyright": "",
       "deb": {
-        "depends": ["libssl1.1"]
+        "depends": []
       },
       "externalBin": [],
       "icon": [

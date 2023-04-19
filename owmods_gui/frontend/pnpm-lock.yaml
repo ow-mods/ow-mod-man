@@ -1294,7 +1294,7 @@ packages:
         hasBin: true
         dependencies:
             caniuse-lite: 1.0.30001480
-            electron-to-chromium: 1.4.367
+            electron-to-chromium: 1.4.368
             node-releases: 2.0.10
             update-browserslist-db: 1.0.11(browserslist@4.21.5)
         dev: true
@@ -1655,10 +1655,10 @@ packages:
             jake: 10.8.5
         dev: true
 
-    /electron-to-chromium@1.4.367:
+    /electron-to-chromium@1.4.368:
         resolution:
             {
-                integrity: sha512-mNuDxb+HpLhPGUKrg0hSxbTjHWw8EziwkwlJNkFUj3W60ypigLDRVz04vU+VRsJPi8Gub+FDhYUpuTm9xiEwRQ==
+                integrity: sha512-e2aeCAixCj9M7nJxdB/wDjO6mbYX+lJJxSJCXDzlr5YPGYVofuJwGN9nKg2o6wWInjX6XmxRinn3AeJMK81ltw==
             }
         dev: true
 
@@ -2362,7 +2362,7 @@ packages:
             he: 1.2.0
             param-case: 3.0.4
             relateurl: 0.2.7
-            terser: 5.17.0
+            terser: 5.17.1
         dev: true
 
     /ignore@5.2.4:
@@ -3571,10 +3571,10 @@ packages:
         engines: { node: ">= 0.4" }
         dev: true
 
-    /terser@5.17.0:
+    /terser@5.17.1:
         resolution:
             {
-                integrity: sha512-3die3+pYW4mta4xF6K8Wtf7id8+oYyfqtAhjwzqY01+CfDSDMx/VA1Sp8sXWs5AVNIoAKoUfmp/gnPqRjBxuDA==
+                integrity: sha512-hVl35zClmpisy6oaoKALOpS0rDYLxRFLHhRuDlEGTKey9qHjS1w9GMORjuwIMt70Wan4lwsLYyWDVnWgF+KUEw==
             }
         engines: { node: ">=10" }
         hasBin: true

@@ -6,7 +6,7 @@
     "distDir": "../dist"
   },
   "package": {
-    "productName": "OWModManager",
+    "productName": "Outer Wilds Mod Manager",
     "version": "0.2.2"
   },
   "tauri": {

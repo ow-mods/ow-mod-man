@@ -1,5 +1,4 @@
 use std::{
-    default,
     fs::File,
     io::{BufWriter, Write},
     time::{SystemTime, UNIX_EPOCH},

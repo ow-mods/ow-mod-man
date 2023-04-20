@@ -62,13 +62,14 @@ $log-border: 1px solid var(--accent-bg);
 .log-line {
     height: fit-content;
     display: grid;
-    grid-template-columns: auto minmax(0, 1fr);
+    grid-template-columns: auto minmax(0, 1fr) auto;
     width: 100%;
     padding: $margin $margin-md;
     border-bottom: $log-border;
 }
 
 .log-line .sender,
+.log-line .count,
 .log-line .message {
     display: flex;
     align-items: center;
@@ -89,6 +90,21 @@ $log-border: 1px solid var(--accent-bg);
     flex-shrink: 1;
     margin-right: $margin-lg;
     white-space: nowrap;
+}
+
+.log-line .count {
+    font-size: small;
+    flex-shrink: 1;
+    margin-left: $margin-lg;
+    margin-right: $margin;
+    background-color: var(--accent-bg-lighter);
+    padding: 0 $margin-md;
+    border-radius: 10px;
+    white-space: nowrap;
+}
+
+.log-line .count::before {
+    content: "x";
 }
 
 .log-line .message.type-message {

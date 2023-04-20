@@ -611,7 +611,7 @@ pub async fn get_log_lines(
     filter_type: Option<SocketMessageType>,
     search: &str,
     state: tauri::State<'_, State>,
-) -> Result<Vec<usize>, String> {
+) -> Result<Vec<(usize, usize)>, String> {
     let logs = state.game_log.read().await;
     if let Some((lines, _)) = logs.get(&port) {
         let lines = get_logs_indices(lines, filter_type, search).map_err(e_to_str)?;

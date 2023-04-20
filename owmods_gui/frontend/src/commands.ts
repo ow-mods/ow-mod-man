@@ -63,7 +63,7 @@ const commandInfo = {
                 filterType?: number | undefined;
                 search: string;
             },
-            number[]
+            [number, number][]
         >
     >("get_log_lines"),
     exportMods: $<ActionCommand<{ path: string }>>("export_mods"),

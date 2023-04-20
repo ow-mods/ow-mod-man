@@ -26,7 +26,7 @@ const App = ({ port }: { port: number }) => {
     const [activeFilter, setActiveFilter] = useState<LogFilter>("Any");
     const [activeSearch, setActiveSearch] = useState<string>("");
     const [autoScroll, setAutoScroll] = useState(true);
-    const [logLines, setLogLines] = useState<number[]>([]);
+    const [logLines, setLogLines] = useState<[number, number][]>([]);
 
     const fatalErrorLabel = useTranslation("FATAL_ERROR");
 

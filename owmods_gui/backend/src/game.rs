@@ -1,4 +1,5 @@
 use std::{
+    default,
     fs::File,
     io::{BufWriter, Write},
     time::{SystemTime, UNIX_EPOCH},
@@ -83,7 +84,6 @@ pub fn get_logs_indices(
     let mut indices: Vec<(usize, usize)> = vec![];
     let search = search.to_ascii_lowercase();
     let mut count = 1;
-    let mut last_line = "";
     for (line_number, line) in lines.iter().enumerate() {
         let mut include = true;
         if filter_type.is_some() || !search.trim().is_empty() {
@@ -101,7 +101,16 @@ pub fn get_logs_indices(
                 include = false;
             }
         }
-        if last_line == line.message.message {
+        let mut same = false;
+        if let Some(next_line) = lines.get(line_number + 1) {
+            if next_line.message.message == line.message.message
+                && next_line.message.message_type == line.message.message_type
+                && next_line.message.sender_name == line.message.sender_name
+            {
+                same = true;
+            }
+        }
+        if same {
             count += 1;
         } else {
             if include {
@@ -109,7 +118,6 @@ pub fn get_logs_indices(
             }
             count = 1;
         }
-        last_line = &line.message.message;
     }
     Ok(indices)
 }

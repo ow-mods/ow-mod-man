@@ -6,7 +6,7 @@
     "scripts": {
         "dev": "vite",
         "devtools": "react-devtools --in-process-gpu",
-        "gen-types": "typeshare ../.. --lang=typescript --output-file=src/types.d.ts",
+        "gen-types": "typeshare ../.. --lang=typescript --output-file=src/types.d.ts && prettier --write src/types.d.ts",
         "build": "tsc && vite build --emptyOutDir",
         "preview": "vite preview",
         "check": "pnpm lint && pnpm prettify",

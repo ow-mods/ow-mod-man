@@ -93,9 +93,18 @@ $log-border: 1px solid var(--accent-bg);
 }
 
 .log-line .count {
+    font-size: small;
     flex-shrink: 1;
     margin-left: $margin-lg;
+    margin-right: $margin;
+    background-color: var(--accent-bg-lighter);
+    padding: 0 $margin-md;
+    border-radius: 10px;
     white-space: nowrap;
+}
+
+.log-line .count::before {
+    content: "x";
 }
 
 .log-line .message.type-message {

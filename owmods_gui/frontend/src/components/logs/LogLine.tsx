@@ -40,7 +40,7 @@ const LogLine = memo(
                         <span className={`message type-${msgClassName}`}>
                             {msg?.message.message}
                         </span>
-                        <span>COUNT: {props.count}</span>
+                        <span className="count">{props.count}</span>
                     </div>
                 </div>
             );

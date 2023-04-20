@@ -91,6 +91,11 @@ $log-border: 1px solid var(--accent-bg);
     white-space: nowrap;
 }
 
+.log-line .count {
+    // GRRR I AM STUPID
+    white-space: normal;
+}
+
 .log-line .message.type-message {
     color: var(--log-message);
 }

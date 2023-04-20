@@ -6,6 +6,7 @@ export interface LogLineProps {
     port: number;
     index: number;
     line: number;
+    count: number;
     style: CSSProperties;
     reportSize?: (i: number, l: number, size: number) => void;
 }
@@ -39,6 +40,7 @@ const LogLine = memo(
                         <span className={`message type-${msgClassName}`}>
                             {msg?.message.message}
                         </span>
+                        <span>COUNT: {props.count}</span>
                     </div>
                 </div>
             );
@@ -46,6 +48,7 @@ const LogLine = memo(
     },
     (current, next) =>
         current.line === next.line &&
+        current.count === next.count &&
         current.style.display === next.style.display &&
         current.style.height === next.style.height &&
         current.style.top === next.style.top

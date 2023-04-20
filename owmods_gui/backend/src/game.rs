@@ -79,9 +79,10 @@ pub fn get_logs_indices(
     lines: &Vec<GameMessage>,
     filter_type: Option<SocketMessageType>,
     search: &str,
-) -> Result<Vec<usize>> {
-    let mut indices: Vec<usize> = vec![];
+) -> Result<Vec<(usize, usize)>> {
+    let mut indices: Vec<(usize, usize)> = vec![];
     let search = search.to_ascii_lowercase();
+    let count = 0; // TODO actually do this lol. gotta count when non filtering
     if filter_type.is_some() || !search.trim().is_empty() {
         for (line_number, line) in lines.iter().enumerate() {
             let matches_type = filter_type.is_none()
@@ -95,11 +96,12 @@ pub fn get_logs_indices(
                     .map(|v| v.to_ascii_lowercase().contains(&search))
                     .unwrap_or(false);
             if matches_type && matches_search {
-                indices.push(line_number);
+                indices.push((line_number, count));
             }
         }
     } else {
-        indices = (0..lines.len()).collect();
+        // fuck
+        indices = (0..lines.len()).map(|x| (x, 1)).collect();
     }
     Ok(indices)
 }

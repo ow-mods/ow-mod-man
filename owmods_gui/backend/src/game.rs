@@ -82,9 +82,11 @@ pub fn get_logs_indices(
 ) -> Result<Vec<(usize, usize)>> {
     let mut indices: Vec<(usize, usize)> = vec![];
     let search = search.to_ascii_lowercase();
-    let count = 0; // TODO actually do this lol. gotta count when non filtering
-    if filter_type.is_some() || !search.trim().is_empty() {
-        for (line_number, line) in lines.iter().enumerate() {
+    let mut count = 1;
+    let mut last_line = "";
+    for (line_number, line) in lines.iter().enumerate() {
+        let mut include = true;
+        if filter_type.is_some() || !search.trim().is_empty() {
             let matches_type = filter_type.is_none()
                 || line.message.message_type == *filter_type.as_ref().unwrap();
             let matches_search = search.is_empty()
@@ -95,13 +97,19 @@ pub fn get_logs_indices(
                     .as_ref()
                     .map(|v| v.to_ascii_lowercase().contains(&search))
                     .unwrap_or(false);
-            if matches_type && matches_search {
-                indices.push((line_number, count));
+            if !(matches_type && matches_search) {
+                include = false;
             }
         }
-    } else {
-        // fuck
-        indices = (0..lines.len()).map(|x| (x, 1)).collect();
+        if last_line == line.message.message {
+            count += 1;
+        } else {
+            if include {
+                indices.push((line_number, count));
+            }
+            count = 1;
+        }
+        last_line = &line.message.message;
     }
     Ok(indices)
 }

@@ -1,7 +1,7 @@
 import { commands } from "@commands";
 import { OpenFileInput } from "@components/common/FileInput";
 import Icon from "@components/common/Icon";
-import { useTranslations } from "@hooks";
+import { useTranslation, useTranslations } from "@hooks";
 import { listen } from "@tauri-apps/api/event";
 import { useEffect, useState } from "react";
 import { BsExclamationTriangleFill } from "react-icons/bs";
@@ -30,7 +30,7 @@ const InstallFromModal = (props: ModalWrapperProps) => {
     const [target, setTarget] = useState<string>("");
     const [prerelease, setPrerelease] = useState<boolean>(false);
 
-    const [install, installFrom, uniqueNameLabel, jsonLabel, zip, url, warningText, usePrerelease] =
+    const [install, installFrom, uniqueNameLabel, jsonLabel, zip, url, warningText] =
         useTranslations([
             "INSTALL",
             "INSTALL_FROM",
@@ -38,9 +38,10 @@ const InstallFromModal = (props: ModalWrapperProps) => {
             "JSON",
             "ZIP",
             "URL",
-            "INSTALL_WARNING",
-            "USE_PRERELEASE"
+            "INSTALL_WARNING"
         ]);
+
+    const usePrerelease = useTranslation("USE_PRERELEASE", { version: "" });
 
     const lblMap: Record<SourceType, string> = {
         UNIQUE_NAME: uniqueNameLabel,

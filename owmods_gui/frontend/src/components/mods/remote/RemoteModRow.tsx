@@ -46,14 +46,16 @@ const RemoteModRow = memo((props: RemoteModRowProps) => {
 
     const [downloading, setDownloading] = useState(false);
 
-    const [noDescription, installTooltip, websiteTooltip, usePrerelease, prereleaseWarning] =
-        useTranslations([
-            "NO_DESCRIPTION",
-            "INSTALL",
-            "OPEN_WEBSITE",
-            "USE_PRERELEASE",
-            "PRERELEASE_WARNING"
-        ]);
+    const [noDescription, installTooltip, websiteTooltip, prereleaseWarning] = useTranslations([
+        "NO_DESCRIPTION",
+        "INSTALL",
+        "OPEN_WEBSITE",
+        "PRERELEASE_WARNING"
+    ]);
+
+    const usePrerelease = useTranslation("USE_PRERELEASE", {
+        version: mod?.prerelease?.version ?? ""
+    });
 
     const subtitle = useTranslation("BY", {
         author: mod?.authorDisplay ?? mod?.author ?? "",

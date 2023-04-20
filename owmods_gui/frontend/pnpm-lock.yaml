@@ -1702,7 +1702,7 @@ packages:
             object-inspect: 1.12.3
             object-keys: 1.1.1
             object.assign: 4.1.4
-            regexp.prototype.flags: 1.4.3
+            regexp.prototype.flags: 1.5.0
             safe-regex-test: 1.0.0
             string.prototype.trim: 1.2.7
             string.prototype.trimend: 1.0.6
@@ -3120,10 +3120,10 @@ packages:
         engines: { node: ">=8.6" }
         dev: true
 
-    /postcss@8.4.22:
+    /postcss@8.4.23:
         resolution:
             {
-                integrity: sha512-XseknLAfRHzVWjCEtdviapiBtfLdgyzExD50Rg2ePaucEesyh8Wv4VPdW0nbyDa1ydbrAxV19jvMT4+LFmcNUA==
+                integrity: sha512-bQ3qMcpF6A/YjR55xtoTr0jGOlnPOKAIMdOWiv0EIT6HVPEaJiJB4NLljSbiHoC2RX7DN5Uvjtpbg1NPdwv1oA==
             }
         engines: { node: ^10 || ^12 || >=14 }
         dependencies:
@@ -3270,10 +3270,10 @@ packages:
             }
         dev: false
 
-    /regexp.prototype.flags@1.4.3:
+    /regexp.prototype.flags@1.5.0:
         resolution:
             {
-                integrity: sha512-fjggEOO3slI6Wvgjwflkc4NFRCTZAu5CnNfBd5qOMYhWdn67nJBBu34/TkD++eeFmd8C9r9jfXJ27+nSiRkSUA==
+                integrity: sha512-0SutC3pNudRKgquxGoRGIz946MZVHqbNfPjBdxeOhBrdgDKlRoXmYLQN9xRbrR09ZXWeGAdPuif7egofn6v5LA==
             }
         engines: { node: ">= 0.4" }
         dependencies:
@@ -3487,7 +3487,7 @@ packages:
             get-intrinsic: 1.2.0
             has-symbols: 1.0.3
             internal-slot: 1.0.5
-            regexp.prototype.flags: 1.4.3
+            regexp.prototype.flags: 1.5.0
             side-channel: 1.0.4
         dev: true
 
@@ -3770,7 +3770,7 @@ packages:
                 optional: true
         dependencies:
             esbuild: 0.17.17
-            postcss: 8.4.22
+            postcss: 8.4.23
             resolve: 1.22.2
             rollup: 3.20.6
             sass: 1.62.0

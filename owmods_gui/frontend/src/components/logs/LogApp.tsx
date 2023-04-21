@@ -85,7 +85,7 @@ const App = ({ port }: { port: number }) => {
     } else {
         return (
             <TranslationContext.Provider value={guiConfig!.language}>
-                <main className="logs container">
+                <main className="logs container-fluid">
                     <LogHeader
                         logsLen={logLines?.length ?? 0}
                         autoScroll={autoScroll}

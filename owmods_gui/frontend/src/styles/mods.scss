@@ -1,20 +1,22 @@
 .mod-list {
-    display: flex;
-    flex: 1 1 auto;
-    flex-direction: column;
-    flex-grow: 1;
-    min-width: 0;
+    height: 100%;
     width: 100%;
-    overflow-x: hidden;
+    contain: strict;
+    overflow-y: auto;
     margin-bottom: $margin;
-}
-
-.mod-list.remote::-webkit-scrollbar {
-    display: none;
+    scroll-behavior: auto;
 }
 
 .mod-list.remote > div {
-    flex: 1 1 auto;
+    width: 100%;
+    position: relative;
+}
+
+.mod-list.remote > div > div {
+    width: 100%;
+    top: 0;
+    left: 0;
+    position: absolute;
 }
 
 .remote-mod-search {
@@ -49,7 +51,7 @@ $row-border: 1px solid var(--accent-bg);
     display: grid;
     grid-template-columns: minmax(0, 1fr);
     gap: $margin;
-    grid-template-areas: "heading actions expand";
+    grid-template-areas: "heading actions";
 }
 
 .mod-header:focus {
@@ -123,6 +125,11 @@ $row-border: 1px solid var(--accent-bg);
 
 .mod-row.local:has(input:checked) .mod-name {
     color: var(--body-color);
+}
+
+.mod-row.remote {
+    position: absolute;
+    padding-right: $margin-md;
 }
 
 .local-toolbar {

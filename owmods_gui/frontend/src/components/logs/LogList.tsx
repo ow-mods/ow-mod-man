@@ -1,8 +1,8 @@
-import LogLine from "./LogLine";
-import AutoSizer from "react-virtualized-auto-sizer";
-import { memo, useCallback, useEffect, useRef } from "react";
-import { VariableSizeList } from "react-window";
+import { memo, useEffect, useRef } from "react";
 import { LogFilter } from "./LogApp";
+import { useVirtualizer } from "@tanstack/react-virtual";
+import LogLine from "./LogLine";
+import ItemMeasurer from "@components/common/ItemMeasurer";
 
 export interface LogListProps {
     port: number;
@@ -13,54 +13,53 @@ export interface LogListProps {
 }
 
 const LogList = memo((props: LogListProps) => {
-    const logLen = props.logLines.length;
-    const logSizes = useRef<Record<number, number>>({});
+    const parentRef = useRef<HTMLDivElement | null>(null);
 
-    const reportSize = useCallback((i: number, l: number, size: number) => {
-        logSizes.current[l] = size;
-        listRef.current?.resetAfterIndex(i);
-    }, []);
-    const getSize = useCallback(
-        (i: number) => logSizes.current[props.logLines[i][0]] ?? 40,
-        [props.logLines, logSizes.current]
-    );
+    const logLen = props.logLines.length;
+
+    const logVirtualizer = useVirtualizer({
+        count: logLen,
+        overscan: 75,
+        getScrollElement: () => parentRef.current,
+        getItemKey: (index) => `${index}-${props.logLines[index][0]}`,
+        estimateSize: () => 40
+    });
+
+    const items = logVirtualizer.getVirtualItems();
 
     useEffect(() => {
-        if (props.autoScroll) {
-            setTimeout(() => {
-                listRef.current?.scrollToItem(logLen, "end");
-            }, 100);
+        if (props.autoScroll && logLen !== 0) {
+            logVirtualizer.scrollToIndex(logLen - 1, { align: "end", behavior: "auto" });
         }
-    }, [logLen, logSizes.current, props.autoScroll]);
-
-    const listRef = useRef<VariableSizeList>(null);
+    }, [logLen, props.autoScroll]);
 
     return (
-        <div className="log-list">
-            <AutoSizer nonce="MTo3NTM0NTo0MTQ5Nzc5Mjk6MTY4MDU2OTI2Nw==">
-                {(size) => (
-                    <VariableSizeList
-                        ref={listRef}
-                        overscanCount={0}
-                        itemCount={logLen ?? 0}
-                        itemSize={getSize}
-                        width={size.width ?? 1000}
-                        height={size.height ?? 1000}
-                    >
-                        {({ index, style }) => (
-                            <LogLine
-                                port={props.port}
-                                reportSize={reportSize}
-                                index={index}
-                                key={index}
-                                line={props.logLines[index][0]}
-                                count={props.logLines[index][1]}
-                                style={style}
-                            />
-                        )}
-                    </VariableSizeList>
-                )}
-            </AutoSizer>
+        <div ref={parentRef} className="log-list">
+            <div
+                style={{
+                    height: logVirtualizer.getTotalSize()
+                }}
+            >
+                <div
+                    style={{
+                        translate: `translateY(${items[0]?.start ?? 0}px)`
+                    }}
+                >
+                    {items.map((item) => (
+                        <ItemMeasurer
+                            className="log-line"
+                            index={item.index}
+                            as={LogLine}
+                            start={item.start}
+                            key={item.key}
+                            port={props.port}
+                            line={props.logLines[item.index][0]}
+                            count={props.logLines[item.index][1]}
+                            measure={logVirtualizer.measureElement}
+                        />
+                    ))}
+                </div>
+            </div>
         </div>
     );
 });

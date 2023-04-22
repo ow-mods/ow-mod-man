@@ -15,19 +15,16 @@ summary::-webkit-details-marker {
     display: none !important;
 }
 
-.container {
-    width: 100vw;
+.container,
+.container-fluid {
     height: 95vh;
     overflow: hidden;
     display: flex;
     flex-direction: column;
 }
 
-.container-fluid {
-    height: 100vh;
-    overflow: hidden;
-    display: flex;
-    flex-direction: column;
+.container {
+    width: 100vw;
 }
 
 .fix-icons {

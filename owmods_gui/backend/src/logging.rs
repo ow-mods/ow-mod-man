@@ -35,7 +35,7 @@ impl Logger {
             .expect("Couldn't Make Log File")
             .join("logs")
             .join(
-                now.format(format_description!("[day]-[month]-[year]"))
+                now.format(format_description!("[year]-[month]-[day]"))
                     .unwrap(),
             )
             .join(format!(

@@ -530,7 +530,7 @@ pub async fn run_game(state: tauri::State<'_, State>, window: tauri::Window) -> 
         .map_err(e_to_str)?
         .join("game_logs")
         .join(
-            now.format(format_description!("[day]-[month]-[year]"))
+            now.format(format_description!("[year]-[month]-[day]"))
                 .unwrap(),
         )
         .join(format!(

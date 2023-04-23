@@ -135,7 +135,7 @@ impl UnsafeLocalMod {
 
     /// Get the name for a mod,
     /// - If this is a [UnsafeLocalMod::Valid] we get the name in the manifest,
-    /// - If it's a [UnsafeLocalMod::Invalid] we just get the mod path
+    /// - If it's a [UnsafeLocalMod::Invalid] we just get the display path
     ///
     pub fn get_name(&self) -> &String {
         match self {
@@ -152,6 +152,14 @@ impl UnsafeLocalMod {
         match self {
             Self::Invalid(_) => false,
             Self::Valid(m) => m.enabled,
+        }
+    }
+
+    /// Gets the path for a mod
+    pub fn get_path(&self) -> &str {
+        match self {
+            Self::Invalid(m) => &m.mod_path,
+            Self::Valid(m) => &m.mod_path,
         }
     }
 }

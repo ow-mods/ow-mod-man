@@ -248,17 +248,23 @@ pub fn install_mod_from_zip(
     local_db: &LocalDatabase,
 ) -> Result<LocalMod> {
     let unique_name = get_unique_name_from_zip(zip_path)?;
-    let target_path = PathBuf::from(&config.owml_path)
-        .join("Mods")
-        .join(&unique_name);
+    let target_path = local_db
+        .get_mod_unsafe(&unique_name)
+        .map(|m| PathBuf::from(m.get_path().to_string()))
+        .unwrap_or_else(|| {
+            PathBuf::from(&config.owml_path)
+                .join("Mods")
+                .join(&unique_name)
+        });
     let local_mod = local_db.get_mod(&unique_name);
 
     let paths_to_preserve = get_paths_to_preserve(local_mod);
 
     let new_mod = extract_mod_zip(zip_path, &target_path, paths_to_preserve)?;
-    if local_mod.is_none() {
+    let config_path = target_path.join("config.json");
+    if local_mod.is_none() || !config_path.is_file() {
         // First install, generate config
-        generate_config(&target_path.join("config.json"))?;
+        generate_config(&config_path)?;
     }
     Ok(new_mod)
 }
@@ -541,6 +547,28 @@ mod tests {
         let new_mod = install_mod_from_zip(&zip_path, &config, &db).unwrap();
         assert!(target_path.is_dir());
         assert!(target_path.join("config.json").is_file());
+        assert!(target_path.join("manifest.json").is_file());
+        assert_eq!(new_mod.manifest.name, "TimeSaver");
+        assert_eq!(new_mod.mod_path, target_path.to_str().unwrap());
+        dir.close().unwrap();
+    }
+
+    #[test]
+    fn test_install_from_zip_diff_path() {
+        let zip_path = get_test_file("Bwc9876.TimeSaver.zip");
+        let dir = make_test_dir();
+        let target_path = dir.path().join("Mods").join("Other.Path");
+        let mut config = Config::default(None).unwrap();
+        config.owml_path = dir.path().to_str().unwrap().to_string();
+        let mut db = LocalDatabase::default();
+        let new_mod = extract_mod_zip(&zip_path, &target_path, vec![]).unwrap();
+        db.mods.insert(
+            "Bwc9876.TimeSaver".to_string(),
+            UnsafeLocalMod::Valid(new_mod),
+        );
+        let new_mod = install_mod_from_zip(&zip_path, &config, &db).unwrap();
+        assert!(!dir.path().join("Mods").join("Bwc9876.TimeSaver").is_dir());
+        assert!(target_path.is_dir());
         assert!(target_path.join("manifest.json").is_file());
         assert_eq!(new_mod.manifest.name, "TimeSaver");
         assert_eq!(new_mod.mod_path, target_path.to_str().unwrap());

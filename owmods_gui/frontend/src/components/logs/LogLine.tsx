@@ -21,6 +21,11 @@ const LogLine = memo((props: LogLineProps) => {
     const senderName = msg?.message.senderName ?? "Unknown";
     const senderType = msg?.message.senderType ?? "Unknown";
 
+    const messageLines = useMemo(
+        () => (msg?.message.message ?? "").split("\n"),
+        [msg?.message.message]
+    );
+
     if (status === "Error") {
         return <p className="log-line center">{err!.toString()}</p>;
     } else {
@@ -33,7 +38,11 @@ const LogLine = memo((props: LogLineProps) => {
                 >
                     <span>{senderName}</span>
                 </span>
-                <span className={`message type-${msgClassName}`}>{msg?.message.message}</span>
+                <span className={`message type-${msgClassName}`}>
+                    {messageLines.map((line, i) => (
+                        <div key={`${i}-${line}`}>{line}</div>
+                    ))}
+                </span>
                 {props.count > 1 && <span className="count">{props.count}</span>}
             </div>
         );

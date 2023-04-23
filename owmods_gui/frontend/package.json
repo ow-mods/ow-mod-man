@@ -16,7 +16,7 @@
         "prettier-check": "prettier --check . --plugin-search-dir=. --ignore-unknown"
     },
     "dependencies": {
-        "@picocss/pico": "^1.5.9",
+        "@picocss/pico": "^1.5.10",
         "@tauri-apps/api": "^1.2.0",
         "react": "^18.2.0",
         "react-dom": "^18.2.0",

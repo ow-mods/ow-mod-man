@@ -23,12 +23,16 @@ fn fix_dlls(config: &Config) -> Result<()> {
     // Replaces the DLLs that break OWML.Launcher.exe on Linux, any questions spam JohnCorby
     const SYSTEM_DLL: &[u8] = include_bytes!("../linux_replacement_dlls/System.dll");
     const SYSTEM_CORE_DLL: &[u8] = include_bytes!("../linux_replacement_dlls/System.Core.dll");
+    const OWML_MOD_LOADER_DLL: &[u8] =
+        include_bytes!("../linux_replacement_dlls/OWML.ModLoader.dll");
 
     let owml_dir = PathBuf::from(&config.owml_path);
     let mut file = File::create(owml_dir.join("System.dll"))?;
     file.write_all(SYSTEM_DLL)?;
     let mut file = File::create(owml_dir.join("System.Core.dll"))?;
     file.write_all(SYSTEM_CORE_DLL)?;
+    let mut file = File::create(owml_dir.join("OWML.ModLoader.dll"))?;
+    file.write_all(OWML_MOD_LOADER_DLL)?;
 
     Ok(())
 }

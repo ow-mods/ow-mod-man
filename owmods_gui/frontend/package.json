@@ -13,7 +13,8 @@
         "lint": "eslint --cache . --fix",
         "lint-dry": "eslint .",
         "prettify": "prettier --write . --plugin-search-dir=. --ignore-unknown",
-        "prettier-check": "prettier --check . --plugin-search-dir=. --ignore-unknown"
+        "prettier-check": "prettier --check . --plugin-search-dir=. --ignore-unknown",
+        "preinstall": "npx only-allow pnpm"
     },
     "dependencies": {
         "@picocss/pico": "^1.5.10",

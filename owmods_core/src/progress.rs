@@ -180,7 +180,6 @@ impl ProgressBar {
 
 impl Drop for ProgressBar {
     fn drop(&mut self) {
-        dbg!(&self.complete);
         if !self.complete {
             self.finish(false, "");
         }

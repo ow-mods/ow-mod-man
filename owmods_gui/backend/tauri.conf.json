@@ -7,7 +7,7 @@
   },
   "package": {
     "productName": "Outer Wilds Mod Manager",
-    "version": "0.3.0"
+    "version": "0.3.1"
   },
   "tauri": {
     "allowlist": {
@@ -39,7 +39,7 @@
       "category": "Game",
       "copyright": "",
       "deb": {
-        "depends": ["libssl1.1"]
+        "depends": []
       },
       "externalBin": [],
       "icon": [

@@ -31,14 +31,12 @@ interface ProgressFinishPayload {
 }
 
 const ActiveDownload = (props: ActiveDownloadProps) => {
+    const done = props.progress >= props.len && props.progressAction === "Extract";
+
     return (
         <div
             className={`downloads-row${
-                props.progressAction === "Extract" || (props.failed && props.progress >= props.len)
-                    ? props.failed
-                        ? " download-failed"
-                        : " download-done"
-                    : ""
+                props.failed ? " download-failed" : done ? " download-done" : ""
             }`}
         >
             <p className="download-header fix-icons">

@@ -1,121 +1,125 @@
+$log-border: 1px solid var(--accent-bg);
+
 .logs {
     display: flex;
     overflow: hidden;
     padding: $margin-md;
-}
 
-$log-border: 1px solid var(--accent-bg);
+    & .log-list {
+        height: 100%;
+        overflow-y: auto;
+        contain: strict;
 
-.log-list {
-    scroll-behavior: auto !important;
-    flex-grow: 1;
-}
+        & div:has(.log-line):first-child > .log-line {
+            border-top: $log-border;
+        }
 
-.log-actions {
-    display: flex;
-    flex-direction: row;
-    align-content: center;
-    justify-content: center;
-    height: fit-content;
-}
+        & .log-line {
+            display: flex;
+            width: 100%;
+            padding: $margin $margin-md;
+            border-bottom: $log-border;
+            align-items: center;
 
-.log-actions > input {
-    margin-bottom: 0 !important;
-    align-self: center;
-}
+            & .message {
+                flex-grow: 1;
+                width: 65%;
+            }
 
-.log-actions > label {
-    display: flex;
-    width: 50%;
-    height: 100%;
-    margin: $margin;
-}
+            & .sender {
+                width: 20%;
+                margin-right: $margin-lg;
+                border-bottom: none !important;
 
-.log-actions > label[for="filter"],
-.log-actions > label[for="search"] {
-    flex-direction: column;
-}
+                & > span {
+                    display: block;
+                    white-space: nowrap;
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+                }
+            }
 
-.log-actions > label[for="scroll"] {
-    flex-direction: row;
-    align-items: center;
-    justify-content: end;
-}
+            & .count {
+                font-size: small;
+                margin-left: $margin-lg;
+                margin-right: $margin;
+                background-color: var(--accent-bg-lighter);
+                padding: 0 $margin-md;
+                border-radius: 10px;
+            }
 
-.log-actions > label[for="scroll"] > input {
-    margin-left: $margin;
-}
+            & .message.type- {
+                &message {
+                    color: var(--log-message);
+                }
 
-.log-actions > div {
-    margin: $margin;
-    display: flex;
-    align-content: center;
-    height: 100%;
-}
+                &info {
+                    color: var(--log-info);
+                }
 
-.log-actions a[role="button"] {
-    align-self: center;
-    white-space: nowrap;
-    margin: 0 $margin;
-}
+                &success {
+                    color: var(--log-success);
+                }
 
-.log-line {
-    height: fit-content;
-    display: grid;
-    grid-template-columns: auto minmax(0, 1fr);
-    width: 100%;
-    padding: $margin $margin-md;
-    border-bottom: $log-border;
-}
+                &warning {
+                    color: var(--log-warning);
+                }
 
-.log-line .sender,
-.log-line .message {
-    display: flex;
-    align-items: center;
-    overflow: hidden;
-    overflow-wrap: anywhere;
-    min-width: 0;
-}
+                &fatal,
+                &error {
+                    color: var(--log-error);
+                }
 
-.log-line {
-    flex-grow: 1;
-}
+                &fatal {
+                    font-weight: bolder;
+                }
 
-.log-line .message {
-    white-space: normal;
-}
+                &debug {
+                    color: var(--log-debug);
+                }
+            }
+        }
+    }
 
-.log-line .sender {
-    flex-shrink: 1;
-    margin-right: $margin-lg;
-    white-space: nowrap;
-}
+    & .log-actions {
+        display: flex;
+        flex-direction: row;
+        align-content: center;
+        justify-content: center;
+        height: fit-content;
 
-.log-line .message.type-message {
-    color: var(--log-message);
-}
+        & a[role="button"] {
+            align-self: center;
+            white-space: nowrap;
+            padding: $margin-md;
+            margin: $margin $margin-xl;
+        }
 
-.log-line .message.type-info {
-    color: var(--log-info);
-}
+        & > div {
+            margin: $margin;
+            flex-grow: 1;
+            display: flex;
+            align-content: center;
+            height: 100%;
+        }
 
-.log-line .message.type-success {
-    color: var(--log-success);
-}
+        & span {
+            display: flex;
+            align-self: center;
+            white-space: nowrap;
+            margin: $margin-sm;
+        }
 
-.log-line .message.type-warning {
-    color: var(--log-warning);
-}
+        & > label {
+            flex-shrink: 1;
+            width: 50%;
+            height: 100%;
+            margin: $margin;
+        }
 
-.log-line .message.type-fatal {
-    font-weight: bolder;
-    color: var(--log-error);
-}
-
-.log-line .message.type-error {
-    color: var(--log-error);
-}
-
-.log-line .message.type-debug {
-    color: var(--log-debug);
+        & > label[for="filter"],
+        & > label[for="search"] {
+            flex-direction: column;
+        }
+    }
 }

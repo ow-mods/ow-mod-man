@@ -5,7 +5,7 @@ import ModActionButton from "@components/mods/ModActionButton";
 import ModHeader from "@components/mods/ModHeader";
 import { useTranslation, useTranslations } from "@hooks";
 import { dialog } from "@tauri-apps/api";
-import { CSSProperties, memo, useCallback, useState } from "react";
+import { memo, useCallback, useState } from "react";
 import { BsArrowDown, BsGlobe, BsHammer } from "react-icons/bs";
 
 // Stolen from mods website, Rai will never catch me!
@@ -36,7 +36,6 @@ export const formatNumber = (value: number, digits = 1) => {
 
 export interface RemoteModRowProps {
     uniqueName: string;
-    style?: CSSProperties;
 }
 
 const RemoteModRow = memo((props: RemoteModRowProps) => {
@@ -46,14 +45,16 @@ const RemoteModRow = memo((props: RemoteModRowProps) => {
 
     const [downloading, setDownloading] = useState(false);
 
-    const [noDescription, installTooltip, websiteTooltip, usePrerelease, prereleaseWarning] =
-        useTranslations([
-            "NO_DESCRIPTION",
-            "INSTALL",
-            "OPEN_WEBSITE",
-            "USE_PRERELEASE",
-            "PRERELEASE_WARNING"
-        ]);
+    const [noDescription, installTooltip, websiteTooltip, prereleaseWarning] = useTranslations([
+        "NO_DESCRIPTION",
+        "INSTALL",
+        "OPEN_WEBSITE",
+        "PRERELEASE_WARNING"
+    ]);
+
+    const usePrerelease = useTranslation("USE_PRERELEASE", {
+        version: mod?.prerelease?.version ?? ""
+    });
 
     const subtitle = useTranslation("BY", {
         author: mod?.authorDisplay ?? mod?.author ?? "",
@@ -93,19 +94,15 @@ const RemoteModRow = memo((props: RemoteModRowProps) => {
     }, [props.uniqueName]);
 
     if (status === "Loading" && mod === null) {
-        return <CenteredSpinner style={props.style} className="mod-row" />;
+        return <CenteredSpinner className="loading" />;
     } else if (status === "Error") {
-        return (
-            <p className="mod-row center" style={props.style}>
-                {err!.toString()}
-            </p>
-        );
+        return <p className="center">{err!.toString()}</p>;
     } else {
         const remoteMod = mod!;
         let desc = remoteMod.description ?? noDescription;
         if (desc.trim() === "") desc = noDescription;
         return (
-            <div style={props.style} className="mod-row">
+            <div>
                 <ModHeader {...remoteMod} subtitle={subtitle}>
                     <small>{formatNumber(remoteMod.downloadCount)}</small>
                     {downloading ? (
@@ -132,4 +129,10 @@ const RemoteModRow = memo((props: RemoteModRowProps) => {
     }
 });
 
-export default RemoteModRow;
+const Wrapper = memo((props: RemoteModRowProps) => (
+    <div className="mod-row remote">
+        <RemoteModRow {...props} />
+    </div>
+));
+
+export default Wrapper;

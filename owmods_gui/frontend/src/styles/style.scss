@@ -10,17 +10,25 @@ body {
     user-select: none;
 }
 
+*::selection {
+    background-color: var(--primary-muted);
+}
+
 summary::marker,
 summary::-webkit-details-marker {
     display: none !important;
 }
 
-.container {
-    width: 100vw;
-    height: 100vh;
+.container,
+.container-fluid {
+    height: 95vh;
     overflow: hidden;
     display: flex;
     flex-direction: column;
+}
+
+.container {
+    width: 100vw;
 }
 
 .fix-icons {

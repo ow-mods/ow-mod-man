@@ -25,8 +25,7 @@ const getFilterToPass = (activeFilter: LogFilter) => {
 const App = ({ port }: { port: number }) => {
     const [activeFilter, setActiveFilter] = useState<LogFilter>("Any");
     const [activeSearch, setActiveSearch] = useState<string>("");
-    const [autoScroll, setAutoScroll] = useState(true);
-    const [logLines, setLogLines] = useState<number[]>([]);
+    const [logLines, setLogLines] = useState<[number, number][]>([]);
 
     const fatalErrorLabel = useTranslation("FATAL_ERROR");
 
@@ -85,11 +84,9 @@ const App = ({ port }: { port: number }) => {
     } else {
         return (
             <TranslationContext.Provider value={guiConfig!.language}>
-                <main className="logs container">
+                <main className="logs container-fluid">
                     <LogHeader
                         logsLen={logLines?.length ?? 0}
-                        autoScroll={autoScroll}
-                        setAutoScroll={setAutoScroll}
                         activeFilter={activeFilter}
                         setActiveFilter={setActiveFilter}
                         activeSearch={activeSearch}
@@ -98,7 +95,6 @@ const App = ({ port }: { port: number }) => {
                     />
                     <LogList
                         port={port}
-                        autoScroll={autoScroll}
                         activeFilter={activeFilter}
                         search={activeSearch}
                         logLines={logLines ?? []}

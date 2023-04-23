@@ -472,16 +472,13 @@ pub async fn update_mod(unique_name: &str, state: tauri::State<'_, State>) -> Re
 pub async fn update_all_mods(
     unique_names: Vec<String>,
     state: tauri::State<'_, State>,
-    handle: tauri::AppHandle,
 ) -> Result<(), String> {
-    toggle_fs_watch(&handle, false);
     let config = state.config.read().await;
     let local_db = state.local_db.read().await;
     let remote_db = state.remote_db.read().await;
     install_mods_parallel(unique_names, &config, &remote_db, &local_db)
         .await
         .map_err(e_to_str)?;
-    toggle_fs_watch(&handle, true);
     Ok(())
 }
 

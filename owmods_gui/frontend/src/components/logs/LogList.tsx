@@ -18,7 +18,7 @@ const LogList = memo((props: LogListProps) => {
             computeItemKey={(index) => `${index}-${props.logLines[index][0]}`}
             data={props.logLines}
             itemContent={(_, data) => <LogLine port={props.port} line={data[0]} count={data[1]} />}
-            followOutput
+            followOutput="smooth"
             alignToBottom
         />
     );

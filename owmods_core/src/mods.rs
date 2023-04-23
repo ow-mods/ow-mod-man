@@ -179,7 +179,7 @@ impl LocalMod {
     }
 }
 
-/// Get the paths to preserve for a mod, if `None` is passed the list will be empty.
+/// Get the paths to preserve for a mod, if [None] is passed the list will be empty.
 pub fn get_paths_to_preserve(local_mod: Option<&LocalMod>) -> Vec<PathBuf> {
     if let Some(local_mod) = local_mod {
         let mut paths: Vec<PathBuf> =

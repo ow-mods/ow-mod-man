@@ -16,26 +16,15 @@ use crate::{
     analytics::{send_analytics_event, AnalyticsEventName},
     config::Config,
     db::{LocalDatabase, RemoteDatabase},
-    file::{create_all_parents, fix_json, get_app_path},
+    file::{check_file_matches_paths, create_all_parents, fix_json, get_app_path},
     mods::{get_paths_to_preserve, LocalMod, ModManifest, RemoteMod},
     progress::{ProgressAction, ProgressBar, ProgressType},
+    remove::remove_old_mod_files,
     toggle::generate_config,
 };
 
 fn get_end_of_url(url: &str) -> &str {
     url.split('/').last().unwrap_or(url)
-}
-
-fn check_file_matches_paths(path: &Path, to_check: &[PathBuf]) -> bool {
-    for check in to_check.iter() {
-        if check.file_name().unwrap_or(check.as_os_str())
-            == path.file_name().unwrap_or(path.as_os_str())
-            || path.starts_with(check)
-        {
-            return true;
-        }
-    }
-    false
 }
 
 async fn download_zip(url: &str, target_path: &Path) -> Result<()> {
@@ -258,6 +247,10 @@ pub fn install_mod_from_zip(
         });
     let local_mod = local_db.get_mod(&unique_name);
 
+    if let Some(local_mod) = local_mod {
+        remove_old_mod_files(local_mod)?;
+    }
+
     let paths_to_preserve = get_paths_to_preserve(local_mod);
 
     let new_mod = extract_mod_zip(zip_path, &target_path, paths_to_preserve)?;
@@ -452,15 +445,6 @@ mod tests {
     use std::fs::read_to_string;
     const TEST_URL: &str =
         "https://github.com/Bwc9876/OW-TimeSaver/releases/download/1.1.1/Bwc9876.TimeSaver.zip";
-
-    #[test]
-    fn test_file_matches_path() {
-        let test_path = Path::new("folder/some_file.json");
-        let test_parent = PathBuf::from("folder");
-        let unrelated_parent = PathBuf::from("other_folder");
-        assert!(check_file_matches_paths(test_path, &[test_parent]));
-        assert!(!check_file_matches_paths(test_path, &[unrelated_parent]),);
-    }
 
     #[test]
     fn test_download_zip() {

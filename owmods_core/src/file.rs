@@ -85,6 +85,19 @@ pub fn fix_json_file(path: &Path) -> Result<()> {
     Ok(())
 }
 
+/// Check if a path matches any path in a series of other paths
+pub fn check_file_matches_paths(path: &Path, to_check: &[PathBuf]) -> bool {
+    for check in to_check.iter() {
+        if check.file_name().unwrap_or(check.as_os_str())
+            == path.file_name().unwrap_or(path.as_os_str())
+            || path.starts_with(check)
+        {
+            return true;
+        }
+    }
+    false
+}
+
 /// Recursively creates the parent directories for a file if they don't exist
 pub fn create_all_parents(file_path: &Path) -> Result<()> {
     if let Some(parent_path) = file_path.parent() {
@@ -114,5 +127,14 @@ mod tests {
         let json = fix_json(json);
         let obj: TestStruct = serde_json::from_str(&json).unwrap();
         assert!(obj.prop)
+    }
+
+    #[test]
+    fn test_file_matches_path() {
+        let test_path = Path::new("folder/some_file.json");
+        let test_parent = PathBuf::from("folder");
+        let unrelated_parent = PathBuf::from("other_folder");
+        assert!(check_file_matches_paths(test_path, &[test_parent]));
+        assert!(!check_file_matches_paths(test_path, &[unrelated_parent]),);
     }
 }

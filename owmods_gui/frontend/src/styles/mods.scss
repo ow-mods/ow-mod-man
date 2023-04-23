@@ -7,18 +7,6 @@
     scroll-behavior: auto;
 }
 
-.mod-list.remote > div {
-    width: 100%;
-    position: relative;
-}
-
-.mod-list.remote > div > div {
-    width: 100%;
-    top: 0;
-    left: 0;
-    position: absolute;
-}
-
 .remote-mod-search {
     margin: $margin-md 0;
 }
@@ -32,8 +20,13 @@ $row-border: 1px solid var(--accent-bg);
     min-width: 0;
 }
 
-.mod-row:last-child {
+.mod-row.local:last-child,
+div:has(.mod-row.remote):last-child > .mod-row {
     border-bottom: none;
+}
+
+.mod-row.remote .loading {
+    height: 45px;
 }
 
 .mod-row.local {
@@ -127,11 +120,6 @@ $row-border: 1px solid var(--accent-bg);
     color: var(--body-color);
 }
 
-.mod-row.remote {
-    position: absolute;
-    padding-right: $margin-md;
-}
-
 .local-toolbar {
     margin: $margin-md 0;
     display: flex;
@@ -145,7 +133,8 @@ $row-border: 1px solid var(--accent-bg);
 
 .local-toolbar .search {
     width: 70%;
-    margin: 0;
+    flex-grow: 1;
+    margin: 0 $margin;
 }
 
 .local-toolbar .gap {
@@ -154,7 +143,7 @@ $row-border: 1px solid var(--accent-bg);
 
 .local-mods-buttons {
     display: flex;
-    flex-shrink: 1;
+    flex-grow: 1;
     flex-direction: row;
     column-gap: $margin;
 }

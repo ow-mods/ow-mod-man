@@ -94,7 +94,7 @@ const RemoteModRow = memo((props: RemoteModRowProps) => {
     }, [props.uniqueName]);
 
     if (status === "Loading" && mod === null) {
-        return <CenteredSpinner />;
+        return <CenteredSpinner className="loading" />;
     } else if (status === "Error") {
         return <p className="center">{err!.toString()}</p>;
     } else {
@@ -129,4 +129,10 @@ const RemoteModRow = memo((props: RemoteModRowProps) => {
     }
 });
 
-export default RemoteModRow;
+const Wrapper = memo((props: RemoteModRowProps) => (
+    <div className="mod-row remote">
+        <RemoteModRow {...props} />
+    </div>
+));
+
+export default Wrapper;

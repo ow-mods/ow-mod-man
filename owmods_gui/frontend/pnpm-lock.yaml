@@ -4,9 +4,6 @@ dependencies:
     "@picocss/pico":
         specifier: ^1.5.9
         version: 1.5.9
-    "@tanstack/react-virtual":
-        specifier: 3.0.0-beta.54
-        version: 3.0.0-beta.54(react@18.2.0)
     "@tauri-apps/api":
         specifier: ^1.2.0
         version: 1.2.0
@@ -19,6 +16,9 @@ dependencies:
     react-icons:
         specifier: ^4.8.0
         version: 4.8.0(react@18.2.0)
+    react-virtuoso:
+        specifier: ^4.3.1
+        version: 4.3.1(react-dom@18.2.0)(react@18.2.0)
     tauri-plugin-fs-watch-api:
         specifier: github:tauri-apps/tauri-plugin-fs-watch
         version: github.com/tauri-apps/tauri-plugin-fs-watch/1cb626836cd979fae83a6152758a7be077baf7ce
@@ -816,25 +816,6 @@ packages:
             estree-walker: 2.0.2
             picomatch: 2.3.1
         dev: true
-
-    /@tanstack/react-virtual@3.0.0-beta.54(react@18.2.0):
-        resolution:
-            {
-                integrity: sha512-D1mDMf4UPbrtHRZZriCly5bXTBMhylslm4dhcHqTtDJ6brQcgGmk8YD9JdWBGWfGSWPKoh2x1H3e7eh+hgPXtQ==
-            }
-        peerDependencies:
-            react: ^16.8.0 || ^17.0.0 || ^18.0.0
-        dependencies:
-            "@tanstack/virtual-core": 3.0.0-beta.54
-            react: 18.2.0
-        dev: false
-
-    /@tanstack/virtual-core@3.0.0-beta.54:
-        resolution:
-            {
-                integrity: sha512-jtkwqdP2rY2iCCDVAFuaNBH3fiEi29aTn2RhtIoky8DTTiCdc48plpHHreLwmv1PICJ4AJUUESaq3xa8fZH8+g==
-            }
-        dev: false
 
     /@tauri-apps/api@1.2.0:
         resolution:
@@ -3188,6 +3169,20 @@ packages:
             }
         engines: { node: ">=0.10.0" }
         dev: true
+
+    /react-virtuoso@4.3.1(react-dom@18.2.0)(react@18.2.0):
+        resolution:
+            {
+                integrity: sha512-2+V0bvA1fASO+etlBG6YB0uj+StizxP3ecDJXgGW/r2z9AH067ehpJy2TSRiEIGQtDTmJAcmZnZzYVnk7AUmbw==
+            }
+        engines: { node: ">=10" }
+        peerDependencies:
+            react: ">=16 || >=17 || >= 18"
+            react-dom: ">=16 || >=17 || >= 18"
+        dependencies:
+            react: 18.2.0
+            react-dom: 18.2.0(react@18.2.0)
+        dev: false
 
     /react@18.2.0:
         resolution:

@@ -10,6 +10,10 @@ body {
     user-select: none;
 }
 
+*::selection {
+    background-color: var(--primary-muted);
+}
+
 summary::marker,
 summary::-webkit-details-marker {
     display: none !important;

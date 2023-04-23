@@ -10,6 +10,7 @@ import { LocalMod } from "@types";
 
 export interface UpdateModRowProps {
     uniqueName: string;
+    parentUpdating?: boolean;
     onUpdate?: (updating: boolean) => void;
 }
 
@@ -32,6 +33,7 @@ const UpdateModRow = memo(
         const status = [remoteStatus, localStatus];
 
         const onUpdate = useCallback(() => {
+            if (props.parentUpdating) return;
             props.onUpdate?.(true);
             setUpdating(true);
             commands
@@ -44,7 +46,7 @@ const UpdateModRow = memo(
                 .catch(console.error);
         }, [props.uniqueName]);
 
-        if (status.includes("Loading") && remoteMod === null && localMod === null) {
+        if (status.includes("Loading") && (remoteMod === null || localMod === null)) {
             return <CenteredSpinner className="mod-row" />;
         } else if (status.includes("Error")) {
             return (
@@ -56,7 +58,7 @@ const UpdateModRow = memo(
             return (
                 <div className="mod-row">
                     <ModHeader {...remoteMod!} subtitle={subtitleString}>
-                        {updating ? (
+                        {updating || props.parentUpdating ? (
                             <CenteredSpinner />
                         ) : (
                             <ModActionButton onClick={onUpdate} ariaLabel={updateLabel}>
@@ -68,7 +70,8 @@ const UpdateModRow = memo(
             );
         }
     },
-    (prev, next) => prev.uniqueName === next.uniqueName
+    (prev, next) =>
+        prev.uniqueName === next.uniqueName && prev.parentUpdating === next.parentUpdating
 );
 
 export default UpdateModRow;

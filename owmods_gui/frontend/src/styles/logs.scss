@@ -6,21 +6,12 @@ $log-border: 1px solid var(--accent-bg);
     padding: $margin-md;
 
     & .log-list {
-        scroll-behavior: auto !important;
         height: 100%;
         overflow-y: auto;
         contain: strict;
 
-        & > div {
-            width: 100%;
-            position: relative;
-        }
-
-        & > div > div {
-            width: 100%;
-            top: 0;
-            left: 0;
-            position: absolute;
+        & div:has(.log-line):first-child > .log-line {
+            border-top: $log-border;
         }
 
         & .log-line {
@@ -100,23 +91,27 @@ $log-border: 1px solid var(--accent-bg);
         & a[role="button"] {
             align-self: center;
             white-space: nowrap;
-            margin: 0 $margin;
+            padding: $margin-md;
+            margin: $margin $margin-xl;
         }
 
         & > div {
             margin: $margin;
+            flex-grow: 1;
             display: flex;
             align-content: center;
             height: 100%;
         }
 
-        & > input {
-            margin-bottom: 0 !important;
+        & span {
+            display: flex;
             align-self: center;
+            white-space: nowrap;
+            margin: $margin-sm;
         }
 
         & > label {
-            display: flex;
+            flex-shrink: 1;
             width: 50%;
             height: 100%;
             margin: $margin;
@@ -125,16 +120,6 @@ $log-border: 1px solid var(--accent-bg);
         & > label[for="filter"],
         & > label[for="search"] {
             flex-direction: column;
-        }
-
-        & > label[for="scroll"] {
-            flex-direction: row;
-            align-items: center;
-            justify-content: end;
-
-            & > input {
-                margin-left: $margin;
-            }
         }
     }
 }

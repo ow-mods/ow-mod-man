@@ -22,10 +22,10 @@ const LogLine = memo((props: LogLineProps) => {
     const senderType = msg?.message.senderType ?? "Unknown";
 
     if (status === "Error") {
-        return <p className="center">{err!.toString()}</p>;
+        return <p className="log-line center">{err!.toString()}</p>;
     } else {
         return (
-            <>
+            <div className="log-line">
                 <span
                     className="sender"
                     data-tooltip={`${senderName}::${senderType}`}
@@ -35,7 +35,7 @@ const LogLine = memo((props: LogLineProps) => {
                 </span>
                 <span className={`message type-${msgClassName}`}>{msg?.message.message}</span>
                 {props.count > 1 && <span className="count">{props.count}</span>}
-            </>
+            </div>
         );
     }
 });

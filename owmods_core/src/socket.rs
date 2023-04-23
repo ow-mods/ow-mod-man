@@ -65,7 +65,7 @@ impl SocketMessage {
             message,
             message_type,
             sender_name: Some("Manager".to_string()),
-            sender_type: Some("Log Server".to_string()),
+            sender_type: Some("LogServer".to_string()),
         }
     }
 }

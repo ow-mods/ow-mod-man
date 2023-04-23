@@ -1,4 +1,4 @@
-import { useTranslations } from "@hooks";
+import { useTranslation, useTranslations } from "@hooks";
 import { SocketMessageType } from "@types";
 import { memo, useCallback, useRef, useState } from "react";
 import { LogFilter } from "./LogApp";
@@ -7,8 +7,6 @@ export interface LogHeaderProps {
     logsLen: number;
     activeFilter: LogFilter;
     setActiveFilter: (filter: LogFilter) => void;
-    autoScroll: boolean;
-    setAutoScroll: (newValue: boolean) => void;
     activeSearch: string;
     setActiveSearch: (newSearch: string) => void;
     onClear: () => void;
@@ -18,13 +16,14 @@ const LogHeader = memo(
     (props: LogHeaderProps) => {
         const [tempSearch, setTempSearch] = useState<string>("");
         const searchTimeout = useRef<number | undefined>(undefined);
-        const [filterLabel, searchLogs, autoScrollLabel, anyLabel, clearLabel] = useTranslations([
+        const [filterLabel, searchLogs, anyLabel, clearLabel] = useTranslations([
             "FILTER",
             "SEARCH_LOGS",
-            "AUTO_SCROLL",
             "ANY",
             "CLEAR_LOGS"
         ]);
+
+        const logCountLabel = useTranslation("LOG_COUNT", { count: props.logsLen.toString() });
 
         const onSearchChange = useCallback(
             (val: string) => {
@@ -76,17 +75,8 @@ const LogHeader = memo(
                             </>
                         </select>
                     </label>
-                    <label htmlFor="scroll">
-                        {autoScrollLabel}
-                        <input
-                            id="scroll"
-                            type="checkbox"
-                            role="switch"
-                            checked={props.autoScroll}
-                            onChange={(e) => props.setAutoScroll(e.target.checked)}
-                        />
-                    </label>
                     <div>
+                        <span>{logCountLabel}</span>
                         <a
                             href={props.logsLen === 0 ? undefined : "#"}
                             role="button"
@@ -100,9 +90,7 @@ const LogHeader = memo(
         );
     },
     (current, next) =>
-        current.activeFilter === next.activeFilter &&
-        current.autoScroll === next.autoScroll &&
-        current.logsLen === next.logsLen
+        current.activeFilter === next.activeFilter && current.logsLen === next.logsLen
 );
 
 export default LogHeader;

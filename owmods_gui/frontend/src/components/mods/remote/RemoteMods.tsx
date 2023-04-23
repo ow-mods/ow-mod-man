@@ -1,15 +1,12 @@
-import { commands, hooks } from "@commands";
+import { commands } from "@commands";
 import CenteredSpinner from "@components/common/CenteredSpinner";
 import { useTranslation } from "@hooks";
 import { memo, useEffect, useRef, useState } from "react";
-import AutoSizer from "react-virtualized-auto-sizer";
-import { FixedSizeList } from "react-window";
-import RemoteModRow from "./RemoteModRow";
+import RemoteModsList from "./RemoteModsList";
 
 const RemoteMods = memo(() => {
     const [filter, setFilter] = useState("");
     const [tempFilter, setTempFilter] = useState("");
-    const [status, mods, err] = hooks.getRemoteMods("REMOTE-REFRESH", { filter });
 
     useEffect(() => {
         commands.refreshRemoteDb();
@@ -27,40 +24,6 @@ const RemoteMods = memo(() => {
         activeTimeout.current = setTimeout(() => setFilter(newFilter), 450);
     };
 
-    let res = <></>;
-
-    if ((status === "Loading" && mods === null) || tempFilter !== filter) {
-        res = <CenteredSpinner className="mod-row" />;
-    } else if (status === "Error") {
-        res = <p className="mod-list center">{err!.toString()}</p>;
-    } else {
-        const remoteMods = mods!;
-        res = (
-            <div className="mod-list remote">
-                <div>
-                    <AutoSizer
-                        nonce="MTo3NTM0NDo2ODU4MDc3MDU6MTY4MDU2OTIwMA=="
-                        defaultHeight={1000}
-                        defaultWidth={1000}
-                    >
-                        {({ width, height }) => (
-                            <FixedSizeList
-                                itemCount={remoteMods.length}
-                                itemSize={120}
-                                itemKey={(index) => remoteMods[index]}
-                                width={width ?? 1000}
-                                height={height ?? 1000}
-                            >
-                                {({ index, style }) => (
-                                    <RemoteModRow style={style} uniqueName={remoteMods[index]} />
-                                )}
-                            </FixedSizeList>
-                        )}
-                    </AutoSizer>
-                </div>
-            </div>
-        );
-    }
     return (
         <>
             <input
@@ -70,7 +33,7 @@ const RemoteMods = memo(() => {
                 value={tempFilter}
                 onChange={(e) => onChangeFilter(e.target.value)}
             />
-            {res}
+            {tempFilter !== filter ? <CenteredSpinner /> : <RemoteModsList filter={filter} />}
         </>
     );
 });

@@ -1,4 +1,4 @@
-import { ReactNode } from "react";
+import { ReactNode, memo } from "react";
 
 export interface SectionProps {
     shown: boolean;
@@ -6,12 +6,12 @@ export interface SectionProps {
     className?: string;
 }
 
-const Section = (props: SectionProps) => {
+const Section = memo((props: SectionProps) => {
     return (
         <div className={`section${props.shown ? " shown" : ""} ${props.className ?? ""}`}>
             {props.children}
         </div>
     );
-};
+});
 
 export default Section;

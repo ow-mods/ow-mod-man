@@ -9,7 +9,11 @@ const UpdateMods = memo(() => {
     const [updating, setUpdating] = useState(false);
     const modsUpdating = useTauriCount("INSTALL-START", "INSTALL-FINISH");
 
-    const [updateAll, noUpdates] = useTranslations(["UPDATE_ALL", "NO_UPDATES"]);
+    const [updateAll, noUpdates, updatingAll] = useTranslations([
+        "UPDATE_ALL",
+        "NO_UPDATES",
+        "UPDATING_ALL"
+    ]);
 
     const onUpdateAll = useCallback(() => {
         setUpdating(true);
@@ -23,9 +27,9 @@ const UpdateMods = memo(() => {
     }, [updates]);
 
     if (status === "Loading" && updates === null) {
-        return <CenteredSpinner className="mod-list" />;
+        return <CenteredSpinner className="center mod-list" />;
     } else if (status === "Error") {
-        return <div className="center mod-list">{err!.toString()}</div>;
+        return <div className="center">{err!.toString()}</div>;
     } else {
         return (
             <div className="mod-list">
@@ -36,16 +40,14 @@ const UpdateMods = memo(() => {
                         aria-busy={updating}
                         disabled={modsUpdating > 0}
                     >
-                        {updateAll}
+                        {updating ? updatingAll : updateAll}
                     </button>
                 ) : (
                     <p className="center muted">{noUpdates}</p>
                 )}
-                {updating ? (
-                    <CenteredSpinner />
-                ) : (
-                    updates!.map((m) => <UpdateModRow key={m} uniqueName={m} />)
-                )}
+                {updates!.map((m) => (
+                    <UpdateModRow parentUpdating={updating} key={m} uniqueName={m} />
+                ))}
             </div>
         );
     }

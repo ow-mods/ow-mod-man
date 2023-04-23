@@ -22,12 +22,7 @@ const LogList = memo((props: LogListProps) => {
             computeItemKey={(index) => `${index}-${props.logLines[index][0]}`}
             data={props.logLines}
             itemContent={(_, data) => (
-                <LogLine
-                    scrollToBottom={virtuoso.current?.autoscrollToBottom}
-                    port={props.port}
-                    line={data[0]}
-                    count={data[1]}
-                />
+                <LogLine virtuosoRef={virtuoso} port={props.port} line={data[0]} count={data[1]} />
             )}
             atBottomThreshold={100}
             followOutput

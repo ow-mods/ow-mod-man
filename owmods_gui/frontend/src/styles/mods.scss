@@ -135,6 +135,7 @@ div:has(.mod-row.remote):last-child > .mod-row {
     width: 70%;
     flex-grow: 1;
     margin: 0 $margin;
+    margin-left: 0;
 }
 
 .local-toolbar .gap {

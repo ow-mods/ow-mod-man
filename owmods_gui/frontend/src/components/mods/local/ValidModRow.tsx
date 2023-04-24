@@ -1,4 +1,4 @@
-import { commands } from "@commands";
+import { commands, hooks } from "@commands";
 import { OpenModValidationModalPayload } from "@components/modals/ModValidationModal";
 import { useTranslation } from "@hooks";
 import { confirm } from "@tauri-apps/api/dialog";
@@ -13,6 +13,10 @@ interface LocalModRowProps {
 
 const ValidModRow = memo((props: LocalModRowProps) => {
     const confirmText = useTranslation("CONFIRM");
+
+    const remoteMod = hooks.getRemoteMod("REMOTE-REFRESH", {
+        uniqueName: props.mod.manifest.uniqueName
+    })[1];
 
     const uninstallConfirmText = useTranslation("UNINSTALL_CONFIRM", {
         name: props.mod.manifest.name
@@ -62,9 +66,12 @@ const ValidModRow = memo((props: LocalModRowProps) => {
 
     return (
         <LocalModRow
+            uniqueName={props.mod.manifest.uniqueName}
             name={props.mod.manifest.name}
             showValidation={props.mod.enabled}
             enabled={props.mod.enabled}
+            description={remoteMod?.description}
+            readme
             errors={props.mod.errors}
             subtitle={subtitle}
             onOpen={onOpen}

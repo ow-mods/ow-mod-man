@@ -191,7 +191,7 @@ pub fn get_paths_to_preserve(local_mod: Option<&LocalMod>) -> Vec<PathBuf> {
         }
         return paths;
     }
-    vec![]
+    vec![PathBuf::from("config.json")] // We can't trust the mod's config.json that comes with it (look at cheat and debug menu)
 }
 
 /// Represents a manifest file for a local mod.

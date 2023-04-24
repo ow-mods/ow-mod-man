@@ -38,7 +38,7 @@ const UpdateMods = memo(() => {
                         onClick={onUpdateAll}
                         className="update-all-button"
                         aria-busy={updating}
-                        disabled={modsUpdating > 0}
+                        disabled={updating || modsUpdating > 0}
                     >
                         {updating ? updatingAll : updateAll}
                     </button>

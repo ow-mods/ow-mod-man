@@ -35,6 +35,8 @@ jobs:
 
       - name: Build CLI
         run: cargo build -p owmods_cli --release
+        env:
+          ANALYTICS_API_KEY: ${{ secrets.ANALYTICS_API_KEY }}
 
       - name: Generate Dist Folder
         if: matrix.platform == 'ubuntu-20.04'
@@ -47,6 +49,8 @@ jobs:
       - name: Generate Deb File
         if: matrix.platform == 'ubuntu-20.04'
         run: cargo deb -p owmods_cli
+        env:
+          ANALYTICS_API_KEY: ${{ secrets.ANALYTICS_API_KEY }}
 
       - name: Upload CLI
         uses: softprops/action-gh-release@v1

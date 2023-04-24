@@ -137,7 +137,8 @@ fn main() -> Result<(), Box<dyn Error>> {
             db_has_issues,
             get_alert,
             get_watcher_paths,
-            pop_protocol_url
+            pop_protocol_url,
+            check_owml
         ])
         .plugin(tauri_plugin_window_state::Builder::default().build())
         .plugin(tauri_plugin_fs_watch::init())

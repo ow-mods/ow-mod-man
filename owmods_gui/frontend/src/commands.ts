@@ -72,7 +72,8 @@ const commandInfo = {
     checkDBForIssues: $<GetCommand<boolean>>("db_has_issues"),
     getAlert: $<GetCommand<Alert>>("get_alert"),
     getWatcherPaths: $<GetCommand<string[]>>("get_watcher_paths"),
-    popProtocolURL: $<EmptyCommand>("pop_protocol_url")
+    popProtocolURL: $<EmptyCommand>("pop_protocol_url"),
+    checkOWML: $<GetCommand<boolean>>("check_owml")
 };
 
 type Command = keyof typeof commandInfo;

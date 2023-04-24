@@ -1,4 +1,5 @@
 use crate::config::Config;
+use crate::constants::OWML_EXE_NAME;
 use anyhow::Result;
 use std::path::PathBuf;
 use tokio::process::Command;
@@ -7,7 +8,7 @@ use tokio::process::Command;
 #[cfg(windows)]
 pub async fn launch_game(config: &Config, port: &u16) -> Result<()> {
     let owml_path = PathBuf::from(&config.owml_path);
-    let mut child = Command::new(owml_path.join("OWML.Launcher.exe").to_str().unwrap())
+    let mut child = Command::new(owml_path.join(OWML_EXE_NAME).to_str().unwrap())
         .arg("-consolePort")
         .arg(port.to_string())
         .current_dir(PathBuf::from(&owml_path))
@@ -55,7 +56,7 @@ pub async fn launch_game(config: &Config, port: &u16) -> Result<()> {
     let child = Command::new("mono")
         .stdout(Stdio::piped())
         .stderr(Stdio::piped())
-        .arg("OWML.Launcher.exe")
+        .arg(OWML_EXE_NAME)
         .arg("-consolePort")
         .arg(port.to_string())
         .current_dir(PathBuf::from(&config.owml_path))

@@ -16,7 +16,7 @@ use crate::{
     analytics::{send_analytics_event, AnalyticsEventName},
     config::Config,
     db::{LocalDatabase, RemoteDatabase},
-    file::{check_file_matches_paths, create_all_parents, fix_json, get_app_path},
+    file::{check_file_matches_paths, create_all_parents, fix_json},
     mods::{get_paths_to_preserve, LocalMod, ModManifest, RemoteMod},
     progress::{ProgressAction, ProgressBar, ProgressType},
     remove::remove_old_mod_files,
@@ -197,13 +197,7 @@ fn extract_mod_zip(
 ///
 pub async fn download_and_install_owml(config: &Config, owml: &RemoteMod) -> Result<()> {
     let url = &owml.download_url;
-    let target_path = if config.owml_path.is_empty() {
-        let app_path = get_app_path()?;
-        Ok::<PathBuf, anyhow::Error>(app_path.join("OWML"))
-    } else {
-        Ok(PathBuf::from(&config.owml_path))
-    }?;
-
+    let target_path = PathBuf::from(&config.owml_path);
     let temp_dir = TempDir::new()?;
     let download_path = temp_dir.path().join("OWML.zip");
     download_zip(url, &download_path).await?;

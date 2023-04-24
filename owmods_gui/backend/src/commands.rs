@@ -717,3 +717,9 @@ pub async fn pop_protocol_url(
     *protocol_url = None;
     Ok(())
 }
+
+#[tauri::command]
+pub async fn check_owml(state: tauri::State<'_, State>) -> Result<bool, String> {
+    let config = state.config.read().await;
+    Ok(config.check_owml())
+}

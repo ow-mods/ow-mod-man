@@ -6,8 +6,10 @@ use std::{
 
 use anyhow::anyhow;
 use anyhow::Result;
-use directories::ProjectDirs;
+use directories::{BaseDirs, ProjectDirs};
 use serde::{Deserialize, Serialize};
+
+use crate::constants::OLD_MANAGER_FOLDER_NAME;
 
 /// Utility function to deserialize an object from a JSON file
 ///
@@ -67,6 +69,23 @@ pub fn get_app_path() -> Result<PathBuf> {
         Some(app_data_path) => Ok(app_data_path.data_dir().to_path_buf()),
         None => Err(anyhow!("Can't find user's app data dir")),
     }
+}
+
+/// Gets the default OWML path to install to / look for
+/// This is a different path than our app path to keep compatibility with mods' build files
+///
+/// ## Returns
+///
+/// The path that resolves to %APPDATA%/OuterWildsModManager/OWML
+///
+/// ## Errors
+///
+/// If we can't get the user's app data dir (or equivalent on Linux)
+///
+pub fn get_default_owml_path() -> Result<PathBuf> {
+    let base_dirs = BaseDirs::new().ok_or_else(|| anyhow!("Couldn't Get User App Data"))?;
+    let appdata_dir = base_dirs.data_dir();
+    Ok(appdata_dir.join(OLD_MANAGER_FOLDER_NAME).join("OWML"))
 }
 
 /// Fix a string of JSON by removing the BOM

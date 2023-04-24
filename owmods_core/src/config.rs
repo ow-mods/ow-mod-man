@@ -5,8 +5,11 @@ use std::path::{Path, PathBuf};
 use typeshare::typeshare;
 
 use crate::{
-    constants::{CONFIG_FILE_NAME, DEFAULT_ALERT_URL, DEFAULT_DB_URL},
-    file::{deserialize_from_json, get_app_path, serialize_to_json},
+    constants::{
+        CONFIG_FILE_NAME, DEFAULT_ALERT_URL, DEFAULT_DB_URL, OWML_DEFAULT_CONFIG_NAME,
+        OWML_EXE_NAME, OWML_MANIFEST_NAME,
+    },
+    file::{deserialize_from_json, get_app_path, get_default_owml_path, serialize_to_json},
 };
 
 /// Represents the core config, contains critical info needed by the core API
@@ -31,8 +34,9 @@ impl Config {
     ///
     pub fn default(path: Option<PathBuf>) -> Result<Self> {
         let path = path.unwrap_or(Self::default_path()?);
+        let owml_path = get_default_owml_path()?;
         Ok(Self {
-            owml_path: String::from(""),
+            owml_path: String::from(owml_path.to_str().unwrap()),
             database_url: String::from(DEFAULT_DB_URL),
             alert_url: String::from(DEFAULT_ALERT_URL),
             viewed_alerts: vec![],
@@ -101,6 +105,25 @@ impl Config {
             Ok(new_config)
         }
     }
+
+    /// Checks that the path in `owml_path` is a valid OWML install (at least for our uses)
+    ///
+    /// ## Returns
+    ///
+    /// If the given folder contains the files needed by the manager to use OWML.
+    /// Other files that make OWML work are not checked, only the ones the manager needs.
+    ///
+    pub fn check_owml(&self) -> bool {
+        if self.owml_path.trim().is_empty() {
+            false
+        } else {
+            let path = PathBuf::from(&self.owml_path);
+            path.is_dir()
+                && path.join(OWML_DEFAULT_CONFIG_NAME).is_file()
+                && path.join(OWML_EXE_NAME).is_file()
+                && path.join(OWML_MANIFEST_NAME).is_file()
+        }
+    }
 }
 
 #[cfg(test)]
@@ -149,6 +172,16 @@ mod tests {
         config.save().unwrap();
         let config = Config::get(Some(path)).unwrap();
         assert_eq!(config.owml_path, "/different/path");
+        dir.close().unwrap();
+    }
+
+    #[test]
+    pub fn test_check_owml_no_folder() {
+        let dir = make_test_dir();
+        let path = dir.path().join("settings.json");
+        let mut config = Config::default(Some(path)).unwrap();
+        config.owml_path = "/different/path".to_string();
+        assert!(!config.check_owml());
         dir.close().unwrap();
     }
 }

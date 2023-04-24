@@ -5,6 +5,7 @@ use clap::Parser;
 use colored::Colorize;
 use game::start_just_logs;
 use log::{error, info, warn, LevelFilter};
+use owmods_core::file::get_default_owml_path;
 use owmods_core::mods::UnsafeLocalMod;
 use owmods_core::remove::remove_failed_mod;
 use owmods_core::{
@@ -40,12 +41,12 @@ async fn run_from_cli(cli: BaseCli) -> Result<()> {
 
     let ran_setup = matches!(&cli.command, Commands::Setup { owml_path: _ });
 
-    if config.owml_path.is_empty() && !ran_setup {
+    if !config.check_owml() && !ran_setup {
         info!(
             "Welcome to the Outer Wild Mods CLI! In order to continue you'll need to setup OWML.",
         );
-        info!("To do this, run `owmods setup {{PATH_TO_OWML}}`. Or, run with no path to auto-install it.");
-        info!("This message will display so long as owml_path is empty in %APPDATA%/ow-mod-man/settings.json.");
+        info!("To do this, run `owmods setup /path/to/owml`. Or, run with no path to auto-install it to {}.", config.owml_path);
+        info!("This message will display until a valid OWML path is set or OWML is installed");
         return Ok(());
     }
 
@@ -55,21 +56,21 @@ async fn run_from_cli(cli: BaseCli) -> Result<()> {
         }
         Commands::Setup { owml_path } => {
             if let Some(owml_path) = owml_path {
-                if owml_path.is_dir() && owml_path.join("OWML.Manifest.json").is_file() {
+                let mut new_config = config.clone();
+                new_config.owml_path = owml_path.to_str().unwrap().to_string();
+                if new_config.check_owml() {
                     info!("Path to OWML is valid! Updating config...");
-                    let mut new_config = config.clone();
-                    new_config.owml_path = owml_path.to_str().unwrap().to_string();
                     new_config.save()?;
                     info!("Done! Happy Modding!");
                 } else {
                     error!(
-                        "Error: OWML.Manifest.json Not Found In {}",
+                        "Error: OWML.Manifest.json, OWML.Launcher.exe, or OWML.DefaultConfig.json Not Found In {}",
                         owml_path.to_str().unwrap()
                     );
                 }
             } else {
                 let mut config = config.clone();
-                config.owml_path = "".to_string();
+                config.owml_path = get_default_owml_path()?.to_str().unwrap().to_string();
                 let db = RemoteDatabase::fetch(&config.database_url).await?;
                 let owml = db
                     .get_owml()

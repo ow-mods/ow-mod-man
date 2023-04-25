@@ -723,3 +723,14 @@ pub async fn check_owml(state: tauri::State<'_, State>) -> Result<bool, String> 
     let config = state.config.read().await;
     Ok(config.check_owml())
 }
+
+#[tauri::command]
+pub async fn get_defaults(
+    state: tauri::State<'_, State>,
+) -> Result<(Config, GuiConfig, OWMLConfig), String> {
+    let old_config = state.config.read().await;
+    let config = Config::default(None).map_err(e_to_str)?;
+    let gui_config = GuiConfig::default();
+    let owml_config = OWMLConfig::default(&old_config).map_err(e_to_str)?;
+    Ok((config, gui_config, owml_config))
+}

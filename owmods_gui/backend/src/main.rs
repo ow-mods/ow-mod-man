@@ -138,7 +138,8 @@ fn main() -> Result<(), Box<dyn Error>> {
             get_alert,
             get_watcher_paths,
             pop_protocol_url,
-            check_owml
+            check_owml,
+            get_defaults
         ])
         .plugin(tauri_plugin_window_state::Builder::default().build())
         .plugin(tauri_plugin_fs_watch::init())

@@ -1,8 +1,22 @@
 .settings h4 {
     margin-bottom: $margin;
     margin-top: $margin-md;
+    display: flex;
+    align-items: center;
+    justify-items: stretch;
     padding-bottom: $margin-sm;
     border-bottom: 1px solid var(--accent-bg);
+
+    & .reset-button {
+        height: 100%;
+        display: flex;
+        margin-left: auto;
+        margin-right: $margin;
+
+        & svg {
+            height: 100%;
+        }
+    }
 }
 
 .settings-row > div {

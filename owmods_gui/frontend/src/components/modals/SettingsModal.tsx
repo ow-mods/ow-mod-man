@@ -1,9 +1,19 @@
-import { ChangeEvent, MutableRefObject, ReactNode, useRef, useState } from "react";
+import {
+    ChangeEvent,
+    MutableRefObject,
+    ReactNode,
+    memo,
+    useCallback,
+    useRef,
+    useState
+} from "react";
 import { Config, GuiConfig, Language, OWMLConfig, Theme } from "@types";
 import Modal, { ModalWrapperProps } from "./Modal";
 import { useTranslation, useTranslations } from "@hooks";
 import { commands, hooks } from "@commands";
 import { OpenFileInput } from "@components/common/FileInput";
+import Icon from "@components/common/Icon";
+import { BsArrowCounterclockwise } from "react-icons/bs";
 
 const ThemeArr = Object.values(Theme);
 const LanguageArr = Object.values(Language);
@@ -126,6 +136,23 @@ const SettingsSwitch = (props: SettingsSwitchProps) => {
     );
 };
 
+const ResetButton = memo((props: { onClick: () => void }) => {
+    const resetTooltip = useTranslation("RESET");
+
+    return (
+        <a
+            className="reset-button"
+            aria-label={resetTooltip}
+            data-placement="left"
+            data-tooltip={resetTooltip}
+            onClick={props.onClick}
+            href="#"
+        >
+            <Icon iconType={BsArrowCounterclockwise} />
+        </a>
+    );
+});
+
 const SettingsForm = (props: SettingsFormProps) => {
     const [config, setConfig] = useState<Config>(props.initialConfig);
     const [owmlConfig, setOwmlConfig] = useState<OWMLConfig>(props.initialOwmlConfig);
@@ -188,6 +215,14 @@ const SettingsForm = (props: SettingsFormProps) => {
         setGuiConfig({ ...guiConfig, [e.target.id]: getVal(e.target) });
     };
 
+    const onReset = useCallback((i: number) => {
+        commands.getDefaultConfigs().then((data) => {
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            // @ts-ignore
+            [setConfig, setGuiConfig, setOwmlConfig][i](data[i]);
+        });
+    }, []);
+
     props.save.current = () => {
         const task = async () => {
             await commands.saveConfig({ config });
@@ -206,7 +241,9 @@ const SettingsForm = (props: SettingsFormProps) => {
 
     return (
         <form className="settings">
-            <h4>{generalSettings}</h4>
+            <h4>
+                {generalSettings} <ResetButton onClick={() => onReset(0)} />
+            </h4>
             <SettingsText
                 onChange={handleConf}
                 value={config.databaseUrl}
@@ -225,7 +262,9 @@ const SettingsForm = (props: SettingsFormProps) => {
                 label={owmlPath}
                 id="owmlPath"
             />
-            <h4>{guiSettingsLabel}</h4>
+            <h4>
+                {guiSettingsLabel} <ResetButton onClick={() => onReset(1)} />
+            </h4>
             <SettingsSelect
                 onChange={handleGui}
                 value={guiConfig.theme}
@@ -266,7 +305,9 @@ const SettingsForm = (props: SettingsFormProps) => {
                 label={logMultiWindow}
                 id="logMultiWindow"
             />
-            <h4>{owmlSettingsLabel}</h4>
+            <h4>
+                {owmlSettingsLabel} <ResetButton onClick={() => onReset(2)} />
+            </h4>
             <SettingsFolder
                 onChange={handleOwml}
                 value={owmlConfig.gamePath}

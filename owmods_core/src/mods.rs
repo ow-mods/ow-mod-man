@@ -281,7 +281,7 @@ impl OWMLConfig {
     }
 
     #[cfg(not(windows))]
-    fn load_default(config: &Config) -> Result<OWMLConfig> {
+    pub fn default(config: &Config) -> Result<OWMLConfig> {
         use anyhow::anyhow;
         use directories::UserDirs;
 
@@ -300,7 +300,7 @@ impl OWMLConfig {
     }
 
     #[cfg(windows)]
-    fn load_default(config: &Config) -> Result<OWMLConfig> {
+    pub fn default(config: &Config) -> Result<OWMLConfig> {
         deserialize_from_json(&Path::new(&config.owml_path).join(OWML_DEFAULT_CONFIG_NAME))
     }
 
@@ -324,7 +324,7 @@ impl OWMLConfig {
         if Self::path(config).is_file() {
             Self::read(config)
         } else {
-            let new_conf = Self::load_default(config)?;
+            let new_conf = Self::default(config)?;
             new_conf.save(config)?;
             Ok(new_conf)
         }

@@ -17,13 +17,16 @@ const AboutModal = (props: ModalWrapperProps) => {
 
     const [appVersion, setVersion] = useState("");
     const [appPlatform, setPlatform] = useState("");
+    const [archRaw, setArch] = useState("");
 
     const version = useTranslation("VERSION", { version: appVersion });
     const platform = useTranslation("PLATFORM", { platform: appPlatform });
+    const arch = useTranslation("ARCHITECTURE", { arch: archRaw });
 
     useEffect(() => {
         app.getVersion().then(setVersion);
         os.platform().then(setPlatform);
+        os.arch().then(setArch);
     }, []);
 
     return (
@@ -33,6 +36,7 @@ const AboutModal = (props: ModalWrapperProps) => {
                 <h1>{appName}</h1>
                 <p>{version}</p>
                 <p>{platform}</p>
+                <p>{arch}</p>
                 <div className="links">
                     <a
                         onClick={() => shell.open("https://github.com/Bwc9876/ow-mod-man/")}

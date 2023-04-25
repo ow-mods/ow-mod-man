@@ -3,6 +3,7 @@
     "ALERT_URL": "Alert URL",
     "ANY": "Any",
     "APP_TITLE": "Outer Wilds Mod Manager",
+    "ARCHITECTURE": "Architecture: $arch$",
     "BROWSE": "Browse",
     "BY": "v$version$ by $author$",
     "Blue": "Blue",

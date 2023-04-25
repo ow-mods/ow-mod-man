@@ -36,7 +36,7 @@ const fn _default_false() -> bool {
 }
 
 #[typeshare]
-#[derive(Default, Serialize, Deserialize, Clone)]
+#[derive(Serialize, Deserialize, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct GuiConfig {
     #[serde(default = "Theme::default")]
@@ -51,6 +51,19 @@ pub struct GuiConfig {
     no_warning: bool,
     #[serde(default = "_default_false")]
     pub log_multi_window: bool,
+}
+
+impl Default for GuiConfig {
+    fn default() -> Self {
+        Self {
+            theme: Theme::default(),
+            rainbow: false,
+            language: Language::default(),
+            watch_fs: true,
+            no_warning: false,
+            log_multi_window: false,
+        }
+    }
 }
 
 impl GuiConfig {

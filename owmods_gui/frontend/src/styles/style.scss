@@ -23,6 +23,7 @@ summary::-webkit-details-marker {
 .container-fluid {
     height: 95vh;
     overflow: hidden;
+    padding: 0 $margin-xl;
     display: flex;
     flex-direction: column;
 }

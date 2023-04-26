@@ -85,11 +85,11 @@
     "windows": [
       {
         "fullscreen": false,
-        "height": 600,
+        "height": 750,
         "minHeight": 275,
         "resizable": true,
         "title": "Outer Wilds Mod Manager",
-        "width": 800,
+        "width": 850,
         "minWidth": 475
       }
     ]

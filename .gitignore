@@ -1,6 +1,7 @@
 # Build Output
 target
 dist/
+scripts/
 owmods.tar.zst
 
 # Logs

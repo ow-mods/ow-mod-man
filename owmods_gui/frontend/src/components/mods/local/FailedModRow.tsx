@@ -45,6 +45,7 @@ const FailedModRow = (props: FailedModRowProps) => {
 
     return (
         <LocalModRow
+            uniqueName={props.mod.modPath}
             name={props.mod.displayPath}
             subtitle={cantLoad}
             errors={[props.mod.error]}

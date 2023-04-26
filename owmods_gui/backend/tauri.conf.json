@@ -7,7 +7,7 @@
   },
   "package": {
     "productName": "Outer Wilds Mod Manager",
-    "version": "0.3.1"
+    "version": "0.4.0"
   },
   "tauri": {
     "allowlist": {
@@ -68,7 +68,7 @@
       }
     },
     "security": {
-      "csp": "default-src 'self'; style-src 'nonce-MTo3NTM0NTo0MTQ5Nzc5Mjk6MTY4MDU2OTI2Nw=='; style-src 'nonce-MTo3NTM0NDo2ODU4MDc3MDU6MTY4MDU2OTIwMA=='"
+      "csp": "default-src 'self'"
     },
     "updater": {
       "active": true,

@@ -9,6 +9,7 @@ use serde_json::Value;
 use typeshare::typeshare;
 
 use crate::{
+    constants::OWML_DEFAULT_CONFIG_NAME,
     file::{deserialize_from_json, serialize_to_json},
     validate::ModValidationError,
 };
@@ -135,7 +136,7 @@ impl UnsafeLocalMod {
 
     /// Get the name for a mod,
     /// - If this is a [UnsafeLocalMod::Valid] we get the name in the manifest,
-    /// - If it's a [UnsafeLocalMod::Invalid] we just get the mod path
+    /// - If it's a [UnsafeLocalMod::Invalid] we just get the display path
     ///
     pub fn get_name(&self) -> &String {
         match self {
@@ -152,6 +153,14 @@ impl UnsafeLocalMod {
         match self {
             Self::Invalid(_) => false,
             Self::Valid(m) => m.enabled,
+        }
+    }
+
+    /// Gets the path for a mod
+    pub fn get_path(&self) -> &str {
+        match self {
+            Self::Invalid(m) => &m.mod_path,
+            Self::Valid(m) => &m.mod_path,
         }
     }
 }
@@ -171,7 +180,7 @@ impl LocalMod {
     }
 }
 
-/// Get the paths to preserve for a mod, if `None` is passed the list will be empty.
+/// Get the paths to preserve for a mod, if [None] is passed the list will be empty.
 pub fn get_paths_to_preserve(local_mod: Option<&LocalMod>) -> Vec<PathBuf> {
     if let Some(local_mod) = local_mod {
         let mut paths: Vec<PathBuf> =
@@ -183,7 +192,7 @@ pub fn get_paths_to_preserve(local_mod: Option<&LocalMod>) -> Vec<PathBuf> {
         }
         return paths;
     }
-    vec![]
+    vec![PathBuf::from("config.json")] // We can't trust the mod's config.json that comes with it (look at cheat and debug menu)
 }
 
 /// Represents a manifest file for a local mod.
@@ -271,16 +280,14 @@ impl OWMLConfig {
         serialize_to_json(self, path, true)
     }
 
-    const DEFAULT_CONFIG_NAME: &str = "OWML.DefaultConfig.json";
-
     #[cfg(not(windows))]
-    fn load_default(config: &Config) -> Result<OWMLConfig> {
+    pub fn default(config: &Config) -> Result<OWMLConfig> {
         use anyhow::anyhow;
         use directories::UserDirs;
 
         const LINUX_GAME_PATH: &str = ".steam/steam/steamapps/common/Outer Wilds/";
 
-        let path = Path::new(&config.owml_path).join(Self::DEFAULT_CONFIG_NAME);
+        let path = Path::new(&config.owml_path).join(OWML_DEFAULT_CONFIG_NAME);
         let mut conf: OWMLConfig = deserialize_from_json(&path)?;
         let dirs = UserDirs::new().ok_or_else(|| anyhow!("Can't get user data dir"))?;
         conf.game_path = dirs
@@ -293,8 +300,8 @@ impl OWMLConfig {
     }
 
     #[cfg(windows)]
-    fn load_default(config: &Config) -> Result<OWMLConfig> {
-        deserialize_from_json(&Path::new(&config.owml_path).join(Self::DEFAULT_CONFIG_NAME))
+    pub fn default(config: &Config) -> Result<OWMLConfig> {
+        deserialize_from_json(&Path::new(&config.owml_path).join(OWML_DEFAULT_CONFIG_NAME))
     }
 
     fn write(owml_config: &OWMLConfig, config: &Config) -> Result<()> {
@@ -317,7 +324,7 @@ impl OWMLConfig {
         if Self::path(config).is_file() {
             Self::read(config)
         } else {
-            let new_conf = Self::load_default(config)?;
+            let new_conf = Self::default(config)?;
             new_conf.save(config)?;
             Ok(new_conf)
         }

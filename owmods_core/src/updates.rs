@@ -78,9 +78,12 @@ pub async fn update_all(
 
     let owml = LocalDatabase::get_owml(&config.owml_path);
 
+    let mut owml_updated = false;
+
     if owml.is_some() {
         let (update, remote_owml) = check_mod_needs_update(owml.as_ref().unwrap(), remote_db);
         if update {
+            owml_updated = true;
             info!(
                 "OWML: {} -> {}",
                 owml.as_ref().unwrap().manifest.version,
@@ -91,7 +94,7 @@ pub async fn update_all(
     }
 
     if needs_update.is_empty() {
-        Ok(false)
+        Ok(owml_updated)
     } else {
         let mod_names = needs_update
             .into_iter()

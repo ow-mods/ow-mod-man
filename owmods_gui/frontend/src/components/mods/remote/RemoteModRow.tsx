@@ -66,10 +66,10 @@ const RemoteModRow = memo((props: RemoteModRowProps) => {
         commands
             .installMod({ uniqueName: props.uniqueName })
             .then(() => {
-                setDownloading(false);
                 commands.refreshLocalDb().catch(console.error);
             })
-            .catch(console.error);
+            .catch(console.error)
+            .finally(() => setDownloading(false));
     }, [props.uniqueName]);
 
     const onPrerelease = useCallback(() => {

@@ -1,4 +1,5 @@
 use crate::config::Config;
+use crate::constants::OWML_EXE_NAME;
 use anyhow::Result;
 use std::path::PathBuf;
 use tokio::process::Command;
@@ -7,7 +8,7 @@ use tokio::process::Command;
 #[cfg(windows)]
 pub async fn launch_game(config: &Config, port: &u16) -> Result<()> {
     let owml_path = PathBuf::from(&config.owml_path);
-    let mut child = Command::new(owml_path.join("OWML.Launcher.exe").to_str().unwrap())
+    let mut child = Command::new(owml_path.join(OWML_EXE_NAME).to_str().unwrap())
         .arg("-consolePort")
         .arg(port.to_string())
         .current_dir(PathBuf::from(&owml_path))
@@ -23,12 +24,16 @@ fn fix_dlls(config: &Config) -> Result<()> {
     // Replaces the DLLs that break OWML.Launcher.exe on Linux, any questions spam JohnCorby
     const SYSTEM_DLL: &[u8] = include_bytes!("../linux_replacement_dlls/System.dll");
     const SYSTEM_CORE_DLL: &[u8] = include_bytes!("../linux_replacement_dlls/System.Core.dll");
+    const OWML_MOD_LOADER_DLL: &[u8] =
+        include_bytes!("../linux_replacement_dlls/OWML.ModLoader.dll");
 
     let owml_dir = PathBuf::from(&config.owml_path);
     let mut file = File::create(owml_dir.join("System.dll"))?;
     file.write_all(SYSTEM_DLL)?;
     let mut file = File::create(owml_dir.join("System.Core.dll"))?;
     file.write_all(SYSTEM_CORE_DLL)?;
+    let mut file = File::create(owml_dir.join("OWML.ModLoader.dll"))?;
+    file.write_all(OWML_MOD_LOADER_DLL)?;
 
     Ok(())
 }
@@ -51,7 +56,7 @@ pub async fn launch_game(config: &Config, port: &u16) -> Result<()> {
     let child = Command::new("mono")
         .stdout(Stdio::piped())
         .stderr(Stdio::piped())
-        .arg("OWML.Launcher.exe")
+        .arg(OWML_EXE_NAME)
         .arg("-consolePort")
         .arg(port.to_string())
         .current_dir(PathBuf::from(&config.owml_path))

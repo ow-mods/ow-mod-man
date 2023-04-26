@@ -37,8 +37,8 @@ const App = () => {
     }, [guiConfig?.language]);
 
     const owmlCheck = useCallback(() => {
-        commands.getOwmlConfig(undefined, false).catch(() => {
-            openOwmlSetup.current();
+        commands.checkOWML().then((valid) => {
+            if (!valid) openOwmlSetup.current();
         });
     }, [openOwmlSetup]);
 

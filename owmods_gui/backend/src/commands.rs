@@ -472,13 +472,16 @@ pub async fn update_mod(unique_name: &str, state: tauri::State<'_, State>) -> Re
 pub async fn update_all_mods(
     unique_names: Vec<String>,
     state: tauri::State<'_, State>,
+    handle: tauri::AppHandle,
 ) -> Result<(), String> {
+    toggle_fs_watch(&handle, false);
     let config = state.config.read().await;
     let local_db = state.local_db.read().await;
     let remote_db = state.remote_db.read().await;
     install_mods_parallel(unique_names, &config, &remote_db, &local_db)
         .await
         .map_err(e_to_str)?;
+    toggle_fs_watch(&handle, true);
     Ok(())
 }
 
@@ -527,7 +530,7 @@ pub async fn run_game(state: tauri::State<'_, State>, window: tauri::Window) -> 
         .map_err(e_to_str)?
         .join("game_logs")
         .join(
-            now.format(format_description!("[day]-[month]-[year]"))
+            now.format(format_description!("[year]-[month]-[day]"))
                 .unwrap(),
         )
         .join(format!(
@@ -713,4 +716,21 @@ pub async fn pop_protocol_url(
     }
     *protocol_url = None;
     Ok(())
+}
+
+#[tauri::command]
+pub async fn check_owml(state: tauri::State<'_, State>) -> Result<bool, String> {
+    let config = state.config.read().await;
+    Ok(config.check_owml())
+}
+
+#[tauri::command]
+pub async fn get_defaults(
+    state: tauri::State<'_, State>,
+) -> Result<(Config, GuiConfig, OWMLConfig), String> {
+    let old_config = state.config.read().await;
+    let config = Config::default(None).map_err(e_to_str)?;
+    let gui_config = GuiConfig::default();
+    let owml_config = OWMLConfig::default(&old_config).map_err(e_to_str)?;
+    Ok((config, gui_config, owml_config))
 }

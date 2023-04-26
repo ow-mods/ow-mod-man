@@ -1,12 +1,14 @@
 import { hooks } from "@commands";
 import { SocketMessageType } from "@types";
-import { CSSProperties, memo, useMemo } from "react";
+import { CSSProperties, MutableRefObject, memo, useEffect, useMemo } from "react";
+import { VirtuosoHandle } from "react-virtuoso";
 
 export interface LogLineProps {
     port: number;
     line: number;
     count: number;
     style?: CSSProperties;
+    virtuosoRef?: MutableRefObject<VirtuosoHandle | null>;
 }
 
 const LogLine = memo((props: LogLineProps) => {
@@ -25,6 +27,10 @@ const LogLine = memo((props: LogLineProps) => {
         () => (msg?.message.message ?? "").split("\n"),
         [msg?.message.message]
     );
+
+    useEffect(() => {
+        props.virtuosoRef?.current?.autoscrollToBottom?.();
+    }, [status]);
 
     if (status === "Error") {
         return <p className="log-line center">{err!.toString()}</p>;

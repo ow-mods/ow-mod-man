@@ -1,10 +1,13 @@
 .mod-list {
     height: 100%;
-    width: 100%;
     contain: strict;
     overflow-y: auto;
+    overflow-x: hidden;
     margin-bottom: $margin;
     scroll-behavior: auto;
+    background-color: var(--accent-bg-darker);
+    padding: $margin-lg;
+    border-radius: 5px;
 }
 
 .remote-mod-search {
@@ -15,9 +18,18 @@ $row-border: 1px solid var(--accent-bg);
 
 .mod-row {
     border-bottom: $row-border;
-    padding: $margin;
+    padding: $margin 0;
+    padding-right: 1.7em;
     width: 100%;
     min-width: 0;
+}
+
+.mod-row.local:first-child {
+    padding-top: 0;
+}
+
+div:has(.mod-row.remote) {
+    box-sizing: border-box;
 }
 
 .mod-row.local:last-child,
@@ -33,11 +45,6 @@ div:has(.mod-row.remote):last-child > .mod-row {
     display: grid;
     grid-auto-flow: row;
     padding: $margin-md 0;
-}
-
-.mod-row.local.center {
-    padding: $margin-xl 0;
-    align-items: center;
 }
 
 .mod-header {

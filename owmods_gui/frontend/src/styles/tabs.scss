@@ -6,6 +6,8 @@
     grid-row-gap: 0px;
     align-items: center;
     border-bottom: $border-size solid var(--accent-bg);
+    background-color: var(--accent-bg-darkest);
+    padding: 0 $margin-xl;
 }
 
 .tab {
@@ -49,6 +51,7 @@
     flex-direction: column;
     height: 100%;
     overflow: hidden;
+    margin: 0 10vw;
 }
 
 .section.remote {

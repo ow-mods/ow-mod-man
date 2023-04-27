@@ -8,6 +8,7 @@ html {
 body {
     -webkit-user-select: none;
     user-select: none;
+    margin: 0;
 }
 
 *::selection {
@@ -21,9 +22,9 @@ summary::-webkit-details-marker {
 
 .container,
 .container-fluid {
-    height: 95vh;
+    margin: 0;
+    height: 100vh;
     overflow: hidden;
-    padding: 0 $margin-xl;
     display: flex;
     flex-direction: column;
 }

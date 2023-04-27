@@ -87,7 +87,7 @@ const RemoteModRow = memo((props: RemoteModRowProps) => {
             }
         };
         task();
-    }, [props.uniqueName]);
+    }, [props.uniqueName, prereleaseWarning, usePrerelease]);
 
     const onReadme = useCallback(() => {
         commands.openModReadme({ uniqueName: props.uniqueName }).catch(console.warn);

@@ -46,7 +46,7 @@ const App = () => {
         if (status === "Done") {
             owmlCheck();
         }
-    }, [status]);
+    }, [status, owmlCheck]);
 
     useEffect(() => {
         let cancelled = false;
@@ -57,7 +57,7 @@ const App = () => {
         return () => {
             cancelled = true;
         };
-    }, []);
+    }, [owmlCheck]);
 
     if (status === "Loading" && guiConfig === null) {
         return <CenteredSpinner className="fill" />;

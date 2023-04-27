@@ -93,7 +93,7 @@ const InstallFromModal = (props: ModalWrapperProps) => {
                 ) {
                     setPrerelease(protocolPayload.installType === "installPreRelease");
                 }
-                props.open?.current();
+                props.open?.current?.();
                 getCurrent().requestUserAttention(UserAttentionType.Informational);
             }
         })
@@ -102,7 +102,7 @@ const InstallFromModal = (props: ModalWrapperProps) => {
         return () => {
             cancel = true;
         };
-    }, []);
+    }, [props.open]);
 
     return (
         <Modal

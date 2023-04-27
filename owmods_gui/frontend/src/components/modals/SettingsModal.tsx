@@ -72,10 +72,10 @@ const SettingsText = (props: SettingsTextProps) => {
 };
 
 const SettingsSelect = (props: SettingsSelectProps) => {
-    let translations = Array.from(props.options);
+    let translations = useTranslations(Array.from(props.options));
 
-    if (props.translate) {
-        translations = useTranslations(Array.from(props.options));
+    if (!props.translate) {
+        translations = Array.from(props.options);
     }
 
     return (

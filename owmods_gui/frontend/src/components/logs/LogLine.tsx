@@ -30,7 +30,7 @@ const LogLine = memo((props: LogLineProps) => {
 
     useEffect(() => {
         props.virtuosoRef?.current?.autoscrollToBottom?.();
-    }, [status]);
+    }, [status, props.virtuosoRef]);
 
     if (status === "Error") {
         return <p className="log-line center">{err!.toString()}</p>;

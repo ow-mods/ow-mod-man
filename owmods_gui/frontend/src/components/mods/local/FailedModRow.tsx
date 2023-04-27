@@ -11,44 +11,44 @@ export interface FailedModRowProps {
     onValidationClick?: (p: OpenModValidationModalPayload) => void;
 }
 
-const FailedModRow = (props: FailedModRowProps) => {
+const FailedModRow = ({ mod, onValidationClick }: FailedModRowProps) => {
     const [confirmText, cantLoad] = useTranslations(["CONFIRM", "CANT_LOAD"]);
 
     const uninstallConfirmText = useTranslation("UNINSTALL_CONFIRM", {
-        name: props.mod.displayPath
+        name: mod.displayPath
     });
 
     const onValidationClicked = useCallback(
         (errs: ModValidationError[]) => {
-            props.onValidationClick?.({
-                uniqueName: props.mod.modPath,
-                modName: props.mod.displayPath,
+            onValidationClick?.({
+                uniqueName: mod.modPath,
+                modName: mod.displayPath,
                 errors: errs
             });
         },
-        [props.mod.modPath, props.mod.displayPath, props.mod.error]
+        [mod.modPath, mod.displayPath, onValidationClick]
     );
 
     const onUninstall = useCallback(() => {
         confirm(uninstallConfirmText, confirmText).then((answer) => {
             if (answer) {
                 commands
-                    .uninstallBrokenMod({ modPath: props.mod.modPath })
+                    .uninstallBrokenMod({ modPath: mod.modPath })
                     .then(() => commands.refreshLocalDb());
             }
         });
-    }, [props.mod.modPath, props.mod.displayPath]);
+    }, [mod.modPath, confirmText, uninstallConfirmText]);
 
     const onOpen = useCallback(() => {
-        commands.openModFolder({ uniqueName: props.mod.modPath });
-    }, [props.mod.modPath]);
+        commands.openModFolder({ uniqueName: mod.modPath });
+    }, [mod.modPath]);
 
     return (
         <LocalModRow
-            uniqueName={props.mod.modPath}
-            name={props.mod.displayPath}
+            uniqueName={mod.modPath}
+            name={mod.displayPath}
             subtitle={cantLoad}
-            errors={[props.mod.error]}
+            errors={[mod.error]}
             showValidation
             onValidationClick={onValidationClicked}
             onUninstall={onUninstall}

@@ -15,9 +15,13 @@ export interface UpdateModRowProps {
 }
 
 const UpdateModRow = memo(
-    (props: UpdateModRowProps) => {
-        const [remoteStatus, remoteMod, err1] = hooks.getRemoteMod("REMOTE-REFRESH", props);
-        const [localStatus, unsafeLocalMod, err2] = hooks.getLocalMod("LOCAL-REFRESH", props);
+    ({ uniqueName, parentUpdating, onUpdate }: UpdateModRowProps) => {
+        const [remoteStatus, remoteMod, err1] = hooks.getRemoteMod("REMOTE-REFRESH", {
+            uniqueName
+        });
+        const [localStatus, unsafeLocalMod, err2] = hooks.getLocalMod("LOCAL-REFRESH", {
+            uniqueName
+        });
         const [updating, setUpdating] = useState(false);
 
         // Assertion is safe bc we're only iterating over valid mods
@@ -32,19 +36,19 @@ const UpdateModRow = memo(
 
         const status = [remoteStatus, localStatus];
 
-        const onUpdate = useCallback(() => {
-            if (props.parentUpdating) return;
-            props.onUpdate?.(true);
+        const onModUpdate = useCallback(() => {
+            if (parentUpdating) return;
+            onUpdate?.(true);
             setUpdating(true);
             commands
-                .updateMod({ uniqueName: props.uniqueName })
+                .updateMod({ uniqueName })
                 .then(() => {
-                    props.onUpdate?.(false);
+                    onUpdate?.(false);
                     setUpdating(false);
                     commands.refreshLocalDb().catch(console.warn);
                 })
                 .catch(console.error);
-        }, [props.uniqueName]);
+        }, [uniqueName, onUpdate, parentUpdating]);
 
         if (status.includes("Loading") && (remoteMod === null || localMod === null)) {
             return <CenteredSpinner className="mod-row" />;
@@ -58,10 +62,10 @@ const UpdateModRow = memo(
             return (
                 <div className="mod-row">
                     <ModHeader {...remoteMod!} subtitle={subtitleString}>
-                        {updating || props.parentUpdating ? (
+                        {updating || parentUpdating ? (
                             <CenteredSpinner />
                         ) : (
-                            <ModActionButton onClick={onUpdate} ariaLabel={updateLabel}>
+                            <ModActionButton onClick={onModUpdate} ariaLabel={updateLabel}>
                                 <Icon iconType={BsArrowUp} />
                             </ModActionButton>
                         )}

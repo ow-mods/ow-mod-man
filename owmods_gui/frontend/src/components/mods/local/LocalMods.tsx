@@ -42,12 +42,9 @@ const LocalMods = memo(() => {
         }, 450);
     };
 
-    const onValidationIconClicked = useCallback(
-        (p: OpenModValidationModalPayload) => {
-            openValidationModal.current(p);
-        },
-        [openValidationModal.current]
-    );
+    const onValidationIconClicked = useCallback((p: OpenModValidationModalPayload) => {
+        openValidationModal.current(p);
+    }, []);
 
     if (status === "Loading" && mods === null) {
         return <CenteredSpinner className="mod-list" />;

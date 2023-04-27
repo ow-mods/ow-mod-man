@@ -69,7 +69,7 @@ const Nav = () => {
             }
         };
         task();
-    }, []);
+    }, [confirm, launchAnyway]);
 
     const onExport = useCallback(() => {
         dialog

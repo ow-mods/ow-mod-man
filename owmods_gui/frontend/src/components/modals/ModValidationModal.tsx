@@ -42,7 +42,7 @@ const ModValidationModal = (props: ModValidationModalProps) => {
             setErrors(payload.errors);
             openInternal.current();
         };
-    }, [openInternal.current]);
+    }, [props.open]);
 
     const onConfirm = () => {
         if (canFix) {

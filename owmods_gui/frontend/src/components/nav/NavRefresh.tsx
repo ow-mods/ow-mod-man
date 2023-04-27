@@ -76,7 +76,7 @@ const NavRefreshButton = () => {
         return () => {
             cancel = true;
         };
-    }, [status, config, guiConfig?.watchFs ?? false]);
+    }, [onRefresh, err, watchingFileSystem, status, config, guiConfig?.watchFs]);
 
     return (
         <NavButton onClick={onRefresh} labelPlacement="bottom" ariaLabel={refreshLabel}>

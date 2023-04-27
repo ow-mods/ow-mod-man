@@ -3,9 +3,9 @@ import { OpenFileInput } from "@components/common/FileInput";
 import Icon from "@components/common/Icon";
 import { useTranslation, useTranslations } from "@hooks";
 import { listen } from "@tauri-apps/api/event";
-import { useEffect, useState } from "react";
+import { forwardRef, useEffect, useImperativeHandle, useRef, useState } from "react";
 import { BsExclamationTriangleFill } from "react-icons/bs";
-import Modal, { ModalWrapperProps } from "./Modal";
+import Modal, { ModalHandle } from "./Modal";
 import { ProtocolInstallType, ProtocolPayload } from "@types";
 import { UserAttentionType, getCurrent } from "@tauri-apps/api/window";
 
@@ -25,7 +25,8 @@ const getSourceTypeFromProtocol = (installType: ProtocolInstallType): SourceType
     }
 };
 
-const InstallFromModal = (props: ModalWrapperProps) => {
+const InstallFromModal = forwardRef(function InstallFromModal(_: object, ref) {
+    const modalRef = useRef<ModalHandle>();
     const [source, setSource] = useState<SourceType>("UNIQUE_NAME");
     const [target, setTarget] = useState<string>("");
     const [prerelease, setPrerelease] = useState<boolean>(false);
@@ -42,6 +43,15 @@ const InstallFromModal = (props: ModalWrapperProps) => {
         ]);
 
     const usePrerelease = useTranslation("USE_PRERELEASE", { version: "" });
+
+    useImperativeHandle(
+        ref,
+        () => ({
+            open: () => modalRef.current?.open(),
+            close: () => modalRef.current?.close()
+        }),
+        []
+    );
 
     const lblMap: Record<SourceType, string> = {
         UNIQUE_NAME: uniqueNameLabel,
@@ -93,7 +103,7 @@ const InstallFromModal = (props: ModalWrapperProps) => {
                 ) {
                     setPrerelease(protocolPayload.installType === "installPreRelease");
                 }
-                props.open?.current();
+                modalRef.current?.open();
                 getCurrent().requestUserAttention(UserAttentionType.Informational);
             }
         })
@@ -108,7 +118,7 @@ const InstallFromModal = (props: ModalWrapperProps) => {
         <Modal
             onConfirm={onInstall}
             showCancel
-            open={props.open}
+            ref={modalRef}
             heading={installFrom}
             confirmText={install}
         >
@@ -178,6 +188,6 @@ const InstallFromModal = (props: ModalWrapperProps) => {
             </form>
         </Modal>
     );
-};
+});
 
 export default InstallFromModal;

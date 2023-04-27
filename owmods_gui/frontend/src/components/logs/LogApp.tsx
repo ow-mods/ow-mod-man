@@ -34,7 +34,7 @@ const App = ({ port }: { port: number }) => {
             .getLogLines({ port, filterType: getFilterToPass(activeFilter), search: activeSearch })
             .then(setLogLines)
             .catch(() => null);
-    }, [activeFilter, activeSearch]);
+    }, [activeFilter, activeSearch, port]);
 
     const guiConfig = hooks.getGuiConfig("GUI_CONFIG_RELOAD")[1];
 
@@ -54,7 +54,7 @@ const App = ({ port }: { port: number }) => {
     const onClear = useCallback(() => {
         commands.clearLogs({ port }).catch(console.warn);
         setLogLines([]);
-    }, []);
+    }, [port]);
 
     useEffect(() => {
         let cancel = false;
@@ -73,11 +73,11 @@ const App = ({ port }: { port: number }) => {
         return () => {
             cancel = true;
         };
-    }, []);
+    }, [fatalErrorLabel, fetchLogLines, port]);
 
     useEffect(() => {
         fetchLogLines();
-    }, [activeFilter, activeSearch]);
+    }, [activeFilter, activeSearch, fetchLogLines]);
 
     if (guiConfig === null || logLines === null) {
         return <CenteredSpinner />;

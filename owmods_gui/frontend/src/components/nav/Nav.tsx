@@ -21,11 +21,12 @@ import { commands } from "@commands";
 import { dialog } from "@tauri-apps/api";
 import CenteredSpinner from "@components/common/CenteredSpinner";
 import NavRefreshButton from "./NavRefresh";
+import { ModalHandle } from "@components/modals/Modal";
 
 const Nav = () => {
-    const openSettings = useRef<() => void>(() => null);
-    const openInstallFrom = useRef<() => void>(() => null);
-    const openAbout = useRef<() => void>(() => null);
+    const settingsRef = useRef<ModalHandle>();
+    const installFromRef = useRef<ModalHandle>();
+    const aboutRef = useRef<ModalHandle>();
 
     const [areLogsStarting, setLogsStarting] = useState<boolean>(false);
 
@@ -69,7 +70,7 @@ const Nav = () => {
             }
         };
         task();
-    }, []);
+    }, [confirm, launchAnyway]);
 
     const onExport = useCallback(() => {
         dialog
@@ -91,44 +92,46 @@ const Nav = () => {
 
     return (
         <IconContext.Provider value={{ className: "nav-icon" }}>
-            <SettingsModal open={openSettings} />
-            <InstallFromModal open={openInstallFrom} />
-            <AboutModal open={openAbout} />
-            <nav>
-                <ul>
-                    <Downloads />
-                    <NavRefreshButton />
-                </ul>
-                <ul>
-                    {areLogsStarting ? (
-                        <CenteredSpinner />
-                    ) : (
-                        <NavButton onClick={onPlay} labelPlacement="bottom" ariaLabel={runGame}>
-                            <Icon iconClassName="main-icon" iconType={BsPlayFill} />
+            <SettingsModal ref={settingsRef} />
+            <InstallFromModal ref={installFromRef} />
+            <AboutModal ref={aboutRef} />
+            <div className="nav-wrapper">
+                <nav className="max-width">
+                    <ul>
+                        <Downloads />
+                        <NavRefreshButton />
+                    </ul>
+                    <ul>
+                        {areLogsStarting ? (
+                            <CenteredSpinner />
+                        ) : (
+                            <NavButton onClick={onPlay} labelPlacement="bottom" ariaLabel={runGame}>
+                                <Icon iconClassName="main-icon" iconType={BsPlayFill} />
+                            </NavButton>
+                        )}
+                    </ul>
+                    <ul>
+                        <NavButton labelPlacement="bottom" ariaLabel={help}>
+                            <Icon iconType={BsQuestion} />
                         </NavButton>
-                    )}
-                </ul>
-                <ul>
-                    <NavButton labelPlacement="bottom" ariaLabel={help}>
-                        <Icon iconType={BsQuestion} />
-                    </NavButton>
-                    <NavMore>
-                        {/* Dropdown uses RTL */}
-                        <NavButton onClick={() => openSettings.current?.()}>
-                            {settings} <Icon iconType={BsGearFill} />
-                        </NavButton>
-                        <NavButton onClick={() => openInstallFrom.current?.()}>
-                            ...{installFrom} <Icon iconType={BsBoxArrowInDown} />
-                        </NavButton>
-                        <NavButton onClick={onExport}>
-                            {exportLabel} <Icon iconType={BsBoxArrowUpRight} />
-                        </NavButton>
-                        <NavButton onClick={() => openAbout.current?.()}>
-                            {about} <Icon iconType={BsInfoCircleFill} />
-                        </NavButton>
-                    </NavMore>
-                </ul>
-            </nav>
+                        <NavMore>
+                            {/* Dropdown uses RTL */}
+                            <NavButton onClick={() => settingsRef.current?.open()}>
+                                {settings} <Icon iconType={BsGearFill} />
+                            </NavButton>
+                            <NavButton onClick={() => installFromRef.current?.open()}>
+                                ...{installFrom} <Icon iconType={BsBoxArrowInDown} />
+                            </NavButton>
+                            <NavButton onClick={onExport}>
+                                {exportLabel} <Icon iconType={BsBoxArrowUpRight} />
+                            </NavButton>
+                            <NavButton onClick={() => aboutRef.current?.open()}>
+                                {about} <Icon iconType={BsInfoCircleFill} />
+                            </NavButton>
+                        </NavMore>
+                    </ul>
+                </nav>
+            </div>
         </IconContext.Provider>
     );
 };

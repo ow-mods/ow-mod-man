@@ -7,21 +7,21 @@ import ModActionButton from "../ModActionButton";
 
 export interface LocalModValidationIconProps {
     errors: ModValidationError[];
-    onClick?: (errors: ModValidationError[]) => void;
+    onClickProp?: (errors: ModValidationError[]) => void;
 }
 
-const LocalModValidationIcon = (props: LocalModValidationIconProps) => {
+const LocalModValidationIcon = ({ errors, onClickProp }: LocalModValidationIconProps) => {
     const [hasErrors, hasWarning] = useTranslations(["MOD_HAS_ERRORS", "MOD_HAS_WARNINGS"]);
 
     const onClick = useCallback(() => {
-        props.onClick?.(props.errors);
-    }, [props.errors]);
+        onClickProp?.(errors);
+    }, [errors, onClickProp]);
 
-    if (props.errors.length === 0) {
+    if (errors.length === 0) {
         return <></>;
     } else {
         const errorInList =
-            props.errors.find(
+            errors.find(
                 (e) =>
                     e.errorType === "MissingDep" ||
                     e.errorType === "DisabledDep" ||

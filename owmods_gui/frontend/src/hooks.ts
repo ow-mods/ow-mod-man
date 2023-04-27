@@ -39,13 +39,14 @@ export const useTauri = <T>(
                     setStatus("Error");
                 });
         }
-    }, [status]);
+    }, [commandFn, events, status]);
 
     useEffect(() => {
         if (status === "Done") {
             setStatus("Loading");
         }
-    }, Object.values(payload ?? []));
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [...Object.values(payload ?? [])]);
 
     return [status, data, error];
 };
@@ -72,7 +73,7 @@ export const useTauriCount = (incEvent: string, decEvent: string, initial?: numb
         return () => {
             cancel = true;
         };
-    }, []);
+    }, [incEvent, decEvent]);
 
     return count;
 };
@@ -86,10 +87,11 @@ export const useTranslation = (key: string, variables?: Record<string, string>) 
             translated = translated.replaceAll(`$${k}$`, variables[k]);
         }
         return translated;
-    }, [context, key, ...Object.values(variables ?? {})]);
+    }, [variables, context, key]);
 };
 
 export const useTranslations = (keys: string[]) => {
+    // eslint-disable-next-line react-hooks/rules-of-hooks
     return keys.map((k) => useTranslation(k));
 };
 

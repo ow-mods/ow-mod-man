@@ -1,12 +1,12 @@
-import Modal, { ModalWrapperProps } from "./Modal";
+import Modal from "./Modal";
 import logo from "@assets/images/logo.png";
 import Icon from "@components/common/Icon";
 import { BsDiscord, BsGithub } from "react-icons/bs";
 import { useTranslation, useTranslations } from "@hooks";
 import { app, os, shell } from "@tauri-apps/api";
-import { useEffect, useState } from "react";
+import { forwardRef, useEffect, useState } from "react";
 
-const AboutModal = (props: ModalWrapperProps) => {
+const AboutModal = forwardRef(function AboutModal(_: object, ref) {
     const [heading, dismiss, appName, gitHub, discord] = useTranslations([
         "ABOUT",
         "DISMISS",
@@ -30,7 +30,7 @@ const AboutModal = (props: ModalWrapperProps) => {
     }, []);
 
     return (
-        <Modal open={props.open} heading={heading} confirmText={dismiss}>
+        <Modal ref={ref} heading={heading} confirmText={dismiss}>
             <div className="about-modal">
                 <img width="256" height="256" src={logo} />
                 <h1>{appName}</h1>
@@ -60,6 +60,6 @@ const AboutModal = (props: ModalWrapperProps) => {
             </div>
         </Modal>
     );
-};
+});
 
 export default AboutModal;

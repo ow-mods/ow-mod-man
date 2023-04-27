@@ -14,9 +14,8 @@ export interface FileInputProps<T> {
     onChange?: (path: string) => void;
 }
 
-const FileInput =
-    <T,>(openFunc: (options?: T) => Promise<string | string[] | null>) =>
-    (props: FileInputProps<T>) => {
+const FileInput = <T,>(openFunc: (options?: T) => Promise<string | string[] | null>) =>
+    function FileInput(props: FileInputProps<T>) {
         const browseLabel = useTranslation("BROWSE");
         const label = useTranslation(props.id);
 
@@ -33,7 +32,7 @@ const FileInput =
                 <label htmlFor={props.id}>{props.label ?? label}</label>
                 <div className="file-input-row">
                     <input
-                        id=""
+                        id={props.id}
                         name="target"
                         value={props.value ?? ""}
                         onChange={(e) => props.onChange?.(e.target.value)}

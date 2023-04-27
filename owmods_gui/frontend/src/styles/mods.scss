@@ -1,23 +1,30 @@
 .mod-list {
     height: 100%;
-    width: 100%;
     contain: strict;
     overflow-y: auto;
-    margin-bottom: $margin;
+    overflow-x: hidden;
+    margin-top: $margin;
     scroll-behavior: auto;
-}
-
-.remote-mod-search {
-    margin: $margin-md 0;
+    background-color: var(--accent-bg-darker);
+    padding: 0 $margin-lg;
+    border-radius: 5px;
 }
 
 $row-border: 1px solid var(--accent-bg);
 
 .mod-row {
     border-bottom: $row-border;
-    padding: $margin;
+    padding: $margin 0;
     width: 100%;
     min-width: 0;
+}
+
+.remote-mod-search {
+    margin-bottom: 0 !important;
+}
+
+.mod-row.remote {
+    padding-right: 1.7em;
 }
 
 .mod-row.local:last-child,
@@ -27,17 +34,6 @@ div:has(.mod-row.remote):last-child > .mod-row {
 
 .mod-row.remote .loading {
     height: 45px;
-}
-
-.mod-row.local {
-    display: grid;
-    grid-auto-flow: row;
-    padding: $margin-md 0;
-}
-
-.mod-row.local.center {
-    padding: $margin-xl 0;
-    align-items: center;
 }
 
 .mod-header {
@@ -56,14 +52,6 @@ div:has(.mod-row.remote):last-child > .mod-row {
     margin-right: $margin;
 }
 
-.mod-heading {
-    grid-area: heading;
-    min-width: 0px;
-    overflow: hidden;
-    white-space: nowrap;
-    text-overflow: ellipsis;
-}
-
 .mod-name {
     margin-right: $margin;
     font-weight: bold;
@@ -79,12 +67,7 @@ div:has(.mod-row.remote):last-child > .mod-row {
     column-gap: $margin;
 }
 
-.mod-actions.center {
-    align-self: center;
-}
-
 .mod-actions svg {
-    cursor: pointer;
     font-size: large;
 }
 
@@ -107,21 +90,21 @@ div:has(.mod-row.remote):last-child > .mod-row {
 }
 
 .update-all-button {
-    margin-top: $margin-md;
-    margin-bottom: $margin-sm;
+    margin: 0;
 }
 
-.mod-row.local .mod-name {
+.mod-row.local .mod-name,
+.mod-row.local .mod-description {
     font-weight: light;
     color: var(--primary-muted);
 }
 
-.mod-row.local:has(input:checked) .mod-name {
+.mod-row.local:has(input:checked) .mod-name,
+.mod-row.local:has(input:checked) .mod-description {
     color: var(--body-color);
 }
 
 .local-toolbar {
-    margin: $margin-md 0;
     display: flex;
     flex-direction: row;
 }
@@ -134,8 +117,7 @@ div:has(.mod-row.remote):last-child > .mod-row {
 .local-toolbar .search {
     width: 70%;
     flex-grow: 1;
-    margin: 0 $margin;
-    margin-left: 0;
+    margin: 0 $margin 0 0;
 }
 
 .local-toolbar .gap {

@@ -1,14 +1,15 @@
 import {
     ChangeEvent,
-    MutableRefObject,
     ReactNode,
+    forwardRef,
     memo,
     useCallback,
+    useImperativeHandle,
     useRef,
     useState
 } from "react";
 import { Config, GuiConfig, Language, OWMLConfig, Theme } from "@types";
-import Modal, { ModalWrapperProps } from "./Modal";
+import Modal from "./Modal";
 import { useTranslation, useTranslations } from "@hooks";
 import { commands, hooks } from "@commands";
 import { OpenFileInput } from "@components/common/FileInput";
@@ -22,7 +23,10 @@ interface SettingsFormProps {
     initialConfig: Config;
     initialOwmlConfig: OWMLConfig;
     initialGuiConfig: GuiConfig;
-    save: MutableRefObject<() => void>;
+}
+
+interface SettingsFormHandle {
+    save: () => void;
 }
 
 interface SettingsRowProps {
@@ -72,10 +76,10 @@ const SettingsText = (props: SettingsTextProps) => {
 };
 
 const SettingsSelect = (props: SettingsSelectProps) => {
-    let translations = Array.from(props.options);
+    let translations = useTranslations(Array.from(props.options));
 
-    if (props.translate) {
-        translations = useTranslations(Array.from(props.options));
+    if (!props.translate) {
+        translations = Array.from(props.options);
     }
 
     return (
@@ -136,7 +140,7 @@ const SettingsSwitch = (props: SettingsSwitchProps) => {
     );
 };
 
-const ResetButton = memo((props: { onClick: () => void }) => {
+const ResetButton = memo(function ResetButton(props: { onClick: () => void }) {
     const resetTooltip = useTranslation("RESET");
 
     return (
@@ -153,10 +157,32 @@ const ResetButton = memo((props: { onClick: () => void }) => {
     );
 });
 
-const SettingsForm = (props: SettingsFormProps) => {
+const SettingsForm = forwardRef(function SettingsForm(props: SettingsFormProps, ref) {
     const [config, setConfig] = useState<Config>(props.initialConfig);
     const [owmlConfig, setOwmlConfig] = useState<OWMLConfig>(props.initialOwmlConfig);
     const [guiConfig, setGuiConfig] = useState<GuiConfig>(props.initialGuiConfig);
+
+    useImperativeHandle(
+        ref,
+        () => ({
+            save: () => {
+                const task = async () => {
+                    await commands.saveConfig({ config });
+                    await commands.saveGuiConfig({ guiConfig });
+                    if (config.owmlPath !== props.initialConfig.owmlPath) {
+                        await commands.refreshLocalDb();
+                    } else {
+                        await commands.saveOwmlConfig({ owmlConfig });
+                    }
+                    if (config.databaseUrl !== props.initialConfig.databaseUrl) {
+                        await commands.refreshRemoteDb();
+                    }
+                };
+                task().catch(console.error);
+            }
+        }),
+        [config, owmlConfig, guiConfig, props.initialConfig]
+    );
 
     const [
         generalSettings,
@@ -195,9 +221,9 @@ const SettingsForm = (props: SettingsFormProps) => {
     ]);
 
     const getVal = (e: HTMLInputElement | HTMLSelectElement) => {
-        const type = (e as any).type;
+        const type = e.type;
         if (type && type === "checkbox") {
-            return (e as any).checked;
+            return (e as HTMLInputElement).checked;
         } else {
             return e.value;
         }
@@ -222,22 +248,6 @@ const SettingsForm = (props: SettingsFormProps) => {
             [setConfig, setGuiConfig, setOwmlConfig][i](data[i]);
         });
     }, []);
-
-    props.save.current = () => {
-        const task = async () => {
-            await commands.saveConfig({ config });
-            await commands.saveGuiConfig({ guiConfig });
-            if (config.owmlPath !== props.initialConfig.owmlPath) {
-                await commands.refreshLocalDb();
-            } else {
-                await commands.saveOwmlConfig({ owmlConfig });
-            }
-            if (config.databaseUrl !== props.initialConfig.databaseUrl) {
-                await commands.refreshRemoteDb();
-            }
-        };
-        task().catch(console.error);
-    };
 
     return (
         <form className="settings">
@@ -334,14 +344,14 @@ const SettingsForm = (props: SettingsFormProps) => {
             />
         </form>
     );
-};
+});
 
-const SettingsModal = (props: ModalWrapperProps) => {
+const SettingsModal = forwardRef(function SettingsModal(_: object, ref) {
+    const settingsFormRef = useRef<SettingsFormHandle>();
+
     const [configStatus, config, err1] = hooks.getConfig("CONFIG_RELOAD");
     const [guiConfigStatus, guiConfig, err2] = hooks.getGuiConfig("GUI_CONFIG_RELOAD");
     const [owmlConfigStatus, owmlConfig, err3] = hooks.getOwmlConfig("OWML_CONFIG_RELOAD");
-
-    const saveChanges = useRef<() => void>(() => null);
 
     const status = [configStatus, guiConfigStatus, owmlConfigStatus];
 
@@ -351,7 +361,7 @@ const SettingsModal = (props: ModalWrapperProps) => {
         return <></>;
     } else if (status.includes("Error")) {
         return (
-            <Modal showCancel heading={settings} confirmText={save} open={props.open}>
+            <Modal showCancel heading={settings} confirmText={save} ref={ref}>
                 <>
                     <p className="center">
                         <>
@@ -365,14 +375,14 @@ const SettingsModal = (props: ModalWrapperProps) => {
     } else {
         return (
             <Modal
-                onConfirm={() => saveChanges.current()}
+                onConfirm={() => settingsFormRef.current?.save()}
                 showCancel
                 heading={settings}
                 confirmText={save}
-                open={props.open}
+                ref={ref}
             >
                 <SettingsForm
-                    save={saveChanges}
+                    ref={settingsFormRef}
                     initialConfig={config!}
                     initialGuiConfig={guiConfig!}
                     initialOwmlConfig={owmlConfig!}
@@ -380,6 +390,6 @@ const SettingsModal = (props: ModalWrapperProps) => {
             </Modal>
         );
     }
-};
+});
 
 export default SettingsModal;

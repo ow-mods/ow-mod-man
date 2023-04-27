@@ -1,3 +1,8 @@
+.tabs-wrapper {
+    background-color: var(--accent-bg-darkest);
+    border-bottom: $border-size solid var(--accent-bg);
+}
+
 .tabs {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
@@ -5,7 +10,6 @@
     grid-column-gap: $margin;
     grid-row-gap: 0px;
     align-items: center;
-    border-bottom: $border-size solid var(--accent-bg);
 }
 
 .tab {
@@ -42,13 +46,16 @@
     flex-direction: column;
     flex-grow: 1;
     overflow: hidden;
+    align-items: center;
 }
 
 .section {
+    @extend .max-width;
     display: none;
     flex-direction: column;
     height: 100%;
     overflow: hidden;
+    padding: $margin-xl;
 }
 
 .section.remote {

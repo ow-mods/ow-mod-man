@@ -1,8 +1,8 @@
 import { commands } from "@commands";
 import { useTranslation, useTranslations } from "@hooks";
 import { ModValidationError } from "@types";
-import { MutableRefObject, useEffect, useMemo, useRef, useState } from "react";
-import Modal from "./Modal";
+import { forwardRef, useImperativeHandle, useMemo, useRef, useState } from "react";
+import Modal, { ModalHandle } from "./Modal";
 
 export interface OpenModValidationModalPayload {
     uniqueName: string;
@@ -10,8 +10,9 @@ export interface OpenModValidationModalPayload {
     errors: ModValidationError[];
 }
 
-export interface ModValidationModalProps {
-    open: MutableRefObject<(payload: OpenModValidationModalPayload) => void>;
+export interface ModValidationModalHandle {
+    open: (payload: OpenModValidationModalPayload) => void;
+    close: () => void;
 }
 
 const ValidationError = (props: ModValidationError) => {
@@ -19,8 +20,8 @@ const ValidationError = (props: ModValidationError) => {
     return <li>{message}</li>;
 };
 
-const ModValidationModal = (props: ModValidationModalProps) => {
-    const openInternal = useRef<() => void>(() => null);
+const ModValidationModal = forwardRef(function ModValidationModal(_: object, ref) {
+    const modalRef = useRef<ModalHandle>();
     const [uniqueName, setUniqueName] = useState<string>("");
     const [modName, setModName] = useState<string>("");
     const [errors, setErrors] = useState<ModValidationError[]>([]);
@@ -35,14 +36,21 @@ const ModValidationModal = (props: ModValidationModalProps) => {
     const header = useTranslation("VALIDATION_HEADER", { name: modName });
     const message = useTranslation("VALIDATION_MESSAGE", { name: modName });
 
-    useEffect(() => {
-        props.open.current = (payload: OpenModValidationModalPayload) => {
-            setModName(payload.modName);
-            setUniqueName(payload.uniqueName);
-            setErrors(payload.errors);
-            openInternal.current();
-        };
-    }, [openInternal.current]);
+    useImperativeHandle(
+        ref,
+        () => ({
+            open: (payload: OpenModValidationModalPayload) => {
+                setModName(payload.modName);
+                setUniqueName(payload.uniqueName);
+                setErrors(payload.errors);
+                modalRef.current?.open();
+            },
+            close: () => {
+                modalRef.current?.close();
+            }
+        }),
+        []
+    );
 
     const onConfirm = () => {
         if (canFix) {
@@ -64,7 +72,7 @@ const ModValidationModal = (props: ModValidationModalProps) => {
             showCancel={canFix}
             cancelText={dontFix}
             onConfirm={onConfirm}
-            open={openInternal}
+            ref={modalRef}
         >
             <h6>{message}</h6>
             <ul>
@@ -75,6 +83,6 @@ const ModValidationModal = (props: ModValidationModalProps) => {
             {canFix && <p>{fixMessage}</p>}
         </Modal>
     );
-};
+});
 
 export default ModValidationModal;

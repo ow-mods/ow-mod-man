@@ -17,7 +17,7 @@ enum SectionType {
     Updates
 }
 
-const Tabs = memo(() => {
+const Tabs = memo(function Tabs() {
     const [shownSection, setShownSection] = useState(SectionType.Local);
 
     const [installedMods, getMods] = useTranslations(["INSTALLED_MODS", "GET_MODS"]);
@@ -25,23 +25,25 @@ const Tabs = memo(() => {
     return (
         <>
             <IconContext.Provider value={{ className: "tab-icon" }}>
-                <div className="grid tabs">
-                    <Tab
-                        selected={shownSection === SectionType.Local}
-                        onClick={() => setShownSection(SectionType.Local)}
-                    >
-                        <Icon iconType={BsDisplay} label={installedMods} />
-                    </Tab>
-                    <Tab
-                        selected={shownSection === SectionType.Remote}
-                        onClick={() => setShownSection(SectionType.Remote)}
-                    >
-                        <Icon iconType={BsGlobe} label={getMods} />
-                    </Tab>
-                    <UpdatesTab
-                        selected={shownSection === SectionType.Updates}
-                        onClick={() => setShownSection(SectionType.Updates)}
-                    />
+                <div className="tabs-wrapper">
+                    <div className="grid tabs max-width">
+                        <Tab
+                            selected={shownSection === SectionType.Local}
+                            onClick={() => setShownSection(SectionType.Local)}
+                        >
+                            <Icon iconType={BsDisplay} label={installedMods} />
+                        </Tab>
+                        <Tab
+                            selected={shownSection === SectionType.Remote}
+                            onClick={() => setShownSection(SectionType.Remote)}
+                        >
+                            <Icon iconType={BsGlobe} label={getMods} />
+                        </Tab>
+                        <UpdatesTab
+                            selected={shownSection === SectionType.Updates}
+                            onClick={() => setShownSection(SectionType.Updates)}
+                        />
+                    </div>
                 </div>
             </IconContext.Provider>
             <div className="sections">

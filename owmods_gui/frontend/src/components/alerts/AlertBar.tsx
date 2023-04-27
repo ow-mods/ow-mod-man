@@ -1,7 +1,7 @@
 import { hooks } from "@commands";
 import { memo } from "react";
 
-const AlertBar = memo(() => {
+const AlertBar = memo(function AlertBar() {
     const [status, alert, err] = hooks.getAlert("CONFIG_RELOAD");
 
     if (status === "Loading") {

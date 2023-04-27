@@ -9,7 +9,7 @@ export interface IconProps {
 
 // "Pure" icon component, use to prevent expensive rerenders
 const Icon = memo(
-    (props: IconProps) => {
+    function Icon(props: IconProps) {
         return (
             <>
                 {props.iconType({ className: props.iconClassName })}

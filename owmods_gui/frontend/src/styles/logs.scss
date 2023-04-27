@@ -7,12 +7,12 @@ $log-border: 1px solid var(--accent-bg);
 
     & .log-list {
         height: 100%;
+        overflow-x: hidden;
         overflow-y: auto;
         contain: strict;
-
-        & div:has(.log-line):first-child > .log-line {
-            border-top: $log-border;
-        }
+        background-color: var(--accent-bg-darker);
+        padding: $margin-sm;
+        border-radius: 5px;
 
         & .log-line {
             display: flex;

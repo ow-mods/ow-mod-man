@@ -1,3 +1,8 @@
+.nav-wrapper {
+    background-color: var(--accent-bg-darkest);
+    width: 100%;
+}
+
 svg.nav-icon {
     width: $margin-lg;
     height: $margin-lg;
@@ -7,10 +12,6 @@ svg.nav-icon {
 
 .nav-icon:not(details[role="list"] .nav-icon) {
     margin: 0 $margin-lg;
-}
-
-.nav-icon:hover {
-    cursor: pointer;
 }
 
 svg.main-icon {
@@ -24,9 +25,8 @@ svg.main-icon {
 
 details[role="list"] summary {
     padding: 0 !important;
-    background-color: var(--bg) !important;
+    background-color: var(--accent-bg-darkest) !important;
     border: none !important;
-    color: var(--primary) !important;
 }
 
 details[role="list"] summary::after {

@@ -86,11 +86,11 @@
       {
         "fullscreen": false,
         "height": 750,
-        "minHeight": 275,
+        "minHeight": 400,
         "resizable": true,
         "title": "Outer Wilds Mod Manager",
         "width": 850,
-        "minWidth": 475
+        "minWidth": 600
       }
     ]
   }

@@ -17,7 +17,7 @@ enum SectionType {
     Updates
 }
 
-const Tabs = memo(() => {
+const Tabs = memo(function Tabs() {
     const [shownSection, setShownSection] = useState(SectionType.Local);
 
     const [installedMods, getMods] = useTranslations(["INSTALLED_MODS", "GET_MODS"]);

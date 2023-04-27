@@ -4,7 +4,7 @@ import { useTauriCount, useTranslations } from "@hooks";
 import { memo, useCallback, useState } from "react";
 import UpdateModRow from "./UpdateModRow";
 
-const UpdateMods = memo(() => {
+const UpdateMods = memo(function UpdateMods() {
     const [status, updates, err] = hooks.getUpdatableMods(["REMOTE-REFRESH", "LOCAL-REFRESH"]);
     const [updating, setUpdating] = useState(false);
     const modsUpdating = useTauriCount("INSTALL-START", "INSTALL-FINISH");

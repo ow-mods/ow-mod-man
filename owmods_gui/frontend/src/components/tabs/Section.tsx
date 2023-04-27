@@ -6,7 +6,7 @@ export interface SectionProps {
     className?: string;
 }
 
-const Section = memo((props: SectionProps) => {
+const Section = memo(function Section(props: SectionProps) {
     return (
         <div className={`section${props.shown ? " shown" : ""} ${props.className ?? ""}`}>
             {props.children}

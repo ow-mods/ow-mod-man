@@ -136,7 +136,7 @@ const SettingsSwitch = (props: SettingsSwitchProps) => {
     );
 };
 
-const ResetButton = memo((props: { onClick: () => void }) => {
+const ResetButton = memo(function ResetButton(props: { onClick: () => void }) {
     const resetTooltip = useTranslation("RESET");
 
     return (

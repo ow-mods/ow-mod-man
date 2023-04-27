@@ -23,7 +23,7 @@ interface LocalModRowProps {
     onUninstall?: () => void;
 }
 
-const LocalModRow = memo((props: LocalModRowProps) => {
+const LocalModRow = memo(function LocalModRow(props: LocalModRowProps) {
     const [showFolderTooltip, uninstallTooltip, websiteTooltip] = useTranslations([
         "SHOW_FOLDER",
         "UNINSTALL",
@@ -39,7 +39,7 @@ const LocalModRow = memo((props: LocalModRowProps) => {
             <ModHeader name={props.name} subtitle={props.subtitle ?? ""}>
                 {props.showValidation && (
                     <LocalModValidationIcon
-                        onClick={props.onValidationClick}
+                        onClickProp={props.onValidationClick}
                         errors={props.errors}
                     />
                 )}

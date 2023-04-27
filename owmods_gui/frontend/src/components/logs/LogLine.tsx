@@ -11,7 +11,7 @@ export interface LogLineProps {
     virtuosoRef?: MutableRefObject<VirtuosoHandle | null>;
 }
 
-const LogLine = memo((props: LogLineProps) => {
+const LogLine = memo(function LogLine(props: LogLineProps) {
     const [status, msg, err] = hooks.getLogLine("", { port: props.port, line: props.line });
 
     const messageType = useMemo(() => {

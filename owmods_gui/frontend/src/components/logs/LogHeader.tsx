@@ -13,7 +13,7 @@ export interface LogHeaderProps {
 }
 
 const LogHeader = memo(
-    ({ setActiveSearch, ...props }: LogHeaderProps) => {
+    function LogHeader({ setActiveSearch, ...props }: LogHeaderProps) {
         const [tempSearch, setTempSearch] = useState<string>("");
         const searchTimeout = useRef<number | undefined>(undefined);
         const [filterLabel, searchLogs, anyLabel, clearLabel] = useTranslations([

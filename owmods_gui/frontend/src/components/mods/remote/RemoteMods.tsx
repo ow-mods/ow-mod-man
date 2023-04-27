@@ -4,7 +4,7 @@ import { useTranslation } from "@hooks";
 import { memo, useEffect, useRef, useState } from "react";
 import RemoteModsList from "./RemoteModsList";
 
-const RemoteMods = memo(() => {
+const RemoteMods = memo(function RemoteMods() {
     const [filter, setFilter] = useState("");
     const [tempFilter, setTempFilter] = useState("");
 

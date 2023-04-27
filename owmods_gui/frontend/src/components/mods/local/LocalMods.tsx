@@ -7,7 +7,7 @@ import { useTranslations } from "@hooks";
 import { memo, useCallback, useEffect, useRef, useState } from "react";
 import UnsafeModRow from "./UnsafeModRow";
 
-const LocalMods = memo(() => {
+const LocalMods = memo(function LocalMods() {
     const openValidationModal = useRef<(p: OpenModValidationModalPayload) => void>(() => null);
     const [filter, setFilter] = useState("");
     const [tempFilter, setTempFilter] = useState("");

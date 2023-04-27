@@ -38,7 +38,7 @@ export interface RemoteModRowProps {
     uniqueName: string;
 }
 
-const RemoteModRow = memo((props: RemoteModRowProps) => {
+const RemoteModRow = memo(function RemoteModRow(props: RemoteModRowProps) {
     const [status, mod, err] = hooks.getRemoteMod("REMOTE-REFRESH", {
         uniqueName: props.uniqueName
     });
@@ -129,10 +129,12 @@ const RemoteModRow = memo((props: RemoteModRowProps) => {
     }
 });
 
-const Wrapper = memo((props: RemoteModRowProps) => (
-    <div className="mod-row remote">
-        <RemoteModRow {...props} />
-    </div>
-));
+const Wrapper = memo(function Wrapper(props: RemoteModRowProps) {
+    return (
+        <div className="mod-row remote">
+            <RemoteModRow {...props} />
+        </div>
+    );
+});
 
 export default Wrapper;

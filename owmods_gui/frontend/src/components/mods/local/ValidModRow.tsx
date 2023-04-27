@@ -11,7 +11,7 @@ interface LocalModRowProps {
     onValidationClick?: (p: OpenModValidationModalPayload) => void;
 }
 
-const ValidModRow = memo(({ mod, onValidationClick }: LocalModRowProps) => {
+const ValidModRow = memo(function ValidModRow({ mod, onValidationClick }: LocalModRowProps) {
     const confirmText = useTranslation("CONFIRM");
 
     const remoteMod = hooks.getRemoteMod("REMOTE-REFRESH", {

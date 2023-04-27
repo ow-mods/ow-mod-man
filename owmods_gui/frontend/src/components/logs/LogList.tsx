@@ -11,7 +11,7 @@ export interface LogListProps {
     search: string;
 }
 
-const LogList = memo((props: LogListProps) => {
+const LogList = memo(function LogList(props: LogListProps) {
     const virtuoso = useRef<VirtuosoHandle | null>(null);
 
     return (

@@ -19,17 +19,12 @@ $row-border: 1px solid var(--accent-bg);
 .mod-row {
     border-bottom: $row-border;
     padding: $margin 0;
-    padding-right: 1.7em;
     width: 100%;
     min-width: 0;
 }
 
-.mod-row.local:first-child {
-    padding-top: 0;
-}
-
-div:has(.mod-row.remote) {
-    box-sizing: border-box;
+.mod-row.remote {
+    padding-right: 1.7em;
 }
 
 .mod-row.local:last-child,
@@ -39,12 +34,6 @@ div:has(.mod-row.remote):last-child > .mod-row {
 
 .mod-row.remote .loading {
     height: 45px;
-}
-
-.mod-row.local {
-    display: grid;
-    grid-auto-flow: row;
-    padding: $margin-md 0;
 }
 
 .mod-header {
@@ -63,14 +52,6 @@ div:has(.mod-row.remote):last-child > .mod-row {
     margin-right: $margin;
 }
 
-.mod-heading {
-    grid-area: heading;
-    min-width: 0px;
-    overflow: hidden;
-    white-space: nowrap;
-    text-overflow: ellipsis;
-}
-
 .mod-name {
     margin-right: $margin;
     font-weight: bold;
@@ -84,10 +65,6 @@ div:has(.mod-row.remote):last-child > .mod-row {
     justify-self: right;
     align-items: center;
     column-gap: $margin;
-}
-
-.mod-actions.center {
-    align-self: center;
 }
 
 .mod-actions svg {

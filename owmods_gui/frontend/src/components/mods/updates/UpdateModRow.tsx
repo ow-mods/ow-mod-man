@@ -15,7 +15,7 @@ export interface UpdateModRowProps {
 }
 
 const UpdateModRow = memo(
-    ({ uniqueName, parentUpdating, onUpdate }: UpdateModRowProps) => {
+    function UpdateModRow({ uniqueName, parentUpdating, onUpdate }: UpdateModRowProps) {
         const [remoteStatus, remoteMod, err1] = hooks.getRemoteMod("REMOTE-REFRESH", {
             uniqueName
         });

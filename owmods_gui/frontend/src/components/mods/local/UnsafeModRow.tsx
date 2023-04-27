@@ -10,7 +10,7 @@ export interface UnsafeModRowProps {
     onValidationClicked?: (p: OpenModValidationModalPayload) => void;
 }
 
-const UnsafeModRow = memo((props: UnsafeModRowProps) => {
+const UnsafeModRow = memo(function UnsafeModRow(props: UnsafeModRowProps) {
     const [status, mod, err] = hooks.getLocalMod("LOCAL-REFRESH", { uniqueName: props.uniqueName });
 
     if (status === "Loading" && mod === null) {

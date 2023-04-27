@@ -1,6 +1,6 @@
-nav {
+.nav-wrapper {
     background-color: var(--accent-bg-darkest);
-    padding: 0 $margin-xl;
+    width: 100%;
 }
 
 svg.nav-icon {
@@ -12,10 +12,6 @@ svg.nav-icon {
 
 .nav-icon:not(details[role="list"] .nav-icon) {
     margin: 0 $margin-lg;
-}
-
-.nav-icon:hover {
-    cursor: pointer;
 }
 
 svg.main-icon {

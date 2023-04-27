@@ -82,6 +82,17 @@ button.secondary:hover {
     color: var(--primary-muted);
 }
 
+a {
+    cursor: pointer;
+}
+
+.max-width {
+    padding: 0 $margin-xl;
+    max-width: $max-width;
+    margin: auto;
+    width: 100%;
+}
+
 @import "files.scss";
 @import "nav.scss";
 @import "tabs.scss";

@@ -95,41 +95,43 @@ const Nav = () => {
             <SettingsModal ref={settingsRef} />
             <InstallFromModal ref={installFromRef} />
             <AboutModal ref={aboutRef} />
-            <nav>
-                <ul>
-                    <Downloads />
-                    <NavRefreshButton />
-                </ul>
-                <ul>
-                    {areLogsStarting ? (
-                        <CenteredSpinner />
-                    ) : (
-                        <NavButton onClick={onPlay} labelPlacement="bottom" ariaLabel={runGame}>
-                            <Icon iconClassName="main-icon" iconType={BsPlayFill} />
+            <div className="nav-wrapper">
+                <nav className="max-width">
+                    <ul>
+                        <Downloads />
+                        <NavRefreshButton />
+                    </ul>
+                    <ul>
+                        {areLogsStarting ? (
+                            <CenteredSpinner />
+                        ) : (
+                            <NavButton onClick={onPlay} labelPlacement="bottom" ariaLabel={runGame}>
+                                <Icon iconClassName="main-icon" iconType={BsPlayFill} />
+                            </NavButton>
+                        )}
+                    </ul>
+                    <ul>
+                        <NavButton labelPlacement="bottom" ariaLabel={help}>
+                            <Icon iconType={BsQuestion} />
                         </NavButton>
-                    )}
-                </ul>
-                <ul>
-                    <NavButton labelPlacement="bottom" ariaLabel={help}>
-                        <Icon iconType={BsQuestion} />
-                    </NavButton>
-                    <NavMore>
-                        {/* Dropdown uses RTL */}
-                        <NavButton onClick={() => settingsRef.current?.open()}>
-                            {settings} <Icon iconType={BsGearFill} />
-                        </NavButton>
-                        <NavButton onClick={() => installFromRef.current?.open()}>
-                            ...{installFrom} <Icon iconType={BsBoxArrowInDown} />
-                        </NavButton>
-                        <NavButton onClick={onExport}>
-                            {exportLabel} <Icon iconType={BsBoxArrowUpRight} />
-                        </NavButton>
-                        <NavButton onClick={() => aboutRef.current?.open()}>
-                            {about} <Icon iconType={BsInfoCircleFill} />
-                        </NavButton>
-                    </NavMore>
-                </ul>
-            </nav>
+                        <NavMore>
+                            {/* Dropdown uses RTL */}
+                            <NavButton onClick={() => settingsRef.current?.open()}>
+                                {settings} <Icon iconType={BsGearFill} />
+                            </NavButton>
+                            <NavButton onClick={() => installFromRef.current?.open()}>
+                                ...{installFrom} <Icon iconType={BsBoxArrowInDown} />
+                            </NavButton>
+                            <NavButton onClick={onExport}>
+                                {exportLabel} <Icon iconType={BsBoxArrowUpRight} />
+                            </NavButton>
+                            <NavButton onClick={() => aboutRef.current?.open()}>
+                                {about} <Icon iconType={BsInfoCircleFill} />
+                            </NavButton>
+                        </NavMore>
+                    </ul>
+                </nav>
+            </div>
         </IconContext.Provider>
     );
 };

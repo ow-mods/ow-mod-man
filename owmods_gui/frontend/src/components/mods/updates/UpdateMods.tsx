@@ -32,23 +32,27 @@ const UpdateMods = memo(function UpdateMods() {
         return <div className="center">{err!.toString()}</div>;
     } else {
         return (
-            <div className="mod-list">
+            <>
                 {updates!.length > 0 ? (
-                    <button
-                        onClick={onUpdateAll}
-                        className="update-all-button"
-                        aria-busy={updating}
-                        disabled={updating || modsUpdating > 0}
-                    >
-                        {updating ? updatingAll : updateAll}
-                    </button>
+                    <>
+                        <button
+                            onClick={onUpdateAll}
+                            className="update-all-button"
+                            aria-busy={updating}
+                            disabled={updating || modsUpdating > 0}
+                        >
+                            {updating ? updatingAll : updateAll}
+                        </button>
+                        <div className="mod-list">
+                            {updates!.map((m) => (
+                                <UpdateModRow parentUpdating={updating} key={m} uniqueName={m} />
+                            ))}
+                        </div>
+                    </>
                 ) : (
                     <p className="center muted">{noUpdates}</p>
                 )}
-                {updates!.map((m) => (
-                    <UpdateModRow parentUpdating={updating} key={m} uniqueName={m} />
-                ))}
-            </div>
+            </>
         );
     }
 });

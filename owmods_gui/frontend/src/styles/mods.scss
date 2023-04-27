@@ -3,7 +3,7 @@
     contain: strict;
     overflow-y: auto;
     overflow-x: hidden;
-    margin: $margin 0;
+    margin-top: $margin;
     scroll-behavior: auto;
     background-color: var(--accent-bg-darker);
     padding: 0 $margin-lg;
@@ -20,7 +20,6 @@ $row-border: 1px solid var(--accent-bg);
 }
 
 .remote-mod-search {
-    margin-top: $margin-md;
     margin-bottom: 0 !important;
 }
 
@@ -69,7 +68,6 @@ div:has(.mod-row.remote):last-child > .mod-row {
 }
 
 .mod-actions svg {
-    cursor: pointer;
     font-size: large;
 }
 
@@ -92,7 +90,7 @@ div:has(.mod-row.remote):last-child > .mod-row {
 }
 
 .update-all-button {
-    margin-bottom: $margin-sm;
+    margin: 0;
 }
 
 .mod-row.local .mod-name,
@@ -107,8 +105,6 @@ div:has(.mod-row.remote):last-child > .mod-row {
 }
 
 .local-toolbar {
-    margin: $margin 0;
-    margin-bottom: 0;
     display: flex;
     flex-direction: row;
 }
@@ -121,9 +117,7 @@ div:has(.mod-row.remote):last-child > .mod-row {
 .local-toolbar .search {
     width: 70%;
     flex-grow: 1;
-    margin: 0 $margin;
-    margin-bottom: 0 !important;
-    margin-left: 0;
+    margin: 0 $margin 0 0;
 }
 
 .local-toolbar .gap {

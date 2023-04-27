@@ -1,6 +1,7 @@
 import { commands, hooks } from "@commands";
 import CenteredSpinner from "@components/common/CenteredSpinner";
 import ModValidationModal, {
+    ModValidationModalHandle,
     OpenModValidationModalPayload
 } from "@components/modals/ModValidationModal";
 import { useTranslations } from "@hooks";
@@ -8,7 +9,7 @@ import { memo, useCallback, useEffect, useRef, useState } from "react";
 import UnsafeModRow from "./UnsafeModRow";
 
 const LocalMods = memo(function LocalMods() {
-    const openValidationModal = useRef<(p: OpenModValidationModalPayload) => void>(() => null);
+    const validationModalRef = useRef<ModValidationModalHandle>();
     const [filter, setFilter] = useState("");
     const [tempFilter, setTempFilter] = useState("");
     const activeTimeout = useRef<number | undefined>(undefined);
@@ -43,7 +44,7 @@ const LocalMods = memo(function LocalMods() {
     };
 
     const onValidationIconClicked = useCallback((p: OpenModValidationModalPayload) => {
-        openValidationModal.current(p);
+        validationModalRef.current?.open(p);
     }, []);
 
     if (status === "Loading" && mods === null) {
@@ -53,7 +54,7 @@ const LocalMods = memo(function LocalMods() {
     } else {
         return (
             <>
-                <ModValidationModal open={openValidationModal} />
+                <ModValidationModal ref={validationModalRef} />
                 {(filter.length >= 0 || mods!.length !== 0) && (
                     <div className="local-toolbar">
                         <input

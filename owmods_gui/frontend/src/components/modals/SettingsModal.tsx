@@ -1,10 +1,10 @@
 import {
     ChangeEvent,
-    MutableRefObject,
     ReactNode,
     forwardRef,
     memo,
     useCallback,
+    useImperativeHandle,
     useRef,
     useState
 } from "react";
@@ -23,7 +23,10 @@ interface SettingsFormProps {
     initialConfig: Config;
     initialOwmlConfig: OWMLConfig;
     initialGuiConfig: GuiConfig;
-    save: MutableRefObject<() => void>;
+}
+
+interface SettingsFormHandle {
+    save: () => void;
 }
 
 interface SettingsRowProps {
@@ -154,10 +157,32 @@ const ResetButton = memo(function ResetButton(props: { onClick: () => void }) {
     );
 });
 
-const SettingsForm = (props: SettingsFormProps) => {
+const SettingsForm = forwardRef(function SettingsForm(props: SettingsFormProps, ref) {
     const [config, setConfig] = useState<Config>(props.initialConfig);
     const [owmlConfig, setOwmlConfig] = useState<OWMLConfig>(props.initialOwmlConfig);
     const [guiConfig, setGuiConfig] = useState<GuiConfig>(props.initialGuiConfig);
+
+    useImperativeHandle(
+        ref,
+        () => ({
+            save: () => {
+                const task = async () => {
+                    await commands.saveConfig({ config });
+                    await commands.saveGuiConfig({ guiConfig });
+                    if (config.owmlPath !== props.initialConfig.owmlPath) {
+                        await commands.refreshLocalDb();
+                    } else {
+                        await commands.saveOwmlConfig({ owmlConfig });
+                    }
+                    if (config.databaseUrl !== props.initialConfig.databaseUrl) {
+                        await commands.refreshRemoteDb();
+                    }
+                };
+                task().catch(console.error);
+            }
+        }),
+        [config, owmlConfig, guiConfig, props.initialConfig]
+    );
 
     const [
         generalSettings,
@@ -223,22 +248,6 @@ const SettingsForm = (props: SettingsFormProps) => {
             [setConfig, setGuiConfig, setOwmlConfig][i](data[i]);
         });
     }, []);
-
-    props.save.current = () => {
-        const task = async () => {
-            await commands.saveConfig({ config });
-            await commands.saveGuiConfig({ guiConfig });
-            if (config.owmlPath !== props.initialConfig.owmlPath) {
-                await commands.refreshLocalDb();
-            } else {
-                await commands.saveOwmlConfig({ owmlConfig });
-            }
-            if (config.databaseUrl !== props.initialConfig.databaseUrl) {
-                await commands.refreshRemoteDb();
-            }
-        };
-        task().catch(console.error);
-    };
 
     return (
         <form className="settings">
@@ -335,14 +344,14 @@ const SettingsForm = (props: SettingsFormProps) => {
             />
         </form>
     );
-};
+});
 
 const SettingsModal = forwardRef(function SettingsModal(_: object, ref) {
+    const settingsFormRef = useRef<SettingsFormHandle>();
+
     const [configStatus, config, err1] = hooks.getConfig("CONFIG_RELOAD");
     const [guiConfigStatus, guiConfig, err2] = hooks.getGuiConfig("GUI_CONFIG_RELOAD");
     const [owmlConfigStatus, owmlConfig, err3] = hooks.getOwmlConfig("OWML_CONFIG_RELOAD");
-
-    const saveChanges = useRef<() => void>(() => null);
 
     const status = [configStatus, guiConfigStatus, owmlConfigStatus];
 
@@ -366,14 +375,14 @@ const SettingsModal = forwardRef(function SettingsModal(_: object, ref) {
     } else {
         return (
             <Modal
-                onConfirm={() => saveChanges.current()}
+                onConfirm={() => settingsFormRef.current?.save()}
                 showCancel
                 heading={settings}
                 confirmText={save}
                 ref={ref}
             >
                 <SettingsForm
-                    save={saveChanges}
+                    ref={settingsFormRef}
                     initialConfig={config!}
                     initialGuiConfig={guiConfig!}
                     initialOwmlConfig={owmlConfig!}

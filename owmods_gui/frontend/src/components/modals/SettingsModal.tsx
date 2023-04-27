@@ -2,13 +2,14 @@ import {
     ChangeEvent,
     MutableRefObject,
     ReactNode,
+    forwardRef,
     memo,
     useCallback,
     useRef,
     useState
 } from "react";
 import { Config, GuiConfig, Language, OWMLConfig, Theme } from "@types";
-import Modal, { ModalWrapperProps } from "./Modal";
+import Modal from "./Modal";
 import { useTranslation, useTranslations } from "@hooks";
 import { commands, hooks } from "@commands";
 import { OpenFileInput } from "@components/common/FileInput";
@@ -336,7 +337,7 @@ const SettingsForm = (props: SettingsFormProps) => {
     );
 };
 
-const SettingsModal = (props: ModalWrapperProps) => {
+const SettingsModal = forwardRef(function SettingsModal(_: object, ref) {
     const [configStatus, config, err1] = hooks.getConfig("CONFIG_RELOAD");
     const [guiConfigStatus, guiConfig, err2] = hooks.getGuiConfig("GUI_CONFIG_RELOAD");
     const [owmlConfigStatus, owmlConfig, err3] = hooks.getOwmlConfig("OWML_CONFIG_RELOAD");
@@ -351,7 +352,7 @@ const SettingsModal = (props: ModalWrapperProps) => {
         return <></>;
     } else if (status.includes("Error")) {
         return (
-            <Modal showCancel heading={settings} confirmText={save} open={props.open}>
+            <Modal showCancel heading={settings} confirmText={save} ref={ref}>
                 <>
                     <p className="center">
                         <>
@@ -369,7 +370,7 @@ const SettingsModal = (props: ModalWrapperProps) => {
                 showCancel
                 heading={settings}
                 confirmText={save}
-                open={props.open}
+                ref={ref}
             >
                 <SettingsForm
                     save={saveChanges}
@@ -380,6 +381,6 @@ const SettingsModal = (props: ModalWrapperProps) => {
             </Modal>
         );
     }
-};
+});
 
 export default SettingsModal;

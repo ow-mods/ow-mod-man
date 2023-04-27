@@ -2,15 +2,15 @@ import { commands } from "@commands";
 import { OpenFileInput } from "@components/common/FileInput";
 import { useTranslations } from "@hooks";
 import { dialog } from "@tauri-apps/api";
-import { useRef, useState } from "react";
-import Modal, { ModalWrapperProps } from "./Modal";
+import { forwardRef, useRef, useState } from "react";
+import Modal, { ModalHandle } from "./Modal";
 
 type SetupMethod = "Install" | "Locate";
 
-const OwmlSetupModal = (props: ModalWrapperProps) => {
+const OwmlSetupModal = forwardRef(function OwmlSetupModal(_: object, ref) {
+    const modalRef = useRef<ModalHandle>();
     const [setupMethod, setSetupMethod] = useState<SetupMethod>("Install");
     const [owmlPath, setOwmlPath] = useState("");
-    const closeModal = useRef<() => void>(() => null);
 
     const [setup, message, installOwml, locateOwml, invalidOwml, continueLabel] = useTranslations([
         "SETUP",
@@ -26,7 +26,7 @@ const OwmlSetupModal = (props: ModalWrapperProps) => {
             commands
                 .installOwml()
                 .then(() => {
-                    closeModal.current();
+                    modalRef.current?.close();
                     window.location.reload();
                 })
                 .catch(dialog.message);
@@ -47,8 +47,7 @@ const OwmlSetupModal = (props: ModalWrapperProps) => {
 
     return (
         <Modal
-            open={props.open}
-            close={closeModal}
+            ref={ref}
             onConfirm={onClose}
             heading={setup}
             showCancel={false}
@@ -78,6 +77,6 @@ const OwmlSetupModal = (props: ModalWrapperProps) => {
             </form>
         </Modal>
     );
-};
+});
 
 export default OwmlSetupModal;

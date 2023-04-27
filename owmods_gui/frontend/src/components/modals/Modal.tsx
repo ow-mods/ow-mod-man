@@ -1,5 +1,5 @@
 import { useTranslations } from "@hooks";
-import { MutableRefObject, ReactNode, useEffect, useState } from "react";
+import { ReactNode, forwardRef, useEffect, useImperativeHandle, useState } from "react";
 import { IconContext } from "react-icons";
 
 export interface ModalProps {
@@ -7,15 +7,14 @@ export interface ModalProps {
     confirmText?: string;
     showCancel?: boolean;
     cancelText?: string;
-    open?: MutableRefObject<() => void>;
-    close?: MutableRefObject<() => void>;
     children: ReactNode;
     onCancel?: () => boolean | void;
     onConfirm?: () => boolean | void;
 }
 
-export interface ModalWrapperProps {
-    open?: MutableRefObject<() => void>;
+export interface ModalHandle {
+    open: () => void;
+    close: () => void;
 }
 
 interface OpenState {
@@ -23,30 +22,29 @@ interface OpenState {
     closing: boolean;
 }
 
-const Modal = (props: ModalProps) => {
+const Modal = forwardRef(function Modal(props: ModalProps, ref) {
     const [state, setState] = useState<OpenState>({ open: false, closing: false });
     const [awaitingClose, setAwaitingClose] = useState(false);
 
-    const open = () => setState({ open: true, closing: false });
-    const close = () => {
-        setAwaitingClose(false);
-        setState({ open: true, closing: true });
-    };
-
-    if (props.open) {
-        props.open.current = open;
-    }
-
-    if (props.close) {
-        props.close.current = close;
-    }
+    useImperativeHandle(
+        ref,
+        () => ({
+            open: () => setState({ open: true, closing: false }),
+            close: () => {
+                setAwaitingClose(false);
+                setState({ open: true, closing: true });
+            }
+        }),
+        []
+    );
 
     const [cancel, ok] = useTranslations(["CANCEL", "OK"]);
 
     useEffect(() => {
+        let timeout: number;
         if (state.open) {
             document.documentElement.classList.add("modal-is-opening", "modal-is-open");
-            setTimeout(() => {
+            timeout = setTimeout(() => {
                 document.documentElement.classList.remove("modal-is-opening");
             }, 1000);
         } else {
@@ -55,10 +53,13 @@ const Modal = (props: ModalProps) => {
         if (state.closing) {
             document.documentElement.classList.remove("modal-is-open");
             document.documentElement.classList.add("modal-is-closing");
-            setTimeout(() => {
+            timeout = setTimeout(() => {
                 setState({ open: false, closing: false });
             }, 1000);
         }
+        return () => {
+            clearTimeout(timeout);
+        };
     }, [state]);
 
     return (
@@ -102,6 +103,6 @@ const Modal = (props: ModalProps) => {
             </IconContext.Provider>
         </dialog>
     );
-};
+});
 
 export default Modal;

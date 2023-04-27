@@ -21,11 +21,12 @@ import { commands } from "@commands";
 import { dialog } from "@tauri-apps/api";
 import CenteredSpinner from "@components/common/CenteredSpinner";
 import NavRefreshButton from "./NavRefresh";
+import { ModalHandle } from "@components/modals/Modal";
 
 const Nav = () => {
-    const openSettings = useRef<() => void>(() => null);
-    const openInstallFrom = useRef<() => void>(() => null);
-    const openAbout = useRef<() => void>(() => null);
+    const settingsRef = useRef<ModalHandle>();
+    const installFromRef = useRef<ModalHandle>();
+    const aboutRef = useRef<ModalHandle>();
 
     const [areLogsStarting, setLogsStarting] = useState<boolean>(false);
 
@@ -91,9 +92,9 @@ const Nav = () => {
 
     return (
         <IconContext.Provider value={{ className: "nav-icon" }}>
-            <SettingsModal open={openSettings} />
-            <InstallFromModal open={openInstallFrom} />
-            <AboutModal open={openAbout} />
+            <SettingsModal ref={settingsRef} />
+            <InstallFromModal ref={installFromRef} />
+            <AboutModal ref={aboutRef} />
             <div className="nav-wrapper">
                 <nav className="max-width">
                     <ul>
@@ -114,20 +115,20 @@ const Nav = () => {
                             <Icon iconType={BsQuestion} />
                         </NavButton>
                         <NavMore>
-                            {/* Dropdown uses RTL */}
-                            <NavButton onClick={() => openSettings.current?.()}>
+                        {/* Dropdown uses RTL */}
+                            <NavButton onClick={() => settingsRef.current?.open()}>
                                 {settings} <Icon iconType={BsGearFill} />
                             </NavButton>
-                            <NavButton onClick={() => openInstallFrom.current?.()}>
+                            <NavButton onClick={() => installFromRef.current?.open()}>
                                 ...{installFrom} <Icon iconType={BsBoxArrowInDown} />
                             </NavButton>
                             <NavButton onClick={onExport}>
                                 {exportLabel} <Icon iconType={BsBoxArrowUpRight} />
                             </NavButton>
-                            <NavButton onClick={() => openAbout.current?.()}>
+                            <NavButton onClick={() => aboutRef.current?.open()}>
                                 {about} <Icon iconType={BsInfoCircleFill} />
                             </NavButton>
-                        </NavMore>
+                    </NavMore>
                     </ul>
                 </nav>
             </div>

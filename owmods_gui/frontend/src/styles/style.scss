@@ -82,6 +82,10 @@ button.secondary:hover {
     color: var(--primary-muted);
 }
 
+a {
+    cursor: pointer;
+}
+
 @import "files.scss";
 @import "nav.scss";
 @import "tabs.scss";

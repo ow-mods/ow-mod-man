@@ -115,7 +115,7 @@ const Nav = () => {
                             <Icon iconType={BsQuestion} />
                         </NavButton>
                         <NavMore>
-                        {/* Dropdown uses RTL */}
+                            {/* Dropdown uses RTL */}
                             <NavButton onClick={() => settingsRef.current?.open()}>
                                 {settings} <Icon iconType={BsGearFill} />
                             </NavButton>
@@ -128,7 +128,7 @@ const Nav = () => {
                             <NavButton onClick={() => aboutRef.current?.open()}>
                                 {about} <Icon iconType={BsInfoCircleFill} />
                             </NavButton>
-                    </NavMore>
+                        </NavMore>
                     </ul>
                 </nav>
             </div>

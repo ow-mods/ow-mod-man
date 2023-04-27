@@ -30,6 +30,9 @@ This is the monorepo for the new <a href="https://www.mobiusdigitalgames.com/out
 
 - Main Author: [Bwc9876](https://github.com/Bwc9876)
 - Old Mod Manager and the rest of the OW mods infrastructure author: [Raicuparta](https://github.com/Raicuparta)
+- Contributors:
+  - [Raicuparta](https://github.com/Raicuparta)
+  - [JohnCorby](https://github.com/JohnCorby)
 - Testing:
   - [ShoosGun](https://github.com/ShoosGun)
   - [JohnCorby](https://github.com/JohnCorby)

@@ -1,5 +1,12 @@
 import { useTranslations } from "@hooks";
-import { ReactNode, forwardRef, useEffect, useImperativeHandle, useState } from "react";
+import {
+    ReactNode,
+    forwardRef,
+    useCallback,
+    useEffect,
+    useImperativeHandle,
+    useState
+} from "react";
 import { IconContext } from "react-icons";
 
 export interface ModalProps {
@@ -26,16 +33,18 @@ const Modal = forwardRef(function Modal(props: ModalProps, ref) {
     const [state, setState] = useState<OpenState>({ open: false, closing: false });
     const [awaitingClose, setAwaitingClose] = useState(false);
 
+    const onClose = useCallback(() => {
+        setAwaitingClose(false);
+        setState({ open: true, closing: true });
+    }, []);
+
     useImperativeHandle(
         ref,
         () => ({
             open: () => setState({ open: true, closing: false }),
-            close: () => {
-                setAwaitingClose(false);
-                setState({ open: true, closing: true });
-            }
+            close: onClose
         }),
-        []
+        [onClose]
     );
 
     const [cancel, ok] = useTranslations(["CANCEL", "OK"]);
@@ -78,7 +87,7 @@ const Modal = forwardRef(function Modal(props: ModalProps, ref) {
                                 className="secondary"
                                 onClick={() => {
                                     if (props.onCancel?.() ?? true) {
-                                        close();
+                                        onClose();
                                     }
                                 }}
                             >
@@ -92,7 +101,7 @@ const Modal = forwardRef(function Modal(props: ModalProps, ref) {
                             onClick={() => {
                                 setAwaitingClose(true);
                                 if (props.onConfirm?.() ?? true) {
-                                    close();
+                                    onClose();
                                 }
                             }}
                         >

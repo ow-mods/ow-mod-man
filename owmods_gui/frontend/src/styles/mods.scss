@@ -111,12 +111,14 @@ div:has(.mod-row.remote):last-child > .mod-row {
     margin-bottom: $margin-sm;
 }
 
-.mod-row.local .mod-name {
+.mod-row.local .mod-name,
+.mod-row.local .mod-description {
     font-weight: light;
     color: var(--primary-muted);
 }
 
-.mod-row.local:has(input:checked) .mod-name {
+.mod-row.local:has(input:checked) .mod-name,
+.mod-row.local:has(input:checked) .mod-description {
     color: var(--body-color);
 }
 

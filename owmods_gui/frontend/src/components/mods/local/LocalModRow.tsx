@@ -64,7 +64,7 @@ const LocalModRow = memo((props: LocalModRowProps) => {
                     disabled={props.enabled === undefined}
                 />
             </ModHeader>
-            {props.description && <small>{props.description}</small>}
+            {props.description && <small className="mod-description">{props.description}</small>}
         </div>
     );
 });

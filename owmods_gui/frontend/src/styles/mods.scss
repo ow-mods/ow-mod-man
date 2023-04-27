@@ -3,15 +3,11 @@
     contain: strict;
     overflow-y: auto;
     overflow-x: hidden;
-    margin-bottom: $margin;
+    margin: $margin 0;
     scroll-behavior: auto;
     background-color: var(--accent-bg-darker);
-    padding: $margin-lg;
+    padding: 0 $margin-lg;
     border-radius: 5px;
-}
-
-.remote-mod-search {
-    margin: $margin-md 0;
 }
 
 $row-border: 1px solid var(--accent-bg);
@@ -21,6 +17,11 @@ $row-border: 1px solid var(--accent-bg);
     padding: $margin 0;
     width: 100%;
     min-width: 0;
+}
+
+.remote-mod-search {
+    margin-top: $margin-md;
+    margin-bottom: 0 !important;
 }
 
 .mod-row.remote {
@@ -91,7 +92,6 @@ div:has(.mod-row.remote):last-child > .mod-row {
 }
 
 .update-all-button {
-    margin-top: $margin-md;
     margin-bottom: $margin-sm;
 }
 
@@ -107,7 +107,8 @@ div:has(.mod-row.remote):last-child > .mod-row {
 }
 
 .local-toolbar {
-    margin: $margin-md 0;
+    margin: $margin 0;
+    margin-bottom: 0;
     display: flex;
     flex-direction: row;
 }
@@ -121,6 +122,7 @@ div:has(.mod-row.remote):last-child > .mod-row {
     width: 70%;
     flex-grow: 1;
     margin: 0 $margin;
+    margin-bottom: 0 !important;
     margin-left: 0;
 }
 

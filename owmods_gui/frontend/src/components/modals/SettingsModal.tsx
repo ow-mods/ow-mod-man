@@ -195,9 +195,9 @@ const SettingsForm = (props: SettingsFormProps) => {
     ]);
 
     const getVal = (e: HTMLInputElement | HTMLSelectElement) => {
-        const type = (e as any).type;
+        const type = e.type;
         if (type && type === "checkbox") {
-            return (e as any).checked;
+            return (e as HTMLInputElement).checked;
         } else {
             return e.value;
         }

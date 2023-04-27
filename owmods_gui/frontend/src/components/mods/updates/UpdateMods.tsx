@@ -32,7 +32,7 @@ const UpdateMods = memo(function UpdateMods() {
         return <div className="center">{err!.toString()}</div>;
     } else {
         return (
-            <div className="mod-list">
+            <>
                 {updates!.length > 0 ? (
                     <button
                         onClick={onUpdateAll}
@@ -45,10 +45,12 @@ const UpdateMods = memo(function UpdateMods() {
                 ) : (
                     <p className="center muted">{noUpdates}</p>
                 )}
-                {updates!.map((m) => (
-                    <UpdateModRow parentUpdating={updating} key={m} uniqueName={m} />
-                ))}
-            </div>
+                <div className="mod-list">
+                    {updates!.map((m) => (
+                        <UpdateModRow parentUpdating={updating} key={m} uniqueName={m} />
+                    ))}
+                </div>
+            </>
         );
     }
 });

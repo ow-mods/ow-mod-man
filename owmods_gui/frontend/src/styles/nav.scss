@@ -69,3 +69,19 @@ span.alert-row {
     margin-top: 0;
     background-color: var(--accent-bg);
 }
+
+.refresh-icon-loading {
+    animation: spin 1.5s linear infinite;
+}
+
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+    50% {
+        transform: rotate(180deg);
+    }
+    100% {
+        transform: rotate(360deg);
+    }
+}

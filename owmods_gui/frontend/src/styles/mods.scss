@@ -32,6 +32,10 @@ div:has(.mod-row.remote):last-child > .mod-row {
     border-bottom: none;
 }
 
+.mod-row.loading {
+    height: 55px;
+}
+
 .mod-row.remote .loading {
     height: 45px;
 }

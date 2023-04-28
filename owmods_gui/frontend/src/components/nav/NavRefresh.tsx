@@ -6,6 +6,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { commands, hooks } from "@commands";
 import { watchImmediate } from "tauri-plugin-fs-watch-api";
 import { listen } from "@tauri-apps/api/event";
+import { IconContext } from "react-icons";
 
 const checkPaths = (paths: string[]) => {
     for (const path of paths) {
@@ -24,6 +25,7 @@ const checkPaths = (paths: string[]) => {
 };
 
 const NavRefreshButton = () => {
+    const [isRefreshing, setRefreshing] = useState(false);
     const [watchingFileSystem, setWatchFS] = useState(false);
     const [status, config, err] = hooks.getConfig("CONFIG_RELOAD");
     const guiConfig = hooks.getGuiConfig("GUI_CONFIG_RELOAD")[1];
@@ -32,11 +34,13 @@ const NavRefreshButton = () => {
 
     const onRefresh = useCallback(() => {
         const task = async () => {
+            setRefreshing(true);
             setWatchFS(false);
             await commands.refreshLocalDb();
             await commands.refreshRemoteDb();
             await commands.initialSetup();
             setWatchFS(true);
+            setRefreshing(false);
         };
         task();
     }, []);
@@ -79,8 +83,22 @@ const NavRefreshButton = () => {
     }, [onRefresh, err, watchingFileSystem, status, config, guiConfig?.watchFs]);
 
     return (
-        <NavButton onClick={onRefresh} labelPlacement="bottom" ariaLabel={refreshLabel}>
-            <Icon iconType={BsArrowRepeat} />
+        <NavButton
+            disabled={isRefreshing}
+            onClick={onRefresh}
+            labelPlacement="bottom"
+            ariaLabel={refreshLabel}
+        >
+            {/* react-icon's IconContext overrides props sent to the component directly, */}
+            {/* and since we use that context higher up in the tree we can't pass props, so we need to do this */}
+            <IconContext.Provider
+                value={{ className: isRefreshing ? "nav-icon refresh-icon-loading" : "nav-icon" }}
+            >
+                <Icon
+                    iconClassName={isRefreshing ? "refresh-icon-loading" : ""}
+                    iconType={BsArrowRepeat}
+                />
+            </IconContext.Provider>
         </NavButton>
     );
 };

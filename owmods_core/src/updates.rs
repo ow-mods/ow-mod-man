@@ -60,6 +60,7 @@ pub async fn update_all(
     config: &Config,
     local_db: &LocalDatabase,
     remote_db: &RemoteDatabase,
+    dry: bool,
 ) -> Result<bool> {
     let mut needs_update: Vec<&RemoteMod> = vec![];
 
@@ -96,17 +97,19 @@ pub async fn update_all(
     if needs_update.is_empty() {
         Ok(owml_updated)
     } else {
-        let mod_names = needs_update
-            .into_iter()
-            .map(|m| m.unique_name.clone())
-            .collect();
-        let updated = install_mods_parallel(mod_names, config, remote_db, local_db).await?;
-        for updated_mod in updated {
-            send_analytics_event(
-                AnalyticsEventName::ModUpdate,
-                &updated_mod.manifest.unique_name,
-            )
-            .await?;
+        if !dry {
+            let mod_names = needs_update
+                .into_iter()
+                .map(|m| m.unique_name.clone())
+                .collect();
+            let updated = install_mods_parallel(mod_names, config, remote_db, local_db).await?;
+            for updated_mod in updated {
+                send_analytics_event(
+                    AnalyticsEventName::ModUpdate,
+                    &updated_mod.manifest.unique_name,
+                )
+                .await?;
+            }
         }
         Ok(true)
     }

@@ -283,12 +283,14 @@ async fn run_from_cli(cli: BaseCli) -> Result<()> {
             let local_db = LocalDatabase::fetch(&config.owml_path)?;
             import_mods(&config, &local_db, &remote_db, file_path, *disable_missing).await?;
         }
-        Commands::Update => {
+        Commands::Update { dry } => {
             let remote_db = RemoteDatabase::fetch(&config.database_url).await?;
             let local_db = LocalDatabase::fetch(&config.owml_path)?;
-            let updated = update_all(&config, &local_db, &remote_db).await?;
+            let updated = update_all(&config, &local_db, &remote_db, *dry).await?;
             if updated {
-                info!("Update Complete!");
+                if !*dry {
+                    info!("Update Complete!");
+                }
             } else {
                 info!("No Updates Available!");
             }

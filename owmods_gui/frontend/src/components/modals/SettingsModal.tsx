@@ -254,27 +254,6 @@ const SettingsForm = forwardRef(function SettingsForm(props: SettingsFormProps, 
     return (
         <form className="settings">
             <h4>
-                {generalSettings} <ResetButton onClick={() => onReset(0)} />
-            </h4>
-            <SettingsText
-                onChange={handleConf}
-                value={config.databaseUrl}
-                label={dbUrl}
-                id="databaseUrl"
-            />
-            <SettingsText
-                onChange={handleConf}
-                value={config.alertUrl}
-                label={alertUrl}
-                id="alertUrl"
-            />
-            <SettingsFolder
-                onChange={handleConf}
-                value={config.owmlPath}
-                label={owmlPath}
-                id="owmlPath"
-            />
-            <h4>
                 {guiSettingsLabel} <ResetButton onClick={() => onReset(1)} />
             </h4>
             <SettingsSelect
@@ -344,6 +323,27 @@ const SettingsForm = forwardRef(function SettingsForm(props: SettingsFormProps, 
                 value={owmlConfig.incrementalGC}
                 label={incrementalGC}
                 id="incrementalGC"
+            />
+            <h4>
+                {generalSettings} <ResetButton onClick={() => onReset(0)} />
+            </h4>
+            <SettingsText
+                onChange={handleConf}
+                value={config.databaseUrl}
+                label={dbUrl}
+                id="databaseUrl"
+            />
+            <SettingsText
+                onChange={handleConf}
+                value={config.alertUrl}
+                label={alertUrl}
+                id="alertUrl"
+            />
+            <SettingsFolder
+                onChange={handleConf}
+                value={config.owmlPath}
+                label={owmlPath}
+                id="owmlPath"
             />
         </form>
     );

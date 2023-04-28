@@ -17,7 +17,7 @@ const Icon = memo(
             </>
         );
     },
-    (prev, next) => prev.label === next.label
+    (prev, next) => prev.label === next.label && prev.iconClassName === next.iconClassName
 );
 
 export default Icon;

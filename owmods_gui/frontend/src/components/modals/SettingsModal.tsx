@@ -34,6 +34,8 @@ interface SettingsRowProps {
     label: string;
     id: string;
     children?: ReactNode;
+    tooltip?: string;
+    tooltipPlacement?: string;
 }
 
 interface SettingsTextProps extends SettingsRowProps {
@@ -57,7 +59,13 @@ interface SettingsSelectProps extends SettingsRowProps {
 const SettingsRow = (props: SettingsRowProps) => {
     return (
         <div className="settings-row">
-            <label htmlFor={props.id}>{props.label}</label>
+            <label
+                data-tooltip={props.tooltip}
+                data-placement={props.tooltipPlacement ?? "bottom"}
+                htmlFor={props.id}
+            >
+                {props.label}
+            </label>
             <div>{props.children}</div>
         </div>
     );
@@ -122,6 +130,8 @@ const SettingsFolder = (props: SettingsTextProps) => {
                 multiple: false,
                 title
             }}
+            tooltip={props.tooltip}
+            tooltipPlacement={props.tooltipPlacement}
         />
     );
 };
@@ -137,7 +147,9 @@ const SettingsSwitch = (props: SettingsSwitchProps) => {
                 id={props.id}
                 name={props.id}
             />
-            <label htmlFor={props.id}>{props.label}</label>
+            <label data-tooltip={props.tooltip} data-placement="right" htmlFor={props.id}>
+                {props.label}
+            </label>
         </div>
     );
 };
@@ -222,6 +234,30 @@ const SettingsForm = forwardRef(function SettingsForm(props: SettingsFormProps, 
         "GUI_SETTINGS"
     ]);
 
+    const [
+        dbUrlTooltip,
+        alertUrlTooltip,
+        owmlPathTooltip,
+        incrementalGCTooltip,
+        owmlDebugModeTooltip,
+        directExeTooltip,
+        gamePathTooltip,
+        logMultiTooltip,
+        disableWarningTooltip,
+        watchFSTooltip
+    ] = useTranslations([
+        "TOOLTIP_DATABASE_URL",
+        "TOOLTIP_ALERT_URL",
+        "TOOLTIP_OWML_PATH",
+        "TOOLTIP_INCREMENTAL_GC",
+        "TOOLTIP_OWML_DEBUG_MODE",
+        "TOOLTIP_FORCE_EXE",
+        "TOOLTIP_GAME_PATH",
+        "TOOLTIP_LOG_MULTI_WINDOW",
+        "TOOLTIP_DISABLE_WARNING",
+        "TOOLTIP_WATCH_FS"
+    ]);
+
     const getVal = (e: HTMLInputElement | HTMLSelectElement) => {
         const type = e.type;
         if (type && type === "checkbox") {
@@ -284,18 +320,21 @@ const SettingsForm = forwardRef(function SettingsForm(props: SettingsFormProps, 
                 value={guiConfig.watchFs}
                 label={watchFs}
                 id="watchFs"
+                tooltip={watchFSTooltip}
             />
             <SettingsSwitch
                 onChange={handleGui}
                 value={guiConfig.noWarning}
                 label={disableWarning}
                 id="noWarning"
+                tooltip={disableWarningTooltip}
             />
             <SettingsSwitch
                 onChange={handleGui}
                 value={guiConfig.logMultiWindow}
                 label={logMultiWindow}
                 id="logMultiWindow"
+                tooltip={logMultiTooltip}
             />
             <h4>
                 {owmlSettingsLabel} <ResetButton onClick={() => onReset(2)} />
@@ -305,24 +344,28 @@ const SettingsForm = forwardRef(function SettingsForm(props: SettingsFormProps, 
                 value={owmlConfig.gamePath}
                 label={gamePath}
                 id="gamePath"
+                tooltip={gamePathTooltip}
             />
             <SettingsSwitch
                 onChange={handleOwml}
                 value={owmlConfig.forceExe}
                 label={forceExe}
                 id="forceExe"
+                tooltip={directExeTooltip}
             />
             <SettingsSwitch
                 onChange={handleOwml}
                 value={owmlConfig.debugMode}
                 label={debugMode}
                 id="debugMode"
+                tooltip={owmlDebugModeTooltip}
             />
             <SettingsSwitch
                 onChange={handleOwml}
                 value={owmlConfig.incrementalGC}
                 label={incrementalGC}
                 id="incrementalGC"
+                tooltip={incrementalGCTooltip}
             />
             <h4>
                 {generalSettings} <ResetButton onClick={() => onReset(0)} />
@@ -332,18 +375,22 @@ const SettingsForm = forwardRef(function SettingsForm(props: SettingsFormProps, 
                 value={config.databaseUrl}
                 label={dbUrl}
                 id="databaseUrl"
+                tooltip={dbUrlTooltip}
             />
             <SettingsText
                 onChange={handleConf}
                 value={config.alertUrl}
                 label={alertUrl}
                 id="alertUrl"
+                tooltip={alertUrlTooltip}
             />
             <SettingsFolder
                 onChange={handleConf}
                 value={config.owmlPath}
                 label={owmlPath}
                 id="owmlPath"
+                tooltip={owmlPathTooltip}
+                tooltipPlacement="top"
             />
         </form>
     );

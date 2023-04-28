@@ -12,6 +12,8 @@ export interface FileInputProps<T> {
     browseButtonIcon?: IconType;
     value?: string;
     onChange?: (path: string) => void;
+    tooltip?: string;
+    tooltipPlacement?: string;
 }
 
 const FileInput = <T,>(openFunc: (options?: T) => Promise<string | string[] | null>) =>
@@ -29,7 +31,13 @@ const FileInput = <T,>(openFunc: (options?: T) => Promise<string | string[] | nu
 
         return (
             <div className={props.className}>
-                <label htmlFor={props.id}>{props.label ?? label}</label>
+                <label
+                    data-tooltip={props.tooltip}
+                    data-placement={props.tooltipPlacement ?? "bottom"}
+                    htmlFor={props.id}
+                >
+                    {props.label ?? label}
+                </label>
                 <div className="file-input-row">
                     <input
                         id={props.id}

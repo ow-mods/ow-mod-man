@@ -186,6 +186,7 @@ export enum Theme {
 
 export enum Language {
     English = "English",
+    BrazilianPortuguese = "BrazilianPortuguese",
     Wario = "Wario"
 }
 

@@ -15,6 +15,7 @@ import { commands, hooks } from "@commands";
 import { OpenFileInput } from "@components/common/FileInput";
 import Icon from "@components/common/Icon";
 import { BsArrowCounterclockwise } from "react-icons/bs";
+import { TranslationNameMap } from "@components/common/TranslationContext";
 
 const ThemeArr = Object.values(Theme);
 const LanguageArr = Object.values(Language);
@@ -50,6 +51,7 @@ interface SettingsSelectProps extends SettingsRowProps {
     options: readonly string[];
     translate: boolean;
     onChange?: (e: ChangeEvent<HTMLSelectElement>) => void;
+    nameMap?: Record<string, string>;
 }
 
 const SettingsRow = (props: SettingsRowProps) => {
@@ -87,7 +89,7 @@ const SettingsSelect = (props: SettingsSelectProps) => {
             <select value={props.value} id={props.id} onChange={(e) => props.onChange?.(e)}>
                 {props.options.map((o, i) => (
                     <option key={o} value={o}>
-                        {translations[i]}
+                        {props.translate ? translations[i] : props.nameMap?.[o] ?? o}
                     </option>
                 ))}
             </select>
@@ -290,6 +292,7 @@ const SettingsForm = forwardRef(function SettingsForm(props: SettingsFormProps, 
                 label={language}
                 options={LanguageArr}
                 id="language"
+                nameMap={TranslationNameMap}
             />
             <SettingsSwitch
                 onChange={handleGui}

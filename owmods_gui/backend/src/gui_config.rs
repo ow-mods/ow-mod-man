@@ -24,6 +24,7 @@ pub enum Theme {
 pub enum Language {
     #[default]
     English,
+    BrazilianPortuguese,
     Wario,
 }
 

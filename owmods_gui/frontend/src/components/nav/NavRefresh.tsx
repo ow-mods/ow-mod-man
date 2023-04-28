@@ -65,14 +65,18 @@ const NavRefreshButton = () => {
         let cancel = false;
         if (status === "Done" && (guiConfig?.watchFs ?? false)) {
             commands.getWatcherPaths().then((paths) => {
-                watchImmediate(paths, { recursive: true }, (e) => {
-                    if (cancel || !watchingFileSystem || !checkPaths(e.paths)) return;
-                    if (currentTimeout.current) {
-                        clearTimeout(currentTimeout.current);
-                        currentTimeout.current = null;
-                    }
-                    currentTimeout.current = setTimeout(onRefresh, 500);
-                });
+                watchImmediate(
+                    paths,
+                    (e) => {
+                        if (cancel || !watchingFileSystem || !checkPaths(e.paths)) return;
+                        if (currentTimeout.current) {
+                            clearTimeout(currentTimeout.current);
+                            currentTimeout.current = null;
+                        }
+                        currentTimeout.current = setTimeout(onRefresh, 500);
+                    },
+                    { recursive: true }
+                );
             });
         } else if (status === "Error") {
             console.error(err);

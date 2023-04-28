@@ -18,7 +18,7 @@ import AboutModal from "@components/modals/AboutModal";
 import Downloads from "../downloads/Downloads";
 import { useTranslations } from "@hooks";
 import { commands } from "@commands";
-import { dialog } from "@tauri-apps/api";
+import { dialog, shell } from "@tauri-apps/api";
 import CenteredSpinner from "@components/common/CenteredSpinner";
 import NavRefreshButton from "./NavRefresh";
 import { ModalHandle } from "@components/modals/Modal";
@@ -90,6 +90,10 @@ const Nav = () => {
             });
     }, [exportLabel]);
 
+    const onHelp = useCallback(() => {
+        shell.open("https://github.com/Bwc9876/ow-mod-man/blob/main/owmods_gui/HELP.md");
+    }, []);
+
     return (
         <IconContext.Provider value={{ className: "nav-icon" }}>
             <SettingsModal ref={settingsRef} />
@@ -111,7 +115,7 @@ const Nav = () => {
                         )}
                     </ul>
                     <ul>
-                        <NavButton labelPlacement="bottom" ariaLabel={help}>
+                        <NavButton onClick={onHelp} labelPlacement="bottom" ariaLabel={help}>
                             <Icon iconType={BsQuestion} />
                         </NavButton>
                         <NavMore>

@@ -82,9 +82,16 @@ export const useTranslation = (key: string, variables?: Record<string, string>) 
     const context = useContext(TranslationContext);
     return useMemo(() => {
         const activeTable = TranslationMap[context];
-        let translated = activeTable[key] ?? activeTable["_"];
-        for (const k in variables) {
-            translated = translated.replaceAll(`$${k}$`, variables[k]);
+        let translated = activeTable[key];
+        if (translated === undefined) {
+            translated = activeTable["_"];
+            const fallback = TranslationMap["English"][key] ?? "INVALID KEY: $key$";
+            translated = translated.replaceAll(`$fallback$`, fallback);
+            translated = translated.replaceAll(`$key$`, key);
+        } else {
+            for (const k in variables) {
+                translated = translated.replaceAll(`$${k}$`, variables[k]);
+            }
         }
         return translated;
     }, [variables, context, key]);

@@ -21,7 +21,7 @@ dependencies:
         version: 4.3.2(react-dom@18.2.0)(react@18.2.0)
     tauri-plugin-fs-watch-api:
         specifier: github:tauri-apps/tauri-plugin-fs-watch
-        version: github.com/tauri-apps/tauri-plugin-fs-watch/69a7e6e41eb4d17c0958e9654c526dda7ad77d07
+        version: github.com/tauri-apps/tauri-plugin-fs-watch/a7e0172bfe2652a87eb0b64d74bcfcd21e934942
 
 devDependencies:
     "@types/react":
@@ -1260,7 +1260,7 @@ packages:
         hasBin: true
         dependencies:
             caniuse-lite: 1.0.30001481
-            electron-to-chromium: 1.4.372
+            electron-to-chromium: 1.4.376
             node-releases: 2.0.10
             update-browserslist-db: 1.0.11(browserslist@4.21.5)
         dev: true
@@ -1621,10 +1621,10 @@ packages:
             jake: 10.8.5
         dev: true
 
-    /electron-to-chromium@1.4.372:
+    /electron-to-chromium@1.4.376:
         resolution:
             {
-                integrity: sha512-MrlFq/j+TYHOjeWsWGYfzevc25HNeJdsF6qaLFrqBTRWZQtWkb1myq/Q2veLWezVaa5OcSZ99CFwTT4aF4Mung==
+                integrity: sha512-TFeOKd98TpJzRHkr4Aorn16QkMnuCQuGAE6IZ0wYF+qkbSfMPqjplvRppR02tMUpVxZz8nyBNvVm9lIZsqrbPQ==
             }
         dev: true
 
@@ -3790,10 +3790,10 @@ packages:
         engines: { node: ">=10" }
         dev: true
 
-    github.com/tauri-apps/tauri-plugin-fs-watch/69a7e6e41eb4d17c0958e9654c526dda7ad77d07:
+    github.com/tauri-apps/tauri-plugin-fs-watch/a7e0172bfe2652a87eb0b64d74bcfcd21e934942:
         resolution:
             {
-                tarball: https://codeload.github.com/tauri-apps/tauri-plugin-fs-watch/tar.gz/69a7e6e41eb4d17c0958e9654c526dda7ad77d07
+                tarball: https://codeload.github.com/tauri-apps/tauri-plugin-fs-watch/tar.gz/a7e0172bfe2652a87eb0b64d74bcfcd21e934942
             }
         name: tauri-plugin-fs-watch-api
         version: 0.0.0

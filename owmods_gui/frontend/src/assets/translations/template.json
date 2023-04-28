@@ -3,6 +3,7 @@
     "ALERT_URL": "",
     "ANY": "",
     "APP_TITLE": "",
+    "ARCHITECTURE": "",
     "BROWSE": "",
     "BY": "",
     "Blue": "",
@@ -79,6 +80,7 @@
     "Purple": "",
     "RAINBOW": "",
     "REFRESH": "",
+    "RESET": "",
     "RUN_GAME": "",
     "SAVE": "",
     "SEARCH": "",
@@ -107,6 +109,5 @@
     "White": "",
     "Yellow": "",
     "ZIP": "",
-    "a": "",
     "_": ""
 }

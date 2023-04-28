@@ -109,5 +109,5 @@
     "White": "White",
     "Yellow": "Yellow",
     "ZIP": "Zip File",
-    "_": "Translation Not Implemented, Report This!"
+    "_": "(MISSING $key$): $fallback$"
 }

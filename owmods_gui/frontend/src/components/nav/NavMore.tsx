@@ -1,5 +1,5 @@
 import Icon from "@components/common/Icon";
-import { useTranslation } from "@hooks";
+import { useGetTranslation } from "@hooks";
 import { ReactNode, useRef } from "react";
 import { HiDotsVertical } from "react-icons/hi";
 import NavButton from "./NavButton";
@@ -9,14 +9,14 @@ export interface NavMoreProps {
 }
 
 const NavMore = (props: NavMoreProps) => {
-    const more = useTranslation("MORE");
+    const getTranslation = useGetTranslation();
     const detailsRef = useRef<HTMLDetailsElement>(null);
 
     return (
         <li>
             <details ref={detailsRef} role="list" dir="rtl">
                 <summary>
-                    <NavButton ariaLabel={more} labelPlacement="left">
+                    <NavButton ariaLabel={getTranslation("MORE")} labelPlacement="left">
                         <Icon iconType={HiDotsVertical} />
                     </NavButton>
                 </summary>

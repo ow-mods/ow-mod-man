@@ -3,7 +3,7 @@ import CenteredSpinner from "@components/common/CenteredSpinner";
 import Icon from "@components/common/Icon";
 import ModActionButton from "@components/mods/ModActionButton";
 import ModHeader from "@components/mods/ModHeader";
-import { useTranslation, useTranslations } from "@hooks";
+import { useGetTranslation } from "@hooks";
 import { dialog } from "@tauri-apps/api";
 import { memo, useCallback, useState } from "react";
 import { BsArrowDown, BsGlobe, BsHammer } from "react-icons/bs";
@@ -39,24 +39,18 @@ export interface RemoteModRowProps {
 }
 
 const RemoteModRow = memo(function RemoteModRow(props: RemoteModRowProps) {
+    const getTranslation = useGetTranslation();
     const [status, mod, err] = hooks.getRemoteMod("REMOTE-REFRESH", {
         uniqueName: props.uniqueName
     });
 
     const [downloading, setDownloading] = useState(false);
 
-    const [noDescription, installTooltip, websiteTooltip, prereleaseWarning] = useTranslations([
-        "NO_DESCRIPTION",
-        "INSTALL",
-        "OPEN_WEBSITE",
-        "PRERELEASE_WARNING"
-    ]);
-
-    const usePrerelease = useTranslation("USE_PRERELEASE", {
+    const usePrerelease = getTranslation("USE_PRERELEASE", {
         version: mod?.prerelease?.version ?? ""
     });
 
-    const subtitle = useTranslation("BY", {
+    const subtitle = getTranslation("BY", {
         author: mod?.authorDisplay ?? mod?.author ?? "",
         version: mod?.version ?? ""
     });
@@ -74,7 +68,9 @@ const RemoteModRow = memo(function RemoteModRow(props: RemoteModRowProps) {
 
     const onPrerelease = useCallback(() => {
         const task = async () => {
-            const result = await dialog.ask(prereleaseWarning, { title: usePrerelease });
+            const result = await dialog.ask(getTranslation("PRERELEASE_WARNING"), {
+                title: usePrerelease
+            });
             if (result) {
                 setDownloading(true);
                 commands
@@ -87,7 +83,7 @@ const RemoteModRow = memo(function RemoteModRow(props: RemoteModRowProps) {
             }
         };
         task();
-    }, [props.uniqueName, prereleaseWarning, usePrerelease]);
+    }, [getTranslation, usePrerelease, props.uniqueName]);
 
     const onReadme = useCallback(() => {
         commands.openModReadme({ uniqueName: props.uniqueName }).catch(console.warn);
@@ -99,8 +95,8 @@ const RemoteModRow = memo(function RemoteModRow(props: RemoteModRowProps) {
         return <p className="center">{err!.toString()}</p>;
     } else {
         const remoteMod = mod!;
-        let desc = remoteMod.description ?? noDescription;
-        if (desc.trim() === "") desc = noDescription;
+        let desc = remoteMod.description ?? getTranslation("NO_DESCRIPTION");
+        if (desc.trim() === "") desc = getTranslation("NO_DESCRIPTION");
         return (
             <div>
                 <ModHeader {...remoteMod} subtitle={subtitle}>
@@ -109,7 +105,10 @@ const RemoteModRow = memo(function RemoteModRow(props: RemoteModRowProps) {
                         <div className="center" aria-busy></div>
                     ) : (
                         <>
-                            <ModActionButton onClick={onInstall} ariaLabel={installTooltip}>
+                            <ModActionButton
+                                onClick={onInstall}
+                                ariaLabel={getTranslation("INSTALL")}
+                            >
                                 <Icon iconType={BsArrowDown} />
                             </ModActionButton>
                             {mod?.prerelease !== null && (
@@ -119,7 +118,7 @@ const RemoteModRow = memo(function RemoteModRow(props: RemoteModRowProps) {
                             )}
                         </>
                     )}
-                    <ModActionButton onClick={onReadme} ariaLabel={websiteTooltip}>
+                    <ModActionButton onClick={onReadme} ariaLabel={getTranslation("OPEN_WEBSITE")}>
                         <Icon iconType={BsGlobe} />
                     </ModActionButton>
                 </ModHeader>

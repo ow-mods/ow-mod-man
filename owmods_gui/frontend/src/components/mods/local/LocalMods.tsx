@@ -4,7 +4,7 @@ import ModValidationModal, {
     ModValidationModalHandle,
     OpenModValidationModalPayload
 } from "@components/modals/ModValidationModal";
-import { useTranslations } from "@hooks";
+import { useGetTranslation } from "@hooks";
 import { memo, useCallback, useEffect, useRef, useState } from "react";
 import UnsafeModRow from "./UnsafeModRow";
 
@@ -14,17 +14,11 @@ const LocalMods = memo(function LocalMods() {
     const [tempFilter, setTempFilter] = useState("");
     const activeTimeout = useRef<number | undefined>(undefined);
     const [status, mods, err] = hooks.getLocalMods("LOCAL-REFRESH", { filter });
+    const getTranslation = useGetTranslation();
 
     useEffect(() => {
         commands.refreshLocalDb();
     }, []);
-
-    const [noMods, enableAll, disableAll, searchLabel] = useTranslations([
-        "NO_MODS",
-        "ENABLE_ALL",
-        "DISABLE_ALL",
-        "SEARCH"
-    ]);
 
     const onToggleAll = useCallback((enabled: boolean) => {
         commands
@@ -59,23 +53,25 @@ const LocalMods = memo(function LocalMods() {
                     <div className="local-toolbar">
                         <input
                             className="search"
-                            aria-label={searchLabel}
-                            placeholder={searchLabel}
+                            aria-label={getTranslation("SEARCH")}
+                            placeholder={getTranslation("SEARCH")}
                             value={tempFilter}
                             onChange={(e) => onSearch(e.target.value)}
                         />
                         <div className="gap" />
                         <div className="local-mods-buttons">
                             <button onClick={() => onToggleAll(false)} className="secondary">
-                                {disableAll}
+                                {getTranslation("DISABLE_ALL")}
                             </button>
-                            <button onClick={() => onToggleAll(true)}>{enableAll}</button>
+                            <button onClick={() => onToggleAll(true)}>
+                                {getTranslation("ENABLE_ALL")}
+                            </button>
                         </div>
                     </div>
                 )}
                 <div className="mod-list">
                     {filter.length === 0 && mods!.length === 0 && (
-                        <p className="center muted">{noMods}</p>
+                        <p className="center muted">{getTranslation("NO_MODS")}</p>
                     )}
                     {filter !== tempFilter ? (
                         <CenteredSpinner />

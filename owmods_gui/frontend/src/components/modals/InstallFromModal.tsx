@@ -1,7 +1,7 @@
 import { commands } from "@commands";
 import { OpenFileInput } from "@components/common/FileInput";
 import Icon from "@components/common/Icon";
-import { useTranslation, useTranslations } from "@hooks";
+import { useGetTranslation } from "@hooks";
 import { listen } from "@tauri-apps/api/event";
 import { forwardRef, useEffect, useImperativeHandle, useRef, useState } from "react";
 import { BsExclamationTriangleFill } from "react-icons/bs";
@@ -30,19 +30,7 @@ const InstallFromModal = forwardRef(function InstallFromModal(_: object, ref) {
     const [source, setSource] = useState<SourceType>("UNIQUE_NAME");
     const [target, setTarget] = useState<string>("");
     const [prerelease, setPrerelease] = useState<boolean>(false);
-
-    const [install, installFrom, uniqueNameLabel, jsonLabel, zip, url, warningText] =
-        useTranslations([
-            "INSTALL",
-            "INSTALL_FROM",
-            "UNIQUE_NAME",
-            "JSON",
-            "ZIP",
-            "URL",
-            "INSTALL_WARNING"
-        ]);
-
-    const usePrerelease = useTranslation("USE_PRERELEASE", { version: "" });
+    const getTranslation = useGetTranslation();
 
     useImperativeHandle(
         ref,
@@ -54,10 +42,10 @@ const InstallFromModal = forwardRef(function InstallFromModal(_: object, ref) {
     );
 
     const lblMap: Record<SourceType, string> = {
-        UNIQUE_NAME: uniqueNameLabel,
-        URL: url,
-        ZIP: zip,
-        JSON: jsonLabel
+        UNIQUE_NAME: getTranslation("UNIQUE_NAME"),
+        URL: getTranslation("URL"),
+        ZIP: getTranslation("ZIP"),
+        JSON: getTranslation("JSON")
     };
 
     const onInstall = () => {
@@ -119,12 +107,12 @@ const InstallFromModal = forwardRef(function InstallFromModal(_: object, ref) {
             onConfirm={onInstall}
             showCancel
             ref={modalRef}
-            heading={installFrom}
-            confirmText={install}
+            heading={getTranslation("INSTALL_FROM")}
+            confirmText={getTranslation("INSTALL")}
         >
             <form>
                 <label htmlFor="source">
-                    {installFrom}
+                    {getTranslation("INSTALL_FROM")}
                     <select
                         onChange={(e) => {
                             setTarget("");
@@ -133,10 +121,10 @@ const InstallFromModal = forwardRef(function InstallFromModal(_: object, ref) {
                         value={source}
                         id="source"
                     >
-                        <option value="UNIQUE_NAME">{uniqueNameLabel}</option>
-                        <option value="JSON">{jsonLabel}</option>
-                        <option value="URL">{url}</option>
-                        <option value="ZIP">{zip}</option>
+                        <option value="UNIQUE_NAME">{getTranslation("UNIQUE_NAME")}</option>
+                        <option value="JSON">{getTranslation("JSON")}</option>
+                        <option value="URL">{getTranslation("URL")}</option>
+                        <option value="ZIP">{getTranslation("ZIP")}</option>
                     </select>
                 </label>
                 {source === "ZIP" || source === "JSON" ? (
@@ -145,7 +133,7 @@ const InstallFromModal = forwardRef(function InstallFromModal(_: object, ref) {
                         value={target}
                         onChange={setTarget}
                         dialogOptions={{
-                            title: installFrom,
+                            title: getTranslation("INSTALL_FROM"),
                             filters: [
                                 {
                                     name: lblMap[source],
@@ -176,13 +164,13 @@ const InstallFromModal = forwardRef(function InstallFromModal(_: object, ref) {
                             type="checkbox"
                             role="switch"
                         />
-                        {usePrerelease}
+                        {getTranslation("USE_PRERELEASE", { version: "" })}
                     </label>
                 )}
                 {(source === "ZIP" || source === "URL") && (
                     <p className="install-warning">
                         <Icon iconType={BsExclamationTriangleFill} />
-                        {warningText}
+                        {getTranslation("INSTALL_WARNING")}
                     </p>
                 )}
             </form>

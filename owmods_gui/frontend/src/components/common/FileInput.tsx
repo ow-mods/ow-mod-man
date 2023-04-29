@@ -1,8 +1,9 @@
-import { useTranslation } from "@hooks";
+import { useGetTranslation } from "@hooks";
 import { dialog } from "@tauri-apps/api";
 import { IconType } from "react-icons";
 import { BsFolderFill } from "react-icons/bs";
 import Icon from "./Icon";
+import { type TranslationKey } from "./TranslationContext";
 
 export interface FileInputProps<T> {
     dialogOptions: T;
@@ -18,8 +19,7 @@ export interface FileInputProps<T> {
 
 const FileInput = <T,>(openFunc: (options?: T) => Promise<string | string[] | null>) =>
     function FileInput(props: FileInputProps<T>) {
-        const browseLabel = useTranslation("BROWSE");
-        const label = useTranslation(props.id);
+        const getTranslation = useGetTranslation();
 
         const onBrowse = () => {
             openFunc(props.dialogOptions).then((path) => {
@@ -36,7 +36,7 @@ const FileInput = <T,>(openFunc: (options?: T) => Promise<string | string[] | nu
                     data-placement={props.tooltipPlacement ?? "bottom"}
                     htmlFor={props.id}
                 >
-                    {props.label ?? label}
+                    {props.label ?? getTranslation(props.id as TranslationKey)}
                 </label>
                 <div className="file-input-row">
                     <input
@@ -46,7 +46,8 @@ const FileInput = <T,>(openFunc: (options?: T) => Promise<string | string[] | nu
                         onChange={(e) => props.onChange?.(e.target.value)}
                     />
                     <button onClick={onBrowse} className="browse-button fix-icons" type="button">
-                        <Icon iconType={props.browseButtonIcon ?? BsFolderFill} /> {browseLabel}
+                        <Icon iconType={props.browseButtonIcon ?? BsFolderFill} />{" "}
+                        {getTranslation("BROWSE")}
                     </button>
                 </div>
             </div>

@@ -1,6 +1,6 @@
 import { commands, hooks } from "@commands";
 import { OpenModValidationModalPayload } from "@components/modals/ModValidationModal";
-import { useTranslation } from "@hooks";
+import { useGetTranslation } from "@hooks";
 import { confirm } from "@tauri-apps/api/dialog";
 import { LocalMod, ModValidationError } from "@types";
 import { memo, useCallback } from "react";
@@ -12,17 +12,17 @@ interface LocalModRowProps {
 }
 
 const ValidModRow = memo(function ValidModRow({ mod, onValidationClick }: LocalModRowProps) {
-    const confirmText = useTranslation("CONFIRM");
+    const getTranslation = useGetTranslation();
 
     const remoteMod = hooks.getRemoteMod("REMOTE-REFRESH", {
         uniqueName: mod.manifest.uniqueName
     })[1];
 
-    const uninstallConfirmText = useTranslation("UNINSTALL_CONFIRM", {
+    const uninstallConfirmText = getTranslation("UNINSTALL_CONFIRM", {
         name: mod.manifest.name
     });
 
-    const subtitle = useTranslation("BY", {
+    const subtitle = getTranslation("BY", {
         author: mod.manifest.author,
         version: mod.manifest.version
     });
@@ -55,14 +55,14 @@ const ValidModRow = memo(function ValidModRow({ mod, onValidationClick }: LocalM
     }, [mod.manifest.uniqueName]);
 
     const onUninstall = useCallback(() => {
-        confirm(uninstallConfirmText, confirmText).then((answer) => {
+        confirm(uninstallConfirmText, getTranslation("CONFIRM")).then((answer) => {
             if (answer) {
                 commands
                     .uninstallMod({ uniqueName: mod.manifest.uniqueName })
                     .then(() => commands.refreshLocalDb());
             }
         });
-    }, [mod.manifest.uniqueName, confirmText, uninstallConfirmText]);
+    }, [uninstallConfirmText, getTranslation, mod.manifest.uniqueName]);
 
     return (
         <LocalModRow

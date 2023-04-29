@@ -1,7 +1,7 @@
 import { commands, hooks } from "@commands";
 import CenteredSpinner from "@components/common/CenteredSpinner";
 import Icon from "@components/common/Icon";
-import { useTranslation } from "@hooks";
+import { useGetTranslation } from "@hooks";
 import { memo, useCallback, useMemo, useState } from "react";
 import { BsArrowUp } from "react-icons/bs";
 import ModActionButton from "../ModActionButton";
@@ -16,6 +16,7 @@ export interface UpdateModRowProps {
 
 const UpdateModRow = memo(
     function UpdateModRow({ uniqueName, parentUpdating, onUpdate }: UpdateModRowProps) {
+        const getTranslation = useGetTranslation();
         const [remoteStatus, remoteMod, err1] = hooks.getRemoteMod("REMOTE-REFRESH", {
             uniqueName
         });
@@ -31,8 +32,6 @@ const UpdateModRow = memo(
             () => `${localMod?.manifest.version ?? "v0"} 🡢 ${remoteMod?.version ?? "v0"}`,
             [remoteMod, localMod]
         );
-
-        const updateLabel = useTranslation("UPDATE");
 
         const status = [remoteStatus, localStatus];
 
@@ -65,7 +64,10 @@ const UpdateModRow = memo(
                         {updating || parentUpdating ? (
                             <CenteredSpinner />
                         ) : (
-                            <ModActionButton onClick={onModUpdate} ariaLabel={updateLabel}>
+                            <ModActionButton
+                                onClick={onModUpdate}
+                                ariaLabel={getTranslation("UPDATE")}
+                            >
                                 <Icon iconType={BsArrowUp} />
                             </ModActionButton>
                         )}

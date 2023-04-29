@@ -1,5 +1,5 @@
 import Icon from "@components/common/Icon";
-import { useTranslation, useTranslations } from "@hooks";
+import { useGetTranslation } from "@hooks";
 import { listen } from "@tauri-apps/api/event";
 import { useEffect, useRef, useState } from "react";
 import { BsCheck2, BsTrashFill, BsXCircleFill } from "react-icons/bs";
@@ -57,8 +57,7 @@ const ActiveDownload = (props: ActiveDownloadProps) => {
 
 const DownloadsPopout = () => {
     const [downloads, setDownloads] = useState<Record<string, ActiveDownloadProps>>({});
-
-    const label = useTranslation("DOWNLOADS");
+    const getTranslation = useGetTranslation();
 
     const downloadsRef = useRef(downloads);
 
@@ -121,19 +120,17 @@ const DownloadsPopout = () => {
         };
     }, []);
 
-    const [noDownloads, clearDownloads] = useTranslations(["NO_DOWNLOADS", "CLEAR_DOWNLOADS"]);
-
     return (
         <div className="downloads-popout">
-            <header>{label}</header>
+            <header>{getTranslation("DOWNLOADS")}</header>
             {Object.keys(downloads).length === 0 ? (
-                <p className="no-downloads">{noDownloads}</p>
+                <p className="no-downloads">{getTranslation("NO_DOWNLOADS")}</p>
             ) : (
                 <>
                     <a
                         href="#"
                         className="clear-downloads"
-                        data-tooltip={clearDownloads}
+                        data-tooltip={getTranslation("CLEAR_DOWNLOADS")}
                         data-placement="left"
                         onClick={() => setDownloads({})}
                     >

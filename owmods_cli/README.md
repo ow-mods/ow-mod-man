@@ -3,7 +3,7 @@
 # Outer Wilds Mod Manager CLI
 
 <p align="center">
-<a href="https://github.com/Bwc9876/ow-mod-man"><img src="https://raw.githubusercontent.com/Bwc9876/ow-mod-man/main/owmods_gui/frontend/src/assets/images/logo.png" alt="OWMM Logo"/></a><br/>
+<a href="https://github.com/Bwc9876/ow-mod-man"><img src="https://raw.githubusercontent.com/Bwc9876/ow-mod-man/main/.github/assets/logo-cli.png" alt="OWMM Logo"/></a><br/>
 The CLI interface for the Outer Wilds Mod Manager, built using clap.<br/>
 <a href="https://github.com/Bwc9876/ow-mod-man/tree/main/owmods_core">Core</a><b> |</b>
 <a href="https://github.com/Bwc9876/ow-mod-man/tree/main/owmods_cli"><b>CLI</b></a><b> |</b>

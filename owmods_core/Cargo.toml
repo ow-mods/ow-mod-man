@@ -5,7 +5,7 @@ description = "The core library for the Outer Wilds Mod Manager"
 version = "0.4.0"
 edition = "2021"
 readme = "./README.md"
-license-file = "../LICENSE"
+license = "GPL-3.0-or-later"
 repository = "https://github.com/Bwc9876/ow-mod-man/"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html

@@ -1,4 +1,4 @@
-import { useTranslations } from "@hooks";
+import { useGetTranslation } from "@hooks";
 import {
     ReactNode,
     forwardRef,
@@ -32,6 +32,7 @@ interface OpenState {
 const Modal = forwardRef(function Modal(props: ModalProps, ref) {
     const [state, setState] = useState<OpenState>({ open: false, closing: false });
     const [awaitingClose, setAwaitingClose] = useState(false);
+    const getTranslation = useGetTranslation();
 
     const onClose = useCallback(() => {
         setAwaitingClose(false);
@@ -46,8 +47,6 @@ const Modal = forwardRef(function Modal(props: ModalProps, ref) {
         }),
         [onClose]
     );
-
-    const [cancel, ok] = useTranslations(["CANCEL", "OK"]);
 
     useEffect(() => {
         let timeout: number;
@@ -91,7 +90,7 @@ const Modal = forwardRef(function Modal(props: ModalProps, ref) {
                                     }
                                 }}
                             >
-                                {props.cancelText ?? cancel}
+                                {props.cancelText ?? getTranslation("CANCEL")}
                             </a>
                         )}
                         <a
@@ -105,7 +104,7 @@ const Modal = forwardRef(function Modal(props: ModalProps, ref) {
                                 }
                             }}
                         >
-                            {!awaitingClose && (props.confirmText ?? ok)}
+                            {!awaitingClose && (props.confirmText ?? getTranslation("OK"))}
                         </a>
                     </footer>
                 </article>

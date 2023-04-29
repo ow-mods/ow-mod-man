@@ -1,6 +1,6 @@
 import { commands, hooks } from "@commands";
 import { TranslationContext, TranslationMap } from "@components/common/TranslationContext";
-import { useTheme, useTranslation } from "@hooks";
+import { useTheme, useGetTranslation } from "@hooks";
 import { GameMessage, SocketMessageType, Theme } from "@types";
 import { useCallback, useEffect, useState } from "react";
 import LogHeader from "@components/logs/LogHeader";
@@ -26,8 +26,7 @@ const App = ({ port }: { port: number }) => {
     const [activeFilter, setActiveFilter] = useState<LogFilter>("Any");
     const [activeSearch, setActiveSearch] = useState<string>("");
     const [logLines, setLogLines] = useState<[number, number][]>([]);
-
-    const fatalErrorLabel = useTranslation("FATAL_ERROR");
+    const getTranslation = useGetTranslation();
 
     const fetchLogLines = useCallback(() => {
         commands
@@ -41,14 +40,17 @@ const App = ({ port }: { port: number }) => {
     useTheme(guiConfig?.theme ?? Theme.White, guiConfig?.rainbow ?? false);
 
     useEffect(() => {
-        thisWindow
-            .setTitle(
-                TranslationMap[guiConfig?.language ?? "English"]["LOGS_TITLE"].replace(
-                    "$port$",
-                    port.toString()
+        const logsTitleTranslation = TranslationMap[guiConfig?.language ?? "English"]["LOGS_TITLE"];
+        if (logsTitleTranslation) {
+            thisWindow
+                .setTitle(
+                    logsTitleTranslation.replace(
+                        "$port$",
+                        port.toString()
+                    )
                 )
-            )
-            .catch(console.warn);
+                .catch(console.warn);
+        }
     }, [guiConfig?.language, port]);
 
     const onClear = useCallback(() => {
@@ -67,13 +69,13 @@ const App = ({ port }: { port: number }) => {
             if (cancel || msg.port !== port) return;
             dialog.message(`[${msg.message.senderName ?? "Unknown"}]: ${msg.message.message}`, {
                 type: "error",
-                title: fatalErrorLabel
+                title: getTranslation("FATAL_ERROR")
             });
         });
         return () => {
             cancel = true;
         };
-    }, [fatalErrorLabel, fetchLogLines, port]);
+    }, [fetchLogLines, getTranslation, port]);
 
     useEffect(() => {
         fetchLogLines();

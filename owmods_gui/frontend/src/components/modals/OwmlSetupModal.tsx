@@ -1,6 +1,6 @@
 import { commands } from "@commands";
 import { OpenFileInput } from "@components/common/FileInput";
-import { useTranslations } from "@hooks";
+import { useGetTranslation } from "@hooks";
 import { dialog } from "@tauri-apps/api";
 import { forwardRef, useRef, useState } from "react";
 import Modal, { ModalHandle } from "./Modal";
@@ -11,15 +11,7 @@ const OwmlSetupModal = forwardRef(function OwmlSetupModal(_: object, ref) {
     const modalRef = useRef<ModalHandle>();
     const [setupMethod, setSetupMethod] = useState<SetupMethod>("Install");
     const [owmlPath, setOwmlPath] = useState("");
-
-    const [setup, message, installOwml, locateOwml, invalidOwml, continueLabel] = useTranslations([
-        "SETUP",
-        "OWML_SETUP_MESSAGE",
-        "INSTALL_OWML",
-        "LOCATE_OWML",
-        "INVALID_OWML",
-        "CONTINUE"
-    ]);
+    const getTranslation = useGetTranslation();
 
     const onClose = () => {
         if (setupMethod === "Install") {
@@ -37,7 +29,7 @@ const OwmlSetupModal = forwardRef(function OwmlSetupModal(_: object, ref) {
                     if (valid) {
                         window.location.reload();
                     } else {
-                        dialog.message(invalidOwml).then(() => window.location.reload());
+                        dialog.message(getTranslation("INVALID_OWML")).then(() => window.location.reload());
                     }
                 })
                 .catch(dialog.message);
@@ -49,18 +41,18 @@ const OwmlSetupModal = forwardRef(function OwmlSetupModal(_: object, ref) {
         <Modal
             ref={ref}
             onConfirm={onClose}
-            heading={setup}
+            heading={getTranslation("SETUP")}
             showCancel={false}
-            confirmText={continueLabel}
+            confirmText={getTranslation("CONTINUE")}
         >
             <form className="owml-setup">
-                <p>{message}</p>
+                <p>{getTranslation("OWML_SETUP_MESSAGE")}</p>
                 <select
                     value={setupMethod}
                     onChange={(e) => setSetupMethod(e.target.value as SetupMethod)}
                 >
-                    <option value="Install">{installOwml}</option>
-                    <option value="Locate">{locateOwml}</option>
+                    <option value="Install">{getTranslation("INSTALL_OWML")}</option>
+                    <option value="Locate">{getTranslation("LOCATE_OWML")}</option>
                 </select>
                 {setupMethod === "Locate" && (
                     <OpenFileInput
@@ -70,7 +62,7 @@ const OwmlSetupModal = forwardRef(function OwmlSetupModal(_: object, ref) {
                         dialogOptions={{
                             directory: true,
                             multiple: false,
-                            title: locateOwml
+                            title: getTranslation("LOCATE_OWML")
                         }}
                     />
                 )}

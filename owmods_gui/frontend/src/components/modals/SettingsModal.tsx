@@ -10,12 +10,12 @@ import {
 } from "react";
 import { Config, GuiConfig, Language, OWMLConfig, Theme } from "@types";
 import Modal from "./Modal";
-import { useTranslation, useTranslations } from "@hooks";
+import { useGetTranslation } from "@hooks";
 import { commands, hooks } from "@commands";
 import { OpenFileInput } from "@components/common/FileInput";
 import Icon from "@components/common/Icon";
 import { BsArrowCounterclockwise } from "react-icons/bs";
-import { TranslationNameMap } from "@components/common/TranslationContext";
+import { type TranslationKey, TranslationNameMap } from "@components/common/TranslationContext";
 
 const ThemeArr = Object.values(Theme);
 const LanguageArr = Object.values(Language);
@@ -86,18 +86,14 @@ const SettingsText = (props: SettingsTextProps) => {
 };
 
 const SettingsSelect = (props: SettingsSelectProps) => {
-    let translations = useTranslations(Array.from(props.options));
-
-    if (!props.translate) {
-        translations = Array.from(props.options);
-    }
+    const getTranslation = useGetTranslation();
 
     return (
         <SettingsRow {...props}>
             <select value={props.value} id={props.id} onChange={(e) => props.onChange?.(e)}>
-                {props.options.map((o, i) => (
+                {props.options.map((o) => (
                     <option key={o} value={o}>
-                        {props.translate ? translations[i] : props.nameMap?.[o] ?? o}
+                        {props.translate ? getTranslation(o as TranslationKey) : props.nameMap?.[o] ?? o}
                     </option>
                 ))}
             </select>
@@ -106,7 +102,7 @@ const SettingsSelect = (props: SettingsSelectProps) => {
 };
 
 const SettingsFolder = (props: SettingsTextProps) => {
-    const title = useTranslation("SELECT", { name: props.label });
+    const getTranslation = useGetTranslation();
 
     const onChange = (e: string) => {
         props.onChange?.({
@@ -128,7 +124,7 @@ const SettingsFolder = (props: SettingsTextProps) => {
                 defaultPath: props.value,
                 directory: true,
                 multiple: false,
-                title
+                title: getTranslation("SELECT", { name: props.label })
             }}
             tooltip={props.tooltip}
             tooltipPlacement={props.tooltipPlacement}
@@ -155,14 +151,14 @@ const SettingsSwitch = (props: SettingsSwitchProps) => {
 };
 
 const ResetButton = memo(function ResetButton(props: { onClick: () => void }) {
-    const resetTooltip = useTranslation("RESET");
+    const getTranslation = useGetTranslation();
 
     return (
         <a
             className="reset-button"
-            aria-label={resetTooltip}
+            aria-label={getTranslation("RESET")}
             data-placement="left"
-            data-tooltip={resetTooltip}
+            data-tooltip={getTranslation("RESET")}
             onClick={props.onClick}
             href="#"
         >
@@ -175,6 +171,7 @@ const SettingsForm = forwardRef(function SettingsForm(props: SettingsFormProps, 
     const [config, setConfig] = useState<Config>(props.initialConfig);
     const [owmlConfig, setOwmlConfig] = useState<OWMLConfig>(props.initialOwmlConfig);
     const [guiConfig, setGuiConfig] = useState<GuiConfig>(props.initialGuiConfig);
+    const getTranslation = useGetTranslation();
 
     useImperativeHandle(
         ref,
@@ -197,66 +194,6 @@ const SettingsForm = forwardRef(function SettingsForm(props: SettingsFormProps, 
         }),
         [config, owmlConfig, guiConfig, props.initialConfig]
     );
-
-    const [
-        generalSettings,
-        dbUrl,
-        alertUrl,
-        owmlPath,
-        theme,
-        rainbow,
-        language,
-        watchFs,
-        disableWarning,
-        logMultiWindow,
-        gamePath,
-        forceExe,
-        debugMode,
-        incrementalGC,
-        owmlSettingsLabel,
-        guiSettingsLabel
-    ] = useTranslations([
-        "GENERAL_SETTINGS",
-        "DB_URL",
-        "ALERT_URL",
-        "OWML_PATH",
-        "THEME",
-        "RAINBOW",
-        "LANGUAGE",
-        "WATCH_FS",
-        "DISABLE_WARNING",
-        "LOG_MULTI_WINDOW",
-        "GAME_PATH",
-        "FORCE_EXE",
-        "DEBUG_MODE",
-        "INCREMENTAL_GC",
-        "OWML_SETTINGS",
-        "GUI_SETTINGS"
-    ]);
-
-    const [
-        dbUrlTooltip,
-        alertUrlTooltip,
-        owmlPathTooltip,
-        incrementalGCTooltip,
-        owmlDebugModeTooltip,
-        directExeTooltip,
-        gamePathTooltip,
-        logMultiTooltip,
-        disableWarningTooltip,
-        watchFSTooltip
-    ] = useTranslations([
-        "TOOLTIP_DATABASE_URL",
-        "TOOLTIP_ALERT_URL",
-        "TOOLTIP_OWML_PATH",
-        "TOOLTIP_INCREMENTAL_GC",
-        "TOOLTIP_OWML_DEBUG_MODE",
-        "TOOLTIP_FORCE_EXE",
-        "TOOLTIP_GAME_PATH",
-        "TOOLTIP_LOG_MULTI_WINDOW",
-        "TOOLTIP_DISABLE_WARNING",
-        "TOOLTIP_WATCH_FS"
-    ]);
 
     const getVal = (e: HTMLInputElement | HTMLSelectElement) => {
         const type = e.type;
@@ -290,13 +227,13 @@ const SettingsForm = forwardRef(function SettingsForm(props: SettingsFormProps, 
     return (
         <form className="settings">
             <h4>
-                {guiSettingsLabel} <ResetButton onClick={() => onReset(1)} />
+                {getTranslation("GUI_SETTINGS")} <ResetButton onClick={() => onReset(1)} />
             </h4>
             <SettingsSelect
                 onChange={handleGui}
                 value={guiConfig.theme}
                 translate
-                label={theme}
+                label={getTranslation("THEME")}
                 options={ThemeArr}
                 id="theme"
             />
@@ -304,7 +241,7 @@ const SettingsForm = forwardRef(function SettingsForm(props: SettingsFormProps, 
                 onChange={handleGui}
                 value={guiConfig.language}
                 translate={false}
-                label={language}
+                label={getTranslation("LANGUAGE")}
                 options={LanguageArr}
                 id="language"
                 nameMap={TranslationNameMap}
@@ -312,84 +249,84 @@ const SettingsForm = forwardRef(function SettingsForm(props: SettingsFormProps, 
             <SettingsSwitch
                 onChange={handleGui}
                 value={guiConfig.rainbow}
-                label={rainbow}
+                label={getTranslation("RAINBOW")}
                 id="rainbow"
             />
             <SettingsSwitch
                 onChange={handleGui}
                 value={guiConfig.watchFs}
-                label={watchFs}
+                label={getTranslation("WATCH_FS")}
                 id="watchFs"
-                tooltip={watchFSTooltip}
+                tooltip={getTranslation("TOOLTIP_WATCH_FS")}
             />
             <SettingsSwitch
                 onChange={handleGui}
                 value={guiConfig.noWarning}
-                label={disableWarning}
+                label={getTranslation("DISABLE_WARNING")}
                 id="noWarning"
-                tooltip={disableWarningTooltip}
+                tooltip={getTranslation("TOOLTIP_DISABLE_WARNING")}
             />
             <SettingsSwitch
                 onChange={handleGui}
                 value={guiConfig.logMultiWindow}
-                label={logMultiWindow}
+                label={getTranslation("LOG_MULTI_WINDOW")}
                 id="logMultiWindow"
-                tooltip={logMultiTooltip}
+                tooltip={getTranslation("TOOLTIP_LOG_MULTI_WINDOW")}
             />
             <h4>
-                {owmlSettingsLabel} <ResetButton onClick={() => onReset(2)} />
+                {getTranslation("OWML_SETTINGS")} <ResetButton onClick={() => onReset(2)} />
             </h4>
             <SettingsFolder
                 onChange={handleOwml}
                 value={owmlConfig.gamePath}
-                label={gamePath}
+                label={getTranslation("GAME_PATH")}
                 id="gamePath"
-                tooltip={gamePathTooltip}
+                tooltip={getTranslation("TOOLTIP_GAME_PATH")}
             />
             <SettingsSwitch
                 onChange={handleOwml}
                 value={owmlConfig.forceExe}
-                label={forceExe}
+                label={getTranslation("FORCE_EXE")}
                 id="forceExe"
-                tooltip={directExeTooltip}
+                tooltip={getTranslation("TOOLTIP_FORCE_EXE")}
             />
             <SettingsSwitch
                 onChange={handleOwml}
                 value={owmlConfig.debugMode}
-                label={debugMode}
+                label={getTranslation("DEBUG_MODE")}
                 id="debugMode"
-                tooltip={owmlDebugModeTooltip}
+                tooltip={getTranslation("TOOLTIP_OWML_DEBUG_MODE")}
             />
             <SettingsSwitch
                 onChange={handleOwml}
                 value={owmlConfig.incrementalGC}
-                label={incrementalGC}
+                label={getTranslation("INCREMENTAL_GC")}
                 id="incrementalGC"
-                tooltip={incrementalGCTooltip}
+                tooltip={getTranslation("TOOLTIP_INCREMENTAL_GC")}
             />
             <h4>
-                {generalSettings} <ResetButton onClick={() => onReset(0)} />
+                {getTranslation("GENERAL_SETTINGS")} <ResetButton onClick={() => onReset(0)} />
             </h4>
             <SettingsText
                 onChange={handleConf}
                 value={config.databaseUrl}
-                label={dbUrl}
+                label={getTranslation("DB_URL")}
                 id="databaseUrl"
-                tooltip={dbUrlTooltip}
+                tooltip={getTranslation("TOOLTIP_DATABASE_URL")}
             />
             <SettingsText
                 onChange={handleConf}
                 value={config.alertUrl}
-                label={alertUrl}
+                label={getTranslation("ALERT_URL")}
                 id="alertUrl"
-                tooltip={alertUrlTooltip}
+                tooltip={getTranslation("TOOLTIP_ALERT_URL")}
             />
             <SettingsFolder
                 onChange={handleConf}
                 value={config.owmlPath}
-                label={owmlPath}
+                label={getTranslation("OWML_PATH")}
                 id="owmlPath"
-                tooltip={owmlPathTooltip}
+                tooltip={getTranslation("TOOLTIP_OWML_PATH")}
                 tooltipPlacement="top"
             />
         </form>
@@ -402,16 +339,16 @@ const SettingsModal = forwardRef(function SettingsModal(_: object, ref) {
     const [configStatus, config, err1] = hooks.getConfig("CONFIG_RELOAD");
     const [guiConfigStatus, guiConfig, err2] = hooks.getGuiConfig("GUI_CONFIG_RELOAD");
     const [owmlConfigStatus, owmlConfig, err3] = hooks.getOwmlConfig("OWML_CONFIG_RELOAD");
-
+    
     const status = [configStatus, guiConfigStatus, owmlConfigStatus];
-
-    const [settings, save] = useTranslations(["SETTINGS", "SAVE"]);
+    
+    const getTranslation = useGetTranslation();
 
     if (status.includes("Loading")) {
         return <></>;
     } else if (status.includes("Error")) {
         return (
-            <Modal showCancel heading={settings} confirmText={save} ref={ref}>
+            <Modal showCancel heading={getTranslation("SETTINGS")} confirmText={getTranslation("SAVE")} ref={ref}>
                 <>
                     <p className="center">
                         <>
@@ -427,8 +364,8 @@ const SettingsModal = forwardRef(function SettingsModal(_: object, ref) {
             <Modal
                 onConfirm={() => settingsFormRef.current?.save()}
                 showCancel
-                heading={settings}
-                confirmText={save}
+                heading={getTranslation("SETTINGS")}
+                confirmText={getTranslation("SAVE")}
                 ref={ref}
             >
                 <SettingsForm

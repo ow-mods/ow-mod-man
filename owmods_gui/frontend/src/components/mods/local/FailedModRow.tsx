@@ -4,7 +4,7 @@ import LocalModRow from "./LocalModRow";
 import { confirm } from "@tauri-apps/api/dialog";
 import { useCallback } from "react";
 import { commands } from "@commands";
-import { useTranslation, useTranslations } from "@hooks";
+import { useGetTranslation } from "@hooks";
 
 export interface FailedModRowProps {
     mod: FailedMod;
@@ -12,11 +12,7 @@ export interface FailedModRowProps {
 }
 
 const FailedModRow = ({ mod, onValidationClick }: FailedModRowProps) => {
-    const [confirmText, cantLoad] = useTranslations(["CONFIRM", "CANT_LOAD"]);
-
-    const uninstallConfirmText = useTranslation("UNINSTALL_CONFIRM", {
-        name: mod.displayPath
-    });
+    const getTranslation = useGetTranslation();
 
     const onValidationClicked = useCallback(
         (errs: ModValidationError[]) => {
@@ -30,14 +26,19 @@ const FailedModRow = ({ mod, onValidationClick }: FailedModRowProps) => {
     );
 
     const onUninstall = useCallback(() => {
-        confirm(uninstallConfirmText, confirmText).then((answer) => {
+        confirm(
+            getTranslation("UNINSTALL_CONFIRM", {
+                name: mod.displayPath
+            }),
+            getTranslation("CONFIRM")
+        ).then((answer) => {
             if (answer) {
                 commands
                     .uninstallBrokenMod({ modPath: mod.modPath })
                     .then(() => commands.refreshLocalDb());
             }
         });
-    }, [mod.modPath, confirmText, uninstallConfirmText]);
+    }, [getTranslation, mod.displayPath, mod.modPath]);
 
     const onOpen = useCallback(() => {
         commands.openModFolder({ uniqueName: mod.modPath });
@@ -47,7 +48,7 @@ const FailedModRow = ({ mod, onValidationClick }: FailedModRowProps) => {
         <LocalModRow
             uniqueName={mod.modPath}
             name={mod.displayPath}
-            subtitle={cantLoad}
+            subtitle={getTranslation("CANT_LOAD")}
             errors={[mod.error]}
             showValidation
             onValidationClick={onValidationClicked}

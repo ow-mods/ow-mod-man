@@ -1,7 +1,7 @@
 import Icon from "@components/common/Icon";
 import ModActionButton from "@components/mods/ModActionButton";
 import ModHeader from "@components/mods/ModHeader";
-import { useTranslations } from "@hooks";
+import { useGetTranslation } from "@hooks";
 import { ModValidationError } from "@types";
 import { memo, useCallback } from "react";
 import { BsFolderFill, BsGlobe, BsTrashFill } from "react-icons/bs";
@@ -24,11 +24,7 @@ interface LocalModRowProps {
 }
 
 const LocalModRow = memo(function LocalModRow(props: LocalModRowProps) {
-    const [showFolderTooltip, uninstallTooltip, websiteTooltip] = useTranslations([
-        "SHOW_FOLDER",
-        "UNINSTALL",
-        "OPEN_WEBSITE"
-    ]);
+    const getTranslation = useGetTranslation();
 
     const onReadme = useCallback(() => {
         commands.openModReadme({ uniqueName: props.uniqueName }).catch(console.warn);
@@ -43,15 +39,15 @@ const LocalModRow = memo(function LocalModRow(props: LocalModRowProps) {
                         errors={props.errors}
                     />
                 )}
-                <ModActionButton onClick={props.onOpen} ariaLabel={showFolderTooltip}>
+                <ModActionButton onClick={props.onOpen} ariaLabel={getTranslation("SHOW_FOLDER")}>
                     <Icon iconType={BsFolderFill} />
                 </ModActionButton>
                 {props.readme && (
-                    <ModActionButton onClick={onReadme} ariaLabel={websiteTooltip}>
+                    <ModActionButton onClick={onReadme} ariaLabel={getTranslation("OPEN_WEBSITE")}>
                         <Icon iconType={BsGlobe} />
                     </ModActionButton>
                 )}
-                <ModActionButton onClick={props.onUninstall} ariaLabel={uninstallTooltip}>
+                <ModActionButton onClick={props.onUninstall} ariaLabel={getTranslation("UNINSTALL")}>
                     <Icon iconType={BsTrashFill} />
                 </ModActionButton>
                 <input

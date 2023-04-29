@@ -1,7 +1,8 @@
-import { useTranslation, useTranslations } from "@hooks";
+import { useGetTranslation } from "@hooks";
 import { SocketMessageType } from "@types";
 import { memo, useCallback, useRef, useState } from "react";
 import { LogFilter } from "./LogApp";
+import { TranslationKey } from "@components/common/TranslationContext";
 
 export interface LogHeaderProps {
     logsLen: number;
@@ -16,14 +17,8 @@ const LogHeader = memo(
     function LogHeader({ setActiveSearch, ...props }: LogHeaderProps) {
         const [tempSearch, setTempSearch] = useState<string>("");
         const searchTimeout = useRef<number | undefined>(undefined);
-        const [filterLabel, searchLogs, anyLabel, clearLabel] = useTranslations([
-            "FILTER",
-            "SEARCH_LOGS",
-            "ANY",
-            "CLEAR_LOGS"
-        ]);
+        const getTranslation = useGetTranslation();
 
-        const logCountLabel = useTranslation("LOG_COUNT", { count: props.logsLen.toString() });
 
         const onSearchChange = useCallback(
             (val: string) => {
@@ -36,13 +31,11 @@ const LogHeader = memo(
             [setActiveSearch]
         );
 
-        const filterTranslations = useTranslations(Object.keys(SocketMessageType));
-
         return (
             <>
                 <div className="log-actions">
                     <label htmlFor="search">
-                        {searchLogs}
+                        {getTranslation("SEARCH_LOGS")}
                         <input
                             type="text"
                             id="search"
@@ -52,21 +45,21 @@ const LogHeader = memo(
                         />
                     </label>
                     <label htmlFor="filter">
-                        {filterLabel}
+                        {getTranslation("FILTER")}
                         <select
                             id="filter"
                             value={props.activeFilter}
                             onChange={(e) => props.setActiveFilter(e.target.value as LogFilter)}
                         >
                             <>
-                                <option value="Any">{anyLabel}</option>
-                                {Object.keys(SocketMessageType).map((k, i) => {
+                                <option value="Any">{getTranslation("ANY")}</option>
+                                {Object.keys(SocketMessageType).map((k) => {
                                     {
                                         return (
                                             k !== "Fatal" &&
                                             k !== "Quit" && (
                                                 <option key={k} value={k}>
-                                                    {filterTranslations[i]}
+                                                    {getTranslation(k as TranslationKey)}
                                                 </option>
                                             )
                                         );
@@ -76,13 +69,13 @@ const LogHeader = memo(
                         </select>
                     </label>
                     <div>
-                        <span>{logCountLabel}</span>
+                        <span>{getTranslation("LOG_COUNT", { count: props.logsLen.toString() })}</span>
                         <a
                             href={props.logsLen === 0 ? undefined : "#"}
                             role="button"
                             onClick={() => props.onClear()}
                         >
-                            {clearLabel}
+                            {getTranslation("CLEAR_LOGS")}
                         </a>
                     </div>
                 </div>

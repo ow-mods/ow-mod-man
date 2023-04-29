@@ -1,7 +1,7 @@
 import Icon from "@components/common/Icon";
 import NavButton from "./NavButton";
 import { BsArrowRepeat } from "react-icons/bs";
-import { useTranslation } from "@hooks";
+import { useGetTranslation } from "@hooks";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { commands, hooks } from "@commands";
 import { watchImmediate } from "tauri-plugin-fs-watch-api";
@@ -29,7 +29,7 @@ const NavRefreshButton = () => {
     const [watchingFileSystem, setWatchFS] = useState(false);
     const [status, config, err] = hooks.getConfig("CONFIG_RELOAD");
     const guiConfig = hooks.getGuiConfig("GUI_CONFIG_RELOAD")[1];
-    const refreshLabel = useTranslation("REFRESH");
+    const getTranslation = useGetTranslation();
     const currentTimeout = useRef<number | null>(null);
 
     const onRefresh = useCallback(() => {
@@ -91,7 +91,7 @@ const NavRefreshButton = () => {
             disabled={isRefreshing}
             onClick={onRefresh}
             labelPlacement="bottom"
-            ariaLabel={refreshLabel}
+            ariaLabel={getTranslation("REFRESH")}
         >
             {/* react-icon's IconContext overrides props sent to the component directly, */}
             {/* and since we use that context higher up in the tree we can't pass props, so we need to do this */}

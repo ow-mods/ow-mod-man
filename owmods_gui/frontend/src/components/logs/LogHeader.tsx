@@ -19,7 +19,6 @@ const LogHeader = memo(
         const searchTimeout = useRef<number | undefined>(undefined);
         const getTranslation = useGetTranslation();
 
-
         const onSearchChange = useCallback(
             (val: string) => {
                 setTempSearch(val);
@@ -69,7 +68,9 @@ const LogHeader = memo(
                         </select>
                     </label>
                     <div>
-                        <span>{getTranslation("LOG_COUNT", { count: props.logsLen.toString() })}</span>
+                        <span>
+                            {getTranslation("LOG_COUNT", { count: props.logsLen.toString() })}
+                        </span>
                         <a
                             href={props.logsLen === 0 ? undefined : "#"}
                             role="button"

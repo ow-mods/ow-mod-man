@@ -43,12 +43,7 @@ const App = ({ port }: { port: number }) => {
         const logsTitleTranslation = TranslationMap[guiConfig?.language ?? "English"]["LOGS_TITLE"];
         if (logsTitleTranslation) {
             thisWindow
-                .setTitle(
-                    logsTitleTranslation.replace(
-                        "$port$",
-                        port.toString()
-                    )
-                )
+                .setTitle(logsTitleTranslation.replace("$port$", port.toString()))
                 .catch(console.warn);
         }
     }, [guiConfig?.language, port]);

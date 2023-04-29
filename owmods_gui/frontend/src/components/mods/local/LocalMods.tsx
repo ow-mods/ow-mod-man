@@ -63,7 +63,9 @@ const LocalMods = memo(function LocalMods() {
                             <button onClick={() => onToggleAll(false)} className="secondary">
                                 {getTranslation("DISABLE_ALL")}
                             </button>
-                            <button onClick={() => onToggleAll(true)}>{getTranslation("ENABLE_ALL")}</button>
+                            <button onClick={() => onToggleAll(true)}>
+                                {getTranslation("ENABLE_ALL")}
+                            </button>
                         </div>
                     </div>
                 )}

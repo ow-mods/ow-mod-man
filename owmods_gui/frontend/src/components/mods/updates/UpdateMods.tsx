@@ -36,7 +36,9 @@ const UpdateMods = memo(function UpdateMods() {
                             aria-busy={updating}
                             disabled={updating || modsUpdating > 0}
                         >
-                            {updating ? getTranslation("UPDATING_ALL") : getTranslation("UPDATE_ALL")}
+                            {updating
+                                ? getTranslation("UPDATING_ALL")
+                                : getTranslation("UPDATE_ALL")}
                         </button>
                         <div className="mod-list">
                             {updates!.map((m) => (

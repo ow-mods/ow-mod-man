@@ -46,7 +46,8 @@ const FileInput = <T,>(openFunc: (options?: T) => Promise<string | string[] | nu
                         onChange={(e) => props.onChange?.(e.target.value)}
                     />
                     <button onClick={onBrowse} className="browse-button fix-icons" type="button">
-                        <Icon iconType={props.browseButtonIcon ?? BsFolderFill} /> {getTranslation("BROWSE")}
+                        <Icon iconType={props.browseButtonIcon ?? BsFolderFill} />{" "}
+                        {getTranslation("BROWSE")}
                     </button>
                 </div>
             </div>

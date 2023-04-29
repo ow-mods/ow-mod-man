@@ -98,13 +98,21 @@ const Nav = () => {
                         {areLogsStarting ? (
                             <CenteredSpinner />
                         ) : (
-                            <NavButton onClick={onPlay} labelPlacement="bottom" ariaLabel={getTranslation("RUN_GAME")}>
+                            <NavButton
+                                onClick={onPlay}
+                                labelPlacement="bottom"
+                                ariaLabel={getTranslation("RUN_GAME")}
+                            >
                                 <Icon iconClassName="main-icon" iconType={BsPlayFill} />
                             </NavButton>
                         )}
                     </ul>
                     <ul>
-                        <NavButton onClick={onHelp} labelPlacement="bottom" ariaLabel={getTranslation("HELP")}>
+                        <NavButton
+                            onClick={onHelp}
+                            labelPlacement="bottom"
+                            ariaLabel={getTranslation("HELP")}
+                        >
                             <Icon iconType={BsQuestion} />
                         </NavButton>
                         <NavMore>
@@ -113,10 +121,12 @@ const Nav = () => {
                                 {getTranslation("SETTINGS")} <Icon iconType={BsGearFill} />
                             </NavButton>
                             <NavButton onClick={() => installFromRef.current?.open()}>
-                                ...{getTranslation("INSTALL_FROM")} <Icon iconType={BsBoxArrowInDown} />
+                                ...{getTranslation("INSTALL_FROM")}{" "}
+                                <Icon iconType={BsBoxArrowInDown} />
                             </NavButton>
                             <NavButton onClick={onExport}>
-                                {getTranslation("EXPORT_MODS")} <Icon iconType={BsBoxArrowUpRight} />
+                                {getTranslation("EXPORT_MODS")}{" "}
+                                <Icon iconType={BsBoxArrowUpRight} />
                             </NavButton>
                             <NavButton onClick={() => aboutRef.current?.open()}>
                                 {getTranslation("ABOUT")} <Icon iconType={BsInfoCircleFill} />

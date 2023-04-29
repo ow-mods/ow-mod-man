@@ -64,7 +64,10 @@ const UpdateModRow = memo(
                         {updating || parentUpdating ? (
                             <CenteredSpinner />
                         ) : (
-                            <ModActionButton onClick={onModUpdate} ariaLabel={getTranslation("UPDATE")}>
+                            <ModActionButton
+                                onClick={onModUpdate}
+                                ariaLabel={getTranslation("UPDATE")}
+                            >
                                 <Icon iconType={BsArrowUp} />
                             </ModActionButton>
                         )}

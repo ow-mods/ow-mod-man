@@ -29,7 +29,9 @@ const OwmlSetupModal = forwardRef(function OwmlSetupModal(_: object, ref) {
                     if (valid) {
                         window.location.reload();
                     } else {
-                        dialog.message(getTranslation("INVALID_OWML")).then(() => window.location.reload());
+                        dialog
+                            .message(getTranslation("INVALID_OWML"))
+                            .then(() => window.location.reload());
                     }
                 })
                 .catch(dialog.message);

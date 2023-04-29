@@ -47,7 +47,10 @@ const LocalModRow = memo(function LocalModRow(props: LocalModRowProps) {
                         <Icon iconType={BsGlobe} />
                     </ModActionButton>
                 )}
-                <ModActionButton onClick={props.onUninstall} ariaLabel={getTranslation("UNINSTALL")}>
+                <ModActionButton
+                    onClick={props.onUninstall}
+                    ariaLabel={getTranslation("UNINSTALL")}
+                >
                     <Icon iconType={BsTrashFill} />
                 </ModActionButton>
                 <input

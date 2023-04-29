@@ -33,7 +33,11 @@ const LocalModValidationIcon = ({ errors, onClickProp }: LocalModValidationIconP
             <ModActionButton
                 onClick={onClick}
                 className={errorInList ? "mod-error" : "mod-warning"}
-                ariaLabel={errorInList ? getTranslation("MOD_HAS_ERRORS") : getTranslation("MOD_HAS_WARNINGS")}
+                ariaLabel={
+                    errorInList
+                        ? getTranslation("MOD_HAS_ERRORS")
+                        : getTranslation("MOD_HAS_WARNINGS")
+                }
             >
                 <Icon iconType={BsExclamationDiamondFill} />
             </ModActionButton>

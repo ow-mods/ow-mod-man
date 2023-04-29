@@ -68,7 +68,9 @@ const RemoteModRow = memo(function RemoteModRow(props: RemoteModRowProps) {
 
     const onPrerelease = useCallback(() => {
         const task = async () => {
-            const result = await dialog.ask(getTranslation("PRERELEASE_WARNING"), { title: usePrerelease });
+            const result = await dialog.ask(getTranslation("PRERELEASE_WARNING"), {
+                title: usePrerelease
+            });
             if (result) {
                 setDownloading(true);
                 commands
@@ -103,7 +105,10 @@ const RemoteModRow = memo(function RemoteModRow(props: RemoteModRowProps) {
                         <div className="center" aria-busy></div>
                     ) : (
                         <>
-                            <ModActionButton onClick={onInstall} ariaLabel={getTranslation("INSTALL")}>
+                            <ModActionButton
+                                onClick={onInstall}
+                                ariaLabel={getTranslation("INSTALL")}
+                            >
                                 <Icon iconType={BsArrowDown} />
                             </ModActionButton>
                             {mod?.prerelease !== null && (

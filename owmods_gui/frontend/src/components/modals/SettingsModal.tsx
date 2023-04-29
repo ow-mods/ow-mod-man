@@ -93,7 +93,9 @@ const SettingsSelect = (props: SettingsSelectProps) => {
             <select value={props.value} id={props.id} onChange={(e) => props.onChange?.(e)}>
                 {props.options.map((o) => (
                     <option key={o} value={o}>
-                        {props.translate ? getTranslation(o as TranslationKey) : props.nameMap?.[o] ?? o}
+                        {props.translate
+                            ? getTranslation(o as TranslationKey)
+                            : props.nameMap?.[o] ?? o}
                     </option>
                 ))}
             </select>
@@ -339,16 +341,21 @@ const SettingsModal = forwardRef(function SettingsModal(_: object, ref) {
     const [configStatus, config, err1] = hooks.getConfig("CONFIG_RELOAD");
     const [guiConfigStatus, guiConfig, err2] = hooks.getGuiConfig("GUI_CONFIG_RELOAD");
     const [owmlConfigStatus, owmlConfig, err3] = hooks.getOwmlConfig("OWML_CONFIG_RELOAD");
-    
+
     const status = [configStatus, guiConfigStatus, owmlConfigStatus];
-    
+
     const getTranslation = useGetTranslation();
 
     if (status.includes("Loading")) {
         return <></>;
     } else if (status.includes("Error")) {
         return (
-            <Modal showCancel heading={getTranslation("SETTINGS")} confirmText={getTranslation("SAVE")} ref={ref}>
+            <Modal
+                showCancel
+                heading={getTranslation("SETTINGS")}
+                confirmText={getTranslation("SAVE")}
+                ref={ref}
+            >
                 <>
                     <p className="center">
                         <>

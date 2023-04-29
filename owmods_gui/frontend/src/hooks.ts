@@ -1,6 +1,6 @@
 import { listen } from "@tauri-apps/api/event";
 import { useContext, useEffect, useMemo, useRef, useState } from "react";
-import { TranslationContext, TranslationMap } from "@components/common/TranslationContext";
+import { TranslationContext, TranslationMap, type TranslationKey } from "@components/common/TranslationContext";
 import ThemeMap from "./theme";
 import { Theme } from "@types";
 import rainbowTheme from "@styles/rainbow.scss?inline";
@@ -78,7 +78,7 @@ export const useTauriCount = (incEvent: string, decEvent: string, initial?: numb
     return count;
 };
 
-export const useTranslation = (key: string, variables?: Record<string, string>) => {
+export const useTranslation = (key: TranslationKey, variables?: Record<string, string>) => {
     const context = useContext(TranslationContext);
     return useMemo(() => {
         const activeTable = TranslationMap[context];
@@ -97,7 +97,7 @@ export const useTranslation = (key: string, variables?: Record<string, string>) 
     }, [variables, context, key]);
 };
 
-export const useTranslations = (keys: string[]) => {
+export const useTranslations = (keys: TranslationKey[]) => {
     // eslint-disable-next-line react-hooks/rules-of-hooks
     return keys.map((k) => useTranslation(k));
 };

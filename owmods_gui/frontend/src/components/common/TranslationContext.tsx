@@ -4,7 +4,13 @@ import portugueseBr from "@assets/translations/portuguese-br.json";
 import { Language } from "@types";
 import { createContext } from "react";
 
-type Translations = Record<string, string>;
+// English is used as the base language that defines the available translation keys.
+// "_" is the only mandatory key.
+interface Translations extends Partial<typeof english> {
+    _: string;
+}
+
+export type TranslationKey = keyof Translations;
 
 export const TranslationMap: Record<Language, Translations> = {
     English: english,

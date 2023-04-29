@@ -445,10 +445,15 @@ pub async fn get_updatable_mods(state: tauri::State<'_, State>) -> Result<Vec<St
 }
 
 #[tauri::command]
-pub async fn update_mod(unique_name: &str, state: tauri::State<'_, State>) -> Result<(), String> {
+pub async fn update_mod(
+    unique_name: &str,
+    state: tauri::State<'_, State>,
+    handle: tauri::AppHandle,
+) -> Result<(), String> {
     let config = state.config.read().await;
     let local_db = state.local_db.read().await;
     let remote_db = state.remote_db.read().await;
+    toggle_fs_watch(&handle, false);
     if unique_name == OWML_UNIQUE_NAME {
         download_and_install_owml(&config, remote_db.get_owml().ok_or("OWML Not Found!")?)
             .await
@@ -465,6 +470,7 @@ pub async fn update_mod(unique_name: &str, state: tauri::State<'_, State>) -> Re
         .await
         .map_err(e_to_str)?;
     }
+    toggle_fs_watch(&handle, true);
     Ok(())
 }
 

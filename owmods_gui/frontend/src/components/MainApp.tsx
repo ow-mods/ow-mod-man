@@ -33,7 +33,7 @@ const App = () => {
 
     useEffect(() => {
         getCurrent()
-            .setTitle(TranslationMap[guiConfig?.language ?? "English"]["APP_TITLE"])
+            .setTitle(TranslationMap[guiConfig?.language ?? "English"]["APP_TITLE"] ?? "Outer Wilds Mod Manager")
             .catch(console.warn);
     }, [guiConfig?.language]);
 

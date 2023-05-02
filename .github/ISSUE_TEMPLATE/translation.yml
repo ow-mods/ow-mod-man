@@ -1,0 +1,24 @@
+name: Translation
+description: Submit a new localization (for the GUI) to be added, or update an existing one
+labels: ["gui", "enhancement"]
+assignees: ["Bwc9876"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thank you for creating a translation for the manager!
+        To get started, check out [TRANSLATIONS.md](https://github.com/Bwc9876/ow-mod-man/blob/main/owmods_gui/TRANSLATIONS.md)
+  - type: input
+    id: language
+    attributes:
+      label: Language
+      description: What should this language be called in settings?
+    validations:
+      required: true
+  - type: textarea
+    id: translation
+    attributes:
+      label: Translation
+      description: Please attach your translation here, name the JSON file what it should be called internally
+    validations:
+      required: true

@@ -8,7 +8,7 @@ export interface RemoteModsListProps {
     filter: string;
 }
 
-const RemoteModsList = memo((props: RemoteModsListProps) => {
+const RemoteModsList = memo(function RemoteModsList(props: RemoteModsListProps) {
     const [status, mods, err] = hooks.getRemoteMods("REMOTE-REFRESH", { filter: props.filter });
 
     if (status === "Loading" && mods === null) {

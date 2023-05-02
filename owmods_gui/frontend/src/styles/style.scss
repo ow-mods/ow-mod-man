@@ -8,6 +8,7 @@ html {
 body {
     -webkit-user-select: none;
     user-select: none;
+    margin: 0;
 }
 
 *::selection {
@@ -21,7 +22,8 @@ summary::-webkit-details-marker {
 
 .container,
 .container-fluid {
-    height: 95vh;
+    margin: 0;
+    height: 100vh;
     overflow: hidden;
     display: flex;
     flex-direction: column;
@@ -78,6 +80,17 @@ button.secondary:hover {
 
 .muted {
     color: var(--primary-muted);
+}
+
+a {
+    cursor: pointer;
+}
+
+.max-width {
+    padding: 0 $margin-xl;
+    max-width: $max-width;
+    margin: auto;
+    width: 100%;
 }
 
 @import "files.scss";

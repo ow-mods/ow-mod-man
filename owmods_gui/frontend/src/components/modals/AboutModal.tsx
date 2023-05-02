@@ -1,27 +1,16 @@
-import Modal, { ModalWrapperProps } from "./Modal";
+import Modal from "./Modal";
 import logo from "@assets/images/logo.png";
 import Icon from "@components/common/Icon";
 import { BsDiscord, BsGithub } from "react-icons/bs";
-import { useTranslation, useTranslations } from "@hooks";
+import { useGetTranslation } from "@hooks";
 import { app, os, shell } from "@tauri-apps/api";
-import { useEffect, useState } from "react";
+import { forwardRef, useEffect, useState } from "react";
 
-const AboutModal = (props: ModalWrapperProps) => {
-    const [heading, dismiss, appName, gitHub, discord] = useTranslations([
-        "ABOUT",
-        "DISMISS",
-        "APP_TITLE",
-        "GITHUB",
-        "DISCORD"
-    ]);
-
+const AboutModal = forwardRef(function AboutModal(_: object, ref) {
     const [appVersion, setVersion] = useState("");
     const [appPlatform, setPlatform] = useState("");
     const [archRaw, setArch] = useState("");
-
-    const version = useTranslation("VERSION", { version: appVersion });
-    const platform = useTranslation("PLATFORM", { platform: appPlatform });
-    const arch = useTranslation("ARCHITECTURE", { arch: archRaw });
+    const getTranslation = useGetTranslation();
 
     useEffect(() => {
         app.getVersion().then(setVersion);
@@ -30,13 +19,13 @@ const AboutModal = (props: ModalWrapperProps) => {
     }, []);
 
     return (
-        <Modal open={props.open} heading={heading} confirmText={dismiss}>
+        <Modal ref={ref} heading={getTranslation("ABOUT")} confirmText={getTranslation("DISMISS")}>
             <div className="about-modal">
                 <img width="256" height="256" src={logo} />
-                <h1>{appName}</h1>
-                <p>{version}</p>
-                <p>{platform}</p>
-                <p>{arch}</p>
+                <h1>{getTranslation("APP_TITLE")}</h1>
+                <p>{getTranslation("VERSION", { version: appVersion })}</p>
+                <p>{getTranslation("PLATFORM", { platform: appPlatform })}</p>
+                <p>{getTranslation("ARCHITECTURE", { arch: archRaw })}</p>
                 <div className="links">
                     <a
                         onClick={() => shell.open("https://github.com/Bwc9876/ow-mod-man/")}
@@ -45,7 +34,7 @@ const AboutModal = (props: ModalWrapperProps) => {
                         className="fix-icons"
                     >
                         <Icon iconType={BsGithub} />
-                        {gitHub}
+                        {getTranslation("GITHUB")}
                     </a>
                     <a
                         onClick={() => shell.open("https://discord.gg/outerwildsmodding")}
@@ -54,12 +43,12 @@ const AboutModal = (props: ModalWrapperProps) => {
                         className="fix-icons"
                     >
                         <Icon iconType={BsDiscord} />
-                        {discord}
+                        {getTranslation("DISCORD")}
                     </a>
                 </div>
             </div>
         </Modal>
     );
-};
+});
 
 export default AboutModal;

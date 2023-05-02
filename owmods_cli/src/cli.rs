@@ -31,7 +31,14 @@ pub enum Commands {
     )]
     Alert,
     #[command(about = "Updates all mods", alias = "up")]
-    Update,
+    Update {
+        #[arg(
+            help = "Don't update anything, just list mods that would update",
+            short = 'd',
+            long = "dry-run"
+        )]
+        dry: bool,
+    },
     #[command(
         about = "List local (installed) or remote (in the database) mods",
         alias = "ls"

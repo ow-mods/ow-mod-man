@@ -1,5 +1,5 @@
 import Icon from "@components/common/Icon";
-import { useTranslations } from "@hooks";
+import { useGetTranslation } from "@hooks";
 import { ModValidationError } from "@types";
 import { useCallback } from "react";
 import { BsExclamationDiamondFill } from "react-icons/bs";
@@ -7,21 +7,21 @@ import ModActionButton from "../ModActionButton";
 
 export interface LocalModValidationIconProps {
     errors: ModValidationError[];
-    onClick?: (errors: ModValidationError[]) => void;
+    onClickProp?: (errors: ModValidationError[]) => void;
 }
 
-const LocalModValidationIcon = (props: LocalModValidationIconProps) => {
-    const [hasErrors, hasWarning] = useTranslations(["MOD_HAS_ERRORS", "MOD_HAS_WARNINGS"]);
+const LocalModValidationIcon = ({ errors, onClickProp }: LocalModValidationIconProps) => {
+    const getTranslation = useGetTranslation();
 
     const onClick = useCallback(() => {
-        props.onClick?.(props.errors);
-    }, [props.errors]);
+        onClickProp?.(errors);
+    }, [errors, onClickProp]);
 
-    if (props.errors.length === 0) {
+    if (errors.length === 0) {
         return <></>;
     } else {
         const errorInList =
-            props.errors.find(
+            errors.find(
                 (e) =>
                     e.errorType === "MissingDep" ||
                     e.errorType === "DisabledDep" ||
@@ -33,7 +33,11 @@ const LocalModValidationIcon = (props: LocalModValidationIconProps) => {
             <ModActionButton
                 onClick={onClick}
                 className={errorInList ? "mod-error" : "mod-warning"}
-                ariaLabel={errorInList ? hasErrors : hasWarning}
+                ariaLabel={
+                    errorInList
+                        ? getTranslation("MOD_HAS_ERRORS")
+                        : getTranslation("MOD_HAS_WARNINGS")
+                }
             >
                 <Icon iconType={BsExclamationDiamondFill} />
             </ModActionButton>

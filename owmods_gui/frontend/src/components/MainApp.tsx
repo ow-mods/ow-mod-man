@@ -12,13 +12,14 @@ import { useTheme } from "@hooks";
 import { Theme } from "@types";
 import CenteredSpinner from "./common/CenteredSpinner";
 import AlertBar from "./alerts/AlertBar";
+import { ModalHandle } from "./modals/Modal";
 
 startConsoleLogListen();
 
 const App = () => {
     const [status, guiConfig, err] = hooks.getGuiConfig("GUI_CONFIG_RELOAD");
     useTheme(guiConfig?.theme ?? Theme.White, guiConfig?.rainbow ?? false);
-    const openOwmlSetup = useRef<() => void>(() => null);
+    const owmlRef = useRef<ModalHandle>();
 
     if (import.meta.env.DEV) {
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
@@ -32,21 +33,24 @@ const App = () => {
 
     useEffect(() => {
         getCurrent()
-            .setTitle(TranslationMap[guiConfig?.language ?? "English"]["APP_TITLE"])
+            .setTitle(
+                TranslationMap[guiConfig?.language ?? "English"]["APP_TITLE"] ??
+                    "Outer Wilds Mod Manager"
+            )
             .catch(console.warn);
     }, [guiConfig?.language]);
 
     const owmlCheck = useCallback(() => {
         commands.checkOWML().then((valid) => {
-            if (!valid) openOwmlSetup.current();
+            if (!valid) owmlRef.current?.open();
         });
-    }, [openOwmlSetup]);
+    }, []);
 
     useEffect(() => {
         if (status === "Done") {
             owmlCheck();
         }
-    }, [status]);
+    }, [status, owmlCheck]);
 
     useEffect(() => {
         let cancelled = false;
@@ -57,7 +61,7 @@ const App = () => {
         return () => {
             cancelled = true;
         };
-    }, []);
+    }, [owmlCheck]);
 
     if (status === "Loading" && guiConfig === null) {
         return <CenteredSpinner className="fill" />;
@@ -67,7 +71,7 @@ const App = () => {
         return (
             <TranslationContext.Provider value={guiConfig!.language}>
                 <main className="container">
-                    <OwmlSetupModal open={openOwmlSetup} />
+                    <OwmlSetupModal ref={owmlRef} />
                     <header>
                         <AlertBar />
                         <Nav />

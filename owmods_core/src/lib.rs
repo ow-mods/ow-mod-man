@@ -1,3 +1,5 @@
+#![doc = include_str!("../README.md")]
+
 /// Fetch database alerts and get mod warnings.
 pub mod alerts;
 

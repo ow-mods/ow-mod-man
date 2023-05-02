@@ -7,7 +7,7 @@
   },
   "package": {
     "productName": "Outer Wilds Mod Manager",
-    "version": "0.4.0"
+    "version": "0.5.0"
   },
   "tauri": {
     "allowlist": {
@@ -85,12 +85,12 @@
     "windows": [
       {
         "fullscreen": false,
-        "height": 600,
-        "minHeight": 275,
+        "height": 750,
+        "minHeight": 400,
         "resizable": true,
         "title": "Outer Wilds Mod Manager",
-        "width": 800,
-        "minWidth": 475
+        "width": 850,
+        "minWidth": 600
       }
     ]
   }

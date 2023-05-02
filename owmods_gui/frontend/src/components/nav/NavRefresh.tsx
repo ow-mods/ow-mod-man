@@ -1,11 +1,12 @@
 import Icon from "@components/common/Icon";
 import NavButton from "./NavButton";
 import { BsArrowRepeat } from "react-icons/bs";
-import { useTranslation } from "@hooks";
+import { useGetTranslation } from "@hooks";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { commands, hooks } from "@commands";
 import { watchImmediate } from "tauri-plugin-fs-watch-api";
 import { listen } from "@tauri-apps/api/event";
+import { IconContext } from "react-icons";
 
 const checkPaths = (paths: string[]) => {
     for (const path of paths) {
@@ -24,19 +25,22 @@ const checkPaths = (paths: string[]) => {
 };
 
 const NavRefreshButton = () => {
+    const [isRefreshing, setRefreshing] = useState(false);
     const [watchingFileSystem, setWatchFS] = useState(false);
     const [status, config, err] = hooks.getConfig("CONFIG_RELOAD");
     const guiConfig = hooks.getGuiConfig("GUI_CONFIG_RELOAD")[1];
-    const refreshLabel = useTranslation("REFRESH");
+    const getTranslation = useGetTranslation();
     const currentTimeout = useRef<number | null>(null);
 
     const onRefresh = useCallback(() => {
         const task = async () => {
+            setRefreshing(true);
             setWatchFS(false);
             await commands.refreshLocalDb();
             await commands.refreshRemoteDb();
             await commands.initialSetup();
             setWatchFS(true);
+            setRefreshing(false);
         };
         task();
     }, []);
@@ -61,14 +65,18 @@ const NavRefreshButton = () => {
         let cancel = false;
         if (status === "Done" && (guiConfig?.watchFs ?? false)) {
             commands.getWatcherPaths().then((paths) => {
-                watchImmediate(paths, { recursive: true }, (e) => {
-                    if (cancel || !watchingFileSystem || !checkPaths(e.paths)) return;
-                    if (currentTimeout.current) {
-                        clearTimeout(currentTimeout.current);
-                        currentTimeout.current = null;
-                    }
-                    currentTimeout.current = setTimeout(onRefresh, 500);
-                });
+                watchImmediate(
+                    paths,
+                    (e) => {
+                        if (cancel || !watchingFileSystem || !checkPaths(e.paths)) return;
+                        if (currentTimeout.current) {
+                            clearTimeout(currentTimeout.current);
+                            currentTimeout.current = null;
+                        }
+                        currentTimeout.current = setTimeout(onRefresh, 500);
+                    },
+                    { recursive: true }
+                );
             });
         } else if (status === "Error") {
             console.error(err);
@@ -76,11 +84,25 @@ const NavRefreshButton = () => {
         return () => {
             cancel = true;
         };
-    }, [status, config, guiConfig?.watchFs ?? false]);
+    }, [onRefresh, err, watchingFileSystem, status, config, guiConfig?.watchFs]);
 
     return (
-        <NavButton onClick={onRefresh} labelPlacement="bottom" ariaLabel={refreshLabel}>
-            <Icon iconType={BsArrowRepeat} />
+        <NavButton
+            disabled={isRefreshing}
+            onClick={onRefresh}
+            labelPlacement="bottom"
+            ariaLabel={getTranslation("REFRESH")}
+        >
+            {/* react-icon's IconContext overrides props sent to the component directly, */}
+            {/* and since we use that context higher up in the tree we can't pass props, so we need to do this */}
+            <IconContext.Provider
+                value={{ className: isRefreshing ? "nav-icon refresh-icon-loading" : "nav-icon" }}
+            >
+                <Icon
+                    iconClassName={isRefreshing ? "refresh-icon-loading" : ""}
+                    iconType={BsArrowRepeat}
+                />
+            </IconContext.Provider>
         </NavButton>
     );
 };

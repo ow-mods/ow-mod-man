@@ -1,6 +1,6 @@
 import { commands, hooks } from "@commands";
 import { TranslationContext, TranslationMap } from "@components/common/TranslationContext";
-import { useTheme, useTranslation } from "@hooks";
+import { useTheme, useGetTranslation } from "@hooks";
 import { GameMessage, SocketMessageType, Theme } from "@types";
 import { useCallback, useEffect, useState } from "react";
 import LogHeader from "@components/logs/LogHeader";
@@ -26,35 +26,32 @@ const App = ({ port }: { port: number }) => {
     const [activeFilter, setActiveFilter] = useState<LogFilter>("Any");
     const [activeSearch, setActiveSearch] = useState<string>("");
     const [logLines, setLogLines] = useState<[number, number][]>([]);
-
-    const fatalErrorLabel = useTranslation("FATAL_ERROR");
+    const getTranslation = useGetTranslation();
 
     const fetchLogLines = useCallback(() => {
         commands
             .getLogLines({ port, filterType: getFilterToPass(activeFilter), search: activeSearch })
             .then(setLogLines)
             .catch(() => null);
-    }, [activeFilter, activeSearch]);
+    }, [activeFilter, activeSearch, port]);
 
     const guiConfig = hooks.getGuiConfig("GUI_CONFIG_RELOAD")[1];
 
     useTheme(guiConfig?.theme ?? Theme.White, guiConfig?.rainbow ?? false);
 
     useEffect(() => {
-        thisWindow
-            .setTitle(
-                TranslationMap[guiConfig?.language ?? "English"]["LOGS_TITLE"].replace(
-                    "$port$",
-                    port.toString()
-                )
-            )
-            .catch(console.warn);
+        const logsTitleTranslation = TranslationMap[guiConfig?.language ?? "English"]["LOGS_TITLE"];
+        if (logsTitleTranslation) {
+            thisWindow
+                .setTitle(logsTitleTranslation.replace("$port$", port.toString()))
+                .catch(console.warn);
+        }
     }, [guiConfig?.language, port]);
 
     const onClear = useCallback(() => {
         commands.clearLogs({ port }).catch(console.warn);
         setLogLines([]);
-    }, []);
+    }, [port]);
 
     useEffect(() => {
         let cancel = false;
@@ -67,17 +64,17 @@ const App = ({ port }: { port: number }) => {
             if (cancel || msg.port !== port) return;
             dialog.message(`[${msg.message.senderName ?? "Unknown"}]: ${msg.message.message}`, {
                 type: "error",
-                title: fatalErrorLabel
+                title: getTranslation("FATAL_ERROR")
             });
         });
         return () => {
             cancel = true;
         };
-    }, []);
+    }, [fetchLogLines, getTranslation, port]);
 
     useEffect(() => {
         fetchLogLines();
-    }, [activeFilter, activeSearch]);
+    }, [activeFilter, activeSearch, fetchLogLines]);
 
     if (guiConfig === null || logLines === null) {
         return <CenteredSpinner />;

@@ -1,11 +1,11 @@
 import { commands } from "@commands";
 import { OpenFileInput } from "@components/common/FileInput";
 import Icon from "@components/common/Icon";
-import { useTranslation, useTranslations } from "@hooks";
+import { useGetTranslation } from "@hooks";
 import { listen } from "@tauri-apps/api/event";
-import { useEffect, useState } from "react";
+import { forwardRef, useEffect, useImperativeHandle, useRef, useState } from "react";
 import { BsExclamationTriangleFill } from "react-icons/bs";
-import Modal, { ModalWrapperProps } from "./Modal";
+import Modal, { ModalHandle } from "./Modal";
 import { ProtocolInstallType, ProtocolPayload } from "@types";
 import { UserAttentionType, getCurrent } from "@tauri-apps/api/window";
 
@@ -25,29 +25,27 @@ const getSourceTypeFromProtocol = (installType: ProtocolInstallType): SourceType
     }
 };
 
-const InstallFromModal = (props: ModalWrapperProps) => {
+const InstallFromModal = forwardRef(function InstallFromModal(_: object, ref) {
+    const modalRef = useRef<ModalHandle>();
     const [source, setSource] = useState<SourceType>("UNIQUE_NAME");
     const [target, setTarget] = useState<string>("");
     const [prerelease, setPrerelease] = useState<boolean>(false);
+    const getTranslation = useGetTranslation();
 
-    const [install, installFrom, uniqueNameLabel, jsonLabel, zip, url, warningText] =
-        useTranslations([
-            "INSTALL",
-            "INSTALL_FROM",
-            "UNIQUE_NAME",
-            "JSON",
-            "ZIP",
-            "URL",
-            "INSTALL_WARNING"
-        ]);
-
-    const usePrerelease = useTranslation("USE_PRERELEASE", { version: "" });
+    useImperativeHandle(
+        ref,
+        () => ({
+            open: () => modalRef.current?.open(),
+            close: () => modalRef.current?.close()
+        }),
+        []
+    );
 
     const lblMap: Record<SourceType, string> = {
-        UNIQUE_NAME: uniqueNameLabel,
-        URL: url,
-        ZIP: zip,
-        JSON: jsonLabel
+        UNIQUE_NAME: getTranslation("UNIQUE_NAME"),
+        URL: getTranslation("URL"),
+        ZIP: getTranslation("ZIP"),
+        JSON: getTranslation("JSON")
     };
 
     const onInstall = () => {
@@ -93,7 +91,7 @@ const InstallFromModal = (props: ModalWrapperProps) => {
                 ) {
                     setPrerelease(protocolPayload.installType === "installPreRelease");
                 }
-                props.open?.current();
+                modalRef.current?.open();
                 getCurrent().requestUserAttention(UserAttentionType.Informational);
             }
         })
@@ -108,13 +106,13 @@ const InstallFromModal = (props: ModalWrapperProps) => {
         <Modal
             onConfirm={onInstall}
             showCancel
-            open={props.open}
-            heading={installFrom}
-            confirmText={install}
+            ref={modalRef}
+            heading={getTranslation("INSTALL_FROM")}
+            confirmText={getTranslation("INSTALL")}
         >
             <form>
                 <label htmlFor="source">
-                    {installFrom}
+                    {getTranslation("INSTALL_FROM")}
                     <select
                         onChange={(e) => {
                             setTarget("");
@@ -123,10 +121,10 @@ const InstallFromModal = (props: ModalWrapperProps) => {
                         value={source}
                         id="source"
                     >
-                        <option value="UNIQUE_NAME">{uniqueNameLabel}</option>
-                        <option value="JSON">{jsonLabel}</option>
-                        <option value="URL">{url}</option>
-                        <option value="ZIP">{zip}</option>
+                        <option value="UNIQUE_NAME">{getTranslation("UNIQUE_NAME")}</option>
+                        <option value="JSON">{getTranslation("JSON")}</option>
+                        <option value="URL">{getTranslation("URL")}</option>
+                        <option value="ZIP">{getTranslation("ZIP")}</option>
                     </select>
                 </label>
                 {source === "ZIP" || source === "JSON" ? (
@@ -135,7 +133,7 @@ const InstallFromModal = (props: ModalWrapperProps) => {
                         value={target}
                         onChange={setTarget}
                         dialogOptions={{
-                            title: installFrom,
+                            title: getTranslation("INSTALL_FROM"),
                             filters: [
                                 {
                                     name: lblMap[source],
@@ -166,18 +164,18 @@ const InstallFromModal = (props: ModalWrapperProps) => {
                             type="checkbox"
                             role="switch"
                         />
-                        {usePrerelease}
+                        {getTranslation("USE_PRERELEASE", { version: "" })}
                     </label>
                 )}
                 {(source === "ZIP" || source === "URL") && (
                     <p className="install-warning">
                         <Icon iconType={BsExclamationTriangleFill} />
-                        {warningText}
+                        {getTranslation("INSTALL_WARNING")}
                     </p>
                 )}
             </form>
         </Modal>
     );
-};
+});
 
 export default InstallFromModal;

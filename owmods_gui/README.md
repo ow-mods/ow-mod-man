@@ -3,14 +3,22 @@
 # Outer Wilds Mod Manager GUI
 
 <p align="center">
-<a href="https://github.com/Bwc9876/ow-mod-man"><img src="https://raw.githubusercontent.com/Bwc9876/ow-mod-man/main/owmods_gui/frontend/src/assets/images/logo.png" alt="OWMM Logo"/></a><br/>
-The GUI Version Of The Manager.<br/>
+<a href="https://github.com/Bwc9876/ow-mod-man"><img src="https://raw.githubusercontent.com/Bwc9876/ow-mod-man/main/.github/assets/logo-gui.png" alt="OWMM Logo"/></a><br/>
+The GUI Version Of The Outer Wilds Mod Manager.<br/>
 <a href="https://github.com/Bwc9876/ow-mod-man/tree/main/owmods_core">Core</a><b> |</b>
 <a href="https://github.com/Bwc9876/ow-mod-man/tree/main/owmods_cli">CLI</a><b> |</b>
 <a href="https://github.com/Bwc9876/ow-mod-man/tree/main/owmods_gui"><b>GUI</b></a>
 </p>
 
-The GUI Version Of The Manager. Created with Tauri, React, Vite, TypeScript, and Pico CSS.
+<hr/>
+
+[![Latest](https://img.shields.io/github/v/release/Bwc9876/ow-mod-man)](https://github.com/Bwc9876/ow-mod-man/releases/latest)
+[![AUR](https://img.shields.io/aur/version/owmods-gui-bin)](https://aur.archlinux.org/packages/owmods-gui-bin)
+[![GPL-3 licensed](https://img.shields.io/aur/license/owmods-gui-bin)](https://github.com/Bwc9876/ow-mod-man/blob/main/LICENSE)
+[![CI](https://github.com/Bwc9876/ow-mod-man/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/Bwc9876/ow-mod-man/actions/workflows/ci.yml)
+[![Release](https://github.com/Bwc9876/ow-mod-man/actions/workflows/release_gui.yml/badge.svg)](https://github.com/Bwc9876/ow-mod-man/actions/workflows/release_gui.yml)
+
+The GUI interface for the [Outer Wilds Mod Manager](https://github.com/Bwc9876/ow-mod-man), this package is responsible for providing a streamlined way to manage, install, and validate your mods. As well as running the game. This is achieved using the [owmods_core](https://crates.io/crates/owmods_core) package.
 
 ## Installation
 

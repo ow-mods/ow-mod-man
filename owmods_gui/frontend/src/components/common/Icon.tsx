@@ -9,7 +9,7 @@ export interface IconProps {
 
 // "Pure" icon component, use to prevent expensive rerenders
 const Icon = memo(
-    (props: IconProps) => {
+    function Icon(props: IconProps) {
         return (
             <>
                 {props.iconType({ className: props.iconClassName })}
@@ -17,7 +17,7 @@ const Icon = memo(
             </>
         );
     },
-    (prev, next) => prev.label === next.label
+    (prev, next) => prev.label === next.label && prev.iconClassName === next.iconClassName
 );
 
 export default Icon;

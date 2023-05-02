@@ -23,6 +23,7 @@ impl ProtocolInstallType {
     }
 }
 
+#[allow(rustdoc::bare_urls)]
 /// Represents a payload receive by a protocol handler (link from the website)
 /// All URLs should start with owmods://
 /// Then they should follow with the install type they want like `install-mod` or `install-url`

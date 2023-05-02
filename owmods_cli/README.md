@@ -3,12 +3,22 @@
 # Outer Wilds Mod Manager CLI
 
 <p align="center">
-<a href="https://github.com/Bwc9876/ow-mod-man"><img src="https://raw.githubusercontent.com/Bwc9876/ow-mod-man/main/owmods_gui/frontend/src/assets/images/logo.png" alt="OWMM Logo"/></a><br/>
-The CLI interface for the mod manager, built using clap.<br/>
+<a href="https://github.com/Bwc9876/ow-mod-man"><img src="https://raw.githubusercontent.com/Bwc9876/ow-mod-man/main/.github/assets/logo-cli.png" alt="OWMM Logo"/></a><br/>
+The CLI interface for the Outer Wilds Mod Manager, built using clap.<br/>
 <a href="https://github.com/Bwc9876/ow-mod-man/tree/main/owmods_core">Core</a><b> |</b>
 <a href="https://github.com/Bwc9876/ow-mod-man/tree/main/owmods_cli"><b>CLI</b></a><b> |</b>
 <a href="https://github.com/Bwc9876/ow-mod-man/tree/main/owmods_gui">GUI</a>
 </p>
+
+<hr />
+
+[![crates.io](https://img.shields.io/crates/v/owmods_cli.svg)](https://crates.io/crates/owmods_cli)
+[![GPL-3 licensed](https://img.shields.io/crates/l/owmods_cli.svg)](https://github.com/Bwc9876/ow-mod-man/blob/main/LICENSE)
+[![CI](https://github.com/Bwc9876/ow-mod-man/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/Bwc9876/ow-mod-man/actions/workflows/ci.yml)
+[![Release](https://github.com/Bwc9876/ow-mod-man/actions/workflows/release_cli.yml/badge.svg)](https://github.com/Bwc9876/ow-mod-man/actions/workflows/release_cli.yml)
+[![AUR](https://img.shields.io/aur/version/owmods-cli-bin)](https://aur.archlinux.org/packages/owmods-cli-bin)
+
+The CLI interface for the [Outer Wilds Mod Manager](https://github.com/Bwc9876/ow-mod-man), this package is responsible for providing a streamlined way to manage, install, and validate your mods. As well as running the game. This is achieved using the [owmods_core](https://crates.io/crates/owmods_core) package.
 
 ## Usage
 

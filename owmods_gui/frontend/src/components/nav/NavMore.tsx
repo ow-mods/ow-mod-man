@@ -1,6 +1,6 @@
 import Icon from "@components/common/Icon";
-import { useTranslation } from "@hooks";
-import { ReactNode } from "react";
+import { useGetTranslation } from "@hooks";
+import { ReactNode, useRef } from "react";
 import { HiDotsVertical } from "react-icons/hi";
 import NavButton from "./NavButton";
 
@@ -9,17 +9,26 @@ export interface NavMoreProps {
 }
 
 const NavMore = (props: NavMoreProps) => {
-    const more = useTranslation("MORE");
+    const getTranslation = useGetTranslation();
+    const detailsRef = useRef<HTMLDetailsElement>(null);
 
     return (
         <li>
-            <details role="list" dir="rtl">
+            <details ref={detailsRef} role="list" dir="rtl">
                 <summary>
-                    <NavButton ariaLabel={more} labelPlacement="left">
+                    <NavButton ariaLabel={getTranslation("MORE")} labelPlacement="left">
                         <Icon iconType={HiDotsVertical} />
                     </NavButton>
                 </summary>
-                <ul role="listbox">{props.children}</ul>
+                <ul
+                    onClick={() => {
+                        if (!detailsRef.current) return;
+                        detailsRef.current.open = false;
+                    }}
+                    role="listbox"
+                >
+                    {props.children}
+                </ul>
             </details>
         </li>
     );

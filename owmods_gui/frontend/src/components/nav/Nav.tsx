@@ -16,30 +16,20 @@ import SettingsModal from "@components/modals/SettingsModal";
 import InstallFromModal from "@components/modals/InstallFromModal";
 import AboutModal from "@components/modals/AboutModal";
 import Downloads from "../downloads/Downloads";
-import { useTranslations } from "@hooks";
+import { useGetTranslation } from "@hooks";
 import { commands } from "@commands";
-import { dialog } from "@tauri-apps/api";
+import { dialog, shell } from "@tauri-apps/api";
 import CenteredSpinner from "@components/common/CenteredSpinner";
 import NavRefreshButton from "./NavRefresh";
+import { ModalHandle } from "@components/modals/Modal";
 
 const Nav = () => {
-    const openSettings = useRef<() => void>(() => null);
-    const openInstallFrom = useRef<() => void>(() => null);
-    const openAbout = useRef<() => void>(() => null);
+    const settingsRef = useRef<ModalHandle>();
+    const installFromRef = useRef<ModalHandle>();
+    const aboutRef = useRef<ModalHandle>();
+    const getTranslation = useGetTranslation();
 
     const [areLogsStarting, setLogsStarting] = useState<boolean>(false);
-
-    const [runGame, help, settings, installFrom, about, exportLabel, confirm, launchAnyway] =
-        useTranslations([
-            "RUN_GAME",
-            "HELP",
-            "SETTINGS",
-            "INSTALL_FROM",
-            "ABOUT",
-            "EXPORT_MODS",
-            "CONFIRM",
-            "LAUNCH_ANYWAY"
-        ]);
 
     const onPlay = useCallback(() => {
         const start = () =>
@@ -53,9 +43,9 @@ const Nav = () => {
             const skipWarning = (await commands.getGuiConfig()).noWarning;
             if (!skipWarning && hasIssues) {
                 dialog
-                    .ask(launchAnyway, {
+                    .ask(getTranslation("LAUNCH_ANYWAY"), {
                         type: "warning",
-                        title: confirm
+                        title: getTranslation("CONFIRM")
                     })
                     .then((yes) => {
                         if (yes) {
@@ -69,12 +59,12 @@ const Nav = () => {
             }
         };
         task();
-    }, []);
+    }, [getTranslation]);
 
     const onExport = useCallback(() => {
         dialog
             .save({
-                title: exportLabel,
+                title: getTranslation("EXPORT_MODS"),
                 filters: [
                     {
                         name: "JSON File",
@@ -87,48 +77,64 @@ const Nav = () => {
                     commands.exportMods({ path }).catch(console.error);
                 }
             });
-    }, [exportLabel]);
+    }, [getTranslation]);
+
+    const onHelp = useCallback(() => {
+        shell.open("https://github.com/Bwc9876/ow-mod-man/blob/main/owmods_gui/HELP.md");
+    }, []);
 
     return (
         <IconContext.Provider value={{ className: "nav-icon" }}>
-            <SettingsModal open={openSettings} />
-            <InstallFromModal open={openInstallFrom} />
-            <AboutModal open={openAbout} />
-            <nav>
-                <ul>
-                    <Downloads />
-                    <NavRefreshButton />
-                </ul>
-                <ul>
-                    {areLogsStarting ? (
-                        <CenteredSpinner />
-                    ) : (
-                        <NavButton onClick={onPlay} labelPlacement="bottom" ariaLabel={runGame}>
-                            <Icon iconClassName="main-icon" iconType={BsPlayFill} />
+            <SettingsModal ref={settingsRef} />
+            <InstallFromModal ref={installFromRef} />
+            <AboutModal ref={aboutRef} />
+            <div className="nav-wrapper">
+                <nav className="max-width">
+                    <ul>
+                        <Downloads />
+                        <NavRefreshButton />
+                    </ul>
+                    <ul>
+                        {areLogsStarting ? (
+                            <CenteredSpinner />
+                        ) : (
+                            <NavButton
+                                onClick={onPlay}
+                                labelPlacement="bottom"
+                                ariaLabel={getTranslation("RUN_GAME")}
+                            >
+                                <Icon iconClassName="main-icon" iconType={BsPlayFill} />
+                            </NavButton>
+                        )}
+                    </ul>
+                    <ul>
+                        <NavButton
+                            onClick={onHelp}
+                            labelPlacement="bottom"
+                            ariaLabel={getTranslation("HELP")}
+                        >
+                            <Icon iconType={BsQuestion} />
                         </NavButton>
-                    )}
-                </ul>
-                <ul>
-                    <NavButton labelPlacement="bottom" ariaLabel={help}>
-                        <Icon iconType={BsQuestion} />
-                    </NavButton>
-                    <NavMore>
-                        {/* Dropdown uses RTL */}
-                        <NavButton onClick={() => openSettings.current?.()}>
-                            {settings} <Icon iconType={BsGearFill} />
-                        </NavButton>
-                        <NavButton onClick={() => openInstallFrom.current?.()}>
-                            ...{installFrom} <Icon iconType={BsBoxArrowInDown} />
-                        </NavButton>
-                        <NavButton onClick={onExport}>
-                            {exportLabel} <Icon iconType={BsBoxArrowUpRight} />
-                        </NavButton>
-                        <NavButton onClick={() => openAbout.current?.()}>
-                            {about} <Icon iconType={BsInfoCircleFill} />
-                        </NavButton>
-                    </NavMore>
-                </ul>
-            </nav>
+                        <NavMore>
+                            {/* Dropdown uses RTL */}
+                            <NavButton onClick={() => settingsRef.current?.open()}>
+                                {getTranslation("SETTINGS")} <Icon iconType={BsGearFill} />
+                            </NavButton>
+                            <NavButton onClick={() => installFromRef.current?.open()}>
+                                ...{getTranslation("INSTALL_FROM")}{" "}
+                                <Icon iconType={BsBoxArrowInDown} />
+                            </NavButton>
+                            <NavButton onClick={onExport}>
+                                {getTranslation("EXPORT_MODS")}{" "}
+                                <Icon iconType={BsBoxArrowUpRight} />
+                            </NavButton>
+                            <NavButton onClick={() => aboutRef.current?.open()}>
+                                {getTranslation("ABOUT")} <Icon iconType={BsInfoCircleFill} />
+                            </NavButton>
+                        </NavMore>
+                    </ul>
+                </nav>
+            </div>
         </IconContext.Provider>
     );
 };

@@ -25,6 +25,7 @@ $msg-types: (
         --accent-bg-lighter: #{$accent-bg-lighter};
         --primary-really-dark: #{$primary-really-dark};
         --accent-bg-darker: #{$accent-bg-darker};
+        --accent-bg-darkest: #{mix($accent-bg-darker, black, 40%)};
         --button-bg: #{$button-bg};
         --secondary-button-bg: #{$secondary-button-bg};
         --primary-muted: #{mix($primary, grey, 30%)};

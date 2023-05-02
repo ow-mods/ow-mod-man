@@ -41,6 +41,16 @@
     border-color: var(--accent-bg);
 }
 
+.settings-row label::before {
+    white-space: normal !important;
+    width: 15em;
+}
+
+.settings-row label[data-tooltip],
+.file-input-row label[data-tooltip] {
+    border-bottom: none !important;
+}
+
 .settings-row input[role="switch"] {
     margin-top: $margin-sm;
 }

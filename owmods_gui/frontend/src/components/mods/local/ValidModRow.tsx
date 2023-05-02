@@ -1,6 +1,6 @@
 import { commands, hooks } from "@commands";
 import { OpenModValidationModalPayload } from "@components/modals/ModValidationModal";
-import { useTranslation } from "@hooks";
+import { useGetTranslation } from "@hooks";
 import { confirm } from "@tauri-apps/api/dialog";
 import { LocalMod, ModValidationError } from "@types";
 import { memo, useCallback } from "react";
@@ -11,68 +11,68 @@ interface LocalModRowProps {
     onValidationClick?: (p: OpenModValidationModalPayload) => void;
 }
 
-const ValidModRow = memo((props: LocalModRowProps) => {
-    const confirmText = useTranslation("CONFIRM");
+const ValidModRow = memo(function ValidModRow({ mod, onValidationClick }: LocalModRowProps) {
+    const getTranslation = useGetTranslation();
 
     const remoteMod = hooks.getRemoteMod("REMOTE-REFRESH", {
-        uniqueName: props.mod.manifest.uniqueName
+        uniqueName: mod.manifest.uniqueName
     })[1];
 
-    const uninstallConfirmText = useTranslation("UNINSTALL_CONFIRM", {
-        name: props.mod.manifest.name
+    const uninstallConfirmText = getTranslation("UNINSTALL_CONFIRM", {
+        name: mod.manifest.name
     });
 
-    const subtitle = useTranslation("BY", {
-        author: props.mod.manifest.author,
-        version: props.mod.manifest.version
+    const subtitle = getTranslation("BY", {
+        author: mod.manifest.author,
+        version: mod.manifest.version
     });
 
     const onValidationClicked = useCallback(
         (errs: ModValidationError[]) => {
-            props.onValidationClick?.({
-                uniqueName: props.mod.manifest.uniqueName,
-                modName: props.mod.manifest.name,
+            onValidationClick?.({
+                uniqueName: mod.manifest.uniqueName,
+                modName: mod.manifest.name,
                 errors: errs
             });
         },
-        [props.mod.manifest.name, props.mod.errors]
+        [mod.manifest.uniqueName, mod.manifest.name, onValidationClick]
     );
 
     const onToggle = useCallback(
         (newVal: boolean) => {
             commands
                 .toggleMod({
-                    uniqueName: props.mod.manifest.uniqueName,
+                    uniqueName: mod.manifest.uniqueName,
                     enabled: newVal
                 })
                 .then(() => commands.refreshLocalDb());
         },
-        [props.mod.manifest.uniqueName]
+        [mod.manifest.uniqueName]
     );
 
     const onOpen = useCallback(() => {
-        commands.openModFolder({ uniqueName: props.mod.manifest.uniqueName });
-    }, [props.mod.manifest.uniqueName]);
+        commands.openModFolder({ uniqueName: mod.manifest.uniqueName });
+    }, [mod.manifest.uniqueName]);
 
     const onUninstall = useCallback(() => {
-        confirm(uninstallConfirmText, confirmText).then((answer) => {
+        confirm(uninstallConfirmText, getTranslation("CONFIRM")).then((answer) => {
             if (answer) {
                 commands
-                    .uninstallMod({ uniqueName: props.mod.manifest.uniqueName })
+                    .uninstallMod({ uniqueName: mod.manifest.uniqueName })
                     .then(() => commands.refreshLocalDb());
             }
         });
-    }, [props.mod.manifest.uniqueName, props.mod.manifest.name]);
+    }, [uninstallConfirmText, getTranslation, mod.manifest.uniqueName]);
 
     return (
         <LocalModRow
-            uniqueName={props.mod.manifest.uniqueName}
-            name={props.mod.manifest.name}
-            showValidation={props.mod.enabled}
-            enabled={props.mod.enabled}
+            uniqueName={mod.manifest.uniqueName}
+            name={mod.manifest.name}
+            showValidation={mod.enabled}
+            enabled={mod.enabled}
             description={remoteMod?.description}
             readme
-            errors={props.mod.errors}
+            errors={mod.errors}
             subtitle={subtitle}
             onOpen={onOpen}
             onToggle={onToggle}

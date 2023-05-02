@@ -1,20 +1,19 @@
 import { commands } from "@commands";
 import CenteredSpinner from "@components/common/CenteredSpinner";
-import { useTranslation } from "@hooks";
+import { useGetTranslation } from "@hooks";
 import { memo, useEffect, useRef, useState } from "react";
 import RemoteModsList from "./RemoteModsList";
 
-const RemoteMods = memo(() => {
+const RemoteMods = memo(function RemoteMods() {
     const [filter, setFilter] = useState("");
     const [tempFilter, setTempFilter] = useState("");
+    const getTranslation = useGetTranslation();
 
     useEffect(() => {
         commands.refreshRemoteDb();
     }, []);
 
     const activeTimeout = useRef<number | null>(null);
-
-    const searchLabel = useTranslation("SEARCH");
 
     const onChangeFilter = (newFilter: string) => {
         setTempFilter(newFilter);
@@ -27,7 +26,7 @@ const RemoteMods = memo(() => {
     return (
         <>
             <input
-                placeholder={searchLabel}
+                placeholder={getTranslation("SEARCH")}
                 className="remote-mod-search"
                 id="searchRemote"
                 value={tempFilter}

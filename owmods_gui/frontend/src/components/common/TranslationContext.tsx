@@ -1,6 +1,6 @@
 import english from "@assets/translations/english.json";
 import wario from "@assets/translations/wario.json";
-import portugueseBr from "@assets/translations/portuguese-br.json";
+//import portugueseBr from "@assets/translations/portuguese-br.json";
 import { Language } from "@types";
 import { createContext } from "react";
 
@@ -14,12 +14,12 @@ export type TranslationKey = keyof Translations;
 
 export const TranslationMap: Record<Language, Translations> = {
     English: english,
-    BrazilianPortuguese: portugueseBr,
+    //   BrazilianPortuguese: portugueseBr,
     Wario: wario
 };
 
 export const TranslationNameMap = {
-    BrazilianPortuguese: "Brazilian Portuguese"
+    //    BrazilianPortuguese: "Brazilian Portuguese"
 };
 
 export const TranslationContext = createContext<Language>(Language.English);

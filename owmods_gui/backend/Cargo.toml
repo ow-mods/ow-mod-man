@@ -11,7 +11,7 @@ tauri-build = { version = "1.2.1", features = [] }
 owmods_core = { version = "0.5.0", path = "../../owmods_core" }
 serde_json = "1.0"
 serde = { version = "1.0", features = ["derive"] }
-tauri = { version = "1.2.4", features = ["app-all", "dialog-ask", "dialog-confirm", "dialog-message", "dialog-open", "dialog-save", "os-all", "shell-open", "updater", "window-close", "window-set-title"] }
+tauri = { version = "1.2.5", features = ["app-all", "dialog-ask", "dialog-confirm", "dialog-message", "dialog-open", "dialog-save", "os-all", "shell-open", "updater", "window-close", "window-set-title"] }
 anyhow = "1.0.69"
 tokio = { version = "1.25.0", features = ["sync", "macros"] }
 log = { version = "0.4.17", features = ["std", "serde"] }

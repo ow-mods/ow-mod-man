@@ -77,3 +77,10 @@ sudo apt-get install -y libgtk-3-dev libwebkit2gtk-4.0-dev libayatana-appindicat
 ### build.rs Error in `backend/`
 
 Just create an empty `dist/` folder next to `backend`, tauri expects one to be there from vite but it isn't since you haven't ran it yet.
+
+## Screenshots
+
+![The main screen of the app](https://github.com/Bwc9876/ow-mod-man/raw/dev/.github/assets/screenshots/main.png)
+![A few of the many themes you can grab](https://github.com/Bwc9876/ow-mod-man/raw/dev/.github/assets/screenshots/themes.png)
+![The logs screen when starting the game](https://github.com/Bwc9876/ow-mod-man/raw/dev/.github/assets/screenshots/logs.png)
+![The about modal](https://github.com/Bwc9876/ow-mod-man/raw/dev/.github/assets/screenshots/about.png)

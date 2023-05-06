@@ -10,8 +10,8 @@
         "build": "tsc && vite build --emptyOutDir",
         "preview": "vite preview",
         "check": "pnpm lint && pnpm prettify",
-        "lint": "eslint --cache . --fix",
-        "lint-dry": "eslint .",
+        "lint": "tsc --noEmit && eslint --cache . --fix",
+        "lint-dry": "tsc --noEmit && eslint .",
         "prettify": "prettier --write . --plugin-search-dir=. --ignore-unknown",
         "prettier-check": "prettier --check . --plugin-search-dir=. --ignore-unknown",
         "preinstall": "npx only-allow pnpm"

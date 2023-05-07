@@ -1,3 +1,4 @@
+use std::result::Result as StdResult;
 use std::{
     fs::File,
     io::{BufWriter, Write},
@@ -35,7 +36,7 @@ use crate::{
     LogPort, State,
 };
 
-type Result<T = ()> = std::result::Result<T, Error>;
+type Result<T = ()> = StdResult<T, Error>;
 
 pub struct Error(anyhow::Error);
 
@@ -46,7 +47,7 @@ impl From<anyhow::Error> for Error {
 }
 
 impl Serialize for Error {
-    fn serialize<S>(&self, serializer: S) -> std::result::Result<S::Ok, S::Error>
+    fn serialize<S>(&self, serializer: S) -> StdResult<S::Ok, S::Error>
     where
         S: serde::Serializer,
     {

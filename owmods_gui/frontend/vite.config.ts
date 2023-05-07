@@ -2,6 +2,7 @@
 
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
+import { createHtmlPlugin } from "vite-plugin-html";
 import { imagetools } from "vite-imagetools";
 
 import path from "path";
@@ -13,7 +14,7 @@ export default defineConfig({
         strictPort: true
     },
     envPrefix: ["VITE_", "TAURI_"],
-    plugins: [react(), imagetools()],
+    plugins: [react(), imagetools(), createHtmlPlugin({ minify: true })],
     build: {
         rollupOptions: {
             input: {

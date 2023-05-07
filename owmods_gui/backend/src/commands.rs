@@ -1,4 +1,3 @@
-use std::result::Result as StdResult;
 use std::{
     fs::File,
     io::{BufWriter, Write},
@@ -36,8 +35,7 @@ use crate::{
     LogPort, State,
 };
 
-type Result<T> = StdResult<T, Error>;
-type EmptyResult = Result<()>;
+type Result<T = ()> = std::result::Result<T, Error>;
 
 pub struct Error(anyhow::Error);
 
@@ -48,7 +46,7 @@ impl From<anyhow::Error> for Error {
 }
 
 impl Serialize for Error {
-    fn serialize<S>(&self, serializer: S) -> StdResult<S::Ok, S::Error>
+    fn serialize<S>(&self, serializer: S) -> std::result::Result<S::Ok, S::Error>
     where
         S: serde::Serializer,
     {
@@ -61,10 +59,7 @@ fn toggle_fs_watch(handle: &AppHandle, enabled: bool) {
 }
 
 #[tauri::command]
-pub async fn initial_setup(
-    handle: tauri::AppHandle,
-    state: tauri::State<'_, State>,
-) -> EmptyResult {
+pub async fn initial_setup(handle: tauri::AppHandle, state: tauri::State<'_, State>) -> Result {
     let mut config = state.config.write().await;
     *config = Config::get(None)?;
     let mut gui_config = state.gui_config.write().await;
@@ -75,10 +70,7 @@ pub async fn initial_setup(
 }
 
 #[tauri::command]
-pub async fn refresh_local_db(
-    handle: tauri::AppHandle,
-    state: tauri::State<'_, State>,
-) -> EmptyResult {
+pub async fn refresh_local_db(handle: tauri::AppHandle, state: tauri::State<'_, State>) -> Result {
     toggle_fs_watch(&handle, false);
     let conf = state.config.read().await;
     {
@@ -131,10 +123,7 @@ pub async fn get_local_mod(
 }
 
 #[tauri::command]
-pub async fn refresh_remote_db(
-    handle: tauri::AppHandle,
-    state: tauri::State<'_, State>,
-) -> EmptyResult {
+pub async fn refresh_remote_db(handle: tauri::AppHandle, state: tauri::State<'_, State>) -> Result {
     toggle_fs_watch(&handle, false);
     let conf = state.config.read().await;
     {
@@ -177,7 +166,7 @@ pub async fn get_remote_mod(
 }
 
 #[tauri::command]
-pub async fn open_mod_folder(unique_name: &str, state: tauri::State<'_, State>) -> EmptyResult {
+pub async fn open_mod_folder(unique_name: &str, state: tauri::State<'_, State>) -> Result {
     let db = state.local_db.read().await;
     let conf = state.config.read().await;
     open_shortcut(unique_name, &conf, &db)?;
@@ -189,14 +178,14 @@ pub async fn toggle_mod(
     unique_name: &str,
     enabled: bool,
     state: tauri::State<'_, State>,
-) -> EmptyResult {
+) -> Result {
     let db = state.local_db.read().await;
     owmods_core::toggle::toggle_mod(unique_name, &db, enabled, false)?;
     Ok(())
 }
 
 #[tauri::command]
-pub async fn toggle_all(enabled: bool, state: tauri::State<'_, State>) -> EmptyResult {
+pub async fn toggle_all(enabled: bool, state: tauri::State<'_, State>) -> Result {
     let local_db = state.local_db.read().await;
     for local_mod in local_db.valid() {
         owmods_core::toggle::toggle_mod(
@@ -215,7 +204,7 @@ pub async fn install_mod(
     prerelease: Option<bool>,
     window: tauri::Window,
     state: tauri::State<'_, State>,
-) -> EmptyResult {
+) -> Result {
     let local_db = state.local_db.read().await;
     let remote_db = state.remote_db.read().await;
     let conf = state.config.read().await;
@@ -245,7 +234,7 @@ pub async fn install_mod(
 }
 
 #[tauri::command]
-pub async fn install_url(url: &str, state: tauri::State<'_, State>) -> EmptyResult {
+pub async fn install_url(url: &str, state: tauri::State<'_, State>) -> Result {
     let conf = state.config.read().await;
     let db = state.local_db.read().await;
     install_mod_from_url(url, &conf, &db).await?;
@@ -253,7 +242,7 @@ pub async fn install_url(url: &str, state: tauri::State<'_, State>) -> EmptyResu
 }
 
 #[tauri::command]
-pub async fn install_zip(path: &str, state: tauri::State<'_, State>) -> EmptyResult {
+pub async fn install_zip(path: &str, state: tauri::State<'_, State>) -> Result {
     let conf = state.config.read().await;
     let db = state.local_db.read().await;
     println!("Installing {}", path);
@@ -262,7 +251,7 @@ pub async fn install_zip(path: &str, state: tauri::State<'_, State>) -> EmptyRes
 }
 
 #[tauri::command]
-pub async fn uninstall_mod(unique_name: &str, state: tauri::State<'_, State>) -> EmptyResult {
+pub async fn uninstall_mod(unique_name: &str, state: tauri::State<'_, State>) -> Result {
     let db = state.local_db.read().await;
     let local_mod = db
         .get_mod(unique_name)
@@ -272,7 +261,7 @@ pub async fn uninstall_mod(unique_name: &str, state: tauri::State<'_, State>) ->
 }
 
 #[tauri::command]
-pub async fn uninstall_broken_mod(mod_path: &str, state: tauri::State<'_, State>) -> EmptyResult {
+pub async fn uninstall_broken_mod(mod_path: &str, state: tauri::State<'_, State>) -> Result {
     let db = state.local_db.read().await;
     let local_mod = db
         .get_mod_unsafe(mod_path)
@@ -289,7 +278,7 @@ pub async fn uninstall_broken_mod(mod_path: &str, state: tauri::State<'_, State>
 }
 
 #[tauri::command]
-pub async fn open_mod_readme(unique_name: &str, state: tauri::State<'_, State>) -> EmptyResult {
+pub async fn open_mod_readme(unique_name: &str, state: tauri::State<'_, State>) -> Result {
     let db = state.remote_db.read().await;
     open_readme(unique_name, &db)?;
     Ok(())
@@ -300,7 +289,7 @@ pub async fn save_config(
     config: Config,
     state: tauri::State<'_, State>,
     handle: tauri::AppHandle,
-) -> EmptyResult {
+) -> Result {
     let mut config = config.clone();
     config.path = Config::default_path()?;
     config.save()?;
@@ -322,7 +311,7 @@ pub async fn save_gui_config(
     gui_config: GuiConfig,
     state: tauri::State<'_, State>,
     handle: tauri::AppHandle,
-) -> EmptyResult {
+) -> Result {
     gui_config.save()?;
     {
         let mut conf_lock = state.gui_config.write().await;
@@ -342,7 +331,7 @@ pub async fn save_owml_config(
     owml_config: OWMLConfig,
     state: tauri::State<'_, State>,
     handle: tauri::AppHandle,
-) -> EmptyResult {
+) -> Result {
     let config = state.config.read().await;
     owml_config.save(&config)?;
     handle.emit_all("OWML_CONFIG_RELOAD", "").ok();
@@ -357,7 +346,7 @@ pub async fn get_owml_config(state: tauri::State<'_, State>) -> Result<OWMLConfi
 }
 
 #[tauri::command]
-pub async fn install_owml(state: tauri::State<'_, State>, handle: tauri::AppHandle) -> EmptyResult {
+pub async fn install_owml(state: tauri::State<'_, State>, handle: tauri::AppHandle) -> Result {
     let config = state.config.read().await;
     let db = state.remote_db.read().await;
     let owml = db
@@ -412,7 +401,7 @@ pub async fn update_mod(
     unique_name: &str,
     state: tauri::State<'_, State>,
     handle: tauri::AppHandle,
-) -> EmptyResult {
+) -> Result {
     let config = state.config.read().await;
     let local_db = state.local_db.read().await;
     let remote_db = state.remote_db.read().await;
@@ -445,7 +434,7 @@ pub async fn update_all_mods(
     unique_names: Vec<String>,
     state: tauri::State<'_, State>,
     handle: tauri::AppHandle,
-) -> EmptyResult {
+) -> Result {
     toggle_fs_watch(&handle, false);
     let config = state.config.read().await;
     let local_db = state.local_db.read().await;
@@ -456,7 +445,7 @@ pub async fn update_all_mods(
 }
 
 #[tauri::command]
-pub async fn start_logs(state: tauri::State<'_, State>, handle: tauri::AppHandle) -> EmptyResult {
+pub async fn start_logs(state: tauri::State<'_, State>, handle: tauri::AppHandle) -> Result {
     let game_logs = state.game_log.read().await;
     let gui_config = state.gui_config.read().await;
     if gui_config.log_multi_window || game_logs.keys().count() == 0 {
@@ -479,7 +468,7 @@ pub async fn active_log(port: LogPort, state: tauri::State<'_, State>) -> Result
 }
 
 #[tauri::command]
-pub async fn run_game(state: tauri::State<'_, State>, window: tauri::Window) -> EmptyResult {
+pub async fn run_game(state: tauri::State<'_, State>, window: tauri::Window) -> Result {
     let config = state.config.read().await.clone();
     {
         let local_db = state.local_db.read().await;
@@ -551,7 +540,7 @@ pub async fn clear_logs(
     port: LogPort,
     handle: tauri::AppHandle,
     state: tauri::State<'_, State>,
-) -> EmptyResult {
+) -> Result {
     let mut data = state.game_log.write().await;
     if let Some((lines, _)) = data.get_mut(&port) {
         lines.clear();
@@ -563,7 +552,7 @@ pub async fn clear_logs(
 }
 
 #[tauri::command]
-pub async fn stop_logging(port: LogPort, state: tauri::State<'_, State>) -> EmptyResult {
+pub async fn stop_logging(port: LogPort, state: tauri::State<'_, State>) -> Result {
     let mut logs = state.game_log.write().await;
     if let Some((_, ref mut writer)) = logs.get_mut(&port) {
         writer
@@ -608,7 +597,7 @@ pub async fn get_game_message(
 }
 
 #[tauri::command]
-pub async fn export_mods(path: String, state: tauri::State<'_, State>) -> EmptyResult {
+pub async fn export_mods(path: String, state: tauri::State<'_, State>) -> Result {
     let path = PathBuf::from(path);
     let local_db = state.local_db.read().await;
     let output = owmods_core::io::export_mods(&local_db)?;
@@ -619,7 +608,7 @@ pub async fn export_mods(path: String, state: tauri::State<'_, State>) -> EmptyR
 }
 
 #[tauri::command]
-pub async fn import_mods(path: String, state: tauri::State<'_, State>) -> EmptyResult {
+pub async fn import_mods(path: String, state: tauri::State<'_, State>) -> Result {
     let local_db = state.local_db.read().await;
     let remote_db = state.remote_db.read().await;
     let config = state.config.read().await;
@@ -629,7 +618,7 @@ pub async fn import_mods(path: String, state: tauri::State<'_, State>) -> EmptyR
 }
 
 #[tauri::command]
-pub async fn fix_mod_deps(unique_name: &str, state: tauri::State<'_, State>) -> EmptyResult {
+pub async fn fix_mod_deps(unique_name: &str, state: tauri::State<'_, State>) -> Result {
     let config = state.config.read().await;
     let local_db = state.local_db.read().await;
     let remote_db = state.remote_db.read().await;
@@ -669,10 +658,7 @@ pub async fn get_watcher_paths(state: tauri::State<'_, State>) -> Result<Vec<Str
 }
 
 #[tauri::command]
-pub async fn pop_protocol_url(
-    state: tauri::State<'_, State>,
-    handle: tauri::AppHandle,
-) -> EmptyResult {
+pub async fn pop_protocol_url(state: tauri::State<'_, State>, handle: tauri::AppHandle) -> Result {
     let mut protocol_url = state.protocol_url.write().await;
     if let Some(url) = protocol_url.as_ref() {
         handle.emit_all("PROTOCOL_INVOKE", url).ok();

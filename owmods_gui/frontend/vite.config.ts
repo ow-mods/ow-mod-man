@@ -1,5 +1,9 @@
+/// <reference types="vite/client" />
+
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
+import { imagetools } from "vite-imagetools";
+
 import path from "path";
 
 export default defineConfig({
@@ -9,7 +13,7 @@ export default defineConfig({
         strictPort: true
     },
     envPrefix: ["VITE_", "TAURI_"],
-    plugins: [react()],
+    plugins: [react(), imagetools()],
     build: {
         rollupOptions: {
             input: {

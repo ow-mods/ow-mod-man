@@ -83,7 +83,7 @@ impl log::Log for Logger {
                 ProgressPayload::Finish(payload) => self.app.emit_all("PROGRESS-FINISH", payload),
                 ProgressPayload::Unknown => Ok(()),
             }
-        } else if self.enabled(record.metadata()) {
+        } else if self.enabled(record.metadata()) && record.target().starts_with("owmods") {
             let message = format!("{}", record.args());
             self.write_log_to_file(record.level(), &message)
                 .unwrap_or_else(|e| {

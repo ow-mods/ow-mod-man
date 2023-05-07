@@ -2,7 +2,7 @@ name: Create CLI Release
 
 on:
   workflow_dispatch:
-    
+
 jobs:
   release:
     permissions:
@@ -10,7 +10,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        platform: [ubuntu-20.04]
+        platform: [ubuntu-20.04, windows-latest]
     runs-on: ${{ matrix.platform }}
 
     steps:
@@ -28,10 +28,6 @@ jobs:
       - name: Install Deb Generator
         if: matrix.platform == 'ubuntu-20.04'
         run: cargo install cargo-deb
-
-      - name: Get Package Version
-        id: pkg-version
-        run: echo "version=$(cargo metadata --no-deps --format-version=1 --no-default-features | jq -r '.packages[] | select(.name=="owmods_cli") | .version')" >> $GITHUB_OUTPUT
 
       - name: Build CLI
         run: cargo build -p owmods_cli --release
@@ -52,6 +48,10 @@ jobs:
         env:
           ANALYTICS_API_KEY: ${{ secrets.ANALYTICS_API_KEY }}
 
+      - name: Get Package Version
+        id: pkg-version
+        run: echo "verison=$(cargo xtask cli_version)" >> $GITHUB_OUTPUT
+
       - name: Upload CLI
         uses: softprops/action-gh-release@v1
         with:
@@ -65,7 +65,3 @@ jobs:
             target/debian/owmods-cli_${{ steps.pkg-version.outputs.version }}_amd64.deb
             target/release/owmods
             target/release/owmods.exe
-
-      
-
-      

@@ -103,7 +103,7 @@ impl log::Log for Logger {
                 ProgressPayload::Finish(payload) => self.finish(payload),
                 ProgressPayload::Unknown => {}
             };
-        } else if self.enabled(record.metadata()) {
+        } else if self.enabled(record.metadata()) && record.target().starts_with("owmods") {
             let args = format!("{}", record.args());
             let msg = match record.level() {
                 Level::Error => args.red(),

@@ -1,7 +1,7 @@
 use std::path::PathBuf;
 
 use anyhow::Result;
-use cli_tasks::{generate_cli_pkg_build, generate_completions, generate_man_files};
+use cli_tasks::{generate_cli_pkg_build, generate_completions, generate_man_files, print_version};
 use gui_tasks::generate_gui_pkg_build;
 use regex::RegexBuilder;
 
@@ -39,6 +39,7 @@ fn main() -> Result<()> {
         }
         "cli_pkg_build" => generate_cli_pkg_build()?,
         "gui_pkg_build" => generate_gui_pkg_build()?,
+        "cli_version" => print_version()?,
         _ => panic!("Invalid Command: {cmd}"),
     }
     Ok(())

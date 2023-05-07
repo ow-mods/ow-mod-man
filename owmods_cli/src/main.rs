@@ -1,13 +1,9 @@
-use anyhow::anyhow;
-use anyhow::Result;
-use clap::CommandFactory;
-use clap::Parser;
+use std::process;
+
+use anyhow::{anyhow, Result};
+use clap::{CommandFactory, Parser};
 use colored::Colorize;
-use game::start_just_logs;
 use log::{error, info, warn, LevelFilter};
-use owmods_core::file::get_default_owml_path;
-use owmods_core::mods::UnsafeLocalMod;
-use owmods_core::remove::remove_failed_mod;
 use owmods_core::{
     alerts::fetch_alert,
     config::Config,
@@ -15,10 +11,11 @@ use owmods_core::{
     download::{
         download_and_install_owml, install_mod_from_db, install_mod_from_url, install_mod_from_zip,
     },
+    file::get_default_owml_path,
     io::{export_mods, import_mods},
-    mods::LocalMod,
+    mods::local::{LocalMod, UnsafeLocalMod},
     open::{open_readme, open_shortcut},
-    remove::remove_mod,
+    remove::{remove_failed_mod, remove_mod},
     toggle::toggle_mod,
     updates::update_all,
     validate::fix_deps,
@@ -29,10 +26,8 @@ mod game;
 mod logging;
 
 use cli::{BaseCli, Commands, ModListTypes};
-use logging::Logger;
-
-use crate::game::start_game;
-use crate::logging::log_mod_validation_errors;
+use game::{start_game, start_just_logs};
+use logging::{log_mod_validation_errors, Logger};
 
 async fn run_from_cli(cli: BaseCli) -> Result<()> {
     let r = cli.recursive;
@@ -135,6 +130,19 @@ async fn run_from_cli(cli: BaseCli) -> Result<()> {
                 info!("{}", &output);
             }
         },
+        Commands::Search { query } => {
+            let db = RemoteDatabase::fetch(&config.database_url).await?;
+            let mods = db.search(query);
+            for remote_mod in mods {
+                info!(
+                    "{} v{} by {} ({})",
+                    remote_mod.name,
+                    remote_mod.version,
+                    remote_mod.get_author(),
+                    remote_mod.unique_name
+                );
+            }
+        }
         Commands::Info { unique_name } => {
             let remote_db = RemoteDatabase::fetch(&config.database_url).await?;
             let local_db = LocalDatabase::fetch(&config.owml_path)?;
@@ -399,6 +407,7 @@ async fn main() {
             Ok(_) => {}
             Err(e) => {
                 error!("{:?}", e);
+                process::exit(1);
             }
         };
     }

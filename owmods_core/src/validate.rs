@@ -9,7 +9,7 @@ use crate::{
     config::Config,
     db::{LocalDatabase, RemoteDatabase},
     download::install_mods_parallel,
-    mods::LocalMod,
+    mods::local::LocalMod,
     toggle::toggle_mod,
 };
 
@@ -131,7 +131,7 @@ pub async fn fix_deps(
 #[cfg(test)]
 mod tests {
 
-    use crate::mods::UnsafeLocalMod;
+    use crate::mods::local::UnsafeLocalMod;
 
     use super::*;
 

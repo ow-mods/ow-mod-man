@@ -1,8 +1,9 @@
-use crate::config::Config;
-use crate::constants::OWML_EXE_NAME;
-use anyhow::Result;
 use std::path::PathBuf;
+
+use anyhow::Result;
 use tokio::process::Command;
+
+use crate::{config::Config, constants::OWML_EXE_NAME};
 
 /// Launch the game using the given port for logs
 #[cfg(windows)]
@@ -41,10 +42,12 @@ fn fix_dlls(config: &Config) -> Result<()> {
 /// Launch the game using the given port for logs
 #[cfg(not(windows))]
 pub async fn launch_game(config: &Config, port: &u16) -> Result<()> {
-    use crate::mods::OWMLConfig;
+    use std::process::Stdio;
+
     use anyhow::anyhow;
     use log::{error, info};
-    use std::process::Stdio;
+
+    use crate::owml::OWMLConfig;
 
     fix_dlls(config)?;
 

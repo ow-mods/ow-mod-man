@@ -47,6 +47,11 @@ pub enum Commands {
         #[command(subcommand)]
         mod_type: Option<ModListTypes>,
     },
+    #[command(about = "Search the remote database for mods")]
+    Search {
+        #[arg(help = "The search query to use in the search", value_hint = ValueHint::Other)]
+        query: String,
+    },
     #[command(about = "View info about a specific mod")]
     Info {
         #[arg(help = "The unique name of the mod to view the info of", value_hint = ValueHint::Other)]

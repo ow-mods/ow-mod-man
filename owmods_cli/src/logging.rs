@@ -9,7 +9,7 @@ use indicatif::{MultiProgress, ProgressBar, ProgressStyle};
 use log::{error, warn, Level};
 use owmods_core::{
     db::LocalDatabase,
-    mods::UnsafeLocalMod,
+    mods::local::UnsafeLocalMod,
     progress::{
         ProgressAction, ProgressFinishPayload, ProgressIncrementPayload, ProgressMessagePayload,
         ProgressPayload, ProgressStartPayload, ProgressType,

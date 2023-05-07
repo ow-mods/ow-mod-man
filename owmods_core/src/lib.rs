@@ -30,6 +30,9 @@ pub mod io;
 /// Work with local and remote mods.
 pub mod mods;
 
+/// Work with the OWML config.
+pub mod owml;
+
 /// Open shortcuts and mod readmes.
 pub mod open;
 
@@ -50,6 +53,8 @@ pub mod updates;
 
 /// Validate the local database for common issues
 pub mod validate;
+
+mod search;
 
 #[cfg(test)]
 mod test_utils {

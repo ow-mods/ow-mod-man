@@ -1,10 +1,12 @@
-use crate::{download::install_mods_parallel, file::deserialize_from_json};
-use anyhow::Result;
 use std::path::{Path, PathBuf};
 
-use super::{
+use anyhow::Result;
+
+use crate::{
     config::Config,
     db::{LocalDatabase, RemoteDatabase},
+    download::install_mods_parallel,
+    file::deserialize_from_json,
     toggle::{get_mod_enabled, toggle_mod},
 };
 
@@ -70,8 +72,7 @@ pub async fn import_mods(
 #[cfg(test)]
 mod tests {
 
-    use std::fs::File;
-    use std::io::Write;
+    use std::{fs::File, io::Write};
 
     use crate::{
         download::install_mod_from_zip,

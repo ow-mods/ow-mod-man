@@ -1,5 +1,4 @@
-use anyhow::anyhow;
-use anyhow::Result;
+use anyhow::{anyhow, Result};
 use serde::{Deserialize, Serialize};
 use serde_repr::{Deserialize_repr, Serialize_repr};
 use tokio::{
@@ -183,8 +182,10 @@ mod tests {
     use std::sync::Mutex;
 
     use futures::try_join;
-    use tokio::io::{AsyncWriteExt, BufWriter};
-    use tokio::net::TcpStream;
+    use tokio::{
+        io::{AsyncWriteExt, BufWriter},
+        net::TcpStream,
+    };
 
     use super::*;
 

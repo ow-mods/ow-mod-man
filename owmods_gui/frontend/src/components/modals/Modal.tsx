@@ -71,9 +71,14 @@ const Modal = forwardRef(function Modal(props: ModalProps, ref) {
     }, [state]);
 
     return (
-        <dialog className={state.open ? "" : "d-none"} dir="ltr" open={state.open}>
+        <dialog
+            onClick={onClose}
+            className={state.open ? "" : "d-none"}
+            dir="ltr"
+            open={state.open}
+        >
             <IconContext.Provider value={{ className: "modal-icon" }}>
-                <article>
+                <article onClick={(e) => e.stopPropagation()}>
                     <header>
                         <p>{props.heading ?? "Modal"}</p>
                     </header>

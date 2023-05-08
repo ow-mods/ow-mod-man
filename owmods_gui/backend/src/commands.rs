@@ -22,14 +22,14 @@ use owmods_core::{
     open::{open_readme, open_shortcut},
     owml::OWMLConfig,
     remove::{remove_failed_mod, remove_mod},
-    socket::{LogServer, SocketMessage, SocketMessageType},
+    socket::{LogServer, SocketMessageType},
     updates::check_mod_needs_update,
     validate::fix_deps,
 };
 use serde::Serialize;
 use tauri::{api::dialog, AppHandle, Manager};
 use time::{macros::format_description, OffsetDateTime};
-use tokio::try_join;
+use tokio::{sync::mpsc, try_join};
 
 use crate::{
     game::{get_logs_indices, make_log_window, show_warnings, write_log, GameMessage},
@@ -481,6 +481,7 @@ pub async fn run_game(state: tauri::State<'_, State>, window: tauri::Window) -> 
             *config = new_config;
         }
     }
+
     let log_server = LogServer::new(0).await?;
     let port = log_server.port;
     let now = OffsetDateTime::now_utc();
@@ -507,12 +508,14 @@ pub async fn run_game(state: tauri::State<'_, State>, window: tauri::Window) -> 
         let writer = BufWriter::new(file);
         game_log.insert(port, (vec![], writer));
     }
-    let handle_log = |msg: &SocketMessage, _: &u16| {
-        let msg = msg.clone();
-        let logs_map = state.game_log.clone();
-        let window_handle = window.app_handle();
-        tokio::spawn(async move {
-            let mut game_log = logs_map.write().await;
+    window.emit("GAME-START", &port).expect("Can't Send Event");
+
+    let (tx, mut rx) = mpsc::channel(32);
+
+    let log_handler = async {
+        while let Some(msg) = rx.recv().await {
+            let window_handle = window.app_handle();
+            let mut game_log = state.game_log.write().await;
             if let Some((lines, writer)) = game_log.get_mut(&port) {
                 let res = write_log(writer, &msg);
                 if let Err(why) = res {
@@ -531,12 +534,14 @@ pub async fn run_game(state: tauri::State<'_, State>, window: tauri::Window) -> 
                     error!("Couldn't Emit Game Log: {}", why)
                 }
             }
-        });
+        }
+        Ok(())
     };
-    window.emit("GAME-START", &port).expect("Can't Send Event");
+
     try_join!(
-        log_server.listen(&handle_log, false),
-        launch_game(&config, &port)
+        log_server.listen(tx, false),
+        launch_game(&config, &port),
+        log_handler
     )
     .map_err(|e| anyhow!("Can't Start Game: {:?}", e))?;
     Ok(())

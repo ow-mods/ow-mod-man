@@ -1,11 +1,15 @@
 use anyhow::{anyhow, Result};
+use log::error;
 use serde::{Deserialize, Serialize};
 use serde_repr::{Deserialize_repr, Serialize_repr};
 use tokio::{
     io::{AsyncBufReadExt, BufReader},
-    net::TcpListener,
+    net::{TcpListener, TcpStream},
+    sync::mpsc::Sender,
 };
 use typeshare::typeshare;
+
+pub type LogServerSender = Sender<SocketMessage>;
 
 /// Represents the type of message sent from the game
 #[typeshare]
@@ -95,82 +99,103 @@ impl LogServer {
         Ok(Self { port, listener })
     }
 
+    async fn accept(mut stream: TcpStream, tx: &LogServerSender) {
+        let mut reader = BufReader::new(&mut stream);
+        let mut body = String::new();
+        while let Ok(bytes_read) = reader.read_line(&mut body).await {
+            if bytes_read == 0 {
+                break;
+            }
+            if body.trim() == "" {
+                continue;
+            }
+            let message: Result<SocketMessage, _> = serde_json::from_str(body.trim());
+            match message {
+                Ok(message) => {
+                    match message.message_type {
+                        SocketMessageType::Quit => {
+                            break;
+                        }
+                        _ => {
+                            Self::yield_log(tx, message).await;
+                        }
+                    };
+                }
+                Err(why) => {
+                    Self::yield_log(
+                        tx,
+                        SocketMessage::make_internal(
+                            format!("Invalid Log From Game Received: {:?}", why),
+                            SocketMessageType::Error,
+                        ),
+                    )
+                    .await;
+                }
+            }
+            body.clear();
+        }
+    }
+
+    async fn yield_log(tx: &LogServerSender, message: SocketMessage) {
+        let res = tx.send(message).await;
+        if let Err(why) = res {
+            error!("Couldn't Yield Log: {why:?}")
+        }
+    }
+
     /// Listen to this server for any logs from the game.
     /// Function `f` will be passed any messages sent.
     ///
-    pub async fn listen(
-        self,
-        f: impl Fn(&SocketMessage, &u16),
-        disconnect_on_quit: bool,
-    ) -> Result<()> {
-        f(
-            &SocketMessage::make_internal(
+    pub async fn listen(self, tx: LogServerSender, disconnect_on_quit: bool) -> Result<()> {
+        Self::yield_log(
+            &tx,
+            SocketMessage::make_internal(
                 format!("Ready to receive game logs on port {}!", self.port),
                 SocketMessageType::Info,
             ),
-            &self.port,
-        );
+        )
+        .await;
+
         let mut keep_going = true;
         while keep_going {
             let stream = self.listener.accept().await;
-            f(
-                &SocketMessage::make_internal(
-                    "====== Client Connected To Console ======".to_string(),
-                    SocketMessageType::Info,
-                ),
-                &self.port,
-            );
-            if let Ok((mut stream, _)) = stream {
-                let mut reader = BufReader::new(&mut stream);
-                let mut body = String::new();
-                while let Ok(bytes_read) = reader.read_line(&mut body).await {
-                    if bytes_read == 0 {
-                        break;
-                    }
-                    if body.trim() == "" {
-                        continue;
-                    }
-                    let message: Result<SocketMessage, _> = serde_json::from_str(body.trim());
-                    match message {
-                        Ok(message) => {
-                            match message.message_type {
-                                SocketMessageType::Quit => {
-                                    keep_going = !disconnect_on_quit;
-                                    break;
-                                }
-                                _ => {
-                                    f(&message, &self.port);
-                                }
-                            };
-                        }
-                        Err(why) => {
-                            f(
-                                &SocketMessage::make_internal(
-                                    format!("Invalid Log From Game Received: {:?}", why),
-                                    SocketMessageType::Error,
-                                ),
-                                &self.port,
-                            );
-                        }
-                    }
-                    body.clear();
+            match stream {
+                Ok((stream, _)) => {
+                    let tx2 = tx.clone();
+                    tokio::spawn(async move {
+                        Self::yield_log(
+                            &tx2,
+                            SocketMessage::make_internal(
+                                "====== Client Connected To Console ======".to_string(),
+                                SocketMessageType::Info,
+                            ),
+                        )
+                        .await;
+
+                        Self::accept(stream, &tx2).await;
+
+                        Self::yield_log(
+                            &tx2,
+                            SocketMessage::make_internal(
+                                "====== Client Disconnected From Console ======".to_string(),
+                                SocketMessageType::Info,
+                            ),
+                        )
+                        .await;
+                    });
+                    keep_going = !disconnect_on_quit;
                 }
-            } else {
-                f(
-                    &SocketMessage::make_internal(
-                        "Invalid Log Received!".to_string(),
-                        SocketMessageType::Error,
-                    ),
-                    &self.port,
-                );
+                Err(why) => {
+                    Self::yield_log(
+                        &tx,
+                        SocketMessage::make_internal(
+                            format!("Client Connection Failure! {why:?}"),
+                            SocketMessageType::Error,
+                        ),
+                    )
+                    .await;
+                }
             }
-            f(
-                &SocketMessage::make_internal(
-                    "====== Client Disconnected From Console ======".to_string(),
-                    SocketMessageType::Info,
-                ),
-                &self.port,
-            );
         }
         Ok(())
     }
@@ -181,10 +206,10 @@ mod tests {
 
     use std::sync::Mutex;
 
-    use futures::try_join;
     use tokio::{
         io::{AsyncWriteExt, BufWriter},
         net::TcpStream,
+        sync::mpsc,
     };
 
     use super::*;
@@ -207,7 +232,33 @@ mod tests {
             let server = LogServer::new(0).await.unwrap();
             let port = server.port;
             let count_ref = Mutex::new(0);
-            let handle_log = |msg: &SocketMessage, _: &u16| {
+            let test_fn = async move {
+                let client = TcpStream::connect(format!("127.0.0.1:{}", port))
+                    .await
+                    .unwrap();
+                let mut writer = BufWriter::new(client);
+                write_msg(
+                    &mut writer,
+                    make_test_msg("Test Message", SocketMessageType::Info),
+                )
+                .await;
+                write_msg(
+                    &mut writer,
+                    make_test_msg("Success!", SocketMessageType::Success),
+                )
+                .await;
+                write_msg(&mut writer, make_test_msg("", SocketMessageType::Quit)).await;
+                writer.shutdown().await.unwrap();
+            };
+            let (tx, mut rx) = mpsc::channel(32);
+
+            tokio::spawn(async {
+                server.listen(tx, true).await.unwrap();
+            });
+
+            tokio::spawn(test_fn);
+
+            while let Some(msg) = rx.recv().await {
                 let mut counter = count_ref.lock().unwrap();
                 match *counter {
                     0 => {
@@ -240,27 +291,8 @@ mod tests {
                     }
                 }
                 *counter += 1;
-            };
-            let test_fn = async {
-                let client = TcpStream::connect(format!("127.0.0.1:{}", port))
-                    .await
-                    .unwrap();
-                let mut writer = BufWriter::new(client);
-                write_msg(
-                    &mut writer,
-                    make_test_msg("Test Message", SocketMessageType::Info),
-                )
-                .await;
-                write_msg(
-                    &mut writer,
-                    make_test_msg("Success!", SocketMessageType::Success),
-                )
-                .await;
-                write_msg(&mut writer, make_test_msg("", SocketMessageType::Quit)).await;
-                writer.shutdown().await.unwrap();
-                Ok(())
-            };
-            try_join!(server.listen(handle_log, true), test_fn).unwrap();
+            }
+
             assert_eq!(*count_ref.lock().unwrap(), 5);
         });
     }

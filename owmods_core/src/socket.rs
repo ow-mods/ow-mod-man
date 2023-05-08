@@ -144,7 +144,9 @@ impl LogServer {
     }
 
     /// Listen to this server for any logs from the game.
-    /// Function `f` will be passed any messages sent.
+    ///
+    /// - tx will send [SocketMessage]s from the game
+    /// - disconnect_on_quit will make the server stop listening if the game sends a [SocketMessageType::Quit] message
     ///
     pub async fn listen(self, tx: LogServerSender, disconnect_on_quit: bool) -> Result<()> {
         Self::yield_log(

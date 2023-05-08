@@ -70,6 +70,8 @@ mod test_utils {
     }
 
     pub fn get_test_file(path: &str) -> PathBuf {
-        Path::new(env!("CARGO_MANIFEST_DIR")).join(format!("test_files/{path}"))
+        Path::new(env!("CARGO_MANIFEST_DIR"))
+            .join("test_files")
+            .join(path)
     }
 }

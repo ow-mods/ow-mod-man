@@ -6,6 +6,7 @@ use std::{
 };
 
 use anyhow::anyhow;
+use log::error;
 use owmods_core::{
     alerts::{fetch_alert, Alert},
     config::Config,
@@ -513,17 +514,22 @@ pub async fn run_game(state: tauri::State<'_, State>, window: tauri::Window) -> 
         tokio::spawn(async move {
             let mut game_log = logs_map.write().await;
             if let Some((lines, writer)) = game_log.get_mut(&port) {
-                write_log(writer, &msg).unwrap();
+                let res = write_log(writer, &msg);
+                if let Err(why) = res {
+                    error!("Couldn't Write Game Log: {}", why);
+                }
                 let msg = GameMessage::new(port, msg);
                 if matches!(msg.message.message_type, SocketMessageType::Fatal) {
-                    window_handle
-                        .emit_all("LOG-FATAL", &msg)
-                        .expect("Couldn't Send Event");
+                    let res = window_handle.emit_all("LOG-FATAL", &msg);
+                    if let Err(why) = res {
+                        error!("Couldn't Emit Game Log: {}", why)
+                    }
                 }
                 lines.push(msg);
-                window_handle
-                    .emit_all("LOG-UPDATE", port)
-                    .expect("Can't Send Event");
+                let res = window_handle.emit_all("LOG-UPDATE", port);
+                if let Err(why) = res {
+                    error!("Couldn't Emit Game Log: {}", why)
+                }
             }
         });
     };

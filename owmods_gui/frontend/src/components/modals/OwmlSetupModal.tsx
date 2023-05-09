@@ -45,6 +45,7 @@ const OwmlSetupModal = forwardRef(function OwmlSetupModal(_: object, ref) {
             onConfirm={onClose}
             heading={getTranslation("SETUP")}
             showCancel={false}
+            allowCloseOnOutsideClick={false}
             confirmText={getTranslation("CONTINUE")}
         >
             <form className="owml-setup">

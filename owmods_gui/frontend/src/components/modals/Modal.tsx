@@ -14,6 +14,7 @@ export interface ModalProps {
     confirmText?: string;
     showCancel?: boolean;
     cancelText?: string;
+    allowCloseOnOutsideClick?: boolean;
     children: ReactNode;
     onCancel?: () => boolean | void;
     onConfirm?: () => boolean | void;
@@ -72,7 +73,9 @@ const Modal = forwardRef(function Modal(props: ModalProps, ref) {
 
     return (
         <dialog
-            onClick={onClose}
+            onClick={() => {
+                if (props.allowCloseOnOutsideClick ?? true) onClose();
+            }}
             className={state.open ? "" : "d-none"}
             dir="ltr"
             open={state.open}

@@ -12,7 +12,6 @@ import { UserAttentionType, getCurrent } from "@tauri-apps/api/window";
 type SourceType = "UNIQUE_NAME" | "URL" | "ZIP" | "JSON";
 
 const getSourceTypeFromProtocol = (installType: ProtocolInstallType): SourceType | null => {
-    console.debug(installType);
     switch (installType) {
         case "installMod":
             return "UNIQUE_NAME";
@@ -92,7 +91,7 @@ const InstallFromModal = forwardRef(function InstallFromModal(_: object, ref) {
                     setPrerelease(protocolPayload.installType === "installPreRelease");
                 }
                 modalRef.current?.open();
-                getCurrent().requestUserAttention(UserAttentionType.Informational);
+                getCurrent().requestUserAttention(UserAttentionType.Critical);
             }
         })
             .then(() => commands.popProtocolURL())

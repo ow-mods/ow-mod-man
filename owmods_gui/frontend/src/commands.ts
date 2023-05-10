@@ -7,7 +7,8 @@ import {
     RemoteMod,
     GameMessage,
     UnsafeLocalMod,
-    Alert
+    Alert,
+    ProgressBars
 } from "@types";
 
 type CommandInfo<P, R> = [P, R];
@@ -74,7 +75,9 @@ const commandInfo = {
     getAlert: $<GetCommand<Alert>>("get_alert"),
     getWatcherPaths: $<GetCommand<string[]>>("get_watcher_paths"),
     popProtocolURL: $<EmptyCommand>("pop_protocol_url"),
-    checkOWML: $<GetCommand<boolean>>("check_owml")
+    checkOWML: $<GetCommand<boolean>>("check_owml"),
+    getDownloads: $<GetCommand<ProgressBars>>("get_downloads"),
+    clearDownloads: $<EmptyCommand>("clear_downloads")
 };
 
 type Command = keyof typeof commandInfo;

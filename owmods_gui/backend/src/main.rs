@@ -15,6 +15,7 @@ use owmods_core::{
     db::{LocalDatabase, RemoteDatabase},
 };
 
+use progress::ProgressBars;
 use protocol::{ProtocolInstallType, ProtocolPayload};
 use tauri::Manager;
 use tokio::sync::RwLock as TokioLock;
@@ -23,6 +24,7 @@ mod commands;
 mod game;
 mod gui_config;
 mod logging;
+mod progress;
 mod protocol;
 
 type StatePart<T> = Arc<TokioLock<T>>;
@@ -40,6 +42,7 @@ pub struct State {
     gui_config: StatePart<GuiConfig>,
     game_log: StatePart<LogMessages>,
     protocol_url: StatePart<Option<ProtocolPayload>>,
+    progress_bars: StatePart<ProgressBars>,
 }
 
 fn main() -> Result<(), Box<dyn Error>> {
@@ -60,6 +63,7 @@ fn main() -> Result<(), Box<dyn Error>> {
             gui_config: manage(gui_config),
             game_log: manage(HashMap::new()),
             protocol_url: manage(url),
+            progress_bars: manage(ProgressBars(HashMap::new())),
         })
         .setup(move |app| {
             let logger = Logger::new(app.handle());
@@ -139,7 +143,9 @@ fn main() -> Result<(), Box<dyn Error>> {
             get_watcher_paths,
             pop_protocol_url,
             check_owml,
-            get_defaults
+            get_defaults,
+            get_downloads,
+            clear_downloads
         ])
         .plugin(tauri_plugin_window_state::Builder::default().build())
         .plugin(tauri_plugin_fs_watch::init())

@@ -31,6 +31,7 @@ use tauri::{api::dialog, AppHandle, Manager};
 use time::{macros::format_description, OffsetDateTime};
 use tokio::{sync::mpsc, try_join};
 
+use crate::progress::ProgressBars;
 use crate::{
     game::{get_logs_indices, make_log_window, show_warnings, write_log, GameMessage},
     gui_config::GuiConfig,
@@ -694,4 +695,18 @@ pub async fn get_defaults(
     let gui_config = GuiConfig::default();
     let owml_config = OWMLConfig::default(&old_config)?;
     Ok((config, gui_config, owml_config))
+}
+
+#[tauri::command]
+pub async fn get_downloads(state: tauri::State<'_, State>) -> Result<ProgressBars> {
+    let bars = state.progress_bars.read().await;
+    Ok(bars.clone())
+}
+
+#[tauri::command]
+pub async fn clear_downloads(state: tauri::State<'_, State>, handle: tauri::AppHandle) -> Result {
+    let mut bars = state.progress_bars.write().await;
+    bars.0.clear();
+    handle.emit_all("PROGRESS-UPDATE", "").ok();
+    Ok(())
 }

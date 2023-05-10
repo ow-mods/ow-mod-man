@@ -1,6 +1,8 @@
 use log::info;
 use serde::Serialize;
 
+pub type ProgressValue = u32;
+
 /// Type of progress bar
 #[derive(Clone, Serialize, Debug)]
 pub enum ProgressType {
@@ -42,7 +44,7 @@ impl ProgressAction {
 #[serde(rename_all = "camelCase")]
 pub struct ProgressStartPayload {
     pub id: String,
-    pub len: u64,
+    pub len: ProgressValue,
     pub msg: String,
     pub progress_type: ProgressType,
     pub progress_action: ProgressAction,
@@ -51,7 +53,7 @@ pub struct ProgressStartPayload {
 #[derive(Clone, Serialize)]
 pub struct ProgressIncrementPayload {
     pub id: String,
-    pub progress: u64,
+    pub progress: ProgressValue,
 }
 
 #[derive(Clone, Serialize)]
@@ -105,12 +107,12 @@ impl ProgressPayload {
                     msg: msg.to_string(),
                     progress_action: ProgressAction::parse(progress_action),
                     progress_type: ProgressType::parse(progress_type),
-                    len: len.parse::<u64>().unwrap(),
+                    len: len.parse::<ProgressValue>().unwrap(),
                 })
             }
             "Increment" => ProgressPayload::Increment(ProgressIncrementPayload {
                 id: id.to_string(),
-                progress: args.parse::<u64>().unwrap(),
+                progress: args.parse::<ProgressValue>().unwrap(),
             }),
             "Msg" => ProgressPayload::Msg(ProgressMessagePayload {
                 id: id.to_string(),
@@ -132,8 +134,8 @@ impl ProgressPayload {
 /// Represents a progress bar
 pub struct ProgressBar {
     id: String,
-    len: u64,
-    progress: u64,
+    len: ProgressValue,
+    progress: ProgressValue,
     failure_message: String,
     complete: bool,
 }
@@ -141,7 +143,7 @@ pub struct ProgressBar {
 impl ProgressBar {
     pub fn new(
         id: &str,
-        len: u64,
+        len: ProgressValue,
         msg: &str,
         failure_message: &str,
         progress_type: ProgressType,
@@ -158,7 +160,7 @@ impl ProgressBar {
         new
     }
 
-    pub fn inc(&mut self, amount: u64) {
+    pub fn inc(&mut self, amount: ProgressValue) {
         self.progress = if self.progress + amount >= self.len {
             self.len
         } else {

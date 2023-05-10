@@ -51,7 +51,7 @@ async fn download_zip(url: &str, target_path: &Path) -> Result<()> {
 
     let mut progress = ProgressBar::new(
         target_path.to_str().unwrap(),
-        file_size,
+        file_size.try_into().unwrap_or(u32::MAX), // Fallback for HUGE files, means files >4GB will get progress reported incorrectly
         &format!("Downloading {}", zip_name),
         &format!("Failed to download {}", zip_name),
         progress_type,

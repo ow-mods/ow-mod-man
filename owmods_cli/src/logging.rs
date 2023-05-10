@@ -29,7 +29,7 @@ pub struct Logger {
 impl Logger {
     fn start_progress(&self, payload: ProgressStartPayload) {
         let pb = ProgressBar::hidden();
-        pb.set_length(payload.len);
+        pb.set_length(payload.len.into());
         let template = if matches!(payload.progress_type, ProgressType::Definite) {
             PROGRESS_TEMPLATE
         } else {
@@ -55,7 +55,7 @@ impl Logger {
             .unwrap()
             .get::<String>(&payload.id)
             .unwrap()
-            .set_position(payload.progress);
+            .set_position(payload.progress.into());
     }
 
     fn set_message(&self, payload: ProgressMessagePayload) {

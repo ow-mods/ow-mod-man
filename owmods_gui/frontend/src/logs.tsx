@@ -9,8 +9,6 @@ import { getCurrent } from "@tauri-apps/api/window";
 
 const thisWindow = getCurrent();
 
-commands.runGame().catch(console.warn);
-
 let port = 0;
 
 listen("GAME-START", (e) => {
@@ -39,6 +37,6 @@ listen("GAME-START", (e) => {
             <App port={port} />
         </React.StrictMode>
     );
-});
+}).then(() => commands.runGame().catch(console.warn));
 
 startConsoleLogListen();

@@ -30,6 +30,8 @@ pub enum ModValidationError {
     MissingDLL(Option<String>),
     /// There's another mod already in the DB with this mod's unique name, contains the path of the other mod that has the same unique name
     DuplicateMod(String),
+    /// The mod is outdated, contains the newest version
+    Outdated(String),
 }
 
 fn check_mod_dll(local_mod: &LocalMod) -> Option<ModValidationError> {

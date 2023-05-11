@@ -319,7 +319,11 @@ async fn run_from_cli(cli: BaseCli) -> Result<()> {
         }
         Commands::Run { force, port } => {
             info!("Attempting to launch game...");
-            let local_db = LocalDatabase::fetch(&config.owml_path)?;
+            let mut local_db = LocalDatabase::fetch(&config.owml_path)?;
+            let remote_db = RemoteDatabase::fetch(&config.database_url).await;
+            if let Ok(remote_db) = remote_db {
+                local_db.validate_updates(&remote_db);
+            }
             let mut flag = false;
             for local_mod in local_db.invalid() {
                 flag = true;
@@ -345,9 +349,10 @@ async fn run_from_cli(cli: BaseCli) -> Result<()> {
         }
         Commands::Validate { fix } => {
             let mut local_db = LocalDatabase::fetch(&config.owml_path)?;
+            let remote_db = RemoteDatabase::fetch(&config.database_url).await?;
+            local_db.validate_updates(&remote_db);
             if *fix {
                 info!("Trying to fix dependency issues...");
-                let remote_db = RemoteDatabase::fetch(&config.database_url).await?;
                 for local_mod in local_db.active() {
                     fix_deps(local_mod, &config, &local_db, &remote_db).await?;
                 }

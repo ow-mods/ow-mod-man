@@ -11,10 +11,11 @@ use crate::{
     mods::local::{FailedMod, LocalMod, ModManifest, UnsafeLocalMod},
     search::search_list,
     toggle::get_mod_enabled,
+    updates::check_mod_needs_update,
     validate::{check_mod, ModValidationError},
 };
 
-use super::fix_version;
+use super::{fix_version, RemoteDatabase};
 
 /// Represents the local (on the local PC) database of mods.
 #[derive(Default)]
@@ -216,6 +217,24 @@ impl LocalDatabase {
             let local_mod = self.get_mod(&name).unwrap();
             let errors = check_mod(local_mod, self);
             self.get_mod_mut(&name).unwrap().errors = errors;
+        }
+    }
+
+    /// Validates the local database against the remote, checking versions and marking mods as outdated
+    pub fn validate_updates(&mut self, db: &RemoteDatabase) {
+        for local_mod in self.mods.iter_mut().filter_map(|m| {
+            if let UnsafeLocalMod::Valid(m) = m.1 {
+                Some(m)
+            } else {
+                None
+            }
+        }) {
+            let (needs_update, remote) = check_mod_needs_update(local_mod, db);
+            if needs_update {
+                local_mod.errors.push(ModValidationError::Outdated(
+                    remote.unwrap().version.clone(),
+                ));
+            }
         }
     }
 

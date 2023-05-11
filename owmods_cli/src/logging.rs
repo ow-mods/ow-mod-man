@@ -171,6 +171,12 @@ pub fn log_mod_validation_errors(local_mod: &UnsafeLocalMod, local_db: &LocalDat
                     name, other_path
                 );
             }
+            ModValidationError::Outdated(new_version) => {
+                error!(
+                    "{} is outdated, consider updating it (latest version is v{})",
+                    name, new_version
+                )
+            }
         }
     }
 }

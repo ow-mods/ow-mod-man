@@ -31,10 +31,10 @@ use tauri::{api::dialog, AppHandle, Manager};
 use time::{macros::format_description, OffsetDateTime};
 use tokio::{sync::mpsc, try_join};
 
-use crate::progress::ProgressBars;
 use crate::{
     game::{get_logs_indices, make_log_window, show_warnings, write_log, GameMessage},
     gui_config::GuiConfig,
+    progress::ProgressBars,
     LogPort, State,
 };
 
@@ -77,9 +77,13 @@ pub async fn refresh_local_db(handle: tauri::AppHandle, state: tauri::State<'_, 
     toggle_fs_watch(&handle, false);
     let conf = state.config.read().await;
     {
-        let mut db = state.local_db.write().await;
         let local_db = LocalDatabase::fetch(&conf.owml_path);
-        *db = local_db.unwrap_or_else(|_| LocalDatabase::default());
+        if let Ok(mut local_db) = local_db {
+            let remote_db = state.remote_db.read().await;
+            let mut db = state.local_db.write().await;
+            local_db.validate_updates(&remote_db);
+            *db = local_db;
+        }
     }
     handle.emit_all("LOCAL-REFRESH", "").ok();
     toggle_fs_watch(&handle, true);

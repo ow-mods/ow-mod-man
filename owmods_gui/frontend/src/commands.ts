@@ -57,7 +57,6 @@ const commandInfo = {
     startLogs: $<EmptyCommand>("start_logs"),
     runGame: $<EmptyCommand>("run_game"),
     clearLogs: $<ActionCommand<{ port: number }>>("clear_logs"),
-    stopLogging: $<ActionCommand<{ port: number }>>("stop_logging"),
     getLogLines: $<
         CommandInfo<
             {

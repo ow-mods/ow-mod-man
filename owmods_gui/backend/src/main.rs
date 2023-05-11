@@ -132,7 +132,6 @@ fn main() -> Result<(), Box<dyn Error>> {
             start_logs,
             run_game,
             clear_logs,
-            stop_logging,
             get_log_lines,
             get_game_message,
             export_mods,

@@ -9,7 +9,7 @@ use log::{Level, STATIC_MAX_LEVEL};
 use owmods_core::file::get_app_path;
 use serde::Serialize;
 use std::fs::create_dir_all;
-use tauri::{AppHandle, Manager};
+use tauri::{async_runtime, AppHandle, Manager};
 use time::macros::format_description;
 use time::OffsetDateTime;
 use typeshare::typeshare;
@@ -76,7 +76,7 @@ impl log::Log for Logger {
         let result = if record.target() == "progress" {
             let raw = format!("{}", record.args());
             let handle = self.app.clone();
-            tokio::spawn(async move {
+            async_runtime::spawn(async move {
                 let state = handle.state::<State>();
                 let mut bars = state.progress_bars.write().await;
                 bars.process(&raw);

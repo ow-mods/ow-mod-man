@@ -28,6 +28,7 @@ use owmods_core::{
 };
 use serde::Serialize;
 use tauri::{api::dialog, AppHandle, Manager};
+use tauri::{async_runtime, WindowEvent};
 use time::{macros::format_description, OffsetDateTime};
 use tokio::{sync::mpsc, try_join};
 
@@ -513,6 +514,26 @@ pub async fn run_game(state: tauri::State<'_, State>, window: tauri::Window) -> 
         let writer = BufWriter::new(file);
         game_log.insert(port, (vec![], writer));
     }
+
+    let close_handle = window.app_handle();
+
+    window.on_window_event(move |e| {
+        if let WindowEvent::CloseRequested { .. } = e {
+            let handle = close_handle.clone();
+            async_runtime::spawn(async move {
+                let state = handle.state::<State>();
+                let mut logs = state.game_log.write().await;
+                if let Some((_, ref mut writer)) = logs.get_mut(&port) {
+                    let res = writer.flush();
+                    if let Err(why) = res {
+                        error!("Couldn't Flush Log Buffer: {:?}", why);
+                    }
+                }
+                logs.remove(&port);
+            });
+        }
+    });
+
     window.emit("GAME-START", &port).expect("Can't Send Event");
 
     let (tx, mut rx) = mpsc::channel(32);
@@ -565,18 +586,6 @@ pub async fn clear_logs(
             .emit_all("LOG-UPDATE", "")
             .map_err(|e| anyhow!("Can't Send Event: {:?}", e))?;
     }
-    Ok(())
-}
-
-#[tauri::command]
-pub async fn stop_logging(port: LogPort, state: tauri::State<'_, State>) -> Result {
-    let mut logs = state.game_log.write().await;
-    if let Some((_, ref mut writer)) = logs.get_mut(&port) {
-        writer
-            .flush()
-            .map_err(|e| anyhow!("Error flushing buffer: {:?}", e))?;
-    }
-    logs.remove(&port);
     Ok(())
 }
 

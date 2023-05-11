@@ -183,7 +183,9 @@ export type ModValidationError =
     /** The DLL the mod specifies in its `manifest.json` doesn't exist, contains the path (if even present) to the DLL specified by the mod */
     | { errorType: "MissingDLL"; payload?: string }
     /** There's another mod already in the DB with this mod's unique name, contains the path of the other mod that has the same unique name */
-    | { errorType: "DuplicateMod"; payload: string };
+    | { errorType: "DuplicateMod"; payload: string }
+    /** The mod is outdated, contains the newest version */
+    | { errorType: "Outdated"; payload: string };
 
 export enum Theme {
     White = "White",

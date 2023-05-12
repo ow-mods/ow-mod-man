@@ -27,8 +27,7 @@ use owmods_core::{
     validate::fix_deps,
 };
 use serde::Serialize;
-use tauri::{api::dialog, AppHandle, Manager};
-use tauri::{async_runtime, WindowEvent};
+use tauri::{api::dialog, async_runtime, AppHandle, Manager, WindowEvent};
 use time::{macros::format_description, OffsetDateTime};
 use tokio::{sync::mpsc, try_join};
 

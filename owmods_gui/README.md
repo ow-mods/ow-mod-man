@@ -13,6 +13,7 @@ The GUI Version Of The Outer Wilds Mod Manager.<br/>
 <hr/>
 
 [![Latest](https://img.shields.io/github/v/release/Bwc9876/ow-mod-man)](https://github.com/Bwc9876/ow-mod-man/releases/latest)
+[![Flathub](https://img.shields.io/flathub/v/com.outerwildsmods.owmods_gui)](https://flathub.org/apps/com.outerwildsmods.owmods_gui)
 [![AUR](https://img.shields.io/aur/version/owmods-gui-bin)](https://aur.archlinux.org/packages/owmods-gui-bin)
 [![GPL-3 licensed](https://img.shields.io/aur/license/owmods-gui-bin)](https://github.com/Bwc9876/ow-mod-man/blob/main/LICENSE)
 [![CI](https://github.com/Bwc9876/ow-mod-man/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/Bwc9876/ow-mod-man/actions/workflows/ci.yml)

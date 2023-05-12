@@ -76,7 +76,8 @@ const commandInfo = {
     popProtocolURL: $<EmptyCommand>("pop_protocol_url"),
     checkOWML: $<GetCommand<boolean>>("check_owml"),
     getDownloads: $<GetCommand<ProgressBars>>("get_downloads"),
-    clearDownloads: $<EmptyCommand>("clear_downloads")
+    clearDownloads: $<EmptyCommand>("clear_downloads"),
+    getModBusy: $<ModCommand<boolean>>("get_mod_busy")
 };
 
 type Command = keyof typeof commandInfo;

@@ -36,13 +36,22 @@ fn manage<T>(obj: T) -> StatePart<T> {
 }
 
 pub struct State {
+    /// The local database
     local_db: StatePart<LocalDatabase>,
+    /// The remote database
     remote_db: StatePart<RemoteDatabase>,
+    /// The current core configuration
     config: StatePart<Config>,
+    /// The current GUI configuration
     gui_config: StatePart<GuiConfig>,
+    /// A map of ports to the log messages sent to that port
     game_log: StatePart<LogMessages>,
+    /// The protocol url used to incoke the program, if any. This is should only be gotten once and removed after
     protocol_url: StatePart<Option<ProtocolPayload>>,
+    /// The progress bars of installs/updates/downloads/etc.
     progress_bars: StatePart<ProgressBars>,
+    /// A list of unique names of mods that currently have an operation being performed on them
+    mods_in_progress: StatePart<Vec<String>>,
 }
 
 fn main() -> Result<(), Box<dyn Error>> {
@@ -64,6 +73,7 @@ fn main() -> Result<(), Box<dyn Error>> {
             game_log: manage(HashMap::new()),
             protocol_url: manage(url),
             progress_bars: manage(ProgressBars(HashMap::new())),
+            mods_in_progress: manage(vec![]),
         })
         .setup(move |app| {
             let logger = Logger::new(app.handle());
@@ -144,7 +154,8 @@ fn main() -> Result<(), Box<dyn Error>> {
             check_owml,
             get_defaults,
             get_downloads,
-            clear_downloads
+            clear_downloads,
+            get_mod_busy
         ])
         .plugin(tauri_plugin_window_state::Builder::default().build())
         .plugin(tauri_plugin_fs_watch::init())

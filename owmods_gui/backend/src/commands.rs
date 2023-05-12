@@ -62,6 +62,24 @@ fn toggle_fs_watch(handle: &AppHandle, enabled: bool) {
     handle.emit_all("TOGGLE_FS_WATCH", enabled).ok();
 }
 
+pub async fn mark_mod_busy(
+    unique_name: &str,
+    busy: bool,
+    send_event: bool,
+    state: &tauri::State<'_, State>,
+    handle: &tauri::AppHandle,
+) {
+    let mut mods_in_progress = state.mods_in_progress.write().await;
+    if busy {
+        mods_in_progress.push(unique_name.to_string());
+    } else {
+        mods_in_progress.retain(|m| m != unique_name);
+    }
+    if send_event {
+        handle.emit_all("MOD-BUSY", "").ok();
+    }
+}
+
 #[tauri::command]
 pub async fn initial_setup(handle: tauri::AppHandle, state: tauri::State<'_, State>) -> Result {
     let mut config = state.config.write().await;
@@ -78,16 +96,21 @@ pub async fn refresh_local_db(handle: tauri::AppHandle, state: tauri::State<'_, 
     toggle_fs_watch(&handle, false);
     let conf = state.config.read().await;
     {
-        let local_db = LocalDatabase::fetch(&conf.owml_path);
-        if let Ok(mut local_db) = local_db {
-            let remote_db = state.remote_db.read().await;
-            let mut db = state.local_db.write().await;
-            local_db.validate_updates(&remote_db);
-            *db = local_db;
-        }
+        let mut db = state.local_db.write().await;
+        let local_db = LocalDatabase::fetch(&conf.owml_path)?;
+        *db = local_db;
     }
     handle.emit_all("LOCAL-REFRESH", "").ok();
     toggle_fs_watch(&handle, true);
+    let handle2 = handle.clone();
+    // Defer checking if a mod needs to update to prevent deadlock
+    async_runtime::spawn(async move {
+        let state = handle2.state::<State>();
+        let mut local_db = state.local_db.write().await;
+        let remote_db = state.remote_db.read().await;
+        local_db.validate_updates(&remote_db);
+        handle.emit_all("LOCAL-REFRESH", "").ok();
+    });
     Ok(())
 }
 
@@ -136,8 +159,8 @@ pub async fn refresh_remote_db(handle: tauri::AppHandle, state: tauri::State<'_,
     let conf = state.config.read().await;
     {
         let mut db = state.remote_db.write().await;
-        let remote_db = RemoteDatabase::fetch(&conf.database_url).await;
-        *db = remote_db.unwrap_or_else(|_| RemoteDatabase::default());
+        let remote_db = RemoteDatabase::fetch(&conf.database_url).await?;
+        *db = remote_db;
     }
     handle.emit_all("REMOTE-REFRESH", "").ok();
     toggle_fs_watch(&handle, true);
@@ -212,7 +235,9 @@ pub async fn install_mod(
     prerelease: Option<bool>,
     window: tauri::Window,
     state: tauri::State<'_, State>,
+    handle: tauri::AppHandle,
 ) -> Result {
+    mark_mod_busy(unique_name, true, true, &state, &handle).await;
     let local_db = state.local_db.read().await;
     let remote_db = state.remote_db.read().await;
     let conf = state.config.read().await;
@@ -238,6 +263,7 @@ pub async fn install_mod(
         prerelease.unwrap_or(false),
     )
     .await?;
+    mark_mod_busy(unique_name, false, true, &state, &handle).await;
     Ok(())
 }
 
@@ -410,6 +436,7 @@ pub async fn update_mod(
     state: tauri::State<'_, State>,
     handle: tauri::AppHandle,
 ) -> Result {
+    mark_mod_busy(unique_name, true, true, &state, &handle).await;
     let config = state.config.read().await;
     let local_db = state.local_db.read().await;
     let remote_db = state.remote_db.read().await;
@@ -434,6 +461,7 @@ pub async fn update_mod(
         .await?;
     }
     toggle_fs_watch(&handle, true);
+    mark_mod_busy(unique_name, false, true, &state, &handle).await;
     Ok(())
 }
 
@@ -447,7 +475,19 @@ pub async fn update_all_mods(
     let config = state.config.read().await;
     let local_db = state.local_db.read().await;
     let remote_db = state.remote_db.read().await;
-    install_mods_parallel(unique_names, &config, &remote_db, &local_db).await?;
+    let mut busy_mods = state.mods_in_progress.write().await;
+    let unique_names: Vec<String> = unique_names
+        .iter()
+        .filter(|m| !busy_mods.contains(m))
+        .cloned()
+        .collect();
+    busy_mods.extend(unique_names.clone());
+    drop(busy_mods);
+    handle.emit_all("MOD-BUSY", "").ok();
+    install_mods_parallel(unique_names.clone(), &config, &remote_db, &local_db).await?;
+    let mut busy_mods = state.mods_in_progress.write().await;
+    busy_mods.retain(|m| !unique_names.contains(m));
+    handle.emit_all("MOD-BUSY", "").ok();
     toggle_fs_watch(&handle, true);
     Ok(())
 }
@@ -722,4 +762,11 @@ pub async fn clear_downloads(state: tauri::State<'_, State>, handle: tauri::AppH
     bars.0.clear();
     handle.emit_all("PROGRESS-UPDATE", "").ok();
     Ok(())
+}
+
+#[tauri::command]
+pub async fn get_mod_busy(unique_name: &str, state: tauri::State<'_, State>) -> Result<bool> {
+    let mods_in_progress = state.mods_in_progress.read().await;
+    let exists = mods_in_progress.contains(&unique_name.to_string());
+    Ok(exists)
 }

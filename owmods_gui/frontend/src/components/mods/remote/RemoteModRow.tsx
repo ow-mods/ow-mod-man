@@ -5,7 +5,7 @@ import ModActionButton from "@components/mods/ModActionButton";
 import ModHeader from "@components/mods/ModHeader";
 import { useGetTranslation } from "@hooks";
 import { dialog } from "@tauri-apps/api";
-import { memo, useCallback, useState } from "react";
+import { memo, useCallback } from "react";
 import { BsArrowDown, BsGlobe, BsHammer } from "react-icons/bs";
 
 // Stolen from mods website, Rai will never catch me!
@@ -43,8 +43,7 @@ const RemoteModRow = memo(function RemoteModRow(props: RemoteModRowProps) {
     const [status, mod, err] = hooks.getRemoteMod("REMOTE-REFRESH", {
         uniqueName: props.uniqueName
     });
-
-    const [downloading, setDownloading] = useState(false);
+    const busy = hooks.getModBusy("MOD-BUSY", { uniqueName: props.uniqueName })[1];
 
     const usePrerelease = getTranslation("USE_PRERELEASE", {
         version: mod?.prerelease?.version ?? ""
@@ -56,14 +55,12 @@ const RemoteModRow = memo(function RemoteModRow(props: RemoteModRowProps) {
     });
 
     const onInstall = useCallback(() => {
-        setDownloading(true);
         commands
             .installMod({ uniqueName: props.uniqueName })
             .then(() => {
                 commands.refreshLocalDb().catch(console.error);
             })
-            .catch(console.error)
-            .finally(() => setDownloading(false));
+            .catch(console.error);
     }, [props.uniqueName]);
 
     const onPrerelease = useCallback(() => {
@@ -72,11 +69,9 @@ const RemoteModRow = memo(function RemoteModRow(props: RemoteModRowProps) {
                 title: usePrerelease
             });
             if (result) {
-                setDownloading(true);
                 commands
                     .installMod({ uniqueName: props.uniqueName, prerelease: true })
                     .then(() => {
-                        setDownloading(false);
                         commands.refreshLocalDb().catch(console.error);
                     })
                     .catch(console.error);
@@ -101,7 +96,7 @@ const RemoteModRow = memo(function RemoteModRow(props: RemoteModRowProps) {
             <div>
                 <ModHeader {...remoteMod} subtitle={subtitle}>
                     <small>{formatNumber(remoteMod.downloadCount)}</small>
-                    {downloading ? (
+                    {busy ? (
                         <div className="center" aria-busy></div>
                     ) : (
                         <>

@@ -1,9 +1,9 @@
+use anyhow::Result;
 use log::debug;
 use serde::{Deserialize, Serialize};
 use typeshare::typeshare;
 
-use crate::mods::{LocalMod, ModWarning};
-use anyhow::Result;
+use crate::mods::local::{LocalMod, ModWarning};
 
 /// Represents an alert gotten from the database.
 #[typeshare]

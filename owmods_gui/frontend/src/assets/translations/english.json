@@ -74,6 +74,7 @@
     "OWML_SETTINGS": "OWML Settings",
     "OWML_SETUP_MESSAGE": "You'll need to setup OWML to continue, please select an option below.",
     "Orange": "Orange",
+    "Outdated": "This mod is outdated, consider updating (latest version is v$payload$)",
     "PLATFORM": "Platform: $platform$",
     "PRERELEASE_WARNING": "Prereleases are experimental versions of mods that may not work correctly. Are you sure you want to install?",
     "Pink": "Pink",

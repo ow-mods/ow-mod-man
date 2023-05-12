@@ -1,5 +1,5 @@
 import { listen } from "@tauri-apps/api/event";
-import { useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useContext, useEffect, useMemo, useState } from "react";
 import {
     TranslationContext,
     TranslationMap,
@@ -53,33 +53,6 @@ export const useTauri = <T>(
     }, [...Object.values(payload ?? [])]);
 
     return [status, data, error];
-};
-
-export const useTauriCount = (incEvent: string, decEvent: string, initial?: number) => {
-    const [count, setCount] = useState(initial ?? 0);
-
-    const countRef = useRef(initial ?? 0);
-
-    useEffect(() => {
-        let cancel = false;
-        listen(incEvent, () => {
-            if (cancel) return;
-            countRef.current++;
-            setCount(countRef.current);
-        }).catch(console.warn);
-        listen(decEvent, () => {
-            if (cancel) return;
-            if (countRef.current !== 0) {
-                countRef.current--;
-                setCount(countRef.current);
-            }
-        }).catch(console.warn);
-        return () => {
-            cancel = true;
-        };
-    }, [incEvent, decEvent]);
-
-    return count;
 };
 
 export const useGetTranslation = () => {

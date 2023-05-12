@@ -9,12 +9,12 @@ use owmods_core::{
     game::launch_game,
     socket::{LogServer, SocketMessage, SocketMessageType},
 };
-use tokio::try_join;
+use tokio::{sync::mpsc, try_join};
 
-fn handle_game_log(message: &SocketMessage, target: &u16) {
+fn handle_game_log(message: &SocketMessage) {
     let unknown = &"Unknown".to_string();
     let out_message = format!(
-        "[{target}][{}::{}][{:?}] {}",
+        "[{}::{}][{:?}] {}",
         message.sender_name.as_ref().unwrap_or(unknown),
         message.sender_type.as_ref().unwrap_or(unknown),
         message.message_type,
@@ -37,7 +37,15 @@ fn handle_game_log(message: &SocketMessage, target: &u16) {
 
 pub async fn start_just_logs(port: &u16) -> Result<()> {
     let server = LogServer::new(*port).await?;
-    server.listen(&handle_game_log, false).await?;
+    let (tx, mut rx) = mpsc::channel(32);
+
+    try_join!(server.listen(tx, false), async {
+        while let Some(msg) = rx.recv().await {
+            handle_game_log(&msg);
+        }
+        Ok(())
+    })?;
+
     Ok(())
 }
 
@@ -62,9 +70,19 @@ pub async fn start_game(local_db: &LocalDatabase, config: &Config, port: &u16) -
 
     let server = LogServer::new(*port).await?;
     let port = server.port;
+
+    let (tx, mut rx) = mpsc::channel(32);
+
     try_join!(
-        server.listen(&handle_game_log, true),
-        launch_game(&config, &port)
+        server.listen(tx, true),
+        launch_game(&config, &port),
+        async {
+            while let Some(msg) = rx.recv().await {
+                handle_game_log(&msg);
+            }
+            Ok(())
+        }
     )?;
+
     Ok(())
 }

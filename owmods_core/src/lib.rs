@@ -1,4 +1,7 @@
 #![doc = include_str!("../README.md")]
+#![doc(
+    html_logo_url = "https://github.com/Bwc9876/ow-mod-man/blob/main/.github/assets/logo-core.png?raw=true"
+)]
 
 /// Fetch database alerts and get mod warnings.
 pub mod alerts;
@@ -30,6 +33,9 @@ pub mod io;
 /// Work with local and remote mods.
 pub mod mods;
 
+/// Work with the OWML config.
+pub mod owml;
+
 /// Open shortcuts and mod readmes.
 pub mod open;
 
@@ -51,6 +57,8 @@ pub mod updates;
 /// Validate the local database for common issues
 pub mod validate;
 
+mod search;
+
 #[cfg(test)]
 mod test_utils {
     use std::path::{Path, PathBuf};
@@ -62,6 +70,8 @@ mod test_utils {
     }
 
     pub fn get_test_file(path: &str) -> PathBuf {
-        Path::new(env!("CARGO_MANIFEST_DIR")).join(format!("test_files/{path}"))
+        Path::new(env!("CARGO_MANIFEST_DIR"))
+            .join("test_files")
+            .join(path)
     }
 }

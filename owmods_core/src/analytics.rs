@@ -29,19 +29,19 @@ pub enum AnalyticsEventName {
     ModUpdate,
 }
 
-#[derive(Serialize)]
+#[derive(Debug, Serialize)]
 struct AnalyticsEventParams {
     mod_unique_name: String,
     manager_version: String,
 }
 
-#[derive(Serialize)]
+#[derive(Debug, Serialize)]
 struct AnalyticsEvent {
     name: AnalyticsEventName,
     params: AnalyticsEventParams,
 }
 
-#[derive(Serialize)]
+#[derive(Debug, Serialize)]
 struct AnalyticsPayload {
     client_id: String,
     timestamp_micros: u128,
@@ -77,6 +77,7 @@ pub async fn send_analytics_event(event_name: AnalyticsEventName, unique_name: &
         let url = format!("https://www.google-analytics.com/mp/collect?measurement_id={MEASUREMENT_ID}&api_secret={api_key}");
         let client = Client::new();
         let payload = AnalyticsPayload::new(&event_name, unique_name);
+        debug!("Sending {:?}", payload);
         let resp = client.post(url).json(&payload).send().await?;
         if resp.status().is_success() {
             debug!(

@@ -2,7 +2,7 @@
 name = "owmods_core"
 authors = ["Bwc9876 <bwc9876@gmail.com>"]
 description = "The core library for the Outer Wilds Mod Manager"
-version = "0.5.1"
+version = "0.6.0"
 edition = "2021"
 readme = "./README.md"
 license = "GPL-3.0-or-later"
@@ -28,6 +28,7 @@ uuid = { version = "1.3.0", features = ["v4", "fast-rng"] }
 typeshare = "1.0.0"
 lazy_static = "1.4.0"
 tempfile = "3.5.0"
+rust-fuzzy-search = "0.1.1"
 
 [dev-dependencies]
 tokio-test = "0.4.2"

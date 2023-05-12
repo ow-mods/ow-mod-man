@@ -1,22 +1,17 @@
+use anyhow::Result;
 use log::info;
 use version_compare::Cmp;
 
-use anyhow::Result;
-
 use crate::{
     analytics::{send_analytics_event, AnalyticsEventName},
-    constants::OWML_UNIQUE_NAME,
-    download::install_mods_parallel,
-};
-
-use super::{
     config::Config,
+    constants::OWML_UNIQUE_NAME,
     db::{LocalDatabase, RemoteDatabase},
-    download::download_and_install_owml,
-    mods::{LocalMod, RemoteMod},
+    download::{download_and_install_owml, install_mods_parallel},
+    mods::{local::LocalMod, remote::RemoteMod},
 };
 
-/// Check a given local mod against the remote databse to see if there's an update.
+/// Check a given local mod against the remote database to see if there's an update.
 /// Skips if the mod doesn't have a remote counterpart or if the versions can't be parsed.
 ///
 /// ## Returns

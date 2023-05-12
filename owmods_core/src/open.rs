@@ -1,11 +1,11 @@
+use anyhow::{anyhow, Result};
+
 use crate::{
     config::Config,
     constants::{DB_REPO_URL, OWML_DOCS_URL, WEBSITE_URL},
     db::{LocalDatabase, RemoteDatabase},
-    mods::UnsafeLocalMod,
+    mods::local::UnsafeLocalMod,
 };
-use anyhow::anyhow;
-use anyhow::Result;
 
 /// Open a shortcut
 /// - "db", "website", "owml_docs", or "owml" are special

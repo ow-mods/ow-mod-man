@@ -53,3 +53,9 @@ pub fn generate_cli_pkg_build() -> Result<()> {
     write!(file, "{}", pkgbuild)?;
     Ok(())
 }
+
+pub fn print_version() -> Result<()> {
+    let version = get_pkg_version(include_str!("../../owmods_cli/Cargo.toml"));
+    println!("{}", version);
+    Ok(())
+}

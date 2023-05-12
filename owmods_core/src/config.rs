@@ -1,7 +1,8 @@
+use std::path::{Path, PathBuf};
+
 use anyhow::Result;
 use log::debug;
 use serde::{Deserialize, Serialize};
-use std::path::{Path, PathBuf};
 use typeshare::typeshare;
 
 use crate::{

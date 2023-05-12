@@ -5,6 +5,7 @@ import {
     useCallback,
     useEffect,
     useImperativeHandle,
+    useRef,
     useState
 } from "react";
 import { IconContext } from "react-icons";
@@ -14,6 +15,7 @@ export interface ModalProps {
     confirmText?: string;
     showCancel?: boolean;
     cancelText?: string;
+    allowCloseOnOutsideClick?: boolean;
     children: ReactNode;
     onCancel?: () => boolean | void;
     onConfirm?: () => boolean | void;
@@ -32,6 +34,7 @@ interface OpenState {
 const Modal = forwardRef(function Modal(props: ModalProps, ref) {
     const [state, setState] = useState<OpenState>({ open: false, closing: false });
     const [awaitingClose, setAwaitingClose] = useState(false);
+    const activeTimeout = useRef<number | null>();
     const getTranslation = useGetTranslation();
 
     const onClose = useCallback(() => {
@@ -49,10 +52,10 @@ const Modal = forwardRef(function Modal(props: ModalProps, ref) {
     );
 
     useEffect(() => {
-        let timeout: number;
         if (state.open) {
             document.documentElement.classList.add("modal-is-opening", "modal-is-open");
-            timeout = setTimeout(() => {
+            if (activeTimeout.current) clearTimeout(activeTimeout.current);
+            activeTimeout.current = setTimeout(() => {
                 document.documentElement.classList.remove("modal-is-opening");
             }, 1000);
         } else {
@@ -61,19 +64,28 @@ const Modal = forwardRef(function Modal(props: ModalProps, ref) {
         if (state.closing) {
             document.documentElement.classList.remove("modal-is-open");
             document.documentElement.classList.add("modal-is-closing");
-            timeout = setTimeout(() => {
+            if (activeTimeout.current) clearTimeout(activeTimeout.current);
+            activeTimeout.current = setTimeout(() => {
                 setState({ open: false, closing: false });
             }, 1000);
         }
         return () => {
-            clearTimeout(timeout);
+            if (activeTimeout.current) clearTimeout(activeTimeout.current);
         };
     }, [state]);
 
     return (
-        <dialog className={state.open ? "" : "d-none"} dir="ltr" open={state.open}>
+        <dialog
+            onClick={() => {
+                if ((props.allowCloseOnOutsideClick ?? true) && state.open && !state.closing)
+                    onClose();
+            }}
+            className={state.open ? "" : "d-none"}
+            dir="ltr"
+            open={state.open}
+        >
             <IconContext.Provider value={{ className: "modal-icon" }}>
-                <article>
+                <article onClick={(e) => e.stopPropagation()}>
                     <header>
                         <p>{props.heading ?? "Modal"}</p>
                     </header>

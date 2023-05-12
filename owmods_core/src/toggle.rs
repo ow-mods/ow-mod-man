@@ -1,14 +1,13 @@
-use anyhow::anyhow;
-use anyhow::Result;
-use log::warn;
 use std::path::{Path, PathBuf};
 
-use crate::{
-    file::{deserialize_from_json, fix_json_file, serialize_to_json},
-    mods::ModStubConfig,
-};
+use anyhow::{anyhow, Result};
+use log::warn;
 
-use super::db::LocalDatabase;
+use crate::{
+    db::LocalDatabase,
+    file::{deserialize_from_json, fix_json_file, serialize_to_json},
+    mods::local::ModStubConfig,
+};
 
 fn read_config(config_path: &Path) -> Result<ModStubConfig> {
     fix_json_file(config_path).ok();
@@ -126,7 +125,7 @@ mod tests {
     use crate::{
         config::Config,
         download::install_mod_from_zip,
-        mods::{LocalMod, UnsafeLocalMod},
+        mods::local::{LocalMod, UnsafeLocalMod},
         test_utils::{get_test_file, make_test_dir},
     };
 

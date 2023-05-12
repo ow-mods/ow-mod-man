@@ -4,8 +4,7 @@ use std::{
     path::{Path, PathBuf},
 };
 
-use anyhow::anyhow;
-use anyhow::Result;
+use anyhow::{anyhow, Result};
 use directories::{BaseDirs, ProjectDirs};
 use serde::{Deserialize, Serialize};
 

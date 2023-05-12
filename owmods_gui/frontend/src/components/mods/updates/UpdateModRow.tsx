@@ -2,7 +2,7 @@ import { commands, hooks } from "@commands";
 import CenteredSpinner from "@components/common/CenteredSpinner";
 import Icon from "@components/common/Icon";
 import { useGetTranslation } from "@hooks";
-import { memo, useCallback, useMemo, useState } from "react";
+import { memo, useCallback, useMemo } from "react";
 import { BsArrowUp } from "react-icons/bs";
 import ModActionButton from "../ModActionButton";
 import ModHeader from "../ModHeader";
@@ -10,12 +10,10 @@ import { LocalMod } from "@types";
 
 export interface UpdateModRowProps {
     uniqueName: string;
-    parentUpdating?: boolean;
-    onUpdate?: (updating: boolean) => void;
 }
 
 const UpdateModRow = memo(
-    function UpdateModRow({ uniqueName, parentUpdating, onUpdate }: UpdateModRowProps) {
+    function UpdateModRow({ uniqueName }: UpdateModRowProps) {
         const getTranslation = useGetTranslation();
         const [remoteStatus, remoteMod, err1] = hooks.getRemoteMod("REMOTE-REFRESH", {
             uniqueName
@@ -23,7 +21,7 @@ const UpdateModRow = memo(
         const [localStatus, unsafeLocalMod, err2] = hooks.getLocalMod("LOCAL-REFRESH", {
             uniqueName
         });
-        const [updating, setUpdating] = useState(false);
+        const busy = hooks.getModBusy("MOD-BUSY", { uniqueName })[1];
 
         // Assertion is safe bc we're only iterating over valid mods
         const localMod = unsafeLocalMod?.mod as LocalMod | null;
@@ -36,18 +34,13 @@ const UpdateModRow = memo(
         const status = [remoteStatus, localStatus];
 
         const onModUpdate = useCallback(() => {
-            if (parentUpdating) return;
-            onUpdate?.(true);
-            setUpdating(true);
             commands
                 .updateMod({ uniqueName })
                 .then(() => {
-                    onUpdate?.(false);
-                    setUpdating(false);
                     commands.refreshLocalDb().catch(console.warn);
                 })
                 .catch(console.error);
-        }, [uniqueName, onUpdate, parentUpdating]);
+        }, [uniqueName]);
 
         if (status.includes("Loading") && (remoteMod === null || localMod === null)) {
             return <CenteredSpinner className="mod-row" />;
@@ -61,7 +54,7 @@ const UpdateModRow = memo(
             return (
                 <div className="mod-row">
                     <ModHeader {...remoteMod!} subtitle={subtitleString}>
-                        {updating || parentUpdating ? (
+                        {busy ? (
                             <CenteredSpinner />
                         ) : (
                             <ModActionButton
@@ -76,8 +69,7 @@ const UpdateModRow = memo(
             );
         }
     },
-    (prev, next) =>
-        prev.uniqueName === next.uniqueName && prev.parentUpdating === next.parentUpdating
+    (prev, next) => prev.uniqueName === next.uniqueName
 );
 
 export default UpdateModRow;

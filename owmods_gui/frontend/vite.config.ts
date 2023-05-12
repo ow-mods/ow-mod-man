@@ -1,6 +1,10 @@
+/// <reference types="vite/client" />
+
 import { defineConfig } from "vite";
-import { createHtmlPlugin } from "vite-plugin-html";
 import react from "@vitejs/plugin-react";
+import { createHtmlPlugin } from "vite-plugin-html";
+import { imagetools } from "vite-imagetools";
+
 import path from "path";
 
 export default defineConfig({
@@ -10,20 +14,7 @@ export default defineConfig({
         strictPort: true
     },
     envPrefix: ["VITE_", "TAURI_"],
-    plugins: [
-        react(),
-        createHtmlPlugin({
-            minify: true,
-            template: "index.html",
-            inject: {
-                data: {
-                    reactDevTools: process.env.TAURI_DEBUG
-                        ? '<script src="http://localhost:8097"></script>'
-                        : ""
-                }
-            }
-        })
-    ],
+    plugins: [react(), imagetools(), createHtmlPlugin({ minify: true })],
     build: {
         rollupOptions: {
             input: {

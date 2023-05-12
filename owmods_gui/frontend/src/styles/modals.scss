@@ -2,6 +2,7 @@ dialog article {
     width: 80%;
     max-height: 70%;
     background-color: var(--bg);
+    border-radius: 5px;
     display: flex;
     flex-direction: column;
     overflow: hidden;
@@ -21,17 +22,17 @@ dialog article div.modal-body {
     flex-grow: 1;
     overflow-x: hidden;
     overflow-y: auto;
-    margin: 0 $margin-xl;
+    margin: 0 $margin-lg;
 }
 
 dialog article footer {
     background-color: var(--bg);
-    padding: $margin;
-    margin-top: $margin-lg;
+    padding: $margin $margin-lg;
+    margin-top: $margin;
 }
 
-dialog article footer a {
-    margin-right: $margin-sm;
+dialog article footer a:not(:last-child) {
+    margin-right: $margin;
 }
 
 dialog article form {
@@ -40,5 +41,5 @@ dialog article form {
 
 dialog article form input,
 dialog article form select {
-    margin-bottom: $margin-sm !important;
+    margin-bottom: $margin !important;
 }

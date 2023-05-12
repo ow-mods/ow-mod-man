@@ -17,7 +17,8 @@ use crate::{
     config::Config,
     db::{LocalDatabase, RemoteDatabase},
     file::{check_file_matches_paths, create_all_parents, fix_json},
-    mods::{get_paths_to_preserve, LocalMod, ModManifest, RemoteMod},
+    mods::local::{get_paths_to_preserve, LocalMod, ModManifest},
+    mods::remote::RemoteMod,
     progress::{ProgressAction, ProgressBar, ProgressType},
     remove::remove_old_mod_files,
     toggle::generate_config,
@@ -50,7 +51,7 @@ async fn download_zip(url: &str, target_path: &Path) -> Result<()> {
 
     let mut progress = ProgressBar::new(
         target_path.to_str().unwrap(),
-        file_size,
+        file_size.try_into().unwrap_or(u32::MAX), // Fallback for HUGE files, means files >4GB will get progress reported incorrectly
         &format!("Downloading {}", zip_name),
         &format!("Failed to download {}", zip_name),
         progress_type,
@@ -433,10 +434,13 @@ pub async fn install_mod_from_db(
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::file::serialize_to_json;
-    use crate::mods::UnsafeLocalMod;
-    use crate::test_utils::{get_test_file, make_test_dir};
+    use crate::{
+        file::serialize_to_json,
+        mods::local::UnsafeLocalMod,
+        test_utils::{get_test_file, make_test_dir},
+    };
     use std::fs::read_to_string;
+
     const TEST_URL: &str =
         "https://github.com/Bwc9876/OW-TimeSaver/releases/download/1.1.1/Bwc9876.TimeSaver.zip";
 

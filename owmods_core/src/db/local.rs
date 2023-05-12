@@ -1,121 +1,26 @@
-use std::collections::HashMap;
-use std::path::{Path, PathBuf};
+use std::{
+    collections::HashMap,
+    path::{Path, PathBuf},
+};
 
-use anyhow::anyhow;
-use anyhow::Result;
-use glob::glob;
+use anyhow::{anyhow, Result};
 use log::{debug, warn};
-use serde::Deserialize;
 
-use crate::constants::OWML_UNIQUE_NAME;
-use crate::file::{deserialize_from_json, fix_json_file};
-use crate::mods::{FailedMod, UnsafeLocalMod};
-use crate::validate::{check_mod, ModValidationError};
+use crate::{
+    file::{deserialize_from_json, fix_json_file},
+    mods::local::{FailedMod, LocalMod, ModManifest, UnsafeLocalMod},
+    search::search_list,
+    toggle::get_mod_enabled,
+    updates::check_mod_needs_update,
+    validate::{check_mod, ModValidationError},
+};
 
-use super::mods::{LocalMod, ModManifest, RemoteMod};
-use super::toggle::get_mod_enabled;
-
-fn fix_version(version: &str) -> &str {
-    version.trim_start_matches('v')
-}
-
-/// Used internally to construct an actual [RemoteDatabase]
-#[derive(Deserialize)]
-#[serde(rename_all = "camelCase")]
-struct RawRemoteDatabase {
-    pub releases: Vec<RemoteMod>,
-}
-
-/// Represents the remote (on the website) database of mods.
-#[derive(Default)]
-pub struct RemoteDatabase {
-    pub mods: HashMap<String, RemoteMod>,
-}
+use super::{fix_version, RemoteDatabase};
 
 /// Represents the local (on the local PC) database of mods.
 #[derive(Default)]
 pub struct LocalDatabase {
     pub mods: HashMap<String, UnsafeLocalMod>,
-}
-
-impl From<RawRemoteDatabase> for RemoteDatabase {
-    fn from(raw: RawRemoteDatabase) -> Self {
-        // Creating a hash map is O(N) but access is O(1).
-        // In a cli context this doesn't rly matter since we usually only get one or two mods in the entire run of the program.
-        // But I'm guessing for the GUI this will help out with performance.
-        // Same thing for the local DB.
-        let mut mods = raw
-            .releases
-            .into_iter()
-            .map(|m| (m.unique_name.to_owned(), m))
-            .collect::<HashMap<_, _>>();
-
-        for remote_mod in mods.values_mut() {
-            remote_mod.version = fix_version(&remote_mod.version).to_string();
-        }
-        Self { mods }
-    }
-}
-
-impl RemoteDatabase {
-    /// Fetch the database of remote mods.
-    ///
-    /// ## Returns
-    ///
-    /// An object containing a hashmap of unique names to mods.
-    ///
-    /// ## Errors
-    ///
-    /// If we can't fetch the JSON file for whatever reason.
-    ///
-    pub async fn fetch(url: &str) -> Result<RemoteDatabase> {
-        debug!("Fetching Remote DB At {}", url);
-        let resp = reqwest::get(url).await?;
-        let raw_db: RawRemoteDatabase = resp.json().await?;
-        debug!("Success, Constructing Remote Mod Map");
-        Ok(Self::from(raw_db))
-    }
-
-    /// Fetch the database but block the current thread while doing so
-    ///
-    /// ## Returns
-    ///
-    /// An object containing a hashmap of unique names to mods.
-    ///
-    /// ## Errors
-    ///
-    /// If we can't fetch the JSON file for whatever reason.
-    ///
-    pub fn fetch_blocking(url: &str) -> Result<RemoteDatabase> {
-        debug!("Fetching Remote DB At {}", url);
-        let resp = reqwest::blocking::get(url)?;
-        let raw_db: RawRemoteDatabase = resp.json()?;
-        debug!("Success, Constructing Remote Mod Map");
-        Ok(Self::from(raw_db))
-    }
-
-    /// Get a mod by unique name, **will not return OWML**.
-    ///
-    /// ## Returns
-    ///
-    /// A reference to the requested mod in the database, or `None` if it doesn't exist.
-    ///
-    pub fn get_mod(&self, unique_name: &str) -> Option<&RemoteMod> {
-        if unique_name == OWML_UNIQUE_NAME {
-            return None;
-        }
-        self.mods.get(unique_name)
-    }
-
-    /// Gets OWML from the database
-    ///
-    /// ## Returns
-    ///
-    /// A reference to OWML if it's in the database
-    ///
-    pub fn get_owml(&self) -> Option<&RemoteMod> {
-        self.mods.get(OWML_UNIQUE_NAME)
-    }
 }
 
 impl LocalDatabase {
@@ -290,6 +195,17 @@ impl LocalDatabase {
         })
     }
 
+    /// Search the database with the given query, pulls from various fields of the mod
+    ///
+    /// ## Returns
+    ///
+    /// A Vec of [UnsafeLocalMod]s that exactly or closely match the search query
+    ///
+    pub fn search(&self, search: &str) -> Vec<&UnsafeLocalMod> {
+        let mods: Vec<&UnsafeLocalMod> = self.all().collect();
+        search_list(mods, search)
+    }
+
     /// Validates deps, conflicts, etc for all mods in the DB and places errors in each mods' errors Vec
     fn validate(&mut self) {
         let names: Vec<String> = self
@@ -304,9 +220,28 @@ impl LocalDatabase {
         }
     }
 
+    /// Validates the local database against the remote, checking versions and marking mods as outdated
+    pub fn validate_updates(&mut self, db: &RemoteDatabase) {
+        for local_mod in self.mods.iter_mut().filter_map(|m| {
+            if let UnsafeLocalMod::Valid(m) = m.1 {
+                Some(m)
+            } else {
+                None
+            }
+        }) {
+            let (needs_update, remote) = check_mod_needs_update(local_mod, db);
+            if needs_update {
+                local_mod.errors.push(ModValidationError::Outdated(
+                    remote.unwrap().version.clone(),
+                ));
+            }
+        }
+    }
+
     fn get_local_mods(mods_path: &Path) -> Result<HashMap<String, UnsafeLocalMod>> {
         let mut mods: HashMap<String, UnsafeLocalMod> = HashMap::new();
-        let glob_matches = glob(mods_path.join("**").join("manifest.json").to_str().unwrap())?;
+        let glob_matches =
+            glob::glob(mods_path.join("**").join("manifest.json").to_str().unwrap())?;
         for entry in glob_matches {
             let entry = entry?;
             let parent = entry.parent().ok_or_else(|| anyhow!("Invalid Manifest!"))?;
@@ -351,51 +286,10 @@ impl LocalDatabase {
 
 #[cfg(test)]
 mod tests {
-    // TODO: Tests for invalid/duplicate mods
 
-    use crate::{constants::DEFAULT_DB_URL, test_utils::get_test_file};
+    use crate::test_utils::get_test_file;
 
     use super::*;
-
-    #[test]
-    fn test_fix_version() {
-        assert_eq!(fix_version("v0.1.0"), "0.1.0");
-        assert_eq!(fix_version("vvvvv0.1.0"), "0.1.0");
-        assert_eq!(fix_version("0.1.0"), "0.1.0");
-        assert_eq!(fix_version("asdf"), "asdf");
-    }
-
-    #[test]
-    fn test_remote_db_fetch() {
-        tokio_test::block_on(async {
-            let db = RemoteDatabase::fetch(DEFAULT_DB_URL).await.unwrap();
-            // Yes this will make all tests depend on my mod existing, I win!
-            assert!(db.get_mod("Bwc9876.TimeSaver").is_some());
-        });
-    }
-
-    #[test]
-    fn test_remote_db_construction() {
-        let mod1 = RemoteMod::get_test(1);
-        let mod2 = RemoteMod::get_test(2);
-        let raw_db = RawRemoteDatabase {
-            releases: vec![mod1, mod2],
-        };
-        let db = RemoteDatabase::from(raw_db);
-        assert_eq!(db.mods.len(), 2);
-        assert!(db.get_mod("Example.TestMod1").is_some());
-        assert!(db.get_mod("Example.TestMod2").is_some());
-    }
-
-    #[test]
-    fn test_remote_db_get_owml() {
-        let mut mod1 = RemoteMod::get_test(1);
-        mod1.unique_name = OWML_UNIQUE_NAME.to_string();
-        let db = RemoteDatabase::from(RawRemoteDatabase {
-            releases: vec![mod1],
-        });
-        assert!(db.get_mod(OWML_UNIQUE_NAME).is_none());
-    }
 
     #[test]
     fn test_local_db_fetch() {

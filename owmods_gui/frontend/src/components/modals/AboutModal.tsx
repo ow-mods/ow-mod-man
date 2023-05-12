@@ -1,5 +1,5 @@
 import Modal from "./Modal";
-import logo from "@assets/images/logo.png";
+import logo from "@assets/images/logo.png?w=256&h=256&format=webp&imagetools";
 import Icon from "@components/common/Icon";
 import { BsDiscord, BsGithub } from "react-icons/bs";
 import { useGetTranslation } from "@hooks";

@@ -24,7 +24,9 @@ This is the monorepo for the new <a href="https://www.mobiusdigitalgames.com/out
 |:------------:|:--------------:|
 | **Windows**  | ✅             |
 | **Linux**    | ✅             |
-| **Deck**     | 🔜             |
+| **Deck**     | ✅*            |
+
+\* *Deck still has some fixes needed however it can still provide most functionality and launch the game. See [#7](https://github.com/Bwc9876/ow-mod-man/issues/7) for tracking*
 
 ## Credits
 

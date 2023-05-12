@@ -9,7 +9,7 @@ use glob::glob;
 use crate::{
     db::LocalDatabase,
     file::check_file_matches_paths,
-    mods::{get_paths_to_preserve, FailedMod, LocalMod},
+    mods::local::{get_paths_to_preserve, FailedMod, LocalMod},
 };
 
 /// Uninstall a mod
@@ -80,7 +80,7 @@ mod tests {
         config::Config,
         download::install_mod_from_zip,
         file::create_all_parents,
-        mods::UnsafeLocalMod,
+        mods::local::UnsafeLocalMod,
         test_utils::{get_test_file, make_test_dir},
     };
 

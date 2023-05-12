@@ -6,13 +6,15 @@ use std::{
 
 use anyhow::Result;
 use log::{Level, STATIC_MAX_LEVEL};
-use owmods_core::{file::get_app_path, progress::ProgressPayload};
+use owmods_core::file::get_app_path;
 use serde::Serialize;
 use std::fs::create_dir_all;
-use tauri::{AppHandle, Manager};
+use tauri::{async_runtime, AppHandle, Manager};
 use time::macros::format_description;
 use time::OffsetDateTime;
 use typeshare::typeshare;
+
+use crate::State;
 
 pub struct Logger {
     app: AppHandle,
@@ -73,17 +75,15 @@ impl log::Log for Logger {
     fn log(&self, record: &log::Record) {
         let result = if record.target() == "progress" {
             let raw = format!("{}", record.args());
-            let payload = ProgressPayload::parse(&raw);
-            match payload {
-                ProgressPayload::Start(payload) => self.app.emit_all("PROGRESS-START", payload),
-                ProgressPayload::Increment(payload) => {
-                    self.app.emit_all("PROGRESS-INCREMENT", payload)
-                }
-                ProgressPayload::Msg(payload) => self.app.emit_all("PROGRESS-MESSAGE", payload),
-                ProgressPayload::Finish(payload) => self.app.emit_all("PROGRESS-FINISH", payload),
-                ProgressPayload::Unknown => Ok(()),
-            }
-        } else if self.enabled(record.metadata()) {
+            let handle = self.app.clone();
+            async_runtime::spawn(async move {
+                let state = handle.state::<State>();
+                let mut bars = state.progress_bars.write().await;
+                bars.process(&raw);
+                handle.emit_all("PROGRESS-UPDATE", "").ok();
+            });
+            Ok(())
+        } else if self.enabled(record.metadata()) && record.target().starts_with("owmods") {
             let message = format!("{}", record.args());
             self.write_log_to_file(record.level(), &message)
                 .unwrap_or_else(|e| {

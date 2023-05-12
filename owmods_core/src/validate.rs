@@ -9,7 +9,7 @@ use crate::{
     config::Config,
     db::{LocalDatabase, RemoteDatabase},
     download::install_mods_parallel,
-    mods::LocalMod,
+    mods::local::LocalMod,
     toggle::toggle_mod,
 };
 
@@ -30,6 +30,8 @@ pub enum ModValidationError {
     MissingDLL(Option<String>),
     /// There's another mod already in the DB with this mod's unique name, contains the path of the other mod that has the same unique name
     DuplicateMod(String),
+    /// The mod is outdated, contains the newest version
+    Outdated(String),
 }
 
 fn check_mod_dll(local_mod: &LocalMod) -> Option<ModValidationError> {
@@ -131,7 +133,7 @@ pub async fn fix_deps(
 #[cfg(test)]
 mod tests {
 
-    use crate::mods::UnsafeLocalMod;
+    use crate::mods::local::UnsafeLocalMod;
 
     use super::*;
 

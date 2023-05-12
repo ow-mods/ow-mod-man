@@ -20,6 +20,10 @@ summary::-webkit-details-marker {
     display: none !important;
 }
 
+select {
+    cursor: pointer;
+}
+
 .container,
 .container-fluid {
     margin: 0;

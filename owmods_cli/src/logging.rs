@@ -9,7 +9,7 @@ use indicatif::{MultiProgress, ProgressBar, ProgressStyle};
 use log::{error, warn, Level};
 use owmods_core::{
     db::LocalDatabase,
-    mods::UnsafeLocalMod,
+    mods::local::UnsafeLocalMod,
     progress::{
         ProgressAction, ProgressFinishPayload, ProgressIncrementPayload, ProgressMessagePayload,
         ProgressPayload, ProgressStartPayload, ProgressType,
@@ -29,7 +29,7 @@ pub struct Logger {
 impl Logger {
     fn start_progress(&self, payload: ProgressStartPayload) {
         let pb = ProgressBar::hidden();
-        pb.set_length(payload.len);
+        pb.set_length(payload.len.into());
         let template = if matches!(payload.progress_type, ProgressType::Definite) {
             PROGRESS_TEMPLATE
         } else {
@@ -55,7 +55,7 @@ impl Logger {
             .unwrap()
             .get::<String>(&payload.id)
             .unwrap()
-            .set_position(payload.progress);
+            .set_position(payload.progress.into());
     }
 
     fn set_message(&self, payload: ProgressMessagePayload) {
@@ -103,7 +103,7 @@ impl log::Log for Logger {
                 ProgressPayload::Finish(payload) => self.finish(payload),
                 ProgressPayload::Unknown => {}
             };
-        } else if self.enabled(record.metadata()) {
+        } else if self.enabled(record.metadata()) && record.target().starts_with("owmods") {
             let args = format!("{}", record.args());
             let msg = match record.level() {
                 Level::Error => args.red(),
@@ -170,6 +170,12 @@ pub fn log_mod_validation_errors(local_mod: &UnsafeLocalMod, local_db: &LocalDat
                     "Mod at {} was already loaded from {}, this may indicate duplicate mods",
                     name, other_path
                 );
+            }
+            ModValidationError::Outdated(new_version) => {
+                error!(
+                    "{} is outdated, consider updating it (latest version is v{})",
+                    name, new_version
+                )
             }
         }
     }

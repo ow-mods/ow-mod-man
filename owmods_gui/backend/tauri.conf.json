@@ -1,97 +1,99 @@
 {
-  "build": {
-    "beforeBuildCommand": "cd frontend && pnpm run build",
-    "beforeDevCommand": "cd frontend && pnpm run dev",
-    "devPath": "http://localhost:5173",
-    "distDir": "../dist"
-  },
-  "package": {
-    "productName": "Outer Wilds Mod Manager",
-    "version": "0.5.1"
-  },
-  "tauri": {
-    "allowlist": {
-      "dialog": {
-        "confirm": true,
-        "open": true,
-        "message": true,
-        "save": true,
-        "ask": true
-      },
-      "app": {
-        "all": true,
-        "hide": false,
-        "show": false
-      },
-      "os": {
-        "all": true
-      },
-      "shell": {
-        "open": "(^https://github.com/)|(^https://discord.gg/)"
-      },
-      "window": {
-        "setTitle": true,
-        "close": true
-      }
+    "build": {
+        "beforeBuildCommand": "cd frontend && pnpm run build",
+        "beforeDevCommand": "cd frontend && pnpm run dev",
+        "devPath": "http://localhost:5173",
+        "distDir": "../dist"
     },
-    "bundle": {
-      "active": true,
-      "category": "Game",
-      "copyright": "",
-      "deb": {
-        "depends": []
-      },
-      "externalBin": [],
-      "icon": [
-        "icons/32x32.png",
-        "icons/128x128.png",
-        "icons/128x128@2x.png",
-        "icons/icon.icns",
-        "icons/icon.ico"
-      ],
-      "identifier": "com.bwc9876.owmods-gui",
-      "longDescription": "A manager for Outer Wilds mods",
-      "macOS": {
-        "entitlements": null,
-        "exceptionDomain": "",
-        "frameworks": [],
-        "providerShortName": null,
-        "signingIdentity": null
-      },
-      "resources": [],
-      "shortDescription": "",
-      "targets": "all",
-      "windows": {
-        "certificateThumbprint": null,
-        "digestAlgorithm": "sha256",
-        "timestampUrl": ""
-      }
+    "package": {
+        "productName": "Outer Wilds Mod Manager",
+        "version": "0.6.0"
     },
-    "security": {
-      "csp": "default-src 'self'"
-    },
-    "updater": {
-      "active": true,
-      "dialog": true,
-      "windows": {
-        "installMode": "basicUi"
-      },
-      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IDkzRURBNzdENEVCREU1NDYKUldSRzViMU9mYWZ0azRoODZIdmVGWUZxVTNQRUVXU2hOTllqcGM4N2RRNjFEN2N3cnhXbW45V0sK",
-      "endpoints": [
-        "https://github.com/Bwc9876/ow-mod-man/releases/latest/download/latest.json",
-        "https://github.com/ow-mods/ow-mod-man/releases/latest/download/latest.json"
-      ]
-    },
-    "windows": [
-      {
-        "fullscreen": false,
-        "height": 750,
-        "minHeight": 400,
-        "resizable": true,
-        "title": "Outer Wilds Mod Manager",
-        "width": 850,
-        "minWidth": 600
-      }
-    ]
-  }
+    "tauri": {
+        "allowlist": {
+            "dialog": {
+                "confirm": true,
+                "open": true,
+                "message": true,
+                "save": true,
+                "ask": true
+            },
+            "app": {
+                "all": true,
+                "hide": false,
+                "show": false
+            },
+            "os": {
+                "all": true
+            },
+            "shell": {
+                "open": "(^https://github.com/)|(^https://discord.gg/)"
+            },
+            "window": {
+                "setTitle": true,
+                "close": true
+            }
+        },
+        "bundle": {
+            "active": true,
+            "category": "Game",
+            "copyright": "",
+            "deb": {
+                "depends": [
+                    "libssl1.1"
+                ]
+            },
+            "externalBin": [],
+            "icon": [
+                "icons/32x32.png",
+                "icons/128x128.png",
+                "icons/128x128@2x.png",
+                "icons/icon.icns",
+                "icons/icon.ico"
+            ],
+            "identifier": "com.bwc9876.owmods-gui",
+            "longDescription": "A manager for Outer Wilds mods",
+            "macOS": {
+                "entitlements": null,
+                "exceptionDomain": "",
+                "frameworks": [],
+                "providerShortName": null,
+                "signingIdentity": null
+            },
+            "resources": [],
+            "shortDescription": "",
+            "targets": "all",
+            "windows": {
+                "certificateThumbprint": null,
+                "digestAlgorithm": "sha256",
+                "timestampUrl": ""
+            }
+        },
+        "security": {
+            "csp": "default-src 'self'"
+        },
+        "updater": {
+            "active": true,
+            "dialog": true,
+            "windows": {
+                "installMode": "basicUi"
+            },
+            "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IDkzRURBNzdENEVCREU1NDYKUldSRzViMU9mYWZ0azRoODZIdmVGWUZxVTNQRUVXU2hOTllqcGM4N2RRNjFEN2N3cnhXbW45V0sK",
+            "endpoints": [
+                "https://github.com/Bwc9876/ow-mod-man/releases/latest/download/latest.json",
+                "https://github.com/ow-mods/ow-mod-man/releases/latest/download/latest.json"
+            ]
+        },
+        "windows": [
+            {
+                "fullscreen": false,
+                "height": 750,
+                "minHeight": 400,
+                "resizable": true,
+                "title": "Outer Wilds Mod Manager",
+                "width": 850,
+                "minWidth": 600
+            }
+        ]
+    }
 }

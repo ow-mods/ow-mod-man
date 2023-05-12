@@ -4,13 +4,29 @@ on:
   workflow_dispatch:
 
 jobs:
+  # I hate this etc
+  get_version:
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.pkg-version.outputs.version }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+      - name: Setup Rust Toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+      - name: Get Package Version
+        id: pkg-version
+        run: echo "version=$(cargo metadata --no-deps --format-version=1 --no-default-features | jq -r '.packages[] | select(.name=="owmods_cli") | .version')" >> $GITHUB_OUTPUT
   release:
     permissions:
       contents: write
     strategy:
       fail-fast: false
       matrix:
-        platform: [ubuntu-20.04]
+        platform: [ubuntu-20.04, windows-latest]
+    needs: get_version
     runs-on: ${{ matrix.platform }}
 
     steps:
@@ -48,20 +64,16 @@ jobs:
         env:
           ANALYTICS_API_KEY: ${{ secrets.ANALYTICS_API_KEY }}
 
-      - name: Get Package Version
-        id: pkg-version
-        run: echo "verison=$(cargo xtask cli_version)" >> $GITHUB_OUTPUT
-
       - name: Upload CLI
         uses: softprops/action-gh-release@v1
         with:
-          name: Outer Wilds Mod Manager CLI Version ${{ steps.pkg-version.outputs.version }}
-          tag_name: cli_v${{ steps.pkg-version.outputs.version }}
+          name: Outer Wilds Mod Manager CLI Version ${{ needs.get_version.outputs.version }}
+          tag_name: cli_v${{ needs.get_version.outputs.version }}
           fail_on_unmatched_files: false
           generate_release_notes: false
           draft: true
           files: |
             owmods.tar.zst
-            target/debian/owmods-cli_${{ steps.pkg-version.outputs.version }}_amd64.deb
+            target/debian/owmods-cli_${{ needs.get_version.outputs.version }}_amd64.deb
             target/release/owmods
             target/release/owmods.exe

@@ -31,7 +31,6 @@
             },
             "window": {
                 "setTitle": true,
-                "close": true,
                 "setFocus": true
             }
         },

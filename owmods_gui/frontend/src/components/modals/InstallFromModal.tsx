@@ -7,7 +7,7 @@ import { forwardRef, useEffect, useImperativeHandle, useRef, useState } from "re
 import { BsExclamationTriangleFill } from "react-icons/bs";
 import Modal, { ModalHandle } from "./Modal";
 import { ProtocolInstallType, ProtocolPayload } from "@types";
-import { UserAttentionType, getCurrent } from "@tauri-apps/api/window";
+import { getCurrent } from "@tauri-apps/api/window";
 
 type SourceType = "UNIQUE_NAME" | "URL" | "ZIP" | "JSON";
 
@@ -91,7 +91,7 @@ const InstallFromModal = forwardRef(function InstallFromModal(_: object, ref) {
                     setPrerelease(protocolPayload.installType === "installPreRelease");
                 }
                 modalRef.current?.open();
-                getCurrent().requestUserAttention(UserAttentionType.Critical);
+                getCurrent().setFocus().catch(console.warn);
             }
         })
             .then(() => commands.popProtocolURL())

@@ -31,7 +31,8 @@
             },
             "window": {
                 "setTitle": true,
-                "close": true
+                "close": true,
+                "setFocus": true
             }
         },
         "bundle": {

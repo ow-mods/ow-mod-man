@@ -208,24 +208,25 @@ pub async fn toggle_mod(
     unique_name: &str,
     enabled: bool,
     state: tauri::State<'_, State>,
-) -> Result {
+) -> Result<Vec<String>> {
     let db = state.local_db.read().await;
-    owmods_core::toggle::toggle_mod(unique_name, &db, enabled, false)?;
-    Ok(())
+    let show_warnings_for = owmods_core::toggle::toggle_mod(unique_name, &db, enabled, false)?;
+    Ok(show_warnings_for)
 }
 
 #[tauri::command]
-pub async fn toggle_all(enabled: bool, state: tauri::State<'_, State>) -> Result {
+pub async fn toggle_all(enabled: bool, state: tauri::State<'_, State>) -> Result<Vec<String>> {
     let local_db = state.local_db.read().await;
+    let mut show_warnings_for: Vec<String> = vec![];
     for local_mod in local_db.valid() {
-        owmods_core::toggle::toggle_mod(
+        show_warnings_for.extend(owmods_core::toggle::toggle_mod(
             &local_mod.manifest.unique_name,
             &local_db,
             enabled,
             false,
-        )?;
+        )?);
     }
-    Ok(())
+    Ok(show_warnings_for)
 }
 
 #[tauri::command]

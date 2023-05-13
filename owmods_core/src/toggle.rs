@@ -56,6 +56,11 @@ pub fn get_mod_enabled(mod_path: &Path) -> Result<bool> {
 /// Toggle a mod to a given enabled value.
 /// Also support applying this action recursively.
 ///
+///
+/// ## Returns
+///
+/// A list of mod names that were disabled and use pre patchers, and therefore **should alert the user to check the mod's README for instructions on how to fully disable it**.
+///
 /// ## Errors
 ///
 /// If we can't read/save to the config files of the mod or (if recursive is true) any of it's dependents.
@@ -65,19 +70,27 @@ pub fn toggle_mod(
     local_db: &LocalDatabase,
     enabled: bool,
     recursive: bool,
-) -> Result<()> {
+) -> Result<Vec<String>> {
+    let mut show_warnings_for: Vec<String> = vec![];
+
     let local_mod = local_db
         .get_mod(unique_name)
         .ok_or_else(|| anyhow!("Mod {} not found", unique_name))?;
     let config_path = PathBuf::from(&local_mod.mod_path).join("config.json");
+
+    if !enabled && local_mod.uses_pre_patcher() {
+        show_warnings_for.push(local_mod.manifest.name.clone());
+    }
+
     if config_path.is_file() {
         let mut config = read_config(&config_path)?;
         config.enabled = enabled;
         write_config(&config, &config_path)?;
     } else {
         generate_config(&config_path)?;
-        toggle_mod(unique_name, local_db, enabled, recursive)?;
+        show_warnings_for.extend(toggle_mod(unique_name, local_db, enabled, recursive)?);
     }
+
     if recursive {
         if let Some(deps) = local_mod.manifest.dependencies.as_ref() {
             for dep in deps.iter() {
@@ -98,12 +111,12 @@ pub fn toggle_mod(
                             }
                         }
                         if flag {
-                            toggle_mod(
+                            show_warnings_for.extend(toggle_mod(
                                 &dep_mod.manifest.unique_name,
                                 local_db,
                                 enabled,
                                 recursive,
-                            )?;
+                            )?);
                         }
                     }
                 } else {
@@ -112,7 +125,7 @@ pub fn toggle_mod(
             }
         }
     }
-    Ok(())
+    Ok(show_warnings_for)
 }
 
 #[cfg(test)]

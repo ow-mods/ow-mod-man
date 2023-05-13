@@ -5,6 +5,7 @@ import { confirm } from "@tauri-apps/api/dialog";
 import { LocalMod, ModValidationError } from "@types";
 import { memo, useCallback } from "react";
 import LocalModRow from "./LocalModRow";
+import { dialog } from "@tauri-apps/api";
 
 interface LocalModRowProps {
     mod: LocalMod;
@@ -45,9 +46,17 @@ const ValidModRow = memo(function ValidModRow({ mod, onValidationClick }: LocalM
                     uniqueName: mod.manifest.uniqueName,
                     enabled: newVal
                 })
-                .then(() => commands.refreshLocalDb());
+                .then((warnings) => {
+                    commands.refreshLocalDb();
+                    for (const modName of warnings) {
+                        dialog.message(getTranslation("PREPATCHER_WARNING", { name: modName }), {
+                            type: "warning",
+                            title: getTranslation("PREPATCHER_WARNING_TITLE", { name: modName })
+                        });
+                    }
+                });
         },
-        [mod.manifest.uniqueName]
+        [mod.manifest.uniqueName, getTranslation]
     );
 
     const onOpen = useCallback(() => {

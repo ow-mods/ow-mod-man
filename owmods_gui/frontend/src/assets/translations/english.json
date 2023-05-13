@@ -77,6 +77,8 @@
     "Outdated": "This mod is outdated, consider updating (latest version is v$payload$)",
     "PLATFORM": "Platform: $platform$",
     "PRERELEASE_WARNING": "Prereleases are experimental versions of mods that may not work correctly. Are you sure you want to install?",
+    "PREPATCHER_WARNING": "$name$ possibly modified game files. In order to disable it completely, use the \"verify game files\" option in Steam / Epic. Check $name$'s readme for more information.",
+    "PREPATCHER_WARNING_TITLE": "Warning for $name$",
     "Pink": "Pink",
     "Purple": "Purple",
     "RAINBOW": "Rainbow Mode",

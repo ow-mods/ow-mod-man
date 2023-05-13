@@ -306,12 +306,21 @@ async fn run_from_cli(cli: BaseCli) -> Result<()> {
         Commands::Enable { unique_name } | Commands::Disable { unique_name } => {
             let db = LocalDatabase::fetch(&config.owml_path)?;
             let enable = matches!(cli.command, Commands::Enable { unique_name: _ });
+            let mut show_warnings_for: Vec<String> = vec![];
             if unique_name == "*" || unique_name == "all" {
                 for local_mod in db.valid() {
-                    toggle_mod(&local_mod.manifest.unique_name, &db, enable, false)?;
+                    show_warnings_for.extend(toggle_mod(
+                        &local_mod.manifest.unique_name,
+                        &db,
+                        enable,
+                        false,
+                    )?);
                 }
             } else {
-                toggle_mod(unique_name, &db, enable, r)?;
+                show_warnings_for = toggle_mod(unique_name, &db, enable, r)?;
+            }
+            for mod_name in show_warnings_for {
+                warn!("========\n{mod_name} possibly modified game files.\nIn order to disable it completely, use the \"verify game files\" option in Steam / Epic.\nCheck {mod_name}'s readme for more information.\n========")
             }
         }
         Commands::LogServer { port } => {

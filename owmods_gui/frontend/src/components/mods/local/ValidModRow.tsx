@@ -66,9 +66,15 @@ const ValidModRow = memo(function ValidModRow({ mod, onValidationClick }: LocalM
     const onUninstall = useCallback(() => {
         confirm(uninstallConfirmText, getTranslation("CONFIRM")).then((answer) => {
             if (answer) {
-                commands
-                    .uninstallMod({ uniqueName: mod.manifest.uniqueName })
-                    .then(() => commands.refreshLocalDb());
+                commands.uninstallMod({ uniqueName: mod.manifest.uniqueName }).then((warnings) => {
+                    commands.refreshLocalDb();
+                    for (const modName of warnings) {
+                        dialog.message(getTranslation("PREPATCHER_WARNING", { name: modName }), {
+                            type: "warning",
+                            title: getTranslation("PREPATCHER_WARNING_TITLE", { name: modName })
+                        });
+                    }
+                });
             }
         });
     }, [uninstallConfirmText, getTranslation, mod.manifest.uniqueName]);

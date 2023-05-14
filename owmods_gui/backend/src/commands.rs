@@ -285,13 +285,16 @@ pub async fn install_zip(path: &str, state: tauri::State<'_, State>) -> Result {
 }
 
 #[tauri::command]
-pub async fn uninstall_mod(unique_name: &str, state: tauri::State<'_, State>) -> Result {
+pub async fn uninstall_mod(
+    unique_name: &str,
+    state: tauri::State<'_, State>,
+) -> Result<Vec<String>> {
     let db = state.local_db.read().await;
     let local_mod = db
         .get_mod(unique_name)
         .ok_or_else(|| anyhow!("Mod {} not found", unique_name))?;
-    remove_mod(local_mod, &db, false)?;
-    Ok(())
+    let warnings = remove_mod(local_mod, &db, false)?;
+    Ok(warnings)
 }
 
 #[tauri::command]

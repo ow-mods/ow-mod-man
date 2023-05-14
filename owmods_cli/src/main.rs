@@ -27,7 +27,7 @@ mod logging;
 
 use cli::{BaseCli, Commands, ModListTypes};
 use game::{start_game, start_just_logs};
-use logging::{log_mod_validation_errors, Logger};
+use logging::{log_mod_validation_errors, show_pre_patcher_warning, Logger};
 
 async fn run_from_cli(cli: BaseCli) -> Result<()> {
     let r = cli.recursive;
@@ -272,7 +272,10 @@ async fn run_from_cli(cli: BaseCli) -> Result<()> {
                         unique_name,
                         if r { " and dependencies" } else { "" }
                     );
-                    remove_mod(local_mod, &db, r)?;
+                    let show_warnings_for = remove_mod(local_mod, &db, r)?;
+                    for mod_name in show_warnings_for {
+                        show_pre_patcher_warning(&mod_name);
+                    }
                     info!("Done");
                 } else {
                     error!("Mod {} Is Not Installed", unique_name);
@@ -320,7 +323,7 @@ async fn run_from_cli(cli: BaseCli) -> Result<()> {
                 show_warnings_for = toggle_mod(unique_name, &db, enable, r)?;
             }
             for mod_name in show_warnings_for {
-                warn!("========\n{mod_name} possibly modified game files.\nIn order to disable it completely, use the \"verify game files\" option in Steam / Epic.\nCheck {mod_name}'s readme for more information.\n========")
+                show_pre_patcher_warning(&mod_name);
             }
         }
         Commands::LogServer { port } => {

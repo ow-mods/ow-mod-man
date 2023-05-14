@@ -50,8 +50,7 @@ jobs:
       - name: Check Clippy
         uses: actions-rs/cargo@v1
         with:
-          command: clippy
-          args: --all-targets -- -D warnings
+          command: lint
 
       - name: Run Tests
         uses: actions-rs/cargo@v1

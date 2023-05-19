@@ -17,11 +17,11 @@ dependencies:
         specifier: ^4.8.0
         version: 4.8.0(react@18.2.0)
     react-virtuoso:
-        specifier: ^4.3.6
-        version: 4.3.6(react-dom@18.2.0)(react@18.2.0)
+        specifier: ^4.3.7
+        version: 4.3.7(react-dom@18.2.0)(react@18.2.0)
     tauri-plugin-fs-watch-api:
         specifier: github:tauri-apps/tauri-plugin-fs-watch
-        version: github.com/tauri-apps/tauri-plugin-fs-watch/2139f484000ecd62ea44a2e380c90cff810dc57d
+        version: github.com/tauri-apps/tauri-plugin-fs-watch/5876048ff3d3d23c8863a37a0f0e91ed90553026
 
 devDependencies:
     "@types/react":
@@ -38,7 +38,7 @@ devDependencies:
         version: 5.59.6(eslint@8.40.0)(typescript@5.0.4)
     "@vitejs/plugin-react":
         specifier: ^4.0.0
-        version: 4.0.0(vite@4.3.7)
+        version: 4.0.0(vite@4.3.8)
     eslint:
         specifier: ^8.40.0
         version: 8.40.0
@@ -58,14 +58,14 @@ devDependencies:
         specifier: ^5.0.4
         version: 5.0.4
     vite:
-        specifier: ^4.3.7
-        version: 4.3.7(sass@1.62.1)
+        specifier: ^4.3.8
+        version: 4.3.8(sass@1.62.1)
     vite-imagetools:
         specifier: ^5.0.4
         version: 5.0.4
     vite-plugin-html:
         specifier: ^3.2.0
-        version: 3.2.0(vite@4.3.7)
+        version: 3.2.0(vite@4.3.8)
 
 packages:
     /@ampproject/remapping@2.2.1:
@@ -1057,7 +1057,7 @@ packages:
             eslint-visitor-keys: 3.4.1
         dev: true
 
-    /@vitejs/plugin-react@4.0.0(vite@4.3.7):
+    /@vitejs/plugin-react@4.0.0(vite@4.3.8):
         resolution:
             {
                 integrity: sha512-HX0XzMjL3hhOYm+0s95pb0Z7F8O81G7joUHgfDd/9J/ZZf5k4xX6QAMFkKsHFxaHlf6X7GD7+XuaZ66ULiJuhQ==
@@ -1070,7 +1070,7 @@ packages:
             "@babel/plugin-transform-react-jsx-self": 7.21.0(@babel/core@7.21.8)
             "@babel/plugin-transform-react-jsx-source": 7.19.6(@babel/core@7.21.8)
             react-refresh: 0.14.0
-            vite: 4.3.7(sass@1.62.1)
+            vite: 4.3.8(sass@1.62.1)
         transitivePeerDependencies:
             - supports-color
         dev: true
@@ -1303,8 +1303,8 @@ packages:
         engines: { node: ^6 || ^7 || ^8 || ^9 || ^10 || ^11 || ^12 || >=13.7 }
         hasBin: true
         dependencies:
-            caniuse-lite: 1.0.30001487
-            electron-to-chromium: 1.4.397
+            caniuse-lite: 1.0.30001488
+            electron-to-chromium: 1.4.401
             node-releases: 2.0.10
             update-browserslist-db: 1.0.11(browserslist@4.21.5)
         dev: true
@@ -1351,13 +1351,13 @@ packages:
             }
         dependencies:
             pascal-case: 3.1.2
-            tslib: 2.5.0
+            tslib: 2.5.2
         dev: true
 
-    /caniuse-lite@1.0.30001487:
+    /caniuse-lite@1.0.30001488:
         resolution:
             {
-                integrity: sha512-83564Z3yWGqXsh2vaH/mhXfEM0wX+NlBCm1jYHOb97TrTWJEmPTccZgeLTPBUUb0PNVo+oomb7wkimZBIERClA==
+                integrity: sha512-NORIQuuL4xGpIy6iCCQGN4iFjlBXtfKWIenlUuyZJumLRIindLb7wXM+GO8erEhb7vXfcnf4BAg2PrSDN5TNLQ==
             }
         dev: true
 
@@ -1699,7 +1699,7 @@ packages:
             }
         dependencies:
             no-case: 3.0.4
-            tslib: 2.5.0
+            tslib: 2.5.2
         dev: true
 
     /dotenv-expand@8.0.3:
@@ -1729,10 +1729,10 @@ packages:
             jake: 10.8.6
         dev: true
 
-    /electron-to-chromium@1.4.397:
+    /electron-to-chromium@1.4.401:
         resolution:
             {
-                integrity: sha512-jwnPxhh350Q/aMatQia31KAIQdhEsYS0fFZ0BQQlN9tfvOEwShu6ZNwI4kL/xBabjcB/nTy6lSt17kNIluJZ8Q==
+                integrity: sha512-AswqHsYyEbfSn0x87n31Na/xttUqEAg7NUjpiyxC20MaWKLyadOYHMzyLdF78N1iw+FK8/2KHLpZxRdyRILgtA==
             }
         dev: true
 
@@ -2901,7 +2901,7 @@ packages:
                 integrity: sha512-7fm3l3NAF9WfN6W3JOmf5drwpVqX78JtoGJ3A6W0a6ZnldM41w2fV5D490psKFTpMds8TJse/eHLFFsNHHjHgg==
             }
         dependencies:
-            tslib: 2.5.0
+            tslib: 2.5.2
         dev: true
 
     /lru-cache@5.1.1:
@@ -3027,7 +3027,7 @@ packages:
             }
         dependencies:
             lower-case: 2.0.2
-            tslib: 2.5.0
+            tslib: 2.5.2
         dev: true
 
     /node-abi@3.40.0:
@@ -3214,7 +3214,7 @@ packages:
             }
         dependencies:
             dot-case: 3.0.4
-            tslib: 2.5.0
+            tslib: 2.5.2
         dev: true
 
     /parent-module@1.0.1:
@@ -3234,7 +3234,7 @@ packages:
             }
         dependencies:
             no-case: 3.0.4
-            tslib: 2.5.0
+            tslib: 2.5.2
         dev: true
 
     /path-exists@4.0.0:
@@ -3437,10 +3437,10 @@ packages:
         engines: { node: ">=0.10.0" }
         dev: true
 
-    /react-virtuoso@4.3.6(react-dom@18.2.0)(react@18.2.0):
+    /react-virtuoso@4.3.7(react-dom@18.2.0)(react@18.2.0):
         resolution:
             {
-                integrity: sha512-t2yzA9QKwMrcECLytVfZcBZMusuQ9Ahgt62SL8uC/sYm9Sk/h14sYTJC0MVO6CAtl3BzKiLKSC79Vp+W3KOXMg==
+                integrity: sha512-XPNRzmhXUyBoXjPxNYdqD5wubNXtDIbBFbhTR4awx4yEC98EegM5RLeaghIK0BBAhZyRFu8sMvrPnwE12KLOJg==
             }
         engines: { node: ">=10" }
         peerDependencies:
@@ -3541,10 +3541,10 @@ packages:
             glob: 7.2.3
         dev: true
 
-    /rollup@3.21.8:
+    /rollup@3.22.0:
         resolution:
             {
-                integrity: sha512-SSFV2T2fWtQ/vvBip85u2Nr0GNKireabH9d7nXswBg+XSH+jbVDSYptRAEbCEsquhs503rpPA9POYAp0/Jhasw==
+                integrity: sha512-imsigcWor5Y/dC0rz2q0bBt9PabcL3TORry2hAa6O6BuMvY71bqHyfReAz5qyAqiQATD1m70qdntqBfBQjVWpQ==
             }
         engines: { node: ">=14.18.0", npm: ">=8.0.0" }
         hasBin: true
@@ -3913,10 +3913,10 @@ packages:
             }
         dev: true
 
-    /tslib@2.5.0:
+    /tslib@2.5.2:
         resolution:
             {
-                integrity: sha512-336iVw3rtn2BUK7ORdIAHTyxHGRIHVReokCR3XjbckJMK7ms8FysBfhLR8IXnAgy7T0PTPNBWKiH514FOW/WSg==
+                integrity: sha512-5svOrSA2w3iGFDs1HibEVBGbDrAY82bFQ3HZ3ixB+88nsbsWQoKqDRb5UBYAUPEzbBn6dAp5gRNXglySbx1MlA==
             }
         dev: true
 
@@ -4043,7 +4043,7 @@ packages:
             - rollup
         dev: true
 
-    /vite-plugin-html@3.2.0(vite@4.3.7):
+    /vite-plugin-html@3.2.0(vite@4.3.8):
         resolution:
             {
                 integrity: sha512-2VLCeDiHmV/BqqNn5h2V+4280KRgQzCFN47cst3WiNK848klESPQnzuC3okH5XHtgwHH/6s1Ho/YV6yIO0pgoQ==
@@ -4063,13 +4063,13 @@ packages:
             html-minifier-terser: 6.1.0
             node-html-parser: 5.4.2
             pathe: 0.2.0
-            vite: 4.3.7(sass@1.62.1)
+            vite: 4.3.8(sass@1.62.1)
         dev: true
 
-    /vite@4.3.7(sass@1.62.1):
+    /vite@4.3.8(sass@1.62.1):
         resolution:
             {
-                integrity: sha512-MTIFpbIm9v7Hh5b0wSBgkcWzSBz7SAa6K/cBTwS4kUiQJfQLFlZZRJRQgqunCVzhTPCk674tW+0Qaqh3Q00dBg==
+                integrity: sha512-uYB8PwN7hbMrf4j1xzGDk/lqjsZvCDbt/JC5dyfxc19Pg8kRm14LinK/uq+HSLNswZEoKmweGdtpbnxRtrAXiQ==
             }
         engines: { node: ^14.18.0 || >=16.0.0 }
         hasBin: true
@@ -4096,7 +4096,7 @@ packages:
         dependencies:
             esbuild: 0.17.19
             postcss: 8.4.23
-            rollup: 3.21.8
+            rollup: 3.22.0
             sass: 1.62.1
         optionalDependencies:
             fsevents: 2.3.2
@@ -4178,10 +4178,10 @@ packages:
         engines: { node: ">=10" }
         dev: true
 
-    github.com/tauri-apps/tauri-plugin-fs-watch/2139f484000ecd62ea44a2e380c90cff810dc57d:
+    github.com/tauri-apps/tauri-plugin-fs-watch/5876048ff3d3d23c8863a37a0f0e91ed90553026:
         resolution:
             {
-                tarball: https://codeload.github.com/tauri-apps/tauri-plugin-fs-watch/tar.gz/2139f484000ecd62ea44a2e380c90cff810dc57d
+                tarball: https://codeload.github.com/tauri-apps/tauri-plugin-fs-watch/tar.gz/5876048ff3d3d23c8863a37a0f0e91ed90553026
             }
         name: tauri-plugin-fs-watch-api
         version: 0.0.0

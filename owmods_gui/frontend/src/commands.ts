@@ -37,7 +37,10 @@ const commandInfo = {
     getLocalMod: $<ModCommand<UnsafeLocalMod>>("get_local_mod"),
     getRemoteMod: $<ModCommand<RemoteMod>>("get_remote_mod"),
     getLogLine: $<CommandInfo<{ port: number; line: number }, GameMessage>>("get_game_message"),
-    toggleMod: $<CommandInfo<{ uniqueName: string; enabled: boolean }, string[]>>("toggle_mod"),
+    toggleMod:
+        $<CommandInfo<{ uniqueName: string; enabled: boolean; recursive: boolean }, string[]>>(
+            "toggle_mod"
+        ),
     toggleAll: $<CommandInfo<{ enabled: boolean }, string[]>>("toggle_all"),
     openModFolder: $<ModAction>("open_mod_folder"),
     openModReadme: $<ModAction>("open_mod_readme"),
@@ -77,7 +80,8 @@ const commandInfo = {
     checkOWML: $<GetCommand<boolean>>("check_owml"),
     getDownloads: $<GetCommand<ProgressBars>>("get_downloads"),
     clearDownloads: $<EmptyCommand>("clear_downloads"),
-    getModBusy: $<ModCommand<boolean>>("get_mod_busy")
+    getModBusy: $<ModCommand<boolean>>("get_mod_busy"),
+    hasDisabledDeps: $<ModCommand<boolean>>("has_disabled_deps")
 };
 
 type Command = keyof typeof commandInfo;

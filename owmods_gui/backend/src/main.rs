@@ -155,7 +155,8 @@ fn main() -> Result<(), Box<dyn Error>> {
             get_defaults,
             get_downloads,
             clear_downloads,
-            get_mod_busy
+            get_mod_busy,
+            has_disabled_deps
         ])
         .plugin(tauri_plugin_window_state::Builder::default().build())
         .plugin(tauri_plugin_fs_watch::init())

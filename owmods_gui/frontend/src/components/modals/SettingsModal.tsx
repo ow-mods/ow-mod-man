@@ -275,6 +275,13 @@ const SettingsForm = forwardRef(function SettingsForm(props: SettingsFormProps, 
                 id="logMultiWindow"
                 tooltip={getTranslation("TOOLTIP_LOG_MULTI_WINDOW")}
             />
+            <SettingsSwitch
+                onChange={handleGui}
+                value={guiConfig.autoEnableDeps}
+                label={getTranslation("AUTO_ENABLE_DEPS")}
+                id="autoEnableDeps"
+                tooltip={getTranslation("TOOLTIP_AUTO_ENABLE_DEPS")}
+            />
             <h4>
                 {getTranslation("OWML_SETTINGS")} <ResetButton onClick={() => onReset(2)} />
             </h4>

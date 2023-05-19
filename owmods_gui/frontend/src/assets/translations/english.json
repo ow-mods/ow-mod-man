@@ -1,6 +1,8 @@
 {
     "ABOUT": "About",
     "ALERT_URL": "Alert URL",
+    "AUTO_ENABLE_DEPS": "Auto Enable Dependencies",
+    "ENABLE_DEPS_MESSAGE": "This mod has dependencies that are currently disabled\n Would you like to enable the dependencies as well?\n(You can always enable dependencies and skip this dialog in Settings)",
     "ANY": "Any",
     "APP_TITLE": "Outer Wilds Mod Manager",
     "ARCHITECTURE": "Architecture: $arch$",
@@ -104,6 +106,7 @@
     "TOOLTIP_OWML_DEBUG_MODE": "Makes OWML log more stuff",
     "TOOLTIP_OWML_PATH": "Must be an absolute path. All mods are installed in a 'Mods' folder inside this.",
     "TOOLTIP_WATCH_FS": "Watches OWML's Mods folder for changes in files and refreshes if detected",
+    "TOOLTIP_AUTO_ENABLE_DEPS": "When enabling a mod that has dependencies that are disabled, enable the dependencies without a prompt.",
     "UNINSTALL": "Uninstall",
     "UNINSTALL_CONFIRM": "Are you sure you want to uninstall $name$?",
     "UNIQUE_NAME": "Unique Name",

@@ -207,10 +207,11 @@ pub async fn open_mod_folder(unique_name: &str, state: tauri::State<'_, State>) 
 pub async fn toggle_mod(
     unique_name: &str,
     enabled: bool,
+    recursive: bool,
     state: tauri::State<'_, State>,
 ) -> Result<Vec<String>> {
     let db = state.local_db.read().await;
-    let show_warnings_for = owmods_core::toggle::toggle_mod(unique_name, &db, enabled, false)?;
+    let show_warnings_for = owmods_core::toggle::toggle_mod(unique_name, &db, enabled, recursive)?;
     Ok(show_warnings_for)
 }
 
@@ -772,4 +773,23 @@ pub async fn get_mod_busy(unique_name: &str, state: tauri::State<'_, State>) -> 
     let mods_in_progress = state.mods_in_progress.read().await;
     let exists = mods_in_progress.contains(&unique_name.to_string());
     Ok(exists)
+}
+
+#[tauri::command]
+pub async fn has_disabled_deps(unique_name: &str, state: tauri::State<'_, State>) -> Result<bool> {
+    let db = state.local_db.read().await;
+    let local_mod = db
+        .get_mod(unique_name)
+        .ok_or_else(|| anyhow!("Mod Not Found: {unique_name}"))?;
+    let mut flag = false;
+    if let Some(deps) = &local_mod.manifest.dependencies {
+        for dep in deps.iter() {
+            if let Some(dep) = db.get_mod(dep) {
+                if !dep.enabled {
+                    flag = true;
+                }
+            }
+        }
+    }
+    Ok(flag)
 }

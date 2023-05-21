@@ -49,7 +49,12 @@ pub async fn start_just_logs(port: &u16) -> Result<()> {
     Ok(())
 }
 
-pub async fn start_game(local_db: &LocalDatabase, config: &Config, port: &u16) -> Result<()> {
+pub async fn start_game(
+    local_db: &LocalDatabase,
+    config: &Config,
+    port: Option<&u16>,
+    new_window: bool,
+) -> Result<()> {
     let names = config.viewed_alerts.iter().map(|n| n.as_str()).collect();
     let warnings = get_warnings(local_db.active().collect(), names);
 
@@ -68,21 +73,27 @@ pub async fn start_game(local_db: &LocalDatabase, config: &Config, port: &u16) -
 
     config.save()?;
 
-    let server = LogServer::new(*port).await?;
-    let port = server.port;
+    if let Some(port) = port {
+        let server = LogServer::new(*port).await?;
+        let port = server.port;
 
-    let (tx, mut rx) = mpsc::channel(32);
+        let (tx, mut rx) = mpsc::channel(32);
 
-    try_join!(
-        server.listen(tx, true),
-        launch_game(&config, &port),
-        async {
-            while let Some(msg) = rx.recv().await {
-                handle_game_log(&msg);
+        try_join!(
+            server.listen(tx, true),
+            launch_game(&config, false, Some(&port)),
+            async {
+                while let Some(msg) = rx.recv().await {
+                    handle_game_log(&msg);
+                }
+                Ok(())
             }
-            Ok(())
-        }
-    )?;
+        )?;
+    } else if new_window && cfg!(windows) {
+        launch_game(&config, true, None).await?;
+    } else {
+        launch_game(&config, false, None).await?;
+    }
 
     Ok(())
 }

@@ -329,7 +329,12 @@ async fn run_from_cli(cli: BaseCli) -> Result<()> {
         Commands::LogServer { port } => {
             start_just_logs(port).await?;
         }
-        Commands::Run { force, port } => {
+        Commands::Run {
+            force,
+            port,
+            no_server,
+            new_window,
+        } => {
             info!("Attempting to launch game...");
             let mut local_db = LocalDatabase::fetch(&config.owml_path)?;
             let remote_db = RemoteDatabase::fetch(&config.database_url).await;
@@ -347,7 +352,12 @@ async fn run_from_cli(cli: BaseCli) -> Result<()> {
                 info!("...or run with -f to launch anyway");
                 return Ok(());
             }
-            start_game(&local_db, &config, port).await?;
+            let no_server = *no_server || *new_window;
+            if *new_window && cfg!(unix) {
+                warn!("Skipping option --new-window as this is a Windows only flag");
+            }
+            let port = if no_server { None } else { Some(port) };
+            start_game(&local_db, &config, port, *new_window).await?;
         }
         Commands::Open { identifier } => {
             info!("Opening {}", identifier);

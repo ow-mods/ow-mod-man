@@ -500,7 +500,12 @@ pub async fn update_all_mods(
 pub async fn start_logs(state: tauri::State<'_, State>, handle: tauri::AppHandle) -> Result {
     let game_logs = state.game_log.read().await;
     let gui_config = state.gui_config.read().await;
-    if gui_config.log_multi_window || game_logs.keys().count() == 0 {
+    let config = state.config.read().await.clone();
+    if gui_config.no_log_server {
+        drop(gui_config);
+        launch_game(&config, true, None).await?;
+        return Ok(());
+    } else if gui_config.log_multi_window || game_logs.keys().count() == 0 {
         drop(game_logs);
         drop(gui_config);
         make_log_window(&handle).await?;
@@ -509,7 +514,7 @@ pub async fn start_logs(state: tauri::State<'_, State>, handle: tauri::AppHandle
         let config = state.config.read().await.clone();
         let port = *game_logs.keys().next().unwrap_or(&0);
         drop(game_logs);
-        launch_game(&config, &port).await?;
+        launch_game(&config, false, Some(&port)).await?;
     }
     Ok(())
 }
@@ -610,7 +615,7 @@ pub async fn run_game(state: tauri::State<'_, State>, window: tauri::Window) -> 
 
     try_join!(
         log_server.listen(tx, false),
-        launch_game(&config, &port),
+        launch_game(&config, false, Some(&port)),
         log_handler
     )
     .map_err(|e| anyhow!("Can't Start Game: {:?}", e))?;

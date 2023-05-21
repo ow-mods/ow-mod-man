@@ -118,6 +118,7 @@ export interface GuiConfig {
     noWarning: boolean;
     logMultiWindow: boolean;
     autoEnableDeps: boolean;
+    noLogServer: boolean;
 }
 
 export interface LogPayload {

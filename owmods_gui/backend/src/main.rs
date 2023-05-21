@@ -46,7 +46,7 @@ pub struct State {
     gui_config: StatePart<GuiConfig>,
     /// A map of ports to the log messages sent to that port
     game_log: StatePart<LogMessages>,
-    /// The protocol url used to incoke the program, if any. This is should only be gotten once and removed after
+    /// The protocol url used to invoke the program, if any. This is should only be gotten once and removed after
     protocol_url: StatePart<Option<ProtocolPayload>>,
     /// The progress bars of installs/updates/downloads/etc.
     progress_bars: StatePart<ProgressBars>,

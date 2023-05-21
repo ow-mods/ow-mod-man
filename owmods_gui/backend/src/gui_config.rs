@@ -54,6 +54,8 @@ pub struct GuiConfig {
     pub log_multi_window: bool,
     #[serde(default = "_default_false")]
     auto_enable_deps: bool,
+    #[serde(default = "_default_false")]
+    pub no_log_server: bool,
 }
 
 impl Default for GuiConfig {
@@ -66,6 +68,7 @@ impl Default for GuiConfig {
             no_warning: false,
             log_multi_window: false,
             auto_enable_deps: false,
+            no_log_server: false,
         }
     }
 }

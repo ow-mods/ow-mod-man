@@ -1,15 +1,15 @@
 use anyhow::{anyhow, Result};
-use log::error;
+use log::{error, info};
 use serde::{Deserialize, Serialize};
 use serde_repr::{Deserialize_repr, Serialize_repr};
 use tokio::{
     io::{AsyncBufReadExt, BufReader},
     net::{TcpListener, TcpStream},
-    sync::mpsc::Sender,
+    sync::mpsc,
 };
 use typeshare::typeshare;
 
-pub type LogServerSender = Sender<SocketMessage>;
+pub type LogServerSender = mpsc::Sender<SocketMessage>;
 
 /// Represents the type of message sent from the game
 #[typeshare]
@@ -99,9 +99,10 @@ impl LogServer {
         Ok(Self { port, listener })
     }
 
-    async fn accept(mut stream: TcpStream, tx: &LogServerSender) {
+    async fn accept(mut stream: TcpStream, tx: &LogServerSender) -> bool {
         let mut reader = BufReader::new(&mut stream);
         let mut body = String::new();
+        let mut flag = false;
         while let Ok(bytes_read) = reader.read_line(&mut body).await {
             if bytes_read == 0 {
                 break;
@@ -114,6 +115,7 @@ impl LogServer {
                 Ok(message) => {
                     match message.message_type {
                         SocketMessageType::Quit => {
+                            flag = true;
                             break;
                         }
                         _ => {
@@ -134,6 +136,7 @@ impl LogServer {
             }
             body.clear();
         }
+        flag
     }
 
     async fn yield_log(tx: &LogServerSender, message: SocketMessage) {
@@ -158,47 +161,59 @@ impl LogServer {
         )
         .await;
 
-        let mut keep_going = true;
-        while keep_going {
-            let stream = self.listener.accept().await;
-            match stream {
-                Ok((stream, _)) => {
-                    let tx2 = tx.clone();
-                    tokio::spawn(async move {
-                        Self::yield_log(
-                            &tx2,
-                            SocketMessage::make_internal(
-                                "====== Client Connected To Console ======".to_string(),
-                                SocketMessageType::Info,
-                            ),
-                        )
-                        .await;
+        let (shutdown_sender, mut shutdown_receiver) = mpsc::channel::<()>(2);
 
-                        Self::accept(stream, &tx2).await;
+        tokio::select! {
+            _ = async {
+                let shutdown_sender = &shutdown_sender.clone();
+                loop {
+                    let stream = self.listener.accept().await;
+                    match stream {
+                        Ok((stream, _)) => {
+                            let tx2 = tx.clone();
+                            let shutdown_sender2 = shutdown_sender.clone();
+                            tokio::spawn(async move {
+                                Self::yield_log(
+                                    &tx2,
+                                    SocketMessage::make_internal(
+                                        "====== Client Connected To Console ======".to_string(),
+                                        SocketMessageType::Info,
+                                    ),
+                                )
+                                .await;
 
-                        Self::yield_log(
-                            &tx2,
-                            SocketMessage::make_internal(
-                                "====== Client Disconnected From Console ======".to_string(),
-                                SocketMessageType::Info,
-                            ),
-                        )
-                        .await;
-                    });
-                    keep_going = !disconnect_on_quit;
+                                let quit_received = Self::accept(stream, &tx2).await;
+
+                                if quit_received && disconnect_on_quit {
+                                    shutdown_sender2.send(()).await.ok();
+                                }
+
+                                Self::yield_log(
+                                    &tx2,
+                                    SocketMessage::make_internal(
+                                        "====== Client Disconnected From Console ======".to_string(),
+                                        SocketMessageType::Info,
+                                    ),
+                                )
+                                .await;
+                            });
+                        }
+                        Err(why) => {
+                            Self::yield_log(
+                                &tx,
+                                SocketMessage::make_internal(
+                                    format!("Client Connection Failure! {why:?}"),
+                                    SocketMessageType::Error,
+                                ),
+                            )
+                            .await;
+                        }
+                    }
                 }
-                Err(why) => {
-                    Self::yield_log(
-                        &tx,
-                        SocketMessage::make_internal(
-                            format!("Client Connection Failure! {why:?}"),
-                            SocketMessageType::Error,
-                        ),
-                    )
-                    .await;
-                }
-            }
-        }
+            } => {},
+            _ = shutdown_receiver.recv() => info!("Quit Message Received")
+        };
+
         Ok(())
     }
 }

@@ -4,6 +4,7 @@ import {
     forwardRef,
     memo,
     useCallback,
+    useEffect,
     useImperativeHandle,
     useRef,
     useState
@@ -16,6 +17,7 @@ import { OpenFileInput } from "@components/common/FileInput";
 import Icon from "@components/common/Icon";
 import { BsArrowCounterclockwise } from "react-icons/bs";
 import { type TranslationKey, TranslationNameMap } from "@components/common/TranslationContext";
+import { os } from "@tauri-apps/api";
 
 const ThemeArr = Object.values(Theme);
 const LanguageArr = Object.values(Language);
@@ -175,6 +177,14 @@ const SettingsForm = forwardRef(function SettingsForm(props: SettingsFormProps, 
     const [guiConfig, setGuiConfig] = useState<GuiConfig>(props.initialGuiConfig);
     const getTranslation = useGetTranslation();
 
+    const [showLogServerOption, setShowLogServerOption] = useState<boolean>(false);
+
+    useEffect(() => {
+        os.platform().then((p) => {
+            setShowLogServerOption(p === "win32");
+        });
+    }, []);
+
     useImperativeHandle(
         ref,
         () => ({
@@ -282,6 +292,15 @@ const SettingsForm = forwardRef(function SettingsForm(props: SettingsFormProps, 
                 id="autoEnableDeps"
                 tooltip={getTranslation("TOOLTIP_AUTO_ENABLE_DEPS")}
             />
+            {showLogServerOption && (
+                <SettingsSwitch
+                    onChange={handleGui}
+                    value={guiConfig.noLogServer}
+                    label={getTranslation("LET_OWML_HANDLE_LOGS")}
+                    id="noLogServer"
+                    tooltip={getTranslation("TOOLTIP_LET_OWML_HANDLE_LOGS")}
+                />
+            )}
             <h4>
                 {getTranslation("OWML_SETTINGS")} <ResetButton onClick={() => onReset(2)} />
             </h4>

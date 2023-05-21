@@ -16,7 +16,7 @@ use crate::{
 ///
 /// ## Returns
 ///
-/// A Vec<String> of mods that have pre-patchers and need to have a warning shown to the user
+/// A `Vec<String>` of mods that have pre-patchers and need to have a warning shown to the user
 ///
 /// ## Errors
 ///

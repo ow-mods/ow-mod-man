@@ -10,7 +10,7 @@ import {
     useState
 } from "react";
 import { Config, GuiConfig, Language, OWMLConfig, Theme } from "@types";
-import Modal from "./Modal";
+import Modal, { ModalHandle } from "./Modal";
 import { useGetTranslation } from "@hooks";
 import { commands, hooks } from "@commands";
 import { OpenFileInput } from "@components/common/FileInput";
@@ -30,6 +30,7 @@ interface SettingsFormProps {
 
 interface SettingsFormHandle {
     save: () => void;
+    reset: () => void;
 }
 
 interface SettingsRowProps {
@@ -202,9 +203,21 @@ const SettingsForm = forwardRef(function SettingsForm(props: SettingsFormProps, 
                     }
                 };
                 task().catch(console.error);
+            },
+            reset: () => {
+                setConfig(props.initialConfig);
+                setGuiConfig(props.initialGuiConfig);
+                setOwmlConfig(props.initialOwmlConfig);
             }
         }),
-        [config, owmlConfig, guiConfig, props.initialConfig]
+        [
+            config,
+            owmlConfig,
+            guiConfig,
+            props.initialConfig,
+            props.initialGuiConfig,
+            props.initialOwmlConfig
+        ]
     );
 
     const getVal = (e: HTMLInputElement | HTMLSelectElement) => {
@@ -363,6 +376,19 @@ const SettingsForm = forwardRef(function SettingsForm(props: SettingsFormProps, 
 
 const SettingsModal = forwardRef(function SettingsModal(_: object, ref) {
     const settingsFormRef = useRef<SettingsFormHandle>();
+    const modalRef = useRef<ModalHandle>(null);
+
+    useImperativeHandle(
+        ref,
+        () => ({
+            open: () => {
+                settingsFormRef.current?.reset?.();
+                modalRef.current?.open?.();
+            },
+            close: () => modalRef.current?.close?.()
+        }),
+        []
+    );
 
     const [configStatus, config, err1] = hooks.getConfig("CONFIG_RELOAD");
     const [guiConfigStatus, guiConfig, err2] = hooks.getGuiConfig("GUI_CONFIG_RELOAD");
@@ -380,7 +406,7 @@ const SettingsModal = forwardRef(function SettingsModal(_: object, ref) {
                 showCancel
                 heading={getTranslation("SETTINGS")}
                 confirmText={getTranslation("SAVE")}
-                ref={ref}
+                ref={modalRef}
             >
                 <>
                     <p className="center">
@@ -396,10 +422,11 @@ const SettingsModal = forwardRef(function SettingsModal(_: object, ref) {
         return (
             <Modal
                 onConfirm={() => settingsFormRef.current?.save()}
+                onCancel={() => settingsFormRef.current?.reset()}
                 showCancel
                 heading={getTranslation("SETTINGS")}
                 confirmText={getTranslation("SAVE")}
-                ref={ref}
+                ref={modalRef}
             >
                 <SettingsForm
                     ref={settingsFormRef}

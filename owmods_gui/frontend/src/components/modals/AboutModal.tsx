@@ -1,5 +1,5 @@
 import Modal from "./Modal";
-import logo from "@assets/images/logo.png?w=256&h=256&format=webp&imagetools";
+import logo from "@assets/images/logo.png?w=255&h=255&format=webp&imagetools";
 import Icon from "@components/common/Icon";
 import { BsDiscord, BsGithub } from "react-icons/bs";
 import { useGetTranslation } from "@hooks";
@@ -21,7 +21,7 @@ const AboutModal = forwardRef(function AboutModal(_: object, ref) {
     return (
         <Modal ref={ref} heading={getTranslation("ABOUT")} confirmText={getTranslation("DISMISS")}>
             <div className="about-modal">
-                <img width="256" height="256" src={logo} />
+                <img width="255" height="255" src={logo} />
                 <h1>{getTranslation("APP_TITLE")}</h1>
                 <p>{getTranslation("VERSION", { version: appVersion })}</p>
                 <p>{getTranslation("PLATFORM", { platform: appPlatform })}</p>

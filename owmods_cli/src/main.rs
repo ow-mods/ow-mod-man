@@ -34,7 +34,10 @@ async fn run_from_cli(cli: BaseCli) -> Result<()> {
 
     let config = Config::get(None)?;
 
-    let ran_setup = matches!(&cli.command, Commands::Setup { owml_path: _ });
+    let ran_setup = matches!(
+        &cli.command,
+        Commands::Setup { owml_path: _ } | Commands::Version
+    );
 
     if !config.check_owml() && !ran_setup {
         info!(

@@ -8,7 +8,6 @@ This file contains common questions for the manager.
   - [Table of Contents](#table-of-contents)
   - [How do I use this?](#how-do-i-use-this)
   - [Rainbow mode won't work](#rainbow-mode-wont-work)
-  - [When will this work on Steam Deck?](#when-will-this-work-on-steam-deck)
   - [How do I uninstall it?](#how-do-i-uninstall-it)
   - [The game won't launch on Linux](#the-game-wont-launch-on-linux)
   - [I made a mod! How do I submit it?](#i-made-a-mod-how-do-i-submit-it)
@@ -28,10 +27,6 @@ This file contains common questions for the manager.
 ## Rainbow mode won't work
 
 Switch off White theme, the manager simply hue shifts to achieve rainbow mode so the more saturated the color the better.
-
-## When will this work on Steam Deck?
-
-Steam deck support is currently on the way, we're mostly waiting on the package we use for the GUI to update to v2, as that will have better (or more accurately, working) support for the runtime Steam Deck uses.
 
 ## How do I uninstall it?
 

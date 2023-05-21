@@ -20,7 +20,7 @@ Please format and lint your code before pushing:
 
 ```sh
 cargo fmt
-cargo clippy --all-targets -- -D warnings
+cargo lint
 ```
 
 Git hooks are setup to run clippy on every commit, meaning they may take longer.

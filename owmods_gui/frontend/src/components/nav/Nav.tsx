@@ -1,10 +1,10 @@
 import {
     BsPlayFill,
-    BsQuestion,
     BsGearFill,
     BsInfoCircleFill,
     BsBoxArrowInDown,
-    BsBoxArrowUpRight
+    BsBoxArrowUpRight,
+    BsQuestionLg
 } from "react-icons/bs";
 
 import NavButton from "@components/nav/NavButton";
@@ -113,7 +113,7 @@ const Nav = () => {
                             labelPlacement="bottom"
                             ariaLabel={getTranslation("HELP")}
                         >
-                            <Icon iconType={BsQuestion} />
+                            <Icon iconType={BsQuestionLg} />
                         </NavButton>
                         <NavMore>
                             {/* Dropdown uses RTL */}

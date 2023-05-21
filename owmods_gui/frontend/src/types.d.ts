@@ -46,6 +46,7 @@ export interface ModManifest {
     conflicts?: string[];
     pathsToPreserve?: string[];
     warning?: ModWarning;
+    patcher?: string;
 }
 
 /** Represents a warning a mod wants to show to the user on start */
@@ -116,6 +117,8 @@ export interface GuiConfig {
     watchFs: boolean;
     noWarning: boolean;
     logMultiWindow: boolean;
+    autoEnableDeps: boolean;
+    noLogServer: boolean;
 }
 
 export interface LogPayload {

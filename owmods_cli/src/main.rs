@@ -27,7 +27,7 @@ mod logging;
 
 use cli::{BaseCli, Commands, ModListTypes};
 use game::{start_game, start_just_logs};
-use logging::{log_mod_validation_errors, Logger};
+use logging::{log_mod_validation_errors, show_pre_patcher_warning, Logger};
 
 async fn run_from_cli(cli: BaseCli) -> Result<()> {
     let r = cli.recursive;
@@ -272,7 +272,10 @@ async fn run_from_cli(cli: BaseCli) -> Result<()> {
                         unique_name,
                         if r { " and dependencies" } else { "" }
                     );
-                    remove_mod(local_mod, &db, r)?;
+                    let show_warnings_for = remove_mod(local_mod, &db, r)?;
+                    for mod_name in show_warnings_for {
+                        show_pre_patcher_warning(&mod_name);
+                    }
                     info!("Done");
                 } else {
                     error!("Mod {} Is Not Installed", unique_name);
@@ -306,18 +309,32 @@ async fn run_from_cli(cli: BaseCli) -> Result<()> {
         Commands::Enable { unique_name } | Commands::Disable { unique_name } => {
             let db = LocalDatabase::fetch(&config.owml_path)?;
             let enable = matches!(cli.command, Commands::Enable { unique_name: _ });
+            let mut show_warnings_for: Vec<String> = vec![];
             if unique_name == "*" || unique_name == "all" {
                 for local_mod in db.valid() {
-                    toggle_mod(&local_mod.manifest.unique_name, &db, enable, false)?;
+                    show_warnings_for.extend(toggle_mod(
+                        &local_mod.manifest.unique_name,
+                        &db,
+                        enable,
+                        false,
+                    )?);
                 }
             } else {
-                toggle_mod(unique_name, &db, enable, r)?;
+                show_warnings_for = toggle_mod(unique_name, &db, enable, r)?;
+            }
+            for mod_name in show_warnings_for {
+                show_pre_patcher_warning(&mod_name);
             }
         }
         Commands::LogServer { port } => {
             start_just_logs(port).await?;
         }
-        Commands::Run { force, port } => {
+        Commands::Run {
+            force,
+            port,
+            no_server,
+            new_window,
+        } => {
             info!("Attempting to launch game...");
             let mut local_db = LocalDatabase::fetch(&config.owml_path)?;
             let remote_db = RemoteDatabase::fetch(&config.database_url).await;
@@ -335,7 +352,12 @@ async fn run_from_cli(cli: BaseCli) -> Result<()> {
                 info!("...or run with -f to launch anyway");
                 return Ok(());
             }
-            start_game(&local_db, &config, port).await?;
+            let no_server = *no_server || *new_window;
+            if *new_window && cfg!(unix) {
+                warn!("Skipping option --new-window as this is a Windows only flag");
+            }
+            let port = if no_server { None } else { Some(port) };
+            start_game(&local_db, &config, port, *new_window).await?;
         }
         Commands::Open { identifier } => {
             info!("Opening {}", identifier);

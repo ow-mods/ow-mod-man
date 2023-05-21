@@ -14,26 +14,41 @@ use crate::{
 
 /// Uninstall a mod
 ///
+/// ## Returns
+///
+/// A `Vec<String>` of mods that have pre-patchers and need to have a warning shown to the user
+///
 /// ## Errors
 ///
 /// If we can't delete the mod's folder.
 ///
-pub fn remove_mod(local_mod: &LocalMod, db: &LocalDatabase, recursive: bool) -> Result<()> {
+pub fn remove_mod(
+    local_mod: &LocalMod,
+    db: &LocalDatabase,
+    recursive: bool,
+) -> Result<Vec<String>> {
+    let mut show_warnings_for: Vec<String> = vec![];
+
     if PathBuf::from(&local_mod.mod_path).is_dir() {
         // In case weird circular dep stuff happens, just don't delete it if it doesn't exist
         remove_dir_all(&local_mod.mod_path)?;
+        if local_mod.uses_pre_patcher() {
+            show_warnings_for.push(local_mod.manifest.name.clone());
+        }
     }
+
     if recursive {
         let empty: &Vec<String> = &vec![];
         let deps = local_mod.manifest.dependencies.as_ref().unwrap_or(empty);
         for dep in deps.iter() {
             let dep = db.get_mod(dep);
             if let Some(dep) = dep {
-                remove_mod(dep, db, true)?;
+                show_warnings_for.extend(remove_mod(dep, db, true)?);
             }
         }
     }
-    Ok(())
+
+    Ok(show_warnings_for)
 }
 
 /// Removes a [FailedMod]

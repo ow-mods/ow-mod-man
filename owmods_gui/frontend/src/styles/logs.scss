@@ -24,6 +24,8 @@ $log-border: 1px solid var(--accent-bg);
             & .message {
                 flex-grow: 1;
                 width: 65%;
+                -webkit-user-select: text;
+                user-select: text;
             }
 
             & .sender {

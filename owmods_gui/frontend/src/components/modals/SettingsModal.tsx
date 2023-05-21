@@ -4,18 +4,20 @@ import {
     forwardRef,
     memo,
     useCallback,
+    useEffect,
     useImperativeHandle,
     useRef,
     useState
 } from "react";
 import { Config, GuiConfig, Language, OWMLConfig, Theme } from "@types";
-import Modal from "./Modal";
+import Modal, { ModalHandle } from "./Modal";
 import { useGetTranslation } from "@hooks";
 import { commands, hooks } from "@commands";
 import { OpenFileInput } from "@components/common/FileInput";
 import Icon from "@components/common/Icon";
 import { BsArrowCounterclockwise } from "react-icons/bs";
 import { type TranslationKey, TranslationNameMap } from "@components/common/TranslationContext";
+import { os } from "@tauri-apps/api";
 
 const ThemeArr = Object.values(Theme);
 const LanguageArr = Object.values(Language);
@@ -28,6 +30,7 @@ interface SettingsFormProps {
 
 interface SettingsFormHandle {
     save: () => void;
+    reset: () => void;
 }
 
 interface SettingsRowProps {
@@ -175,6 +178,14 @@ const SettingsForm = forwardRef(function SettingsForm(props: SettingsFormProps, 
     const [guiConfig, setGuiConfig] = useState<GuiConfig>(props.initialGuiConfig);
     const getTranslation = useGetTranslation();
 
+    const [showLogServerOption, setShowLogServerOption] = useState<boolean>(false);
+
+    useEffect(() => {
+        os.platform().then((p) => {
+            setShowLogServerOption(p === "win32");
+        });
+    }, []);
+
     useImperativeHandle(
         ref,
         () => ({
@@ -192,9 +203,21 @@ const SettingsForm = forwardRef(function SettingsForm(props: SettingsFormProps, 
                     }
                 };
                 task().catch(console.error);
+            },
+            reset: () => {
+                setConfig(props.initialConfig);
+                setGuiConfig(props.initialGuiConfig);
+                setOwmlConfig(props.initialOwmlConfig);
             }
         }),
-        [config, owmlConfig, guiConfig, props.initialConfig]
+        [
+            config,
+            owmlConfig,
+            guiConfig,
+            props.initialConfig,
+            props.initialGuiConfig,
+            props.initialOwmlConfig
+        ]
     );
 
     const getVal = (e: HTMLInputElement | HTMLSelectElement) => {
@@ -275,6 +298,22 @@ const SettingsForm = forwardRef(function SettingsForm(props: SettingsFormProps, 
                 id="logMultiWindow"
                 tooltip={getTranslation("TOOLTIP_LOG_MULTI_WINDOW")}
             />
+            <SettingsSwitch
+                onChange={handleGui}
+                value={guiConfig.autoEnableDeps}
+                label={getTranslation("AUTO_ENABLE_DEPS")}
+                id="autoEnableDeps"
+                tooltip={getTranslation("TOOLTIP_AUTO_ENABLE_DEPS")}
+            />
+            {showLogServerOption && (
+                <SettingsSwitch
+                    onChange={handleGui}
+                    value={guiConfig.noLogServer}
+                    label={getTranslation("LET_OWML_HANDLE_LOGS")}
+                    id="noLogServer"
+                    tooltip={getTranslation("TOOLTIP_LET_OWML_HANDLE_LOGS")}
+                />
+            )}
             <h4>
                 {getTranslation("OWML_SETTINGS")} <ResetButton onClick={() => onReset(2)} />
             </h4>
@@ -337,6 +376,19 @@ const SettingsForm = forwardRef(function SettingsForm(props: SettingsFormProps, 
 
 const SettingsModal = forwardRef(function SettingsModal(_: object, ref) {
     const settingsFormRef = useRef<SettingsFormHandle>();
+    const modalRef = useRef<ModalHandle>(null);
+
+    useImperativeHandle(
+        ref,
+        () => ({
+            open: () => {
+                settingsFormRef.current?.reset?.();
+                modalRef.current?.open?.();
+            },
+            close: () => modalRef.current?.close?.()
+        }),
+        []
+    );
 
     const [configStatus, config, err1] = hooks.getConfig("CONFIG_RELOAD");
     const [guiConfigStatus, guiConfig, err2] = hooks.getGuiConfig("GUI_CONFIG_RELOAD");
@@ -354,7 +406,7 @@ const SettingsModal = forwardRef(function SettingsModal(_: object, ref) {
                 showCancel
                 heading={getTranslation("SETTINGS")}
                 confirmText={getTranslation("SAVE")}
-                ref={ref}
+                ref={modalRef}
             >
                 <>
                     <p className="center">
@@ -370,10 +422,11 @@ const SettingsModal = forwardRef(function SettingsModal(_: object, ref) {
         return (
             <Modal
                 onConfirm={() => settingsFormRef.current?.save()}
+                onCancel={() => settingsFormRef.current?.reset()}
                 showCancel
                 heading={getTranslation("SETTINGS")}
                 confirmText={getTranslation("SAVE")}
-                ref={ref}
+                ref={modalRef}
             >
                 <SettingsForm
                     ref={settingsFormRef}

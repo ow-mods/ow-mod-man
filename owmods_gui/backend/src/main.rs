@@ -46,7 +46,7 @@ pub struct State {
     gui_config: StatePart<GuiConfig>,
     /// A map of ports to the log messages sent to that port
     game_log: StatePart<LogMessages>,
-    /// The protocol url used to incoke the program, if any. This is should only be gotten once and removed after
+    /// The protocol url used to invoke the program, if any. This is should only be gotten once and removed after
     protocol_url: StatePart<Option<ProtocolPayload>>,
     /// The progress bars of installs/updates/downloads/etc.
     progress_bars: StatePart<ProgressBars>,
@@ -155,7 +155,8 @@ fn main() -> Result<(), Box<dyn Error>> {
             get_defaults,
             get_downloads,
             clear_downloads,
-            get_mod_busy
+            get_mod_busy,
+            has_disabled_deps
         ])
         .plugin(tauri_plugin_window_state::Builder::default().build())
         .plugin(tauri_plugin_fs_watch::init())

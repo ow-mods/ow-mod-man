@@ -24,7 +24,7 @@ const LogList = memo(function LogList(props: LogListProps) {
             itemContent={(_, data) => (
                 <LogLine virtuosoRef={virtuoso} port={props.port} line={data[0]} count={data[1]} />
             )}
-            atBottomThreshold={100}
+            atBottomThreshold={1000}
             followOutput
             alignToBottom
         />

@@ -17,6 +17,12 @@ pub struct LocalMod {
     pub manifest: ModManifest,
 }
 
+impl LocalMod {
+    pub fn uses_pre_patcher(&self) -> bool {
+        self.manifest.patcher.is_some()
+    }
+}
+
 /// Represents a mod that completely failed to load
 #[typeshare]
 #[derive(Serialize, Clone)]
@@ -157,6 +163,7 @@ pub struct ModManifest {
     pub conflicts: Option<Vec<String>>,
     pub paths_to_preserve: Option<Vec<String>>,
     pub warning: Option<ModWarning>,
+    pub patcher: Option<String>,
 }
 
 /// Represents a warning a mod wants to show to the user on start

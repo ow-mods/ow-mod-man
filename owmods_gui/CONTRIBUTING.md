@@ -35,7 +35,7 @@ Please format and lint your code before pushing:
 
 ```sh
 cargo fmt
-cargo clippy --all-targets -- -D warnings
+cargo lint
 ```
 
 And lint and format the frontend as well:

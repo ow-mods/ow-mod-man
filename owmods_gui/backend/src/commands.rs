@@ -207,25 +207,27 @@ pub async fn open_mod_folder(unique_name: &str, state: tauri::State<'_, State>) 
 pub async fn toggle_mod(
     unique_name: &str,
     enabled: bool,
+    recursive: bool,
     state: tauri::State<'_, State>,
-) -> Result {
+) -> Result<Vec<String>> {
     let db = state.local_db.read().await;
-    owmods_core::toggle::toggle_mod(unique_name, &db, enabled, false)?;
-    Ok(())
+    let show_warnings_for = owmods_core::toggle::toggle_mod(unique_name, &db, enabled, recursive)?;
+    Ok(show_warnings_for)
 }
 
 #[tauri::command]
-pub async fn toggle_all(enabled: bool, state: tauri::State<'_, State>) -> Result {
+pub async fn toggle_all(enabled: bool, state: tauri::State<'_, State>) -> Result<Vec<String>> {
     let local_db = state.local_db.read().await;
+    let mut show_warnings_for: Vec<String> = vec![];
     for local_mod in local_db.valid() {
-        owmods_core::toggle::toggle_mod(
+        show_warnings_for.extend(owmods_core::toggle::toggle_mod(
             &local_mod.manifest.unique_name,
             &local_db,
             enabled,
             false,
-        )?;
+        )?);
     }
-    Ok(())
+    Ok(show_warnings_for)
 }
 
 #[tauri::command]
@@ -284,13 +286,16 @@ pub async fn install_zip(path: &str, state: tauri::State<'_, State>) -> Result {
 }
 
 #[tauri::command]
-pub async fn uninstall_mod(unique_name: &str, state: tauri::State<'_, State>) -> Result {
+pub async fn uninstall_mod(
+    unique_name: &str,
+    state: tauri::State<'_, State>,
+) -> Result<Vec<String>> {
     let db = state.local_db.read().await;
     let local_mod = db
         .get_mod(unique_name)
         .ok_or_else(|| anyhow!("Mod {} not found", unique_name))?;
-    remove_mod(local_mod, &db, false)?;
-    Ok(())
+    let warnings = remove_mod(local_mod, &db, false)?;
+    Ok(warnings)
 }
 
 #[tauri::command]
@@ -495,7 +500,12 @@ pub async fn update_all_mods(
 pub async fn start_logs(state: tauri::State<'_, State>, handle: tauri::AppHandle) -> Result {
     let game_logs = state.game_log.read().await;
     let gui_config = state.gui_config.read().await;
-    if gui_config.log_multi_window || game_logs.keys().count() == 0 {
+    let config = state.config.read().await.clone();
+    if gui_config.no_log_server {
+        drop(gui_config);
+        launch_game(&config, true, None).await?;
+        return Ok(());
+    } else if gui_config.log_multi_window || game_logs.keys().count() == 0 {
         drop(game_logs);
         drop(gui_config);
         make_log_window(&handle).await?;
@@ -504,7 +514,7 @@ pub async fn start_logs(state: tauri::State<'_, State>, handle: tauri::AppHandle
         let config = state.config.read().await.clone();
         let port = *game_logs.keys().next().unwrap_or(&0);
         drop(game_logs);
-        launch_game(&config, &port).await?;
+        launch_game(&config, false, Some(&port)).await?;
     }
     Ok(())
 }
@@ -605,7 +615,7 @@ pub async fn run_game(state: tauri::State<'_, State>, window: tauri::Window) -> 
 
     try_join!(
         log_server.listen(tx, false),
-        launch_game(&config, &port),
+        launch_game(&config, false, Some(&port)),
         log_handler
     )
     .map_err(|e| anyhow!("Can't Start Game: {:?}", e))?;
@@ -768,4 +778,23 @@ pub async fn get_mod_busy(unique_name: &str, state: tauri::State<'_, State>) -> 
     let mods_in_progress = state.mods_in_progress.read().await;
     let exists = mods_in_progress.contains(&unique_name.to_string());
     Ok(exists)
+}
+
+#[tauri::command]
+pub async fn has_disabled_deps(unique_name: &str, state: tauri::State<'_, State>) -> Result<bool> {
+    let db = state.local_db.read().await;
+    let local_mod = db
+        .get_mod(unique_name)
+        .ok_or_else(|| anyhow!("Mod Not Found: {unique_name}"))?;
+    let mut flag = false;
+    if let Some(deps) = &local_mod.manifest.dependencies {
+        for dep in deps.iter() {
+            if let Some(dep) = db.get_mod(dep) {
+                if !dep.enabled {
+                    flag = true;
+                }
+            }
+        }
+    }
+    Ok(flag)
 }

@@ -1,24 +1,96 @@
-use std::path::PathBuf;
+use std::{path::PathBuf, process::Stdio};
 
-use anyhow::Result;
+use anyhow::{anyhow, Result};
+use log::warn;
 use tokio::process::Command;
 
-use crate::{config::Config, constants::OWML_EXE_NAME};
+use crate::{config::Config, constants::OWML_EXE_NAME, owml::OWMLConfig};
 
-/// Launch the game using the given port for logs
-#[cfg(windows)]
-pub async fn launch_game(config: &Config, port: &u16) -> Result<()> {
-    let owml_path = PathBuf::from(&config.owml_path);
-    let mut child = Command::new(owml_path.join(OWML_EXE_NAME).to_str().unwrap())
-        .arg("-consolePort")
-        .arg(port.to_string())
-        .current_dir(PathBuf::from(&owml_path))
-        .spawn()?;
-    child.wait().await?;
+/// Launch the game using the given port for logs.  
+/// If no port is given, the output of OWML.Launcher.exe will be written to stdout.  
+/// You can set `open_in_new_window` to `true` to make the command open in a new cmd window (**Windows Only**).  
+/// On Linux there's no reliable way to open a new terminal window, so it's recommended you disallow that arg to be false on linux.  
+pub async fn launch_game(
+    config: &Config,
+    open_in_new_window: bool,
+    port: Option<&u16>,
+) -> Result<()> {
+    let mut cmd = get_cmd(config, open_in_new_window)?;
+
+    cmd.current_dir(PathBuf::from(&config.owml_path));
+
+    if let Some(port) = port {
+        cmd.arg("-consolePort")
+            .arg(port.to_string())
+            .stdout(Stdio::piped())
+            .stderr(Stdio::piped());
+        // Sometimes OWML.Launcher.exe doesn't like setting the socket port, just do it ourselves.
+        let mut owml_config = OWMLConfig::get(config)?;
+        owml_config.socket_port = *port;
+        owml_config.save(config)?;
+    }
+
+    let child = cmd.spawn().map_err(|why| {
+        if cfg!(windows) {
+            anyhow!("Failed to launch game: {why:?}")
+        } else {
+            anyhow!("Failed to launch game: {why:?}. Is Mono Installed?")
+        }
+    })?;
+
+    let res = child
+        .wait_with_output()
+        .await
+        .map_err(|why| anyhow!("Failed to launch game: {why:?}"))?;
+
+    if !res.status.success() {
+        warn!(
+            "Potentially failed to start game (exit code): {}",
+            res.status
+                .code()
+                .map(|c| c.to_string())
+                .unwrap_or("Unknown".to_string())
+        );
+        if let Ok(stdout) = String::from_utf8(res.stdout) {
+            warn!("Potentially Failed to Start Game (stdout): {stdout}");
+        }
+        if let Ok(stderr) = String::from_utf8(res.stderr) {
+            warn!("Potentially Failed to Start Game (stderr): {stderr}");
+        }
+    }
+
     Ok(())
 }
 
-#[cfg(not(windows))]
+#[cfg(windows)]
+fn get_cmd(config: &Config, open_in_new_window: bool) -> Result<Command> {
+    let owml_path = PathBuf::from(&config.owml_path).join(OWML_EXE_NAME);
+    let exe_path = owml_path.to_str().unwrap();
+    if open_in_new_window {
+        let mut cmd = Command::new("cmd");
+        cmd.arg("/c")
+            .arg("start")
+            .arg("cmd")
+            .arg("/c")
+            .arg(exe_path);
+        Ok(cmd)
+    } else {
+        let cmd = Command::new(exe_path);
+        Ok(cmd)
+    }
+}
+
+#[cfg(unix)]
+fn get_cmd(config: &Config, _: bool) -> Result<Command> {
+    let owml_path = PathBuf::from(&config.owml_path).join(OWML_EXE_NAME);
+    let exe_path = owml_path.to_str().unwrap();
+    fix_dlls(config)?;
+    let mut cmd = Command::new("mono");
+    cmd.arg(exe_path);
+    Ok(cmd)
+}
+
+#[cfg(unix)]
 fn fix_dlls(config: &Config) -> Result<()> {
     use std::{fs::File, io::Write};
 
@@ -35,53 +107,6 @@ fn fix_dlls(config: &Config) -> Result<()> {
     file.write_all(SYSTEM_CORE_DLL)?;
     let mut file = File::create(owml_dir.join("OWML.ModLoader.dll"))?;
     file.write_all(OWML_MOD_LOADER_DLL)?;
-
-    Ok(())
-}
-
-/// Launch the game using the given port for logs
-#[cfg(not(windows))]
-pub async fn launch_game(config: &Config, port: &u16) -> Result<()> {
-    use std::process::Stdio;
-
-    use anyhow::anyhow;
-    use log::{error, info};
-
-    use crate::owml::OWMLConfig;
-
-    fix_dlls(config)?;
-
-    // Sometimes OWML.Launcher.exe doesn't like setting the socket port, just do it ourselves.
-    let mut owml_config = OWMLConfig::get(config)?;
-    owml_config.socket_port = *port;
-    owml_config.save(config)?;
-
-    let child = Command::new("mono")
-        .stdout(Stdio::piped())
-        .stderr(Stdio::piped())
-        .arg(OWML_EXE_NAME)
-        .arg("-consolePort")
-        .arg(port.to_string())
-        .current_dir(PathBuf::from(&config.owml_path))
-        .spawn()
-        .map_err(|e| anyhow!("Couldn't Run OWML: {:?}. Is Mono installed/working?", e))?;
-
-    let res = child.wait_with_output().await;
-
-    match res {
-        Ok(res) => {
-            if !res.status.success() {
-                info!(
-                    "{:?}\n{:?}",
-                    String::from_utf8(res.stdout).unwrap_or("".to_string()),
-                    String::from_utf8(res.stderr).unwrap_or("".to_string())
-                );
-            }
-        }
-        Err(why) => {
-            error!("Failed to launch game: {:?}", why);
-        }
-    }
 
     Ok(())
 }

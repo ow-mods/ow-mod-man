@@ -138,6 +138,18 @@ pub enum Commands {
         )]
         force: bool,
         #[arg(
+            short = 'n',
+            long = "no-server",
+            help = "Don't start a log server, send OWML's logs to stdout directly (this will be set to true if you pass --new-window)"
+        )]
+        no_server: bool,
+        #[arg(
+            short = 'w',
+            long = "new-window",
+            help = "Start the logs in a new cmd window (*WINDOWS ONLY*)"
+        )]
+        new_window: bool,
+        #[arg(
             short = 'p',
             long = "port",
             help = "Port to use for logging",

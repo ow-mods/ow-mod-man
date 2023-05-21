@@ -7,6 +7,7 @@ import ModValidationModal, {
 import { useGetTranslation } from "@hooks";
 import { memo, useCallback, useEffect, useRef, useState } from "react";
 import UnsafeModRow from "./UnsafeModRow";
+import { dialog } from "@tauri-apps/api";
 
 const LocalMods = memo(function LocalMods() {
     const validationModalRef = useRef<ModValidationModalHandle>();
@@ -20,12 +21,23 @@ const LocalMods = memo(function LocalMods() {
         commands.refreshLocalDb();
     }, []);
 
-    const onToggleAll = useCallback((enabled: boolean) => {
-        commands
-            .toggleAll({ enabled })
-            .then(() => commands.refreshLocalDb())
-            .catch(console.warn);
-    }, []);
+    const onToggleAll = useCallback(
+        (enabled: boolean) => {
+            commands
+                .toggleAll({ enabled })
+                .then((warnings) => {
+                    commands.refreshLocalDb();
+                    for (const modName of warnings) {
+                        dialog.message(getTranslation("PREPATCHER_WARNING", { name: modName }), {
+                            type: "warning",
+                            title: getTranslation("PREPATCHER_WARNING_TITLE", { name: modName })
+                        });
+                    }
+                })
+                .catch(console.warn);
+        },
+        [getTranslation]
+    );
 
     const onSearch = (newFilter: string) => {
         if (activeTimeout !== null) {

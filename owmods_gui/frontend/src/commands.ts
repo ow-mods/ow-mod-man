@@ -37,11 +37,14 @@ const commandInfo = {
     getLocalMod: $<ModCommand<UnsafeLocalMod>>("get_local_mod"),
     getRemoteMod: $<ModCommand<RemoteMod>>("get_remote_mod"),
     getLogLine: $<CommandInfo<{ port: number; line: number }, GameMessage>>("get_game_message"),
-    toggleMod: $<ActionCommand<{ uniqueName: string; enabled: boolean }>>("toggle_mod"),
-    toggleAll: $<ActionCommand<{ enabled: boolean }>>("toggle_all"),
+    toggleMod:
+        $<CommandInfo<{ uniqueName: string; enabled: boolean; recursive: boolean }, string[]>>(
+            "toggle_mod"
+        ),
+    toggleAll: $<CommandInfo<{ enabled: boolean }, string[]>>("toggle_all"),
     openModFolder: $<ModAction>("open_mod_folder"),
     openModReadme: $<ModAction>("open_mod_readme"),
-    uninstallMod: $<ModAction>("uninstall_mod"),
+    uninstallMod: $<ModCommand<string[]>>("uninstall_mod"),
     uninstallBrokenMod: $<ActionCommand<{ modPath: string }>>("uninstall_broken_mod"),
     installMod: $<CommandInfo<{ uniqueName: string; prerelease?: boolean }, void>>("install_mod"),
     installUrl: $<ActionCommand<{ url: string }>>("install_url"),
@@ -77,7 +80,8 @@ const commandInfo = {
     checkOWML: $<GetCommand<boolean>>("check_owml"),
     getDownloads: $<GetCommand<ProgressBars>>("get_downloads"),
     clearDownloads: $<EmptyCommand>("clear_downloads"),
-    getModBusy: $<ModCommand<boolean>>("get_mod_busy")
+    getModBusy: $<ModCommand<boolean>>("get_mod_busy"),
+    hasDisabledDeps: $<ModCommand<boolean>>("has_disabled_deps")
 };
 
 type Command = keyof typeof commandInfo;

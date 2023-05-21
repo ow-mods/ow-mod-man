@@ -1,2 +1,4 @@
 [alias]
 xtask = "run --package xtask --"
+lint = "clippy --all-targets -- -D warnings"
+

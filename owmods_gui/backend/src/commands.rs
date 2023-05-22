@@ -242,8 +242,9 @@ pub async fn install_mod(
     let local_db = state.local_db.read().await;
     let remote_db = state.remote_db.read().await;
     let conf = state.config.read().await;
+    let mut should_install = true;
     if let Some(current_mod) = local_db.get_mod(unique_name) {
-        let res = dialog::blocking::confirm(
+        should_install = dialog::blocking::confirm(
             Some(&window),
             "Reinstall?",
             format!(
@@ -251,19 +252,18 @@ pub async fn install_mod(
                 current_mod.manifest.name
             ),
         );
-        if !res {
-            return Ok(());
-        }
     }
-    install_mod_from_db(
-        &unique_name.to_string(),
-        &conf,
-        &remote_db,
-        &local_db,
-        true,
-        prerelease.unwrap_or(false),
-    )
-    .await?;
+    if should_install {
+        install_mod_from_db(
+            &unique_name.to_string(),
+            &conf,
+            &remote_db,
+            &local_db,
+            true,
+            prerelease.unwrap_or(false),
+        )
+        .await?;
+    }
     mark_mod_busy(unique_name, false, true, &state, &handle).await;
     Ok(())
 }

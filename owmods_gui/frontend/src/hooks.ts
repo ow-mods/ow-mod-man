@@ -5,9 +5,6 @@ import {
     TranslationMap,
     type TranslationKey
 } from "@components/common/TranslationContext";
-import ThemeMap from "./theme";
-import { Theme } from "@types";
-import rainbowTheme from "@styles/rainbow.scss?inline";
 
 export type LoadState = "Loading" | "Done" | "Error";
 
@@ -77,12 +74,18 @@ export const useGetTranslation = () => {
     );
 };
 
-export const useTheme = (theme: Theme, rainbow: boolean) => {
+export function useDebounce<TValue>(value: TValue, delayMs: number): TValue {
+    const [debouncedValue, setDebouncedValue] = useState<TValue>(value);
+
     useEffect(() => {
-        let newTheme = ThemeMap[theme ?? "White"];
-        if (rainbow) {
-            newTheme += rainbowTheme;
-        }
-        document.getElementById("currentTheme")!.textContent = newTheme;
-    }, [theme, rainbow]);
-};
+        const handler = setTimeout(() => {
+            setDebouncedValue(value);
+        }, delayMs);
+
+        return () => {
+            clearTimeout(handler);
+        };
+    }, [value, delayMs]);
+
+    return debouncedValue;
+}

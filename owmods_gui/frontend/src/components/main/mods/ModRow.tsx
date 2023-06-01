@@ -1,18 +1,32 @@
 import { useGetTranslation } from "@hooks";
-import {
-    Box,
-    Chip,
-    ListItemIcon,
-    Menu,
-    MenuItem,
-    TableCell,
-    TableRow,
-    Typography,
-    useTheme
-} from "@mui/material";
-import { ReactNode, useState, MouseEvent } from "react";
-import ModActionIcon from "./ModActionIcon";
-import { MoreVertRounded } from "@mui/icons-material";
+import { Box, Chip, TableCell, Typography, useTheme } from "@mui/material";
+import { ReactNode, memo, useMemo } from "react";
+
+// Stolen from mods website, Rai will never catch me!
+const magnitudeMap = [
+    { value: 1, symbol: "" },
+    { value: 1e3, symbol: "k" },
+    { value: 1e6, symbol: "M" },
+    { value: 1e9, symbol: "G" },
+    { value: 1e12, symbol: "T" },
+    { value: 1e15, symbol: "P" },
+    { value: 1e18, symbol: "E" }
+];
+
+const numberFormatRegex = /\.0+$|(\.[0-9]*[1-9])0+$/;
+
+export const formatNumber = (value: number, digits = 1) => {
+    const magnitude = magnitudeMap
+        .slice()
+        .reverse()
+        .find((item) => {
+            return value >= item.value;
+        });
+    return magnitude
+        ? (value / magnitude.value).toFixed(digits).replace(numberFormatRegex, "$1") +
+              magnitude.symbol
+        : "0";
+};
 
 export interface OverflowMenuItem {
     icon: ReactNode;
@@ -24,50 +38,42 @@ export interface ModRowProps {
     uniqueName: string;
     name: string;
     author: string;
-    downloads: string;
+    downloads: number;
     version: string;
     description?: string;
     children?: ReactNode;
-    overflow?: OverflowMenuItem[];
     isOutdated?: boolean;
     errorLevel?: "warn" | "err";
 }
 
-const ModRow = (props: ModRowProps) => {
+const ModRow = memo(function GenericModRow(props: ModRowProps) {
     const getTranslation = useGetTranslation();
     const theme = useTheme();
-    const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
-    const open = Boolean(anchorEl);
-    const onClick = (event: MouseEvent<HTMLButtonElement>) => {
-        setAnchorEl(event.currentTarget);
-    };
-    const onClose = () => {
-        setAnchorEl(null);
-    };
 
     const cellStyle = { paddingTop: theme.spacing(1), paddingBottom: theme.spacing(1) };
 
-    const overflowId = `${props.uniqueName}-actions-overflow`;
-    const overflowButtonId = `${props.uniqueName}-actions-overflow-button`;
+    const formattedDownloads = useMemo(
+        () => (props.downloads === -1 ? "--" : formatNumber(props.downloads)),
+        [props.downloads]
+    );
 
     return (
-        <TableRow key={props.uniqueName}>
+        <>
             <TableCell sx={cellStyle}>
-                <Typography variant="subtitle1">
-                    <Box display="inline-block" mr={2}>
+                <Typography variant="subtitle1" noWrap>
+                    <Box display="inline-block" mr={1}>
                         {props.name}
                     </Box>
-                    <Typography variant="caption">
+                    <Typography noWrap variant="caption">
                         {getTranslation("BY", { author: props.author })}
                     </Typography>
-                    <Typography variant="caption" />
                 </Typography>
                 <Box>
                     <Typography variant="caption">{props.description ?? ""}</Typography>
                 </Box>
             </TableCell>
             <TableCell sx={cellStyle} align="right">
-                {props.downloads}
+                {formattedDownloads}
             </TableCell>
             <TableCell sx={cellStyle} align="center">
                 <Chip
@@ -95,39 +101,10 @@ const ModRow = (props: ModRowProps) => {
             <TableCell sx={cellStyle}>
                 <Box display="flex" flexDirection="row" alignContent="center">
                     {props.children}
-                    {props.overflow && (
-                        <>
-                            <ModActionIcon
-                                onClick={onClick}
-                                id={overflowButtonId}
-                                aria-controls={open ? overflowId : undefined}
-                                aria-haspopup="true"
-                                aria-expanded={open ? "true" : undefined}
-                                label={getTranslation("MORE")}
-                                icon={<MoreVertRounded />}
-                            />
-                            <Menu
-                                id={overflowId}
-                                anchorEl={anchorEl}
-                                open={open}
-                                onClose={onClose}
-                                MenuListProps={{
-                                    "aria-labelledby": overflowButtonId
-                                }}
-                            >
-                                {props.overflow.map((o) => (
-                                    <MenuItem key={o.label} onClick={o.onClick}>
-                                        <ListItemIcon>{o.icon}</ListItemIcon>
-                                        {o.label}
-                                    </MenuItem>
-                                ))}
-                            </Menu>
-                        </>
-                    )}
                 </Box>
             </TableCell>
-        </TableRow>
+        </>
     );
-};
+});
 
 export default ModRow;

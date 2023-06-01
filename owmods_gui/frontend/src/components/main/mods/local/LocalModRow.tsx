@@ -1,18 +1,18 @@
 import { commands, hooks } from "@commands";
 import ModRow from "../ModRow";
 import { LocalMod, UnsafeLocalMod } from "@types";
-import { useMemo } from "react";
+import { memo, useMemo, useRef } from "react";
 import { Checkbox } from "@mui/material";
 import ModActionIcon from "../ModActionIcon";
 import { useGetTranslation } from "@hooks";
 import {
     DeleteRounded,
     DescriptionRounded,
-    FolderRounded,
-    UpdateRounded
+    FolderRounded
+    // UpdateRounded
 } from "@mui/icons-material";
-
-commands.refreshRemoteDb().then(() => commands.refreshLocalDb());
+import { dialog } from "@tauri-apps/api";
+import ModActionOverflow, { ModActionOverflowItem } from "../ModActionOverflow";
 
 export interface LocalModRowProps {
     uniqueName: string;
@@ -27,12 +27,16 @@ const safeOrNull = (mod: UnsafeLocalMod | null) => {
     }
 };
 
-const LocalModRow = (props: LocalModRowProps) => {
+const LocalModRow = memo(function LocalModRow(props: LocalModRowProps) {
+    // Simple hooks
     const getTranslation = useGetTranslation();
 
-    const local = hooks.getLocalMod("LOCAL_REFRESH", { ...props })[1];
-    const remote = hooks.getRemoteMod("REMOTE_REFRESH", { ...props })[1];
+    // Fetch data
+    const local = hooks.getLocalMod("LOCAL-REFRESH", { ...props })[1];
+    const remote = hooks.getRemoteMod("REMOTE-REFRESH", { ...props })[1];
+    const autoEnableDeps = hooks.getGuiConfig("GUI_CONFIG_RELOAD")[1]?.autoEnableDeps ?? false;
 
+    // Transform data
     const name = useMemo(
         () => remote?.name ?? safeOrNull(local)?.manifest.name ?? "",
         [local, remote]
@@ -55,7 +59,68 @@ const LocalModRow = (props: LocalModRowProps) => {
         [local]
     );
 
+    // Event Handlers
     const onReadme = () => commands.openModReadme({ uniqueName: props.uniqueName });
+    const onFolder = () => commands.openModFolder({ uniqueName: props.uniqueName });
+    const onToggle = (newVal: boolean) => {
+        const task = async () => {
+            let enableDeps = false;
+            const hasDisabledDeps = newVal
+                ? await commands.hasDisabledDeps({ uniqueName: props.uniqueName })
+                : false;
+            if (hasDisabledDeps) {
+                enableDeps =
+                    autoEnableDeps ||
+                    (await dialog.ask(getTranslation("ENABLE_DEPS_MESSAGE"), {
+                        type: "info",
+                        title: getTranslation("CONFIRM")
+                    }));
+            }
+            const warnings = await commands.toggleMod({
+                uniqueName: props.uniqueName,
+                enabled: newVal,
+                recursive: enableDeps
+            });
+            commands.refreshLocalDb();
+            for (const modName of warnings) {
+                dialog.message(getTranslation("PREPATCHER_WARNING", { name: modName }), {
+                    type: "warning",
+                    title: getTranslation("PREPATCHER_WARNING_TITLE", {
+                        name: modName
+                    })
+                });
+            }
+        };
+        task();
+    };
+    const onUninstall = () => {
+        const uninstallConfirmText = getTranslation("UNINSTALL_CONFIRM", {
+            name: safeOrNull(local)?.manifest.name ?? "Unknown"
+        });
+        dialog.confirm(uninstallConfirmText, getTranslation("CONFIRM")).then((answer) => {
+            if (answer) {
+                commands.uninstallMod({ uniqueName: props.uniqueName }).then((warnings) => {
+                    commands.refreshLocalDb();
+                    for (const modName of warnings) {
+                        dialog.message(getTranslation("PREPATCHER_WARNING", { name: modName }), {
+                            type: "warning",
+                            title: getTranslation("PREPATCHER_WARNING_TITLE", { name: modName })
+                        });
+                    }
+                });
+            }
+        });
+    };
+    // const onUpdate = () => {
+    //     commands
+    //         .updateMod({ uniqueName: props.uniqueName })
+    //         .then(() => {
+    //             commands.refreshLocalDb().catch(console.warn);
+    //         })
+    //         .catch(console.error);
+    // };
+
+    const overflowRef = useRef<{ onClose: () => void }>();
 
     return (
         <ModRow
@@ -65,32 +130,41 @@ const LocalModRow = (props: LocalModRowProps) => {
             version={version}
             isOutdated={outdated}
             description={description}
-            downloads={remote?.downloadCount.toString() ?? "--"}
-            overflow={[
-                {
-                    icon: <FolderRounded />,
-                    label: getTranslation("SHOW_FOLDER")
-                },
-                {
-                    icon: <DeleteRounded />,
-                    label: getTranslation("UNINSTALL")
-                }
-            ]}
+            downloads={remote?.downloadCount ?? -1}
         >
-            <Checkbox color="default" checked={enabled} />
-            {outdated && (
+            <Checkbox
+                onChange={(e) => onToggle(e.target.checked)}
+                color="default"
+                checked={enabled}
+            />
+            {/* {outdated && (
                 <ModActionIcon
                     icon={<UpdateRounded color="secondary" />}
                     label={getTranslation("UPDATE")}
+                    onClick={onUpdate}
                 />
-            )}
+            )} */}
             <ModActionIcon
                 onClick={onReadme}
                 label={getTranslation("OPEN_WEBSITE")}
                 icon={<DescriptionRounded />}
             />
+            <ModActionOverflow id={`local-${props.uniqueName}`} ref={overflowRef}>
+                <ModActionOverflowItem
+                    label={getTranslation("SHOW_FOLDER")}
+                    icon={<FolderRounded />}
+                    onClick={onFolder}
+                    onClose={overflowRef.current?.onClose}
+                />
+                <ModActionOverflowItem
+                    label={getTranslation("UNINSTALL")}
+                    icon={<DeleteRounded />}
+                    onClick={onUninstall}
+                    onClose={overflowRef.current?.onClose}
+                />
+            </ModActionOverflow>
         </ModRow>
     );
-};
+});
 
 export default LocalModRow;

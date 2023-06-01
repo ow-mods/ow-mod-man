@@ -1,5 +1,5 @@
-import { IconButton, Tooltip } from "@mui/material";
-import { ReactNode, MouseEvent } from "react";
+import { Box, IconButton, Tooltip } from "@mui/material";
+import { ReactNode, MouseEvent, memo } from "react";
 
 export interface ModActionIconProps {
     label: string;
@@ -8,16 +8,16 @@ export interface ModActionIconProps {
     [rest: string | number | symbol]: unknown;
 }
 
-const ModActionIcon = (props: ModActionIconProps) => {
+const ModActionIcon = memo(function ModActionButton(props: ModActionIconProps) {
     return (
         <Tooltip title={props.label}>
-            <span style={{ display: "flex", alignItems: "center" }}>
+            <Box display="flex" alignItems="center">
                 <IconButton size="small" onClick={props.onClick} {...props}>
                     {props.icon}
                 </IconButton>
-            </span>
+            </Box>
         </Tooltip>
     );
-};
+});
 
 export default ModActionIcon;

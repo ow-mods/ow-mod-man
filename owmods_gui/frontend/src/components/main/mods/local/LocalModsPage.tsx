@@ -1,12 +1,21 @@
-import { hooks } from "@commands";
-import { useState } from "react";
+import { commands, hooks } from "@commands";
+import { memo, useEffect, useState } from "react";
 import ModsPage from "../ModsPage";
 import LocalModRow from "./LocalModRow";
+import LocalModsToggleButtons from "./LocalModsToggleButtons";
 
-const LocalModsPage = (props: { show: boolean }) => {
+const LocalModsPage = memo(function LocalModsPage(props: { show: boolean }) {
+    useEffect(() => {
+        commands.refreshLocalDb();
+    }, []);
+
     const [filter, setFilter] = useState("");
 
-    const localMods = hooks.getLocalMods("LOCAL_REFRESH", { filter })[1];
+    const localMods = hooks.getLocalMods("LOCAL-REFRESH", { filter })[1];
+
+    const onToggleAll = (newVal: boolean) => {
+        commands.toggleAll({ enabled: newVal }).then(() => commands.refreshLocalDb());
+    };
 
     return (
         <ModsPage
@@ -14,9 +23,10 @@ const LocalModsPage = (props: { show: boolean }) => {
             filter={filter}
             onFilterChange={setFilter}
             uniqueNames={localMods ?? []}
-            renderRow={(uniqueName) => <LocalModRow key={uniqueName} uniqueName={uniqueName} />}
+            renderRow={(uniqueName) => <LocalModRow uniqueName={uniqueName} />}
+            addToToolbar={<LocalModsToggleButtons onToggle={onToggleAll} />}
         />
     );
-};
+});
 
 export default LocalModsPage;

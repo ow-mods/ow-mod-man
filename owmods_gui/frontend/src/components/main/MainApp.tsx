@@ -5,6 +5,7 @@ import { useState } from "react";
 import { TabContext } from "@mui/lab";
 import AppTabs from "./top-bar/AppTabs";
 import LocalModsPage from "./mods/local/LocalModsPage";
+import RemoteModsPage from "./mods/remote/RemoteModsPage";
 
 const MainApp = () => {
     const [selectedTab, setSelectedTab] = useState("1");
@@ -24,6 +25,7 @@ const MainApp = () => {
                         <AppTabs onChange={setSelectedTab} />
                         <div style={{ display: "flex", flexGrow: 1, minHeight: 0 }}>
                             <LocalModsPage show={selectedTab === "1"} />
+                            <RemoteModsPage show={selectedTab === "2"} />
                         </div>
                     </div>
                 </CssBaseline>

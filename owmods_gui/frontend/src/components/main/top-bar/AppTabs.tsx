@@ -18,6 +18,8 @@ const AppTabs: FunctionComponent<{ onChange: (newVal: string) => void }> = ({ on
                 sx={{ margin: `0 ${theme.spacing(3)}` }}
                 onChange={(_, newVal) => onChange(newVal)}
                 variant="fullWidth"
+                textColor="inherit"
+                indicatorColor="secondary"
             >
                 <Tab
                     value="1"

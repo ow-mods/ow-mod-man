@@ -1,17 +1,7 @@
-import {
-    Container,
-    Paper,
-    Table,
-    TableBody,
-    TableCell,
-    TableContainer,
-    TableHead,
-    TableRow,
-    useTheme
-} from "@mui/material";
+import { Container, useTheme } from "@mui/material";
 import { ReactNode } from "react";
 import ModsToolbar from "./ModsToolbar";
-import { useGetTranslation } from "@hooks";
+import ModsTable from "./ModsTable";
 
 export interface ModsPageProps {
     show: boolean;
@@ -24,7 +14,6 @@ export interface ModsPageProps {
 
 const ModsPage = (props: ModsPageProps) => {
     const theme = useTheme();
-    const getTranslation = useGetTranslation();
 
     return (
         <Container
@@ -40,25 +29,7 @@ const ModsPage = (props: ModsPageProps) => {
             <ModsToolbar filter={props.filter} onFilterChanged={props.onFilterChange}>
                 {props.addToToolbar}
             </ModsToolbar>
-            {props.uniqueNames.length !== 0 ? (
-                <TableContainer sx={{ marginTop: theme.spacing(3) }} component={Paper}>
-                    <Table>
-                        <TableHead>
-                            <TableRow>
-                                <TableCell>{getTranslation("NAME")}</TableCell>
-                                <TableCell width="100px">{getTranslation("DOWNLOADS")}</TableCell>
-                                <TableCell width="110px" align="center">
-                                    {getTranslation("VERSION")}
-                                </TableCell>
-                                <TableCell />
-                            </TableRow>
-                        </TableHead>
-                        <TableBody>{props.uniqueNames.map(props.renderRow)}</TableBody>
-                    </Table>
-                </TableContainer>
-            ) : (
-                <></>
-            )}
+            {props.uniqueNames.length !== 0 ? <ModsTable {...props} /> : <></>}
         </Container>
     );
 };

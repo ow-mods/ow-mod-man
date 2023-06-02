@@ -1,9 +1,11 @@
-import { Container, useTheme } from "@mui/material";
+import { Box, CircularProgress, Container, Paper, Typography, useTheme } from "@mui/material";
 import { ReactNode } from "react";
 import ModsToolbar from "./ModsToolbar";
 import ModsTable from "./ModsTable";
+import { useGetTranslation } from "@hooks";
 
 export interface ModsPageProps {
+    isLoading: boolean;
     show: boolean;
     filter: string;
     onFilterChange: (newVal: string) => void;
@@ -13,6 +15,7 @@ export interface ModsPageProps {
 }
 
 const ModsPage = (props: ModsPageProps) => {
+    const getTranslation = useGetTranslation();
     const theme = useTheme();
 
     return (
@@ -29,7 +32,21 @@ const ModsPage = (props: ModsPageProps) => {
             <ModsToolbar filter={props.filter} onFilterChanged={props.onFilterChange}>
                 {props.addToToolbar}
             </ModsToolbar>
-            {props.uniqueNames.length !== 0 ? <ModsTable {...props} /> : <></>}
+            {props.isLoading ? (
+                <Paper sx={{ marginTop: theme.spacing(3), height: "100%" }}>
+                    <Box height="100%" display="flex" alignItems="center" justifyContent="center">
+                        <CircularProgress color="secondary" />
+                    </Box>
+                </Paper>
+            ) : props.uniqueNames.length !== 0 ? (
+                <ModsTable {...props} />
+            ) : (
+                <Paper sx={{ marginTop: theme.spacing(3), height: "100%" }}>
+                    <Box height="100%" display="flex" alignItems="center" justifyContent="center">
+                        <Typography variant="subtitle1">{getTranslation("NO_MODS")}</Typography>
+                    </Box>
+                </Paper>
+            )}
         </Container>
     );
 };

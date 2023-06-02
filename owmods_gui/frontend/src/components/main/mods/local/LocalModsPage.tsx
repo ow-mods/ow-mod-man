@@ -11,7 +11,7 @@ const LocalModsPage = memo(function LocalModsPage(props: { show: boolean }) {
 
     const [filter, setFilter] = useState("");
 
-    const localMods = hooks.getLocalMods("LOCAL-REFRESH", { filter })[1];
+    const [status, localMods] = hooks.getLocalMods("LOCAL-REFRESH", { filter });
 
     const onToggleAll = (newVal: boolean) => {
         commands.toggleAll({ enabled: newVal }).then(() => commands.refreshLocalDb());
@@ -19,6 +19,7 @@ const LocalModsPage = memo(function LocalModsPage(props: { show: boolean }) {
 
     return (
         <ModsPage
+            isLoading={status === "Loading" && localMods === null}
             show={props.show}
             filter={filter}
             onFilterChange={setFilter}

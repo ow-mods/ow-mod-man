@@ -10,11 +10,12 @@ const RemoteModsPage = memo(function RemoteModsPage(props: { show: boolean }) {
 
     const [filter, setFilter] = useState("");
 
-    const remoteMods = hooks.getRemoteMods("REMOTE-REFRESH", { filter })[1];
+    const [status, remoteMods] = hooks.getRemoteMods("REMOTE-REFRESH", { filter });
 
     return (
         <ModsPage
             show={props.show}
+            isLoading={status === "Loading" && remoteMods === null}
             filter={filter}
             onFilterChange={setFilter}
             uniqueNames={remoteMods ?? []}

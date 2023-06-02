@@ -1,5 +1,5 @@
 import { useGetTranslation } from "@hooks";
-import { Box, Chip, TableCell, Typography, useTheme } from "@mui/material";
+import { Box, Chip, Skeleton, TableCell, Typography, useTheme } from "@mui/material";
 import { ReactNode, memo, useMemo } from "react";
 
 // Stolen from mods website, Rai will never catch me!
@@ -35,12 +35,14 @@ export interface OverflowMenuItem {
 }
 
 export interface ModRowProps {
+    isLoading: boolean;
     uniqueName: string;
     name: string;
     author: string;
     downloads: number;
     version: string;
     description?: string;
+    remoteIsLoading?: boolean;
     children?: ReactNode;
     isOutdated?: boolean;
     errorLevel?: "warn" | "err";
@@ -62,18 +64,31 @@ const ModRow = memo(function GenericModRow(props: ModRowProps) {
             <TableCell sx={cellStyle}>
                 <Typography variant="subtitle1" noWrap>
                     <Box display="inline-block" mr={1}>
-                        {props.name}
+                        {props.isLoading ? <Skeleton width={300} /> : props.name}
                     </Box>
                     <Typography noWrap variant="caption">
-                        {getTranslation("BY", { author: props.author })}
+                        {props.isLoading ? <></> : getTranslation("BY", { author: props.author })}
                     </Typography>
                 </Typography>
                 <Box>
-                    <Typography variant="caption">{props.description ?? ""}</Typography>
+                    <Typography variant="caption">
+                        {props.isLoading || props.remoteIsLoading ? (
+                            <>
+                                <Skeleton width={350} />
+                                <Skeleton width={275} />
+                            </>
+                        ) : (
+                            props.description ?? ""
+                        )}
+                    </Typography>
                 </Box>
             </TableCell>
             <TableCell sx={cellStyle} align="right">
-                {formattedDownloads}
+                {props.isLoading || props.remoteIsLoading ? (
+                    <Skeleton width={70} />
+                ) : (
+                    formattedDownloads
+                )}
             </TableCell>
             <TableCell sx={cellStyle} align="center">
                 <Chip

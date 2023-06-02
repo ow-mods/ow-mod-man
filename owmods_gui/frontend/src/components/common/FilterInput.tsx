@@ -17,6 +17,12 @@ const FilterInput: React.FunctionComponent<FilterInputProps> = ({ value, onChang
         onChange(debouncedFilterText);
     }, [debouncedFilterText, onChange]);
 
+    // Instantly reflect changes on clear, don't debounce
+    const onClear = () => {
+        setFilterText("");
+        onChange("");
+    };
+
     return (
         <OutlinedInput
             margin="dense"
@@ -34,7 +40,7 @@ const FilterInput: React.FunctionComponent<FilterInputProps> = ({ value, onChang
             endAdornment={
                 filterText !== "" && (
                     <InputAdornment position="end">
-                        <IconButton onClick={() => setFilterText("")} size="small">
+                        <IconButton onClick={onClear} size="small">
                             <CloseIcon fontSize="small" />
                         </IconButton>
                     </InputAdornment>

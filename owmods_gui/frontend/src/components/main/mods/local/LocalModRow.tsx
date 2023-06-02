@@ -32,8 +32,8 @@ const LocalModRow = memo(function LocalModRow(props: LocalModRowProps) {
     const getTranslation = useGetTranslation();
 
     // Fetch data
-    const local = hooks.getLocalMod("LOCAL-REFRESH", { ...props })[1];
-    const remote = hooks.getRemoteMod("REMOTE-REFRESH", { ...props })[1];
+    const [status1, local] = hooks.getLocalMod("LOCAL-REFRESH", { ...props });
+    const [status2, remote] = hooks.getRemoteMod("REMOTE-REFRESH", { ...props });
     const autoEnableDeps = hooks.getGuiConfig("GUI_CONFIG_RELOAD")[1]?.autoEnableDeps ?? false;
 
     // Transform data
@@ -129,6 +129,8 @@ const LocalModRow = memo(function LocalModRow(props: LocalModRowProps) {
             author={author}
             version={version}
             isOutdated={outdated}
+            isLoading={status1 === "Loading" && local === null}
+            remoteIsLoading={status2 === "Loading" && remote === null}
             description={description}
             downloads={remote?.downloadCount ?? -1}
         >

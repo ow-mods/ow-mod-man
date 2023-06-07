@@ -43,6 +43,10 @@ Please ensure that you have [Mono](https://www.mono-project.com/) installed and 
 
 To debug issues with mono set the `MONO_LOG_LEVEL` variable to `debug`. and look at the logs.
 
+### On Flatpak
+
+Also ensure the game is located in `~/.steam/steam/steamapps/common/Outer Wilds`, otherwise the manager won't be able to find the game as it only has access to that folder.
+
 ## I made a mod! How do I submit it?
 
 The mod database is stored in a separate repository. [Go here to find out how to add your mod to the list](https://github.com/ow-mods/ow-mod-db#readme).

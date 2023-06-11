@@ -40,7 +40,7 @@ const LocalModRow = memo(function LocalModRow(props: LocalModRowProps) {
 
     const description = remote?.description;
 
-    const version = useMemo(() => safeOrNull(local)?.manifest.version ?? "--", [local]);
+    const version = useMemo(() => safeOrNull(local)?.manifest.version ?? "—", [local]);
 
     const enabled = safeOrNull(local)?.enabled ?? false;
 

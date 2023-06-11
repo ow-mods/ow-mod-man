@@ -29,6 +29,7 @@ const LocalModsPage = memo(function LocalModsPage(props: { show: boolean }) {
     return (
         <ModsPage
             isLoading={status === "Loading" && localMods === null}
+            actionsSize={130}
             show={props.show}
             filter={filter}
             onFilterChange={setFilter}

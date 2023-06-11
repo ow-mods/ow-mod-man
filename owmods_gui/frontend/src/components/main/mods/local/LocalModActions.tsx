@@ -1,5 +1,5 @@
 import { DescriptionRounded, FolderRounded, DeleteRounded } from "@mui/icons-material";
-import { Checkbox } from "@mui/material";
+import { Checkbox, useTheme } from "@mui/material";
 import { memo, useRef } from "react";
 import ModActionIcon from "../ModActionIcon";
 import ModActionOverflow, { ModActionOverflowItem } from "../ModActionOverflow";
@@ -15,14 +15,16 @@ export interface LocalModActionsProps {
 }
 
 const LocalModActions = memo(function LocalModTools(props: LocalModActionsProps) {
+    const theme = useTheme();
     const getTranslation = useGetTranslation();
     const overflowRef = useRef<{ onClose: () => void }>();
 
     return (
         <>
             <Checkbox
-                onChange={(e) => props.onToggle(e.target.checked)}
+                sx={{ color: theme.palette.grey[200] }}
                 color="default"
+                onChange={(e) => props.onToggle(e.target.checked)}
                 checked={props.enabled}
             />
             <ModActionIcon

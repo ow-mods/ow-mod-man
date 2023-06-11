@@ -15,6 +15,7 @@ const RemoteModsPage = memo(function RemoteModsPage(props: { show: boolean }) {
     return (
         <ModsPage
             show={props.show}
+            actionsSize={100}
             isLoading={status === "Loading" && remoteMods === null}
             filter={filter}
             onFilterChange={setFilter}

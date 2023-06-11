@@ -15,6 +15,7 @@ import { TableVirtuoso } from "react-virtuoso";
 
 export interface ModsTableProps {
     uniqueNames: string[];
+    actionsSize: number;
     renderRow: (uniqueName: string) => ReactNode;
     addToToolbar?: ReactNode;
 }
@@ -31,7 +32,7 @@ const ScrollerComp = forwardRef<HTMLDivElement>(function TScroller(props, ref) {
     );
 });
 const TableComp = (props: TableProps) => (
-    <Table {...props} style={{ borderCollapse: "separate" }} />
+    <Table {...props} style={{ borderCollapse: "separate", tableLayout: "fixed" }} />
 );
 const BodyComp = forwardRef<HTMLTableSectionElement>(function TBody(props, ref) {
     return <TableBody {...props} ref={ref} />;
@@ -62,7 +63,9 @@ const ModsTable = (props: ModsTableProps) => {
                     <TableCell width="110px" align="center">
                         {getTranslation("VERSION")}
                     </TableCell>
-                    <TableCell align="center">{getTranslation("ACTIONS")}</TableCell>
+                    <TableCell width={props.actionsSize} align="center">
+                        {getTranslation("ACTIONS")}
+                    </TableCell>
                 </TableRow>
             )}
             itemContent={(_, uniqueName) => props.renderRow(uniqueName)}

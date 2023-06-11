@@ -3,6 +3,7 @@ target
 dist/
 scripts/
 owmods.tar.zst
+owmods_gui/frontend/stats.html
 
 # Logs
 *.log

@@ -55,7 +55,7 @@ const ModRow = memo(function GenericModRow(props: ModRowProps) {
     const cellStyle = { paddingTop: theme.spacing(1), paddingBottom: theme.spacing(1) };
 
     const formattedDownloads = useMemo(
-        () => (props.downloads === -1 ? "--" : formatNumber(props.downloads)),
+        () => (props.downloads === -1 ? "—" : formatNumber(props.downloads)),
         [props.downloads]
     );
 
@@ -64,11 +64,19 @@ const ModRow = memo(function GenericModRow(props: ModRowProps) {
             <TableCell sx={cellStyle}>
                 <Typography variant="subtitle1" noWrap>
                     <Box display="inline-block" mr={1}>
-                        {props.isLoading ? <Skeleton width={300} /> : props.name}
+                        <Typography fontWeight={theme.typography.fontWeightBold}>
+                            {props.isLoading ? <Skeleton width={300} /> : props.name}
+                        </Typography>
                     </Box>
-                    <Typography noWrap variant="caption">
-                        {props.isLoading ? <></> : getTranslation("BY", { author: props.author })}
-                    </Typography>
+                    <Box display="inline-block" mr={1}>
+                        <Typography noWrap variant="caption" color={theme.palette.text.disabled}>
+                            {props.isLoading ? (
+                                <></>
+                            ) : (
+                                getTranslation("BY", { author: props.author })
+                            )}
+                        </Typography>
+                    </Box>
                 </Typography>
                 <Box>
                     <Typography variant="caption">
@@ -113,8 +121,13 @@ const ModRow = memo(function GenericModRow(props: ModRowProps) {
                     }
                 />
             </TableCell>
-            <TableCell sx={cellStyle}>
-                <Box display="flex" flexDirection="row" alignContent="center">
+            <TableCell sx={cellStyle} align="right">
+                <Box
+                    display="flex"
+                    flexDirection="row"
+                    alignContent="center"
+                    justifyContent="center"
+                >
                     {props.children}
                 </Box>
             </TableCell>

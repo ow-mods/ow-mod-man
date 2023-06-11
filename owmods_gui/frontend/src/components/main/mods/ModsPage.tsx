@@ -1,5 +1,5 @@
 import { Box, CircularProgress, Container, Paper, Typography, useTheme } from "@mui/material";
-import { ReactNode } from "react";
+import { ReactNode, memo } from "react";
 import ModsToolbar from "./ModsToolbar";
 import ModsTable from "./ModsTable";
 import { useGetTranslation } from "@hooks";
@@ -11,10 +11,10 @@ export interface ModsPageProps {
     onFilterChange: (newVal: string) => void;
     uniqueNames: string[];
     renderRow: (uniqueName: string) => ReactNode;
-    addToToolbar?: ReactNode;
+    children?: ReactNode;
 }
 
-const ModsPage = (props: ModsPageProps) => {
+const ModsPage = memo(function ModsPage(props: ModsPageProps) {
     const getTranslation = useGetTranslation();
     const theme = useTheme();
 
@@ -30,7 +30,7 @@ const ModsPage = (props: ModsPageProps) => {
             maxWidth="xl"
         >
             <ModsToolbar filter={props.filter} onFilterChanged={props.onFilterChange}>
-                {props.addToToolbar}
+                {props.children}
             </ModsToolbar>
             {props.isLoading ? (
                 <Paper sx={{ marginTop: theme.spacing(3), height: "100%" }}>
@@ -49,6 +49,6 @@ const ModsPage = (props: ModsPageProps) => {
             )}
         </Container>
     );
-};
+});
 
 export default ModsPage;

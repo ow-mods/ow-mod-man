@@ -1,11 +1,12 @@
 import { useGetTranslation } from "@hooks";
 import { Button, ButtonGroup, useTheme } from "@mui/material";
+import { memo } from "react";
 
 export interface LocalModsToggleButtonsProps {
     onToggle: (newVal: boolean) => void;
 }
 
-const LocalModsToggleButtons = (props: LocalModsToggleButtonsProps) => {
+const LocalModsToggleButtons = memo(function LocalModsToolbar(props: LocalModsToggleButtonsProps) {
     const getTranslation = useGetTranslation();
     const theme = useTheme();
 
@@ -23,6 +24,6 @@ const LocalModsToggleButtons = (props: LocalModsToggleButtonsProps) => {
             </Button>
         </ButtonGroup>
     );
-};
+});
 
 export default LocalModsToggleButtons;

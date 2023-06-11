@@ -1,6 +1,6 @@
 import { Paper, Toolbar, useTheme } from "@mui/material";
 import FilterInput from "@components/common/FilterInput";
-import { FunctionComponent, ReactNode } from "react";
+import { ReactNode, memo } from "react";
 import { useGetTranslation } from "@hooks";
 
 export interface ModsToolbarProps {
@@ -9,11 +9,7 @@ export interface ModsToolbarProps {
     children?: ReactNode;
 }
 
-const ModsToolbar: FunctionComponent<ModsToolbarProps> = ({
-    filter,
-    onFilterChanged,
-    children
-}) => {
+const ModsToolbar = memo(function GenericModsToolbar(props: ModsToolbarProps) {
     const theme = useTheme();
     const getTranslation = useGetTranslation();
 
@@ -31,14 +27,14 @@ const ModsToolbar: FunctionComponent<ModsToolbarProps> = ({
                 }}
             >
                 <FilterInput
-                    value={filter}
-                    onChange={onFilterChanged}
+                    value={props.filter}
+                    onChange={props.onFilterChanged}
                     label={getTranslation("SEARCH")}
                 />
-                {children}
+                {props.children}
             </Toolbar>
         </Paper>
     );
-};
+});
 
 export default ModsToolbar;

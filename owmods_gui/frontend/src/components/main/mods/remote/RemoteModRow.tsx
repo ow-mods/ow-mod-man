@@ -1,12 +1,9 @@
-import { memo, useCallback, useRef } from "react";
+import { memo, useCallback, useMemo } from "react";
 import ModRow from "../ModRow";
 import { commands, hooks } from "@commands";
 import { useGetTranslation } from "@hooks";
 import { dialog } from "@tauri-apps/api";
-import ModActionIcon from "../ModActionIcon";
-import { DescriptionRounded, DownloadRounded, ScienceRounded } from "@mui/icons-material";
-import { Box, CircularProgress } from "@mui/material";
-import ModActionOverflow, { ModActionOverflowItem } from "../ModActionOverflow";
+import RemoteModActions from "./RemoteModActions";
 
 export interface RemoteModRowProps {
     uniqueName: string;
@@ -18,9 +15,13 @@ const RemoteModRow = memo(function RemoteModRow(props: RemoteModRowProps) {
     const [status, remote] = hooks.getRemoteMod("REMOTE-REFRESH", { uniqueName: props.uniqueName });
     const busy = hooks.getModBusy("MOD-BUSY", { uniqueName: props.uniqueName })[1];
 
-    const usePrerelease = getTranslation("USE_PRERELEASE", {
-        version: remote?.prerelease?.version ?? ""
-    });
+    const hasPrerelease = useMemo(() => remote?.prerelease !== undefined, [remote?.prerelease]);
+
+    const prereleaseLabel = hasPrerelease
+        ? getTranslation("USE_PRERELEASE", {
+              version: remote?.prerelease?.version ?? ""
+          })
+        : "";
 
     const onInstall = useCallback(() => {
         commands
@@ -34,7 +35,7 @@ const RemoteModRow = memo(function RemoteModRow(props: RemoteModRowProps) {
     const onPrerelease = useCallback(() => {
         const task = async () => {
             const result = await dialog.ask(getTranslation("PRERELEASE_WARNING"), {
-                title: usePrerelease
+                title: prereleaseLabel
             });
             if (result) {
                 commands
@@ -46,13 +47,26 @@ const RemoteModRow = memo(function RemoteModRow(props: RemoteModRowProps) {
             }
         };
         task();
-    }, [getTranslation, usePrerelease, props.uniqueName]);
+    }, [getTranslation, prereleaseLabel, props.uniqueName]);
 
     const onReadme = useCallback(() => {
         commands.openModReadme({ uniqueName: props.uniqueName }).catch(console.warn);
     }, [props.uniqueName]);
 
-    const overflowRef = useRef<{ onClose: () => void }>();
+    const modActions = useMemo(
+        () => (
+            <RemoteModActions
+                uniqueName={props.uniqueName}
+                busy={busy ?? false}
+                showPrerelease={hasPrerelease}
+                prereleaseLabel={prereleaseLabel}
+                onInstall={onInstall}
+                onPrerelease={onPrerelease}
+                onReadme={onReadme}
+            />
+        ),
+        [busy, onInstall, onPrerelease, onReadme, prereleaseLabel, props.uniqueName, hasPrerelease]
+    );
 
     return (
         <ModRow
@@ -64,34 +78,7 @@ const RemoteModRow = memo(function RemoteModRow(props: RemoteModRowProps) {
             downloads={remote?.downloadCount ?? -1}
             version={remote?.version ?? "0.0.0"}
         >
-            {busy ? (
-                <Box display="flex" alignItems="center">
-                    <CircularProgress color="inherit" size={22} />
-                </Box>
-            ) : (
-                <ModActionIcon
-                    onClick={onInstall}
-                    label={getTranslation("INSTALL")}
-                    icon={<DownloadRounded />}
-                />
-            )}
-            <ModActionOverflow id={`remote-${props.uniqueName}`} ref={overflowRef}>
-                <ModActionOverflowItem
-                    label={getTranslation("OPEN_WEBSITE")}
-                    icon={<DescriptionRounded />}
-                    onClick={onReadme}
-                    onClose={overflowRef.current?.onClose}
-                />
-                {remote?.prerelease && (
-                    <ModActionOverflowItem
-                        label={usePrerelease}
-                        icon={<ScienceRounded />}
-                        onClick={onPrerelease}
-                        disabled={busy ?? false}
-                        onClose={overflowRef.current?.onClose}
-                    />
-                )}
-            </ModActionOverflow>
+            {modActions}
         </ModRow>
     );
 });

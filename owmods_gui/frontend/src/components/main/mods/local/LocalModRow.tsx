@@ -1,18 +1,10 @@
 import { commands, hooks } from "@commands";
 import ModRow from "../ModRow";
 import { LocalMod, UnsafeLocalMod } from "@types";
-import { memo, useMemo, useRef } from "react";
-import { Checkbox } from "@mui/material";
-import ModActionIcon from "../ModActionIcon";
+import { memo, useCallback, useMemo } from "react";
 import { useGetTranslation } from "@hooks";
-import {
-    DeleteRounded,
-    DescriptionRounded,
-    FolderRounded
-    // UpdateRounded
-} from "@mui/icons-material";
 import { dialog } from "@tauri-apps/api";
-import ModActionOverflow, { ModActionOverflowItem } from "../ModActionOverflow";
+import LocalModActions from "./LocalModActions";
 
 export interface LocalModRowProps {
     uniqueName: string;
@@ -60,42 +52,51 @@ const LocalModRow = memo(function LocalModRow(props: LocalModRowProps) {
     );
 
     // Event Handlers
-    const onReadme = () => commands.openModReadme({ uniqueName: props.uniqueName });
-    const onFolder = () => commands.openModFolder({ uniqueName: props.uniqueName });
-    const onToggle = (newVal: boolean) => {
-        const task = async () => {
-            let enableDeps = false;
-            const hasDisabledDeps = newVal
-                ? await commands.hasDisabledDeps({ uniqueName: props.uniqueName })
-                : false;
-            if (hasDisabledDeps) {
-                enableDeps =
-                    autoEnableDeps ||
-                    (await dialog.ask(getTranslation("ENABLE_DEPS_MESSAGE"), {
-                        type: "info",
-                        title: getTranslation("CONFIRM")
-                    }));
-            }
-            const warnings = await commands.toggleMod({
-                uniqueName: props.uniqueName,
-                enabled: newVal,
-                recursive: enableDeps
-            });
-            commands.refreshLocalDb();
-            for (const modName of warnings) {
-                dialog.message(getTranslation("PREPATCHER_WARNING", { name: modName }), {
-                    type: "warning",
-                    title: getTranslation("PREPATCHER_WARNING_TITLE", {
-                        name: modName
-                    })
+    const onReadme = useCallback(
+        () => commands.openModReadme({ uniqueName: props.uniqueName }),
+        [props.uniqueName]
+    );
+    const onFolder = useCallback(
+        () => commands.openModFolder({ uniqueName: props.uniqueName }),
+        [props.uniqueName]
+    );
+    const onToggle = useCallback(
+        (newVal: boolean) => {
+            const task = async () => {
+                let enableDeps = false;
+                const hasDisabledDeps = newVal
+                    ? await commands.hasDisabledDeps({ uniqueName: props.uniqueName })
+                    : false;
+                if (hasDisabledDeps) {
+                    enableDeps =
+                        autoEnableDeps ||
+                        (await dialog.ask(getTranslation("ENABLE_DEPS_MESSAGE"), {
+                            type: "info",
+                            title: getTranslation("CONFIRM")
+                        }));
+                }
+                const warnings = await commands.toggleMod({
+                    uniqueName: props.uniqueName,
+                    enabled: newVal,
+                    recursive: enableDeps
                 });
-            }
-        };
-        task();
-    };
-    const onUninstall = () => {
+                commands.refreshLocalDb();
+                for (const modName of warnings) {
+                    dialog.message(getTranslation("PREPATCHER_WARNING", { name: modName }), {
+                        type: "warning",
+                        title: getTranslation("PREPATCHER_WARNING_TITLE", {
+                            name: modName
+                        })
+                    });
+                }
+            };
+            task();
+        },
+        [autoEnableDeps, getTranslation, props.uniqueName]
+    );
+    const onUninstall = useCallback(() => {
         const uninstallConfirmText = getTranslation("UNINSTALL_CONFIRM", {
-            name: safeOrNull(local)?.manifest.name ?? "Unknown"
+            name
         });
         dialog.confirm(uninstallConfirmText, getTranslation("CONFIRM")).then((answer) => {
             if (answer) {
@@ -110,17 +111,21 @@ const LocalModRow = memo(function LocalModRow(props: LocalModRowProps) {
                 });
             }
         });
-    };
-    // const onUpdate = () => {
-    //     commands
-    //         .updateMod({ uniqueName: props.uniqueName })
-    //         .then(() => {
-    //             commands.refreshLocalDb().catch(console.warn);
-    //         })
-    //         .catch(console.error);
-    // };
+    }, [getTranslation, name, props.uniqueName]);
 
-    const overflowRef = useRef<{ onClose: () => void }>();
+    const modsToolbar = useMemo(
+        () => (
+            <LocalModActions
+                uniqueName={props.uniqueName}
+                enabled={enabled}
+                onToggle={onToggle}
+                onReadme={onReadme}
+                onFolder={onFolder}
+                onUninstall={onUninstall}
+            />
+        ),
+        [enabled, onFolder, onReadme, onToggle, onUninstall, props.uniqueName]
+    );
 
     return (
         <ModRow
@@ -134,37 +139,7 @@ const LocalModRow = memo(function LocalModRow(props: LocalModRowProps) {
             description={description}
             downloads={remote?.downloadCount ?? -1}
         >
-            <Checkbox
-                onChange={(e) => onToggle(e.target.checked)}
-                color="default"
-                checked={enabled}
-            />
-            {/* {outdated && (
-                <ModActionIcon
-                    icon={<UpdateRounded color="secondary" />}
-                    label={getTranslation("UPDATE")}
-                    onClick={onUpdate}
-                />
-            )} */}
-            <ModActionIcon
-                onClick={onReadme}
-                label={getTranslation("OPEN_WEBSITE")}
-                icon={<DescriptionRounded />}
-            />
-            <ModActionOverflow id={`local-${props.uniqueName}`} ref={overflowRef}>
-                <ModActionOverflowItem
-                    label={getTranslation("SHOW_FOLDER")}
-                    icon={<FolderRounded />}
-                    onClick={onFolder}
-                    onClose={overflowRef.current?.onClose}
-                />
-                <ModActionOverflowItem
-                    label={getTranslation("UNINSTALL")}
-                    icon={<DeleteRounded />}
-                    onClick={onUninstall}
-                    onClose={overflowRef.current?.onClose}
-                />
-            </ModActionOverflow>
+            {modsToolbar}
         </ModRow>
     );
 });

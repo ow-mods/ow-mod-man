@@ -29,7 +29,7 @@ const LocalModActions = memo(function LocalModTools(props: LocalModActionsProps)
             />
             <ModActionIcon
                 onClick={props.onReadme}
-                label={getTranslation("OPEN_WEBSITE")}
+                label={getTranslation("OPEN_README")}
                 icon={<DescriptionRounded />}
             />
             <ModActionOverflow id={`local-${props.uniqueName}`} ref={overflowRef}>

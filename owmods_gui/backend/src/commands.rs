@@ -7,6 +7,7 @@ use std::{
 
 use anyhow::anyhow;
 use log::error;
+use owmods_core::mods::local::LocalMod;
 use owmods_core::{
     alerts::{fetch_alert, Alert},
     config::Config,
@@ -414,12 +415,35 @@ pub async fn set_owml(
 }
 
 #[tauri::command]
-pub async fn get_updatable_mods(state: tauri::State<'_, State>) -> Result<Vec<String>> {
+pub async fn get_updatable_mods(
+    filter: &str,
+    state: tauri::State<'_, State>,
+) -> Result<Vec<String>> {
     let mut updates: Vec<String> = vec![];
     let local_db = state.local_db.read().await;
     let remote_db = state.remote_db.read().await;
     let config = state.config.read().await;
-    for local_mod in local_db.valid() {
+
+    let mut mods: Vec<&LocalMod> = local_db.valid().collect();
+
+    if filter.is_empty() {
+        mods.sort_by(|a, b| {
+            let name_ord = a.manifest.name.cmp(&b.manifest.name);
+            let enabled_ord = a.enabled.cmp(&b.enabled);
+            enabled_ord.then(name_ord)
+        });
+    } else {
+        mods = local_db
+            .search(filter)
+            .iter()
+            .filter_map(|m| match m {
+                UnsafeLocalMod::Invalid(_) => None,
+                UnsafeLocalMod::Valid(m) => Some(m),
+            })
+            .collect();
+    }
+
+    for local_mod in mods {
         let (needs_update, _) = check_mod_needs_update(local_mod, &remote_db);
         if needs_update {
             updates.push(local_mod.manifest.unique_name.clone());

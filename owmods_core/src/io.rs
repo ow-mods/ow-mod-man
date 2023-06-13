@@ -1,4 +1,4 @@
-use std::path::{Path, PathBuf};
+use std::path::Path;
 
 use anyhow::Result;
 
@@ -7,7 +7,7 @@ use crate::{
     db::{LocalDatabase, RemoteDatabase},
     download::install_mods_parallel,
     file::deserialize_from_json,
-    toggle::{get_mod_enabled, toggle_mod},
+    toggle::toggle_mod,
 };
 
 /// Export all installed **and enabled** mods in the database
@@ -46,8 +46,7 @@ pub async fn import_mods(
 
     if disable_missing {
         for local_mod in local_db.valid() {
-            let mod_path = &PathBuf::from(&local_mod.mod_path);
-            if get_mod_enabled(mod_path)? {
+            if local_mod.enabled {
                 toggle_mod(&local_mod.manifest.unique_name, local_db, false, false)?;
             }
         }
@@ -55,8 +54,7 @@ pub async fn import_mods(
     for name in unique_names.iter() {
         let local_mod = local_db.get_mod(name);
         if let Some(local_mod) = local_mod {
-            let mod_path = &PathBuf::from(&local_mod.mod_path);
-            if !get_mod_enabled(&PathBuf::from(&mod_path))? {
+            if !local_mod.enabled {
                 toggle_mod(&local_mod.manifest.unique_name, local_db, true, false)?;
             }
         } else {

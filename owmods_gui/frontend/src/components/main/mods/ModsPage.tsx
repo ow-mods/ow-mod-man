@@ -2,13 +2,13 @@ import { Box, CircularProgress, Container, Paper, Typography, useTheme } from "@
 import { ReactNode, memo } from "react";
 import ModsToolbar from "./ModsToolbar";
 import ModsTable from "./ModsTable";
-import { useGetTranslation } from "@hooks";
 
 export interface ModsPageProps {
     isLoading: boolean;
     actionsSize: number;
     show: boolean;
     filter: string;
+    noModsText: string;
     onFilterChange: (newVal: string) => void;
     uniqueNames: string[];
     renderRow: (uniqueName: string) => ReactNode;
@@ -16,7 +16,6 @@ export interface ModsPageProps {
 }
 
 const ModsPage = memo(function ModsPage(props: ModsPageProps) {
-    const getTranslation = useGetTranslation();
     const theme = useTheme();
 
     return (
@@ -44,7 +43,7 @@ const ModsPage = memo(function ModsPage(props: ModsPageProps) {
             ) : (
                 <Paper sx={{ marginTop: theme.spacing(3), height: "100%" }}>
                     <Box height="100%" display="flex" alignItems="center" justifyContent="center">
-                        <Typography variant="subtitle1">{getTranslation("NO_MODS")}</Typography>
+                        <Typography variant="subtitle1">{props.noModsText}</Typography>
                     </Box>
                 </Paper>
             )}

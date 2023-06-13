@@ -33,7 +33,7 @@ const commandInfo = {
     getDefaultConfigs: $<GetCommand<[Config, GuiConfig, OWMLConfig]>>("get_defaults"),
     getLocalMods: $<CommandInfo<{ filter: string }, string[]>>("get_local_mods"),
     getRemoteMods: $<CommandInfo<{ filter: string }, string[]>>("get_remote_mods"),
-    getUpdatableMods: $<GetCommand<string[]>>("get_updatable_mods"),
+    getUpdatableMods: $<CommandInfo<{ filter: string }, string[]>>("get_updatable_mods"),
     getLocalMod: $<ModCommand<UnsafeLocalMod>>("get_local_mod"),
     getRemoteMod: $<ModCommand<RemoteMod>>("get_remote_mod"),
     getLogLine: $<CommandInfo<{ port: number; line: number }, GameMessage>>("get_game_message"),

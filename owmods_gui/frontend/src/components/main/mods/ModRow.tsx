@@ -1,5 +1,5 @@
 import { useGetTranslation } from "@hooks";
-import { Box, Chip, Skeleton, TableCell, Typography, useTheme } from "@mui/material";
+import { Box, Chip, Skeleton, TableCell, Theme, Typography, useTheme } from "@mui/material";
 import { ReactNode, memo, useMemo } from "react";
 
 // Stolen from mods website, Rai will never catch me!
@@ -28,6 +28,16 @@ export const formatNumber = (value: number, digits = 1) => {
         : "0";
 };
 
+const getBgColorFromErrorLevel = (theme: Theme, level?: "warn" | "err") => {
+    if (level === "warn") {
+        return theme.palette.secondary.dark;
+    } else if (level === "err") {
+        return theme.palette.error.dark;
+    } else {
+        return theme.palette.grey[900];
+    }
+};
+
 export interface OverflowMenuItem {
     icon: ReactNode;
     label: string;
@@ -52,12 +62,31 @@ const ModRow = memo(function GenericModRow(props: ModRowProps) {
     const getTranslation = useGetTranslation();
     const theme = useTheme();
 
-    const cellStyle = { paddingTop: theme.spacing(1), paddingBottom: theme.spacing(1) };
+    const bgColor = useMemo(
+        () => getBgColorFromErrorLevel(theme, props.errorLevel),
+        [theme, props.errorLevel]
+    );
+
+    const isErr = props.errorLevel === "err";
+
+    const cellStyle = {
+        backgroundColor: bgColor,
+        paddingTop: theme.spacing(1),
+        paddingBottom: theme.spacing(1)
+    };
 
     const formattedDownloads = useMemo(
         () => (props.downloads === -1 ? "—" : formatNumber(props.downloads)),
         [props.downloads]
     );
+
+    const errorList = useMemo(() => {
+        if (props.errorLevel) {
+            return props.description?.split("\n") ?? [];
+        } else {
+            return [];
+        }
+    }, [props.errorLevel, props.description]);
 
     return (
         <>
@@ -79,14 +108,23 @@ const ModRow = memo(function GenericModRow(props: ModRowProps) {
                     </Box>
                 </Typography>
                 <Box>
-                    <Typography variant="caption">
+                    <Typography
+                        color={isErr ? theme.palette.secondary.light : theme.palette.text.primary}
+                        variant="caption"
+                    >
                         {props.isLoading || props.remoteIsLoading ? (
                             <>
                                 <Skeleton width={350} />
                                 <Skeleton width={275} />
                             </>
+                        ) : props.errorLevel ? (
+                            <ul>
+                                {errorList.map((e) => (
+                                    <li key={e}>{e}</li>
+                                ))}
+                            </ul>
                         ) : (
-                            props.description ?? ""
+                            props.description
                         )}
                     </Typography>
                 </Box>
@@ -100,7 +138,7 @@ const ModRow = memo(function GenericModRow(props: ModRowProps) {
             </TableCell>
             <TableCell sx={cellStyle} align="center">
                 <Chip
-                    color={props.isOutdated ? "secondary" : "primary"}
+                    color={isErr ? "default" : props.isOutdated ? "secondary" : "primary"}
                     sx={{
                         width: "100%",
                         minHeight: "100%",

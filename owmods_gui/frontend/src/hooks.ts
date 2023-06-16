@@ -5,7 +5,7 @@ import {
     TranslationMap,
     type TranslationKey
 } from "@components/common/TranslationContext";
-import { LocalMod, RemoteMod, UnsafeLocalMod } from "@types";
+import { FailedMod, LocalMod, RemoteMod, UnsafeLocalMod } from "@types";
 
 export type LoadState = "Loading" | "Done" | "Error";
 
@@ -111,11 +111,15 @@ const safeOrNull = (mod: UnsafeLocalMod | null) => {
 
 export function useUnifiedMod(local: UnsafeLocalMod | null, remote: RemoteMod | null) {
     const name = useMemo(
-        () => remote?.name ?? safeOrNull(local)?.manifest.name ?? "",
+        () =>
+            remote?.name ??
+            safeOrNull(local)?.manifest.name ??
+            ((local?.mod as FailedMod) ?? { displayPath: null }).displayPath ??
+            "",
         [local, remote]
     );
     const author = useMemo(
-        () => remote?.authorDisplay ?? remote?.author ?? safeOrNull(local)?.manifest.author ?? "",
+        () => remote?.authorDisplay ?? remote?.author ?? safeOrNull(local)?.manifest.author ?? "—",
         [local, remote]
     );
 
@@ -126,9 +130,7 @@ export function useUnifiedMod(local: UnsafeLocalMod | null, remote: RemoteMod | 
     const enabled = safeOrNull(local)?.enabled ?? false;
 
     const outdated = useMemo(
-        () =>
-            safeOrNull(local)?.errors.filter((e) => e.errorType === "Outdated").length !== 0 ??
-            false,
+        () => safeOrNull(local)?.errors.find((e) => e.errorType === "Outdated") ?? false,
         [local]
     );
     return {

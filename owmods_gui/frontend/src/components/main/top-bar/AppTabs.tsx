@@ -10,7 +10,7 @@ const AppTabs: FunctionComponent<{ onChange: (newVal: string) => void }> = ({ on
     const getTranslation = useGetTranslation();
     const theme = useTheme();
     const count =
-        hooks.getUpdatableMods(["LOCAL_REFRESH", "REMOTE_REFRESH"], { filter: "" })[1]?.length ?? 0;
+        hooks.getUpdatableMods(["LOCAL-REFRESH", "REMOTE-REFRESH"], { filter: "" })[1]?.length ?? 0;
     const countText = count === 0 ? "" : `(${count})`;
 
     return (

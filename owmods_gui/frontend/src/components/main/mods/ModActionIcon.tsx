@@ -1,4 +1,5 @@
-import { Box, IconButton, IconButtonProps, Tooltip } from "@mui/material";
+import ODTooltip from "@components/common/ODTooltip";
+import { Box, IconButton, IconButtonProps } from "@mui/material";
 import { ReactNode, MouseEvent, memo } from "react";
 
 export interface ModActionIconProps {
@@ -11,13 +12,13 @@ export interface ModActionIconProps {
 
 const ModActionIcon = memo(function ModActionButton(props: ModActionIconProps) {
     return (
-        <Tooltip title={props.label}>
-            <Box display="flex" alignItems="center">
+        <ODTooltip title={props.label}>
+            <Box height="100%" display="flex" alignItems="center">
                 <IconButton color={props.color} size="small" onClick={props.onClick} {...props}>
                     {props.icon}
                 </IconButton>
             </Box>
-        </Tooltip>
+        </ODTooltip>
     );
 });
 

@@ -54,7 +54,7 @@ const ModsTable = (props: ModsTableProps) => {
         <TableVirtuoso
             components={ModsTableComponents}
             computeItemKey={(index) => `${index}-${props.uniqueNames[index]}`}
-            increaseViewportBy={1000}
+            increaseViewportBy={{ top: 200, bottom: 0 }}
             data={props.uniqueNames}
             fixedHeaderContent={() => (
                 <TableRow sx={{ background: theme.palette.grey[900] }}>

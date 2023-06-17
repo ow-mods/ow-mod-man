@@ -24,11 +24,6 @@ const LocalModsPage = memo(function LocalModsPage(props: { show: boolean }) {
         return <LocalModRow uniqueName={uniqueName} />;
     }, []);
 
-    const toggleButtons = useMemo(
-        () => <LocalModsToggleButtons onToggle={onToggleAll} />,
-        [onToggleAll]
-    );
-
     return (
         <ModsPage
             isLoading={status === "Loading" && localMods === null}
@@ -40,7 +35,7 @@ const LocalModsPage = memo(function LocalModsPage(props: { show: boolean }) {
             uniqueNames={localMods ?? []}
             renderRow={renderRow}
         >
-            {toggleButtons}
+            <LocalModsToggleButtons onToggle={onToggleAll} />
         </ModsPage>
     );
 });

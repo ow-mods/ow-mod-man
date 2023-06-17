@@ -53,21 +53,6 @@ const RemoteModRow = memo(function RemoteModRow(props: RemoteModRowProps) {
         commands.openModReadme({ uniqueName: props.uniqueName }).catch(console.warn);
     }, [props.uniqueName]);
 
-    const modActions = useMemo(
-        () => (
-            <RemoteModActions
-                uniqueName={props.uniqueName}
-                busy={busy ?? false}
-                showPrerelease={hasPrerelease}
-                prereleaseLabel={prereleaseLabel}
-                onInstall={onInstall}
-                onPrerelease={onPrerelease}
-                onReadme={onReadme}
-            />
-        ),
-        [busy, onInstall, onPrerelease, onReadme, prereleaseLabel, props.uniqueName, hasPrerelease]
-    );
-
     return (
         <ModRow
             uniqueName={props.uniqueName}
@@ -78,7 +63,15 @@ const RemoteModRow = memo(function RemoteModRow(props: RemoteModRowProps) {
             downloads={remote?.downloadCount ?? -1}
             version={remote?.version ?? "0.0.0"}
         >
-            {modActions}
+            <RemoteModActions
+                uniqueName={props.uniqueName}
+                busy={busy ?? false}
+                showPrerelease={hasPrerelease}
+                prereleaseLabel={prereleaseLabel}
+                onInstall={onInstall}
+                onPrerelease={onPrerelease}
+                onReadme={onReadme}
+            />
         </ModRow>
     );
 });

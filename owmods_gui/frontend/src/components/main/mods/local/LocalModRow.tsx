@@ -147,35 +147,6 @@ const LocalModRow = memo(function LocalModRow(props: LocalModRowProps) {
         commands.fixDeps({ uniqueName: props.uniqueName }).then(() => commands.refreshLocalDb());
     }, [props.uniqueName]);
 
-    const modsToolbar = useMemo(
-        () => (
-            <LocalModActions
-                uniqueName={props.uniqueName}
-                enabled={enabled}
-                isErr={isErr}
-                hasRemote={hasRemote}
-                canFix={canFixWarn}
-                onToggle={onToggle}
-                onReadme={onReadme}
-                onFix={onFix}
-                onFolder={onFolder}
-                onUninstall={onUninstall}
-            />
-        ),
-        [
-            props.uniqueName,
-            enabled,
-            isErr,
-            hasRemote,
-            canFixWarn,
-            onToggle,
-            onReadme,
-            onFix,
-            onFolder,
-            onUninstall
-        ]
-    );
-
     return (
         <ModRow
             uniqueName={props.uniqueName}
@@ -194,7 +165,18 @@ const LocalModRow = memo(function LocalModRow(props: LocalModRowProps) {
             downloads={remote?.downloadCount ?? -1}
             errorLevel={errorLevel}
         >
-            {modsToolbar}
+            <LocalModActions
+                uniqueName={props.uniqueName}
+                enabled={enabled}
+                isErr={isErr}
+                hasRemote={hasRemote}
+                canFix={canFixWarn}
+                onToggle={onToggle}
+                onReadme={onReadme}
+                onFix={onFix}
+                onFolder={onFolder}
+                onUninstall={onUninstall}
+            />
         </ModRow>
     );
 });

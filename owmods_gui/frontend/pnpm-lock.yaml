@@ -1784,7 +1784,7 @@ packages:
         engines: { node: ^6 || ^7 || ^8 || ^9 || ^10 || ^11 || ^12 || >=13.7 }
         hasBin: true
         dependencies:
-            caniuse-lite: 1.0.30001503
+            caniuse-lite: 1.0.30001504
             electron-to-chromium: 1.4.433
             node-releases: 2.0.12
             update-browserslist-db: 1.0.11(browserslist@4.21.9)
@@ -1834,10 +1834,10 @@ packages:
             tslib: 2.5.3
         dev: true
 
-    /caniuse-lite@1.0.30001503:
+    /caniuse-lite@1.0.30001504:
         resolution:
             {
-                integrity: sha512-Sf9NiF+wZxPfzv8Z3iS0rXM1Do+iOy2Lxvib38glFX+08TCYYYGR5fRJXk4d77C4AYwhUjgYgMsMudbh2TqCKw==
+                integrity: sha512-5uo7eoOp2mKbWyfMXnGO9rJWOGU8duvzEiYITW+wivukL7yHH4gX9yuRaobu6El4jPxo6jKZfG+N6fB621GD/Q==
             }
         dev: true
 
@@ -2217,10 +2217,10 @@ packages:
         engines: { node: ">=12" }
         dev: true
 
-    /dotenv@16.3.0:
+    /dotenv@16.3.1:
         resolution:
             {
-                integrity: sha512-tHB+hmf8MRCkT3VVivGiG8kq9HiGTmQ3FzOKgztfpJQH1IWuZTOvKSJmHNnQPowecAmkCJhLrxdPhOr06LLqIQ==
+                integrity: sha512-IPzF4w4/Rd94bA9imS68tZBaYyBWSCE47V1RGuMrB94iyTOIEwRmVL2x/4An+6mETpLrKJ5hQkB8W4kFAadeIQ==
             }
         engines: { node: ">=12" }
         dev: true
@@ -4650,7 +4650,7 @@ packages:
             colorette: 2.0.20
             connect-history-api-fallback: 1.6.0
             consola: 2.15.3
-            dotenv: 16.3.0
+            dotenv: 16.3.1
             dotenv-expand: 8.0.3
             ejs: 3.1.9
             fast-glob: 3.2.12

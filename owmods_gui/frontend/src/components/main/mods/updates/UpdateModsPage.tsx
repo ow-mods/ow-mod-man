@@ -36,16 +36,15 @@ const UpdateModsPage = memo(function UpdateModsPage(props: { show: boolean }) {
                 sx={{
                     padding: theme.spacing(1.5)
                 }}
-                disabled={updatingAll}
+                disabled={updateMods?.length === 0 || updatingAll}
                 variant="outlined"
                 onClick={onUpdateAll}
+                startIcon={<UpdateRounded />}
             >
-                <UpdateRounded />
-                &nbsp;
                 {updatingAll ? getTranslation("UPDATING_ALL") : getTranslation("UPDATE_ALL")}
             </Button>
         ),
-        [updatingAll, onUpdateAll, getTranslation, theme]
+        [theme, updateMods?.length, updatingAll, onUpdateAll, getTranslation]
     );
 
     return (

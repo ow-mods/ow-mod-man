@@ -1,18 +1,30 @@
-import { DownloadingRounded, RefreshRounded, SettingsRounded } from "@mui/icons-material";
+import { DownloadingRounded, SettingsRounded } from "@mui/icons-material";
 import { IconButton } from "@mui/material";
 import { ReactNode } from "react";
-import OverflowMenu from "./OverflowMenu";
+import OverflowMenu from "./overflow/OverflowMenu";
+import ReloadIcon from "./ReloadIcon";
+import ODTooltip from "@components/common/ODTooltip";
 
 interface AppIconProps {
     label: string;
     children: ReactNode;
+    disabled?: boolean;
+    onClick?: () => void;
 }
 
-const AppIcon = (props: AppIconProps) => {
+export const AppIcon = (props: AppIconProps) => {
     return (
-        <IconButton edge="end" color="inherit" aria-label={props.label} sx={{ mr: 2 }}>
-            {props.children}
-        </IconButton>
+        <ODTooltip title={props.label}>
+            <IconButton
+                onClick={props.onClick}
+                disabled={props.disabled ?? false}
+                color="inherit"
+                aria-label={props.label}
+                sx={{ mr: 2 }}
+            >
+                {props.children}
+            </IconButton>
+        </ODTooltip>
     );
 };
 
@@ -22,9 +34,7 @@ const AppIcons = () => {
             <AppIcon label="Settings">
                 <SettingsRounded />
             </AppIcon>
-            <AppIcon label="Reload">
-                <RefreshRounded />
-            </AppIcon>
+            <ReloadIcon />
             <AppIcon label="Downloads">
                 <DownloadingRounded />
             </AppIcon>

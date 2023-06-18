@@ -1,6 +1,22 @@
 import { createTheme } from "@mui/material";
 import { green, grey, red } from "@mui/material/colors";
 
+declare module "@mui/material/styles" {
+    export interface Palette {
+        neutral: Palette["primary"];
+    }
+
+    export interface PaletteOptions {
+        neutral: PaletteOptions["primary"];
+    }
+}
+
+declare module "@mui/material/Button" {
+    export interface ButtonPropsColorOverrides {
+        neutral: true;
+    }
+}
+
 export default createTheme({
     palette: {
         mode: "dark",
@@ -11,6 +27,10 @@ export default createTheme({
             main: "#ca7300",
             dark: "#975d2e",
             light: "#ffc380"
+        },
+        neutral: {
+            main: grey[400],
+            contrastText: "#fff"
         },
         error: {
             main: red[500],

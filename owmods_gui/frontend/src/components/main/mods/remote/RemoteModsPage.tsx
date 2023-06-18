@@ -27,9 +27,9 @@ const RemoteModsPage = memo(function RemoteModsPage(props: { show: boolean }) {
                 }}
                 variant="outlined"
                 onClick={() => shell.open("https://outerwildsmods.com/mods")}
+                startIcon={<PublicRounded />}
             >
-                <PublicRounded />
-                &nbsp;{getTranslation("OPEN_WEBSITE")}
+                {getTranslation("OPEN_WEBSITE")}
             </Button>
         ),
         [getTranslation, theme]

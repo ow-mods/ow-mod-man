@@ -71,7 +71,7 @@ const commandInfo = {
         >
     >("get_log_lines"),
     exportMods: $<ActionCommand<{ path: string }>>("export_mods"),
-    importMods: $<ActionCommand<{ path: string }>>("import_mods"),
+    importMods: $<ActionCommand<{ path: string; disableMissing: boolean }>>("import_mods"),
     fixDeps: $<ActionCommand<{ uniqueName: string }>>("fix_mod_deps"),
     checkDBForIssues: $<GetCommand<boolean>>("db_has_issues"),
     getAlert: $<GetCommand<Alert>>("get_alert"),

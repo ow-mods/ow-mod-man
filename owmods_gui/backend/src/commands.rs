@@ -700,19 +700,24 @@ pub async fn export_mods(path: String, state: tauri::State<'_, State>) -> Result
     let path = PathBuf::from(path);
     let local_db = state.local_db.read().await;
     let output = owmods_core::io::export_mods(&local_db)?;
-    let file = File::create(path).map_err(|e| anyhow!("Error Saving File: {:?}", e))?;
+    let file = File::create(&path).map_err(|e| anyhow!("Error Saving File: {:?}", e))?;
     let mut writer = BufWriter::new(file);
     write!(&mut writer, "{}", output).map_err(|e| anyhow!("Error Saving File: {:?}", e))?;
+    opener::open(path).ok();
     Ok(())
 }
 
 #[tauri::command]
-pub async fn import_mods(path: String, state: tauri::State<'_, State>) -> Result {
+pub async fn import_mods(
+    path: String,
+    disable_missing: bool,
+    state: tauri::State<'_, State>,
+) -> Result {
     let local_db = state.local_db.read().await;
     let remote_db = state.remote_db.read().await;
     let config = state.config.read().await;
     let path = PathBuf::from(path);
-    owmods_core::io::import_mods(&config, &local_db, &remote_db, &path, false).await?;
+    owmods_core::io::import_mods(&config, &local_db, &remote_db, &path, disable_missing).await?;
     Ok(())
 }
 

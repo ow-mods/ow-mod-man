@@ -2334,6 +2334,7 @@ version = "0.6.1"
 dependencies = [
  "anyhow",
  "log",
+ "opener",
  "owmods_core",
  "regex",
  "serde",

@@ -8,6 +8,7 @@ import { useState, MouseEvent, useCallback } from "react";
 import About from "./About";
 import Import from "./Import";
 import Export from "./Export";
+import InstallFrom from "./InstallFrom";
 
 const OverflowMenu = () => {
     const getTranslation = useGetTranslation();
@@ -48,6 +49,7 @@ const OverflowMenu = () => {
                     "aria-labelledby": "overflow-button"
                 }}
             >
+                <InstallFrom onClick={onClose} />
                 <Export onClick={onClose} />
                 <Import onClick={onClose} />
                 <MenuItem onClick={onHelp}>

@@ -13,7 +13,8 @@ import {
     DialogActions,
     Button,
     DialogContentText,
-    FormControlLabel
+    FormControlLabel,
+    useTheme
 } from "@mui/material";
 import { OpenFileInput } from "@components/common/FileInput";
 import { commands } from "@commands";
@@ -21,6 +22,7 @@ import { commands } from "@commands";
 const Import = memo(function Import({ onClick }: ModalProps) {
     const getTranslation = useGetTranslation();
     const [open, setOpen] = useState(false);
+    const theme = useTheme();
 
     const [filePath, setFilePath] = useState("");
     const [disableMissing, setDisableMissing] = useState(false);
@@ -53,7 +55,7 @@ const Import = memo(function Import({ onClick }: ModalProps) {
             <Dialog open={open} onClose={onClose}>
                 <DialogTitle>{getTranslation("IMPORT_MODS")}</DialogTitle>
                 <DialogContent dividers>
-                    <DialogContentText>
+                    <DialogContentText marginBottom={theme.spacing(1)}>
                         {getTranslation("IMPORT_MODS_EXPLANATION")}
                     </DialogContentText>
                     <OpenFileInput
@@ -73,7 +75,6 @@ const Import = memo(function Import({ onClick }: ModalProps) {
                             multiple: false
                         }}
                     />
-
                     <FormControlLabel
                         checked={disableMissing}
                         onChange={() => setDisableMissing(!disableMissing)}

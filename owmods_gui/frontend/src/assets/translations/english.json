@@ -130,6 +130,7 @@
     "UPDATING_ALL": "Updating All Mods",
     "URL": "URL",
     "USE_PRERELEASE": "Use Prerelease $version$",
+    "USE_PRERELEASE_CHECKBOX": "Use Prerelease (If Available)",
     "VALIDATION_FIX_MESSAGE": "These issues can be fixed automatically, press \"Fix Issues\". (The Wrench and Hammer)",
     "VALIDATION_HEADER": "Errors/Warnings For $name$",
     "VALIDATION_MESSAGE": "The following issues were detected with $name$",

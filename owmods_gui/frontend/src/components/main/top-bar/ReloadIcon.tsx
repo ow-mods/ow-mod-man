@@ -89,7 +89,7 @@ const ReloadIcon = memo(function ReloadIcon() {
 
     return (
         <AppIcon disabled={isRefreshing} onClick={onRefresh} label={getTranslation("REFRESH")}>
-            {isRefreshing ? <CircularProgress color="secondary" size={24} /> : <RefreshRounded />}
+            {isRefreshing ? <CircularProgress color="neutral" size={24} /> : <RefreshRounded />}
         </AppIcon>
     );
 });

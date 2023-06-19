@@ -17,6 +17,12 @@ declare module "@mui/material/Button" {
     }
 }
 
+declare module "@mui/material/CircularProgress" {
+    export interface CircularProgressPropsColorOverrides {
+        neutral: true;
+    }
+}
+
 export default createTheme({
     palette: {
         mode: "dark",

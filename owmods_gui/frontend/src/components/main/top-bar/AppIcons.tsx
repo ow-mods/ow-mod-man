@@ -1,9 +1,10 @@
-import { DownloadingRounded, SettingsRounded } from "@mui/icons-material";
+import { DownloadingRounded } from "@mui/icons-material";
 import { IconButton } from "@mui/material";
 import { ReactNode } from "react";
 import OverflowMenu from "./overflow/OverflowMenu";
 import ReloadIcon from "./ReloadIcon";
 import ODTooltip from "@components/common/ODTooltip";
+import SettingsIcon from "./settings/SettingsIcon";
 
 interface AppIconProps {
     label: string;
@@ -31,9 +32,7 @@ export const AppIcon = (props: AppIconProps) => {
 const AppIcons = () => {
     return (
         <>
-            <AppIcon label="Settings">
-                <SettingsRounded />
-            </AppIcon>
+            <SettingsIcon />
             <ReloadIcon />
             <AppIcon label="Downloads">
                 <DownloadingRounded />

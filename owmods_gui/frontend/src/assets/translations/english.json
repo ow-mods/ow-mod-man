@@ -110,7 +110,7 @@
     "Success": "Success",
     "THEME": "Theme",
     "TOOLTIP_ALERT_URL": "URL used to get alerts to display in the Mod Manager.",
-    "TOOLTIP_AUTO_ENABLE_DEPS": "When enabling a mod that has dependencies that are disabled, enable the dependencies without a prompt.",
+    "TOOLTIP_AUTO_ENABLE_DEPS": "When enabling a mod that has disabled dependencies, enable the dependencies without a prompt.",
     "TOOLTIP_DATABASE_URL": "URL used to check for updates for mods and OWML",
     "TOOLTIP_DISABLE_WARNING": "Any mod issues (Missing Dependencies, Conflicts, etc) will be ignored on launch",
     "TOOLTIP_FORCE_EXE": "If enabled, launches game exe instead of launching via Steam / Epic. Needs to be disabled for DLC to work via the Epic store.",

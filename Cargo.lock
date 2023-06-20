@@ -353,9 +353,9 @@ dependencies = [
 
 [[package]]
 name = "cfg-expr"
-version = "0.15.2"
+version = "0.15.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e70d3ad08698a0568b0562f22710fe6bfc1f4a61a367c77d0398c562eadd453a"
+checksum = "215c0072ecc28f92eeb0eea38ba63ddfcb65c2828c46311d646f1a3ff5f9841c"
 dependencies = [
  "smallvec",
  "target-lexicon",
@@ -3368,7 +3368,7 @@ version = "6.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "e5fa6fb9ee296c0dc2df41a656ca7948546d061958115ddb0bcaae43ad0d17d2"
 dependencies = [
- "cfg-expr 0.15.2",
+ "cfg-expr 0.15.3",
  "heck 0.4.1",
  "pkg-config",
  "toml 0.7.4",
@@ -3946,9 +3946,9 @@ dependencies = [
 
 [[package]]
 name = "tracing-attributes"
-version = "0.1.24"
+version = "0.1.25"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "0f57e3ca2a01450b1a921183a9c9cbfda207fd822cef4ccb00a65402cbba7a74"
+checksum = "8803eee176538f94ae9a14b55b2804eb7e1441f8210b1c31290b3bccdccff73b"
 dependencies = [
  "proc-macro2",
  "quote",

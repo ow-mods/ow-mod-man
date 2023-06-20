@@ -11,6 +11,7 @@ import { TranslationContext, TranslationMap } from "@components/common/Translati
 import { commands, hooks } from "@commands";
 import { ErrorRounded } from "@mui/icons-material";
 import { getCurrent } from "@tauri-apps/api/window";
+import AppAlert from "./AppAlert";
 
 const MainApp = () => {
     const [selectedTab, setSelectedTab] = useState("1");
@@ -55,6 +56,7 @@ const MainApp = () => {
                         <Box display="flex" flexDirection="column" height="100%">
                             <TabContext value={selectedTab}>
                                 <TopBar />
+                                <AppAlert />
                                 <AppTabs onChange={setSelectedTab} />
                                 <Box display="flex" flexGrow={1} minHeight="0">
                                     <LocalModsPage show={selectedTab === "1"} />

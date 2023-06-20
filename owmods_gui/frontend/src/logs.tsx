@@ -1,8 +1,8 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
-//import App from "@components/logs/LogApp";
 import { commands } from "@commands";
 import { listen } from "@tauri-apps/api/event";
+import LogApp from "@components/logs/LogApp";
 
 let port = 0;
 
@@ -12,6 +12,8 @@ listen("GAME-START", (e) => {
     port = e.payload as number;
 
     ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
-        <React.StrictMode>{/* <App port={port} /> */}</React.StrictMode>
+        <React.StrictMode>
+            <LogApp port={port} />
+        </React.StrictMode>
     );
 }).then(() => commands.runGame().catch(console.warn));

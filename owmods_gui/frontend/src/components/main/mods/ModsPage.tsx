@@ -21,8 +21,7 @@ const ModsPage = memo(function ModsPage(props: ModsPageProps) {
     return (
         <Container
             sx={{
-                paddingTop: theme.spacing(3),
-                paddingBottom: theme.spacing(3),
+                paddingY: theme.spacing(3),
                 height: "100%",
                 display: props.show ? "flex" : "none",
                 flexDirection: "column"

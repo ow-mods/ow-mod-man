@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { InputAdornment, IconButton, OutlinedInput } from "@mui/material";
+import { InputAdornment, IconButton, TextField } from "@mui/material";
 import { Close as CloseIcon, Search as SearchIcon } from "@mui/icons-material";
 import { useDebounce } from "@hooks";
 
@@ -7,9 +7,15 @@ export interface FilterInputProps {
     value: string;
     label: string;
     onChange: (value: string) => void;
+    [rest: string | number | symbol]: unknown;
 }
 
-const FilterInput: React.FunctionComponent<FilterInputProps> = ({ value, onChange, label }) => {
+const FilterInput: React.FunctionComponent<FilterInputProps> = ({
+    value,
+    onChange,
+    label,
+    ...rest
+}) => {
     const [filterText, setFilterText] = useState(value);
     const debouncedFilterText = useDebounce(filterText, 200);
 
@@ -24,28 +30,29 @@ const FilterInput: React.FunctionComponent<FilterInputProps> = ({ value, onChang
     };
 
     return (
-        <OutlinedInput
+        <TextField
             margin="dense"
             onChange={({ currentTarget }) => {
                 setFilterText(currentTarget.value);
             }}
             value={filterText}
             placeholder={label}
-            color="secondary"
-            startAdornment={
-                <InputAdornment position="start">
-                    <SearchIcon />
-                </InputAdornment>
-            }
-            endAdornment={
-                filterText !== "" && (
+            variant="outlined"
+            {...rest}
+            InputProps={{
+                startAdornment: (
+                    <InputAdornment position="start">
+                        <SearchIcon />
+                    </InputAdornment>
+                ),
+                endAdornment: filterText !== "" && (
                     <InputAdornment position="end">
                         <IconButton onClick={onClear} size="small">
                             <CloseIcon fontSize="small" />
                         </IconButton>
                     </InputAdornment>
                 )
-            }
+            }}
         />
     );
 };

@@ -108,17 +108,16 @@ pub async fn fix_deps(
     db: &LocalDatabase,
     remote_db: &RemoteDatabase,
 ) -> Result<()> {
-    let errors = check_mod_deps(local_mod, db);
     let mut missing: Vec<String> = vec![];
-    for error in errors {
+    for error in local_mod.errors.iter() {
         match error {
             ModValidationError::DisabledDep(unique_name) => {
                 info!("Enabling {}", unique_name);
-                toggle_mod(&unique_name, db, true, true)?;
+                toggle_mod(unique_name, db, true, true)?;
             }
             ModValidationError::MissingDep(unique_name) => {
                 info!("Marking {} For Install", unique_name);
-                missing.push(unique_name);
+                missing.push(unique_name.clone());
             }
             _ => {}
         }

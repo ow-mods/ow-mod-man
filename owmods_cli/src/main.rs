@@ -88,6 +88,13 @@ async fn run_from_cli(cli: BaseCli) -> Result<()> {
                         .to_ascii_uppercase(),
                     alert.message.unwrap_or_else(|| "No message".to_string())
                 );
+                if let Some(url) = alert.url {
+                    info!(
+                        "{}: {}",
+                        alert.url_label.unwrap_or(String::from("More Info")),
+                        url
+                    );
+                }
             } else {
                 info!("No alert");
             };

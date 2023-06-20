@@ -1,8 +1,9 @@
 import { hooks } from "@commands";
-import { ErrorRounded, InfoRounded, WarningRounded } from "@mui/icons-material";
-import { Box, Palette, Typography, useTheme } from "@mui/material";
+import { ErrorRounded, InfoRounded, LaunchRounded, WarningRounded } from "@mui/icons-material";
+import { Box, Button, Palette, Typography, useTheme } from "@mui/material";
+import { shell } from "@tauri-apps/api";
 import { Alert } from "@types";
-import { memo } from "react";
+import { memo, useCallback } from "react";
 
 type AlertSeverity = "warning" | "error" | "info";
 
@@ -11,7 +12,7 @@ const getColor = (palette: Palette, severity: AlertSeverity) => {
         case "error":
             return palette.error.dark;
         case "warning":
-            return palette.warning.dark;
+            return palette.secondary.dark;
         default:
             return palette.info.dark;
     }
@@ -34,6 +35,10 @@ const AppAlert = memo(function AppAlert() {
 
     const severity = (alert?.severity ?? "info") as AlertSeverity;
 
+    const onClick = useCallback(() => {
+        shell.open(alert?.url ?? "");
+    }, [alert?.url]);
+
     if (alert === null || !alert.enabled) {
         return <></>;
     }
@@ -53,6 +58,17 @@ const AppAlert = memo(function AppAlert() {
                 variant="body2"
             >
                 <AlertIcon severity={severity} /> {alert.message}
+                {alert.url && (
+                    <Button
+                        size="small"
+                        sx={{ marginLeft: theme.spacing(1) }}
+                        color="inherit"
+                        startIcon={<LaunchRounded />}
+                        onClick={onClick}
+                    >
+                        {alert.urlLabel ?? "More Info"}
+                    </Button>
+                )}
             </Typography>
         </Box>
     );

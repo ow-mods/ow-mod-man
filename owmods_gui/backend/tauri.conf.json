@@ -27,7 +27,7 @@
                 "all": true
             },
             "shell": {
-                "open": "(^https://github.com/)|(^https://discord.gg/)|(^https://outerwildsmods.com/mods$)"
+                "open": "(^https://github.com/)|(^https://discord.gg/)|(^https://outerwildsmods.com/)"
             },
             "window": {
                 "setTitle": true,

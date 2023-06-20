@@ -52,7 +52,7 @@ const About = memo(function About({ onClick }: ModalProps) {
                 </ListItemIcon>
                 <ListItemText>{getTranslation("ABOUT")}</ListItemText>
             </MenuItem>
-            <Dialog maxWidth="md" open={open} onClose={onClose}>
+            <Dialog fullWidth maxWidth="sm" open={open} onClose={onClose}>
                 <DialogTitle>{getTranslation("ABOUT")}</DialogTitle>
                 <DialogContent dividers>
                     <Box width="100%" display="flex" justifyContent="center">

@@ -40,10 +40,11 @@ const ReloadIcon = memo(function ReloadIcon() {
             await commands.refreshLocalDb();
             await commands.refreshRemoteDb();
             await commands.initialSetup();
+        };
+        task().finally(() => {
             setWatchFS(true);
             setRefreshing(false);
-        };
-        task();
+        });
     }, []);
 
     useEffect(() => {
@@ -89,7 +90,7 @@ const ReloadIcon = memo(function ReloadIcon() {
 
     return (
         <AppIcon disabled={isRefreshing} onClick={onRefresh} label={getTranslation("REFRESH")}>
-            {isRefreshing ? <CircularProgress color="neutral" size={24} /> : <RefreshRounded />}
+            {isRefreshing ? <CircularProgress color="secondary" size={24} /> : <RefreshRounded />}
         </AppIcon>
     );
 });

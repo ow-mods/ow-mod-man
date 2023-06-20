@@ -1757,8 +1757,8 @@ packages:
         engines: { node: ^6 || ^7 || ^8 || ^9 || ^10 || ^11 || ^12 || >=13.7 }
         hasBin: true
         dependencies:
-            caniuse-lite: 1.0.30001504
-            electron-to-chromium: 1.4.434
+            caniuse-lite: 1.0.30001505
+            electron-to-chromium: 1.4.435
             node-releases: 2.0.12
             update-browserslist-db: 1.0.11(browserslist@4.21.9)
         dev: true
@@ -1807,10 +1807,10 @@ packages:
             tslib: 2.5.3
         dev: true
 
-    /caniuse-lite@1.0.30001504:
+    /caniuse-lite@1.0.30001505:
         resolution:
             {
-                integrity: sha512-5uo7eoOp2mKbWyfMXnGO9rJWOGU8duvzEiYITW+wivukL7yHH4gX9yuRaobu6El4jPxo6jKZfG+N6fB621GD/Q==
+                integrity: sha512-jaAOR5zVtxHfL0NjZyflVTtXm3D3J9P15zSJ7HmQF8dSKGA6tqzQq+0ZI3xkjyQj46I4/M0K2GbMpcAFOcbr3A==
             }
         dev: true
 
@@ -2209,10 +2209,10 @@ packages:
             jake: 10.8.7
         dev: true
 
-    /electron-to-chromium@1.4.434:
+    /electron-to-chromium@1.4.435:
         resolution:
             {
-                integrity: sha512-5Gvm09UZTQRaWrimRtWRO5rvaX6Kpk5WHAPKDa7A4Gj6NIPuJ8w8WNpnxCXdd+CJJt6RBU6tUw0KyULoW6XuHw==
+                integrity: sha512-B0CBWVFhvoQCW/XtjRzgrmqcgVWg6RXOEM/dK59+wFV93BFGR6AeNKc4OyhM+T3IhJaOOG8o/V+33Y2mwJWtzw==
             }
         dev: true
 

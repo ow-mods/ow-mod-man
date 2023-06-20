@@ -1,44 +1,42 @@
-import { DownloadingRounded } from "@mui/icons-material";
-import { IconButton } from "@mui/material";
+import { Box, IconButton, Tooltip, useTheme } from "@mui/material";
 import { ReactNode } from "react";
 import OverflowMenu from "./overflow/OverflowMenu";
 import ReloadIcon from "./ReloadIcon";
-import ODTooltip from "@components/common/ODTooltip";
 import SettingsIcon from "./settings/SettingsIcon";
+import DownloadsIcon from "./downloads/DownloadsIcon";
 
 interface AppIconProps {
     label: string;
     children: ReactNode;
     disabled?: boolean;
-    onClick?: () => void;
+    onClick?: (e: React.MouseEvent<HTMLButtonElement>) => void;
 }
 
 export const AppIcon = (props: AppIconProps) => {
     return (
-        <ODTooltip title={props.label}>
+        <Tooltip title={props.label}>
             <IconButton
                 onClick={props.onClick}
                 disabled={props.disabled ?? false}
                 color="inherit"
                 aria-label={props.label}
-                sx={{ mr: 2 }}
             >
                 {props.children}
             </IconButton>
-        </ODTooltip>
+        </Tooltip>
     );
 };
 
 const AppIcons = () => {
+    const theme = useTheme();
+
     return (
-        <>
+        <Box display="flex" gap={theme.spacing(2)}>
             <SettingsIcon />
             <ReloadIcon />
-            <AppIcon label="Downloads">
-                <DownloadingRounded />
-            </AppIcon>
+            <DownloadsIcon />
             <OverflowMenu />
-        </>
+        </Box>
     );
 };
 

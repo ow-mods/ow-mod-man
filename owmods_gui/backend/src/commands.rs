@@ -239,6 +239,7 @@ pub async fn install_mod(
     state: tauri::State<'_, State>,
     handle: tauri::AppHandle,
 ) -> Result {
+    toggle_fs_watch(&handle, false);
     mark_mod_busy(unique_name, true, true, &state, &handle).await;
     let local_db = state.local_db.read().await;
     let remote_db = state.remote_db.read().await;
@@ -266,23 +267,36 @@ pub async fn install_mod(
         .await?;
     }
     mark_mod_busy(unique_name, false, true, &state, &handle).await;
+    toggle_fs_watch(&handle, true);
     Ok(())
 }
 
 #[tauri::command]
-pub async fn install_url(url: &str, state: tauri::State<'_, State>) -> Result {
+pub async fn install_url(
+    url: &str,
+    state: tauri::State<'_, State>,
+    handle: tauri::AppHandle,
+) -> Result {
+    toggle_fs_watch(&handle, false);
     let conf = state.config.read().await;
     let db = state.local_db.read().await;
     install_mod_from_url(url, &conf, &db).await?;
+    toggle_fs_watch(&handle, true);
     Ok(())
 }
 
 #[tauri::command]
-pub async fn install_zip(path: &str, state: tauri::State<'_, State>) -> Result {
+pub async fn install_zip(
+    path: &str,
+    state: tauri::State<'_, State>,
+    handle: tauri::AppHandle,
+) -> Result {
+    toggle_fs_watch(&handle, false);
     let conf = state.config.read().await;
     let db = state.local_db.read().await;
     println!("Installing {}", path);
     install_mod_from_zip(&PathBuf::from(path), &conf, &db)?;
+    toggle_fs_watch(&handle, true);
     Ok(())
 }
 
@@ -797,7 +811,7 @@ pub async fn get_downloads(state: tauri::State<'_, State>) -> Result<ProgressBar
 #[tauri::command]
 pub async fn clear_downloads(state: tauri::State<'_, State>, handle: tauri::AppHandle) -> Result {
     let mut bars = state.progress_bars.write().await;
-    bars.0.clear();
+    bars.bars.clear();
     handle.emit_all("PROGRESS-UPDATE", "").ok();
     Ok(())
 }

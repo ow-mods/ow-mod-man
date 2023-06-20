@@ -72,7 +72,7 @@ fn main() -> Result<(), Box<dyn Error>> {
             gui_config: manage(gui_config),
             game_log: manage(HashMap::new()),
             protocol_url: manage(url),
-            progress_bars: manage(ProgressBars(HashMap::new())),
+            progress_bars: manage(ProgressBars::new()),
             mods_in_progress: manage(vec![]),
         })
         .setup(move |app| {

@@ -1,6 +1,6 @@
 import { useGetTranslation } from "@hooks";
 import { HelpRounded, MoreHoriz } from "@mui/icons-material";
-import { ListItemIcon, ListItemText, MenuItem } from "@mui/material";
+import { ListItemIcon, ListItemText, MenuItem, Tooltip } from "@mui/material";
 import IconButton from "@mui/material/IconButton";
 import Menu from "@mui/material/Menu";
 import { shell } from "@tauri-apps/api";
@@ -28,17 +28,19 @@ const OverflowMenu = () => {
 
     return (
         <>
-            <IconButton
-                edge="end"
-                color="inherit"
-                id="overflow-button"
-                aria-controls={open ? "overflow-menu" : undefined}
-                aria-haspopup="true"
-                aria-expanded={open ? "true" : undefined}
-                onClick={onClick}
-            >
-                <MoreHoriz />
-            </IconButton>
+            <Tooltip title={getTranslation("MORE")}>
+                <IconButton
+                    edge="end"
+                    color="inherit"
+                    id="overflow-button"
+                    aria-controls={open ? "overflow-menu" : undefined}
+                    aria-haspopup="true"
+                    aria-expanded={open ? "true" : undefined}
+                    onClick={onClick}
+                >
+                    <MoreHoriz />
+                </IconButton>
+            </Tooltip>
             <Menu
                 id="overflow-menu"
                 anchorEl={anchorEl}

@@ -122,7 +122,8 @@ pub async fn get_local_mods(filter: &str, state: tauri::State<'_, State>) -> Res
         mods.sort_by(|a, b| {
             let name_ord = a.get_name().cmp(b.get_name());
             let errors_ord = a.get_errs().len().cmp(&b.get_errs().len()).reverse();
-            errors_ord.then(name_ord)
+            let enabled_ord = a.get_enabled().cmp(&b.get_enabled()).reverse();
+            errors_ord.then(enabled_ord.then(name_ord))
         });
     } else {
         mods = db.search(filter);

@@ -24,7 +24,7 @@ const ScrollerComp = forwardRef<HTMLDivElement>(function TScroller(props, ref) {
     const theme = useTheme();
     return (
         <TableContainer
-            sx={{ marginTop: theme.spacing(3) }}
+            sx={{ marginTop: theme.spacing(2) }}
             component={Paper}
             {...props}
             ref={ref}

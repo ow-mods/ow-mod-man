@@ -90,6 +90,14 @@ export default createTheme({
                 }
             }
         },
+        MuiTableCell: {
+            styleOverrides: {
+                head: {
+                    paddingTop: 10,
+                    paddingBottom: 10
+                }
+            }
+        },
         MuiTooltip: {
             styleOverrides: {
                 tooltip: {

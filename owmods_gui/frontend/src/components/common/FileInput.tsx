@@ -34,7 +34,7 @@ const FileInput = <T,>(openFunc: (options?: T) => Promise<string | string[] | nu
                     label={props.label}
                     sx={{ flexGrow: 1 }}
                 />
-                <Button onClick={onBrowse} startIcon={<FolderRounded />}>
+                <Button variant="contained" onClick={onBrowse} startIcon={<FolderRounded />}>
                     {getTranslation("BROWSE")}
                 </Button>
             </Box>

@@ -1,5 +1,5 @@
 import { useGetTranslation } from "@hooks";
-import { Button, ButtonGroup, useTheme } from "@mui/material";
+import { Button, ButtonGroup } from "@mui/material";
 import { memo } from "react";
 
 export interface LocalModsToggleButtonsProps {
@@ -8,20 +8,11 @@ export interface LocalModsToggleButtonsProps {
 
 const LocalModsToggleButtons = memo(function LocalModsToolbar(props: LocalModsToggleButtonsProps) {
     const getTranslation = useGetTranslation();
-    const theme = useTheme();
-
-    const buttonStyle = {
-        padding: theme.spacing(1.5)
-    };
 
     return (
         <ButtonGroup>
-            <Button style={buttonStyle} onClick={() => props.onToggle(true)}>
-                {getTranslation("ENABLE_ALL")}
-            </Button>
-            <Button style={buttonStyle} onClick={() => props.onToggle(false)}>
-                {getTranslation("DISABLE_ALL")}
-            </Button>
+            <Button onClick={() => props.onToggle(true)}>{getTranslation("ENABLE_ALL")}</Button>
+            <Button onClick={() => props.onToggle(false)}>{getTranslation("DISABLE_ALL")}</Button>
         </ButtonGroup>
     );
 });

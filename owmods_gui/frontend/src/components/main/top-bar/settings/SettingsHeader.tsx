@@ -12,11 +12,7 @@ const ResetButton = memo(function ResetButton(props: { onClick?: () => void }) {
     const getTranslation = useGetTranslation();
 
     return (
-        <Button
-            color="secondary"
-            onClick={props.onClick}
-            startIcon={<SettingsBackupRestoreRounded />}
-        >
+        <Button onClick={props.onClick} startIcon={<SettingsBackupRestoreRounded />}>
             {getTranslation("RESET")}
         </Button>
     );

@@ -1,4 +1,4 @@
-import { Box } from "@mui/material";
+import { Box, Paper } from "@mui/material";
 import TopBar from "./top-bar/TopBar";
 import { useEffect, useState } from "react";
 import { TabContext } from "@mui/lab";

@@ -83,10 +83,10 @@ const Import = memo(function Import({ onClick }: ModalProps) {
                     />
                 </DialogContent>
                 <DialogActions>
-                    <Button color="neutral" onClick={onClose}>
-                        {getTranslation("CANCEL")}
+                    <Button onClick={onClose}>{getTranslation("CANCEL")}</Button>
+                    <Button variant="contained" color="primary" onClick={onImport}>
+                        {getTranslation("IMPORT")}
                     </Button>
-                    <Button onClick={onImport}>{getTranslation("IMPORT")}</Button>
                 </DialogActions>
             </Dialog>
         </>

@@ -17,9 +17,9 @@ export const determineProgressVariant = (bar: ProgressBar): CircularProgressProp
 
 const DownloadsIcon = memo(function DownloadsIcon() {
     const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>();
-    const activeDownloads = hooks.getDownloads("PROGRESS-UPDATE")[1];
+    const downloads = hooks.getDownloads("PROGRESS-UPDATE")[1];
 
-    const sortedDownloads = Object.values(activeDownloads?.bars ?? {});
+    const sortedDownloads = Object.values(downloads?.bars ?? {});
 
     sortedDownloads.sort((a, b) => b.position - a.position);
 
@@ -33,14 +33,14 @@ const DownloadsIcon = memo(function DownloadsIcon() {
 
     const openPopover = Boolean(anchorEl);
 
-    const len = useMemo(
-        () =>
-            sortedDownloads.filter((d) => d.success === null || d.progressAction === "Download")
-                .length,
+    const activeDownloads = useMemo(
+        () => sortedDownloads.filter((d) => d.success === null || d.progressAction === "Download"),
         [sortedDownloads]
     );
 
-    const current = sortedDownloads[0];
+    const len = activeDownloads.length;
+
+    const current = activeDownloads[0];
 
     return (
         <>

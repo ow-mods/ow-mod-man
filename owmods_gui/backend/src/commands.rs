@@ -2,7 +2,7 @@ use std::result::Result as StdResult;
 use std::{
     fs::File,
     io::{BufWriter, Write},
-    path::{Path, PathBuf},
+    path::PathBuf,
 };
 
 use anyhow::anyhow;
@@ -417,10 +417,11 @@ pub async fn set_owml(
     state: tauri::State<'_, State>,
     handle: tauri::AppHandle,
 ) -> Result<bool> {
-    let path = Path::new(path);
-    if path.is_dir() && path.join("OWML.Manifest.json").is_file() {
+    let mut new_config = state.config.read().await.clone();
+    new_config.owml_path = path.to_string();
+    if new_config.check_owml() {
         let mut config = state.config.write().await;
-        config.owml_path = path.to_str().unwrap().to_string();
+        *config = new_config;
         config.save()?;
         handle.emit_all("OWML_CONFIG_RELOAD", "").ok();
         Ok(true)

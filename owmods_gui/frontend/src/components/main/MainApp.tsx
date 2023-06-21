@@ -11,6 +11,7 @@ import { commands, hooks } from "@commands";
 import { getCurrent } from "@tauri-apps/api/window";
 import AppAlert from "./AppAlert";
 import BaseApp from "@components/common/BaseApp";
+import OwmlModal from "./OwmlModal";
 
 const MainApp = () => {
     const [selectedTab, setSelectedTab] = useState("1");
@@ -37,6 +38,7 @@ const MainApp = () => {
             isLoading={status === "Loading"}
             fatalError={err?.toString()}
         >
+            <OwmlModal />
             <TabContext value={selectedTab}>
                 <TopBar />
                 <AppAlert />

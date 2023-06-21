@@ -5,7 +5,7 @@ import { memo } from "react";
 
 const TopBar = memo(function TopBar() {
     return (
-        <AppBar position="sticky" component="nav">
+        <AppBar position="static" component="nav" elevation={2}>
             <Toolbar>
                 <AppIcons />
                 <div style={{ flexGrow: 1 }} />

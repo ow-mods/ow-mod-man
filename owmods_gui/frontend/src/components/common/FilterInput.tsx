@@ -31,7 +31,8 @@ const FilterInput: React.FunctionComponent<FilterInputProps> = ({
 
     return (
         <TextField
-            margin="dense"
+            margin="none"
+            size="small"
             onChange={({ currentTarget }) => {
                 setFilterText(currentTarget.value);
             }}

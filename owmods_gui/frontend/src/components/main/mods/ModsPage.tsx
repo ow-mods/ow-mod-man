@@ -21,18 +21,19 @@ const ModsPage = memo(function ModsPage(props: ModsPageProps) {
     return (
         <Container
             sx={{
-                paddingY: theme.spacing(3),
+                padding: theme.spacing(2),
                 height: "100%",
                 display: props.show ? "flex" : "none",
                 flexDirection: "column"
             }}
+            disableGutters
             maxWidth="xl"
         >
             <ModsToolbar filter={props.filter} onFilterChanged={props.onFilterChange}>
                 {props.children}
             </ModsToolbar>
             {props.isLoading ? (
-                <Paper sx={{ marginTop: theme.spacing(3), height: "100%" }}>
+                <Paper sx={{ marginTop: theme.spacing(2), height: "100%" }}>
                     <Box height="100%" display="flex" alignItems="center" justifyContent="center">
                         <CircularProgress color="secondary" />
                     </Box>
@@ -40,7 +41,7 @@ const ModsPage = memo(function ModsPage(props: ModsPageProps) {
             ) : props.uniqueNames.length !== 0 ? (
                 <ModsTable {...props} />
             ) : (
-                <Paper sx={{ marginTop: theme.spacing(3), height: "100%" }}>
+                <Paper sx={{ marginTop: theme.spacing(2), height: "100%" }}>
                     <Box height="100%" display="flex" alignItems="center" justifyContent="center">
                         <Typography variant="subtitle1">{props.noModsText}</Typography>
                     </Box>

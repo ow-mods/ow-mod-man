@@ -33,11 +33,7 @@ const UpdateModsPage = memo(function UpdateModsPage(props: { show: boolean }) {
     const updateAllButton = useMemo(
         () => (
             <Button
-                sx={{
-                    padding: theme.spacing(1.5)
-                }}
                 disabled={updateMods?.length === 0 || updatingAll}
-                variant="outlined"
                 onClick={onUpdateAll}
                 startIcon={<UpdateRounded />}
             >

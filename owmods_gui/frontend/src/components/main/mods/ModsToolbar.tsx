@@ -14,16 +14,13 @@ const ModsToolbar = memo(function GenericModsToolbar(props: ModsToolbarProps) {
     const getTranslation = useGetTranslation();
 
     return (
-        <Paper
-            sx={{
-                padding: theme.spacing(1)
-            }}
-        >
+        <Paper sx={{ padding: 1 }}>
             <Toolbar
+                disableGutters
+                variant="dense"
                 sx={{
                     justifyContent: "space-between",
-                    minHeight: 0,
-                    padding: 0
+                    minHeight: 0
                 }}
             >
                 <FilterInput

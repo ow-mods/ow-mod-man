@@ -22,10 +22,6 @@ const RemoteModsPage = memo(function RemoteModsPage(props: { show: boolean }) {
     const modsWebsiteButton = useMemo(
         () => (
             <Button
-                sx={{
-                    padding: theme.spacing(1.5)
-                }}
-                variant="outlined"
                 onClick={() => shell.open("https://outerwildsmods.com/mods")}
                 startIcon={<PublicRounded />}
             >

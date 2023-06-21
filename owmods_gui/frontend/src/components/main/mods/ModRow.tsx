@@ -109,7 +109,7 @@ const ModRow = memo(function GenericModRow(props: ModRowProps) {
                 </Typography>
                 <Box>
                     <Typography
-                        color={isErr ? theme.palette.secondary.light : theme.palette.text.primary}
+                        color={isErr ? theme.palette.secondary.light : theme.palette.text.secondary}
                         variant="caption"
                     >
                         {props.isLoading || props.remoteIsLoading ? (

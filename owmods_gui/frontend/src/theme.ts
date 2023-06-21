@@ -17,6 +17,12 @@ declare module "@mui/material/Button" {
     }
 }
 
+declare module "@mui/material/ButtonGroup" {
+    export interface ButtonGroupPropsColorOverrides {
+        neutral: true;
+    }
+}
+
 declare module "@mui/material/CircularProgress" {
     export interface CircularProgressPropsColorOverrides {
         neutral: true;
@@ -35,8 +41,8 @@ export default createTheme({
             light: "#ffc380"
         },
         neutral: {
-            main: grey[400],
-            contrastText: "#fff"
+            main: grey[300],
+            contrastText: "#1c1c1c"
         },
         error: {
             main: red[500],
@@ -68,11 +74,47 @@ export default createTheme({
                 }
             }
         },
+        MuiTab: {
+            styleOverrides: {
+                root: {
+                    minHeight: 0,
+                    padding: 10
+                }
+            }
+        },
+        MuiTabs: {
+            styleOverrides: {
+                root: {
+                    minHeight: 0,
+                    padding: 0
+                }
+            }
+        },
+        MuiTableCell: {
+            styleOverrides: {
+                head: {
+                    paddingTop: 10,
+                    paddingBottom: 10
+                }
+            }
+        },
         MuiTooltip: {
             styleOverrides: {
                 tooltip: {
                     fontSize: "1em"
                 }
+            }
+        },
+        MuiButton: {
+            defaultProps: {
+                variant: "outlined",
+                color: "neutral"
+            }
+        },
+        MuiButtonGroup: {
+            defaultProps: {
+                variant: "outlined",
+                color: "neutral"
             }
         }
     }

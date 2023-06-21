@@ -2,7 +2,7 @@ import { hooks } from "@commands";
 import { useGetTranslation } from "@hooks";
 import { ComputerRounded, PublicRounded, UpdateRounded } from "@mui/icons-material";
 import TabList from "@mui/lab/TabList";
-import { Paper, useTheme } from "@mui/material";
+import { AppBar, Paper, useTheme } from "@mui/material";
 import Tab from "@mui/material/Tab";
 import { FunctionComponent } from "react";
 
@@ -14,7 +14,7 @@ const AppTabs: FunctionComponent<{ onChange: (newVal: string) => void }> = ({ on
     const countText = count === 0 ? "" : `(${count})`;
 
     return (
-        <Paper elevation={3}>
+        <AppBar position="static">
             <TabList
                 sx={{ margin: `0 ${theme.spacing(3)}` }}
                 onChange={(_, newVal) => onChange(newVal)}
@@ -41,7 +41,7 @@ const AppTabs: FunctionComponent<{ onChange: (newVal: string) => void }> = ({ on
                     label={getTranslation("UPDATES", { amount: countText })}
                 />
             </TabList>
-        </Paper>
+        </AppBar>
     );
 };
 

@@ -66,10 +66,10 @@ const SettingsModal = memo(function SettingsModal({ open, onClose }: SettingsMod
                 )}
             </DialogContent>
             <DialogActions>
-                <Button color="neutral" onClick={onCancel}>
-                    {getTranslation("CANCEL")}
+                <Button onClick={onCancel}>{getTranslation("CANCEL")}</Button>
+                <Button color="primary" variant="contained" onClick={onSave}>
+                    {getTranslation("SAVE")}
                 </Button>
-                <Button onClick={onSave}>{getTranslation("SAVE")}</Button>
             </DialogActions>
         </Dialog>
     );

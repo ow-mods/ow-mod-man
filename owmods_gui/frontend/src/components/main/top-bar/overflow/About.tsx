@@ -1,5 +1,5 @@
 import { useGetTranslation } from "@hooks";
-import { InfoRounded } from "@mui/icons-material";
+import { ChatBubbleRounded, GitHub, InfoRounded } from "@mui/icons-material";
 import {
     MenuItem,
     ListItemIcon,
@@ -10,11 +10,13 @@ import {
     DialogActions,
     Button,
     DialogContentText,
-    Box
+    Box,
+    IconButton
 } from "@mui/material";
-import { app, os } from "@tauri-apps/api";
+import { app, os, shell } from "@tauri-apps/api";
 import { memo, useCallback, useEffect, useState } from "react";
 import logo from "@assets/images/logo.png?w=256&h=256&format=webp&imagetools";
+import ODTooltip from "@components/common/ODTooltip";
 
 export interface ModalProps {
     onClick?: () => void;
@@ -44,6 +46,14 @@ const About = memo(function About({ onClick }: ModalProps) {
         setOpen(false);
     }, []);
 
+    const onGithub = useCallback(() => {
+        shell.open("https://github.com/Bwc9876/ow-mod-man/");
+    }, []);
+
+    const onDiscord = useCallback(() => {
+        shell.open("https://discord.gg/wusTQYbYTc");
+    }, []);
+
     return (
         <>
             <MenuItem onClick={handleClick}>
@@ -60,7 +70,18 @@ const About = memo(function About({ onClick }: ModalProps) {
                     </Box>
                     <DialogContentText align="center">
                         <h1 style={{ margin: 0 }}>{getTranslation("APP_TITLE")}</h1>
-                        <br />
+                        <Box justifyContent="center" display="flex">
+                            <ODTooltip title={getTranslation("GITHUB")}>
+                                <IconButton onClick={onGithub}>
+                                    <GitHub />
+                                </IconButton>
+                            </ODTooltip>
+                            <ODTooltip title={getTranslation("DISCORD")}>
+                                <IconButton onClick={onDiscord}>
+                                    <ChatBubbleRounded />
+                                </IconButton>
+                            </ODTooltip>
+                        </Box>
                         {getTranslation("APP_VERSION", { version: appVersion })}
                         <br />
                         {getTranslation("PLATFORM", { platform: appPlatform })}

@@ -84,13 +84,14 @@ const LogApp = ({ port }: { port: number }) => {
             fatalError={err?.toString()}
         >
             <Container
+                disableGutters
                 sx={{
                     display: "flex",
                     flexDirection: "column",
-                    gap: theme.spacing(3),
+                    gap: theme.spacing(1),
                     flexGrow: 1,
                     maxHeight: "100%",
-                    paddingY: theme.spacing(3)
+                    padding: theme.spacing(1)
                 }}
             >
                 <LogHeader

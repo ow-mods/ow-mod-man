@@ -2,7 +2,7 @@ import { hooks } from "@commands";
 import { useGetTranslation } from "@hooks";
 import { ComputerRounded, PublicRounded, UpdateRounded } from "@mui/icons-material";
 import TabList from "@mui/lab/TabList";
-import { AppBar, Paper, useTheme } from "@mui/material";
+import { AppBar, useTheme } from "@mui/material";
 import Tab from "@mui/material/Tab";
 import { FunctionComponent } from "react";
 

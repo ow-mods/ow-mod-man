@@ -1,4 +1,4 @@
-import { Paper, Toolbar, useTheme } from "@mui/material";
+import { Paper, Toolbar } from "@mui/material";
 import FilterInput from "@components/common/FilterInput";
 import { ReactNode, memo } from "react";
 import { useGetTranslation } from "@hooks";
@@ -10,7 +10,6 @@ export interface ModsToolbarProps {
 }
 
 const ModsToolbar = memo(function GenericModsToolbar(props: ModsToolbarProps) {
-    const theme = useTheme();
     const getTranslation = useGetTranslation();
 
     return (

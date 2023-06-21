@@ -24,6 +24,7 @@ const OwmlModal = memo(function OwmlModal() {
     const theme = useTheme();
 
     const [open, setOpen] = useState(false);
+    const [installingOwml, setInstallingOwml] = useState(false);
 
     if (import.meta.env.DEV) {
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
@@ -43,13 +44,15 @@ const OwmlModal = memo(function OwmlModal() {
     }, []);
 
     const onClose = useCallback(() => {
+        setInstallingOwml(true);
         if (setupMethod === "INSTALL_OWML") {
             commands
                 .installOwml()
                 .then(() => {
                     handleClose();
                 })
-                .catch(dialog.message);
+                .catch(dialog.message)
+                .finally(() => setInstallingOwml(false));
         } else {
             commands
                 .setOwml({ path: owmlPath })
@@ -60,7 +63,8 @@ const OwmlModal = memo(function OwmlModal() {
                         dialog.message(getTranslation("INVALID_OWML"));
                     }
                 })
-                .catch(dialog.message);
+                .catch(dialog.message)
+                .finally(() => setInstallingOwml(false));
         }
     }, [getTranslation, handleClose, owmlPath, setupMethod]);
 
@@ -109,7 +113,14 @@ const OwmlModal = memo(function OwmlModal() {
                 </Box>
             </DialogContent>
             <DialogActions>
-                <Button onClick={onClose}>{getTranslation("CONFIRM")}</Button>
+                <Button
+                    disabled={installingOwml}
+                    color="primary"
+                    variant="contained"
+                    onClick={onClose}
+                >
+                    {getTranslation("CONFIRM")}
+                </Button>
             </DialogActions>
         </Dialog>
     );

@@ -35,8 +35,8 @@ const LogHeader = memo(function LogHeader({ setActiveSearch, ...props }: LogHead
     const labelId = "logs-filter-label";
 
     return (
-        <Paper sx={{ padding: theme.spacing(1) }}>
-            <Toolbar>
+        <Paper sx={{ padding: 1 }}>
+            <Toolbar disableGutters variant="dense">
                 <Box maxWidth="30%">
                     <FilterInput
                         value={props.activeSearch}
@@ -44,9 +44,8 @@ const LogHeader = memo(function LogHeader({ setActiveSearch, ...props }: LogHead
                         label={getTranslation("SEARCH_LOGS")}
                     />
                 </Box>
-                {/* Padding top because the select and text fields don't line up otherwise and I'm going insane */}
-                <Box paddingLeft={theme.spacing(2)} flexGrow={1} paddingTop={0.45} maxWidth="30%">
-                    <FormControl fullWidth>
+                <Box paddingLeft={theme.spacing(2)} flexGrow={1} maxWidth="30%">
+                    <FormControl size="small" fullWidth>
                         <InputLabel id={labelId}>{getTranslation("FILTER")}</InputLabel>
                         <Select
                             labelId={labelId}

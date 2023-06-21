@@ -2,7 +2,7 @@ import { commands, hooks } from "@commands";
 import { memo, useEffect, useMemo, useState } from "react";
 import ModsPage from "../ModsPage";
 import RemoteModRow from "./RemoteModRow";
-import { Button, useTheme } from "@mui/material";
+import { Button } from "@mui/material";
 import { useGetTranslation } from "@hooks";
 import { PublicRounded } from "@mui/icons-material";
 import { shell } from "@tauri-apps/api";
@@ -13,7 +13,6 @@ const RemoteModsPage = memo(function RemoteModsPage(props: { show: boolean }) {
     }, []);
 
     const getTranslation = useGetTranslation();
-    const theme = useTheme();
 
     const [filter, setFilter] = useState("");
 
@@ -28,7 +27,7 @@ const RemoteModsPage = memo(function RemoteModsPage(props: { show: boolean }) {
                 {getTranslation("OPEN_WEBSITE")}
             </Button>
         ),
-        [getTranslation, theme]
+        [getTranslation]
     );
 
     return (

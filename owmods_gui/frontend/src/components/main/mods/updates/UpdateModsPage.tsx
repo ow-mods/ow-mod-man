@@ -3,12 +3,10 @@ import { memo, useCallback, useMemo, useState } from "react";
 import ModsPage from "../ModsPage";
 import UpdateModRow from "./UpdateModRow";
 import { UpdateRounded } from "@mui/icons-material";
-import { Button, useTheme } from "@mui/material";
+import { Button } from "@mui/material";
 import { useGetTranslation } from "@hooks";
 
 const UpdateModsPage = memo(function UpdateModsPage(props: { show: boolean }) {
-    const theme = useTheme();
-
     const getTranslation = useGetTranslation();
 
     const [filter, setFilter] = useState("");
@@ -40,7 +38,7 @@ const UpdateModsPage = memo(function UpdateModsPage(props: { show: boolean }) {
                 {updatingAll ? getTranslation("UPDATING_ALL") : getTranslation("UPDATE_ALL")}
             </Button>
         ),
-        [theme, updateMods?.length, updatingAll, onUpdateAll, getTranslation]
+        [updateMods?.length, updatingAll, onUpdateAll, getTranslation]
     );
 
     return (

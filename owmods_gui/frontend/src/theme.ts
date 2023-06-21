@@ -74,6 +74,22 @@ export default createTheme({
                 }
             }
         },
+        MuiTab: {
+            styleOverrides: {
+                root: {
+                    minHeight: 0,
+                    padding: 10
+                }
+            }
+        },
+        MuiTabs: {
+            styleOverrides: {
+                root: {
+                    minHeight: 0,
+                    padding: 0
+                }
+            }
+        },
         MuiTooltip: {
             styleOverrides: {
                 tooltip: {

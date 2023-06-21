@@ -81,7 +81,11 @@
             }
         },
         "security": {
-            "csp": "default-src 'self'"
+            "csp": "default-src 'self'; style-src 'self' 'unsafe-inline'; font-src 'self' data:",
+            "dangerousDisableAssetCspModification": [
+                "style-src",
+                "font-src"
+            ]
         },
         "updater": {
             "active": true,

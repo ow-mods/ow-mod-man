@@ -43,7 +43,7 @@ pub struct GuiConfig {
     #[serde(default = "Language::default")]
     language: Language,
     #[serde(default = "_default_true")]
-    watch_fs: bool,
+    pub watch_fs: bool,
     #[serde(default = "_default_false")]
     no_warning: bool,
     #[serde(default = "_default_false")]

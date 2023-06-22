@@ -4,9 +4,13 @@ import { ComputerRounded, PublicRounded, UpdateRounded } from "@mui/icons-materi
 import TabList from "@mui/lab/TabList";
 import { AppBar, useTheme } from "@mui/material";
 import Tab from "@mui/material/Tab";
-import { FunctionComponent } from "react";
+import { memo } from "react";
 
-const AppTabs: FunctionComponent<{ onChange: (newVal: string) => void }> = ({ onChange }) => {
+export interface AppTabsProps {
+    onChange: (newVal: string) => void;
+}
+
+const AppTabs = memo(function AppTabs({ onChange }: AppTabsProps) {
     const getTranslation = useGetTranslation();
     const theme = useTheme();
     const count =
@@ -43,6 +47,6 @@ const AppTabs: FunctionComponent<{ onChange: (newVal: string) => void }> = ({ on
             </TabList>
         </AppBar>
     );
-};
+});
 
 export default AppTabs;

@@ -35,7 +35,7 @@ const MainApp = () => {
     return (
         <BaseApp
             language={guiConfig?.language}
-            isLoading={status === "Loading"}
+            isLoading={status === "Loading" && guiConfig === null}
             fatalError={err?.toString()}
         >
             <OwmlModal />

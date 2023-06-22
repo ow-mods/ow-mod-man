@@ -16,11 +16,11 @@ anyhow = "1.0.69"
 tokio = { version = "1.25.0", features = ["sync", "macros"] }
 log = { version = "0.4.17", features = ["std", "serde"] }
 typeshare = "1.0.0"
+notify = { version = "6.0.1", default-features = false, features = ["macos_kqueue"] }
 regex = "1.7.1"
 time = { version = "0.3.15", features = ["macros"] }
 tauri-plugin-deep-link = "0.1.0"
 tauri-plugin-window-state = { git = "https://github.com/tauri-apps/plugins-workspace", branch = "dev" }
-tauri-plugin-fs-watch = { git = "https://github.com/tauri-apps/plugins-workspace", branch = "dev" }
 opener = "0.6.1"
 
 [features]

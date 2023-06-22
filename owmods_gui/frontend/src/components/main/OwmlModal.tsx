@@ -119,7 +119,7 @@ const OwmlModal = memo(function OwmlModal() {
                     variant="contained"
                     onClick={onClose}
                 >
-                    {getTranslation("CONFIRM")}
+                    {getTranslation("CONTINUE")}
                 </Button>
             </DialogActions>
         </Dialog>

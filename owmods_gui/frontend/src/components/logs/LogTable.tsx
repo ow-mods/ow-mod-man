@@ -1,7 +1,7 @@
 import { TableCell, useTheme } from "@mui/material";
 import { TableContainer, Paper, Table, TableBody, TableHead, TableRow } from "@mui/material";
-import { forwardRef, memo } from "react";
-import { TableProps, TableVirtuoso } from "react-virtuoso";
+import { forwardRef, memo, useRef } from "react";
+import { TableProps, TableVirtuoso, VirtuosoHandle } from "react-virtuoso";
 import { LogLines } from "./LogApp";
 import { useGetTranslation } from "@hooks";
 import LogRow from "./LogRow";
@@ -43,11 +43,15 @@ const LogTable = memo(function LogTable(props: LogTableProps) {
     const getTranslation = useGetTranslation();
     const theme = useTheme();
 
+    const virtuoso = useRef<VirtuosoHandle>(null);
+
     return (
         <TableVirtuoso
+            ref={virtuoso}
             components={LogTableComponents}
             computeItemKey={(index) => `${index}-${props.logLines[index][0]}`}
-            increaseViewportBy={{ top: 500, bottom: 0 }}
+            increaseViewportBy={500}
+            atBottomThreshold={1000}
             data={props.logLines}
             fixedHeaderContent={() => (
                 <TableRow sx={{ background: theme.palette.grey[900] }}>
@@ -55,7 +59,9 @@ const LogTable = memo(function LogTable(props: LogTableProps) {
                     <TableCell>{getTranslation("LOG_MESSAGE")}</TableCell>
                 </TableRow>
             )}
-            itemContent={(_, data) => <LogRow port={props.port} index={data[0]} count={data[1]} />}
+            itemContent={(_, data) => (
+                <LogRow port={props.port} index={data[0]} count={data[1]} virtuosoRef={virtuoso} />
+            )}
             followOutput
             alignToBottom
         />

@@ -2,12 +2,14 @@ import { hooks } from "@commands";
 import ODTooltip from "@components/common/ODTooltip";
 import { Box, Chip, Palette, Skeleton, TableCell, Typography, useTheme } from "@mui/material";
 import { SocketMessageType } from "@types";
-import { memo, useMemo } from "react";
+import { Fragment, MutableRefObject, memo, useLayoutEffect, useMemo } from "react";
+import { VirtuosoHandle } from "react-virtuoso";
 
 export interface LogRowProps {
     port: number;
     index: number;
     count: number;
+    virtuosoRef?: MutableRefObject<VirtuosoHandle | null>;
 }
 
 const getColor = (palette: Palette, messageType: SocketMessageType) => {
@@ -53,6 +55,10 @@ const LogRow = memo(function LogRow(props: LogRowProps) {
         [logLine?.message.message]
     );
 
+    useLayoutEffect(() => {
+        props.virtuosoRef?.current?.autoscrollToBottom?.();
+    }, [status, props.virtuosoRef]);
+
     return (
         <>
             <TableCell sx={cellStyle}>
@@ -83,7 +89,10 @@ const LogRow = memo(function LogRow(props: LogRowProps) {
                         ) : (
                             <Typography minWidth={0} color={getColor(theme.palette, messageType)}>
                                 {messageLines.map((line, i) => (
-                                    <div key={`${i}-${line}`}>{line}</div>
+                                    <Fragment key={`${i}-${line}`}>
+                                        {line}
+                                        {i !== messageLines.length - 1 && <br />}
+                                    </Fragment>
                                 ))}
                             </Typography>
                         )}{" "}

@@ -98,17 +98,13 @@ pub fn setup_fs_watch(handle: AppHandle) -> Result<()> {
                 // GUI
                 let res = gui_watcher.unwatch(&gui_path);
                 if let Err(why) = res {
-                    if !matches!(why.kind, notify::ErrorKind::WatchNotFound) {
-                        error!("Error stopping GUI watcher: {:?}", why);
-                    }
+                    error!("Error stopping GUI watcher: {:?}", why);
                 }
 
                 // SETTINGS
                 let res = settings_watcher.unwatch(&config_path);
                 if let Err(why) = res {
-                    if !matches!(why.kind, notify::ErrorKind::WatchNotFound) {
-                        error!("Error stopping Settings watcher: {:?}", why);
-                    }
+                    error!("Error stopping Settings watcher: {:?}", why);
                 }
 
                 // LOCAL DB
@@ -122,9 +118,7 @@ pub fn setup_fs_watch(handle: AppHandle) -> Result<()> {
 
                     let res = local_db_watcher.unwatch(&mods_path);
                     if let Err(why) = res {
-                        if !matches!(why.kind, notify::ErrorKind::WatchNotFound) {
-                            error!("Error stopping Mods watcher: {:?}", why);
-                        }
+                        error!("Error stopping Mods watcher: {:?}", why);
                     }
                 });
             }

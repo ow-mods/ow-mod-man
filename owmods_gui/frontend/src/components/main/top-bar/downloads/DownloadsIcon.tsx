@@ -1,10 +1,11 @@
 import { hooks } from "@commands";
 import { DownloadingRounded } from "@mui/icons-material";
-import { memo, useMemo, useState } from "react";
+import { Suspense, lazy, memo, useMemo, useState } from "react";
 import { AppIcon } from "../AppIcons";
 import { Box, CircularProgress, CircularProgressProps, Typography } from "@mui/material";
-import DownloadsPopover from "./DownloadsPopover";
 import { ProgressBar } from "@types";
+
+const DownloadsPopover = lazy(() => import("./DownloadsPopover"));
 
 export const determineProgressVariant = (bar: ProgressBar): CircularProgressProps["variant"] => {
     if (bar.success && bar.progressAction === "Download") {
@@ -77,12 +78,14 @@ const DownloadsIcon = memo(function DownloadsIcon() {
                     </>
                 )}
             </Box>
-            <DownloadsPopover
-                downloads={sortedDownloads}
-                open={openPopover}
-                anchorEl={anchorEl}
-                handleClose={handleClose}
-            />
+            <Suspense>
+                <DownloadsPopover
+                    downloads={sortedDownloads}
+                    open={openPopover}
+                    anchorEl={anchorEl}
+                    handleClose={handleClose}
+                />
+            </Suspense>
         </>
     );
 });

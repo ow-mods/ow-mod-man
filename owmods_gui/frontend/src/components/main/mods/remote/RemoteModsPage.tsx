@@ -8,11 +8,11 @@ import { PublicRounded } from "@mui/icons-material";
 import { shell } from "@tauri-apps/api";
 
 const RemoteModsPage = memo(function RemoteModsPage(props: { show: boolean }) {
-    useEffect(() => {
-        commands.refreshRemoteDb();
-    }, []);
-
     const getTranslation = useGetTranslation();
+
+    useEffect(() => {
+        commands.refreshRemoteDb({}, false).catch(console.warn);
+    }, []);
 
     const [filter, setFilter] = useState("");
 

@@ -35,9 +35,6 @@ dependencies:
     react-virtuoso:
         specifier: ^4.3.10
         version: 4.3.10(react-dom@18.2.0)(react@18.2.0)
-    tauri-plugin-fs-watch-api:
-        specifier: github:tauri-apps/tauri-plugin-fs-watch
-        version: github.com/tauri-apps/tauri-plugin-fs-watch/0101a736603e490da33c01e025afddd084e25f3a
 
 devDependencies:
     "@types/react":
@@ -4753,14 +4750,3 @@ packages:
             }
         engines: { node: ">=10" }
         dev: true
-
-    github.com/tauri-apps/tauri-plugin-fs-watch/0101a736603e490da33c01e025afddd084e25f3a:
-        resolution:
-            {
-                tarball: https://codeload.github.com/tauri-apps/tauri-plugin-fs-watch/tar.gz/0101a736603e490da33c01e025afddd084e25f3a
-            }
-        name: tauri-plugin-fs-watch-api
-        version: 0.0.0
-        dependencies:
-            "@tauri-apps/api": 1.4.0
-        dev: false

@@ -1,11 +1,9 @@
 import { Box } from "@mui/material";
 import TopBar from "./top-bar/TopBar";
-import { useEffect, useState } from "react";
+import { Suspense, lazy, useCallback, useEffect, useState } from "react";
 import { TabContext } from "@mui/lab";
-import AppTabs from "./top-bar/AppTabs";
+import AppTabs, { ModsTab } from "./top-bar/AppTabs";
 import LocalModsPage from "./mods/local/LocalModsPage";
-import RemoteModsPage from "./mods/remote/RemoteModsPage";
-import UpdateModsPage from "./mods/updates/UpdateModsPage";
 import { TranslationMap } from "@components/common/TranslationContext";
 import { commands, hooks } from "@commands";
 import { getCurrent } from "@tauri-apps/api/window";
@@ -13,8 +11,11 @@ import AppAlert from "./AppAlert";
 import BaseApp from "@components/common/BaseApp";
 import OwmlModal from "./OwmlModal";
 
+const RemoteModsPage = lazy(() => import("./mods/remote/RemoteModsPage"));
+const UpdateModsPage = lazy(() => import("./mods/updates/UpdateModsPage"));
+
 const MainApp = () => {
-    const [selectedTab, setSelectedTab] = useState("1");
+    const [selectedTab, setSelectedTab] = useState<ModsTab>("local");
     const [status, guiConfig, err] = hooks.getGuiConfig("GUI_CONFIG_RELOAD");
 
     useEffect(() => {
@@ -32,21 +33,29 @@ const MainApp = () => {
         }
     }, [guiConfig?.language]);
 
+    const onTabChange = useCallback((newVal: string) => {
+        setSelectedTab(newVal as ModsTab);
+    }, []);
+
     return (
         <BaseApp
             language={guiConfig?.language}
-            isLoading={status === "Loading"}
+            isLoading={status === "Loading" && guiConfig === null}
             fatalError={err?.toString()}
         >
             <OwmlModal />
             <TabContext value={selectedTab}>
                 <TopBar />
                 <AppAlert />
-                <AppTabs onChange={setSelectedTab} />
+                <AppTabs onChange={onTabChange} />
                 <Box display="flex" flexGrow={1} minHeight="0">
-                    <LocalModsPage show={selectedTab === "1"} />
-                    <RemoteModsPage show={selectedTab === "2"} />
-                    <UpdateModsPage show={selectedTab === "3"} />
+                    <LocalModsPage show={selectedTab === "local"} />
+                    <Suspense>
+                        <RemoteModsPage show={selectedTab === "remote"} />
+                    </Suspense>
+                    <Suspense>
+                        <UpdateModsPage show={selectedTab === "updates"} />
+                    </Suspense>
                 </Box>
             </TabContext>
         </BaseApp>

@@ -1,8 +1,9 @@
-import { memo, useCallback, useState } from "react";
+import { Suspense, lazy, memo, useCallback, useState } from "react";
 import { AppIcon } from "../AppIcons";
 import { useGetTranslation } from "@hooks";
 import { SettingsRounded } from "@mui/icons-material";
-import SettingsModal from "./SettingsModal";
+
+const SettingsModal = lazy(() => import("./SettingsModal"));
 
 const SettingsIcon = memo(function SettingsIcon() {
     const getTranslation = useGetTranslation();
@@ -18,7 +19,9 @@ const SettingsIcon = memo(function SettingsIcon() {
 
     return (
         <>
-            <SettingsModal open={open} onClose={onClose} />
+            <Suspense>
+                <SettingsModal open={open} onClose={onClose} />
+            </Suspense>
             <AppIcon label={getTranslation("SETTINGS")} onClick={onOpen}>
                 <SettingsRounded />
             </AppIcon>

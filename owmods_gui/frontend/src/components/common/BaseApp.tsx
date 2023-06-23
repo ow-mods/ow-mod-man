@@ -4,7 +4,7 @@ import { CssBaseline, Box, CircularProgress, Typography } from "@mui/material";
 import theme from "../../theme";
 import { TranslationContext } from "./TranslationContext";
 import { Language } from "@types";
-import { ReactNode } from "react";
+import { ReactNode, memo } from "react";
 
 export interface BaseAppProps {
     isLoading: boolean;
@@ -13,7 +13,7 @@ export interface BaseAppProps {
     fatalError?: string;
 }
 
-const BaseApp = (props: BaseAppProps) => {
+const BaseApp = memo(function BaseApp(props: BaseAppProps) {
     return (
         <ThemeProvider theme={theme}>
             <CssBaseline>
@@ -43,6 +43,6 @@ const BaseApp = (props: BaseAppProps) => {
             </CssBaseline>
         </ThemeProvider>
     );
-};
+});
 
 export default BaseApp;

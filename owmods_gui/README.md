@@ -82,6 +82,5 @@ Just create an empty `dist/` folder next to `backend`, tauri expects one to be t
 ## Screenshots
 
 ![The main screen of the app](https://github.com/Bwc9876/ow-mod-man/raw/dev/.github/assets/screenshots/main.png)
-![A few of the many themes you can grab](https://github.com/Bwc9876/ow-mod-man/raw/dev/.github/assets/screenshots/themes.png)
 ![The logs screen when starting the game](https://github.com/Bwc9876/ow-mod-man/raw/dev/.github/assets/screenshots/logs.png)
 ![The about modal](https://github.com/Bwc9876/ow-mod-man/raw/dev/.github/assets/screenshots/about.png)

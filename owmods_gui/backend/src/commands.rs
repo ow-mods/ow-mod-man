@@ -413,7 +413,7 @@ pub async fn install_owml(state: tauri::State<'_, State>, handle: tauri::AppHand
     let db = state.remote_db.read().await;
     let owml = db
         .get_owml()
-        .ok_or_else(|| anyhow!("Couldn't Find OWML In The Database"))?;
+        .ok_or_else(|| anyhow!("Error Installing OWML"))?;
     download_and_install_owml(&config, owml).await?;
     handle.emit_all("OWML_CONFIG_RELOAD", "").ok();
 

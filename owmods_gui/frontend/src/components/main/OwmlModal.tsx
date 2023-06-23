@@ -47,15 +47,20 @@ const OwmlModal = memo(function OwmlModal() {
         setInstallingOwml(true);
         if (setupMethod === "INSTALL_OWML") {
             commands
-                .installOwml()
+                .installOwml({}, false)
                 .then(() => {
                     handleClose();
                 })
-                .catch(dialog.message)
+                .catch(() => {
+                    dialog.message(getTranslation("OWML_INSTALL_ERROR"), {
+                        type: "error",
+                        title: getTranslation("FATAL_ERROR")
+                    });
+                })
                 .finally(() => setInstallingOwml(false));
         } else {
             commands
-                .setOwml({ path: owmlPath })
+                .setOwml({ path: owmlPath }, false)
                 .then((valid) => {
                     if (valid) {
                         handleClose();

@@ -6,8 +6,10 @@ import { AppBar, useTheme } from "@mui/material";
 import Tab from "@mui/material/Tab";
 import { memo } from "react";
 
+export type ModsTab = "local" | "remote" | "updates";
+
 export interface AppTabsProps {
-    onChange: (newVal: string) => void;
+    onChange: (newVal: ModsTab) => void;
 }
 
 const AppTabs = memo(function AppTabs({ onChange }: AppTabsProps) {
@@ -27,19 +29,19 @@ const AppTabs = memo(function AppTabs({ onChange }: AppTabsProps) {
                 indicatorColor="secondary"
             >
                 <Tab
-                    value="1"
+                    value="local"
                     icon={<ComputerRounded />}
                     iconPosition="start"
                     label={getTranslation("INSTALLED_MODS")}
                 />
                 <Tab
-                    value="2"
+                    value="remote"
                     icon={<PublicRounded />}
                     iconPosition="start"
                     label={getTranslation("GET_MODS")}
                 />
                 <Tab
-                    value="3"
+                    value="updates"
                     icon={<UpdateRounded />}
                     iconPosition="start"
                     label={getTranslation("UPDATES", { amount: countText })}

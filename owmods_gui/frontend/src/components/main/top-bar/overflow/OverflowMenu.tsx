@@ -4,11 +4,12 @@ import { ListItemIcon, ListItemText, MenuItem, Tooltip } from "@mui/material";
 import IconButton from "@mui/material/IconButton";
 import Menu from "@mui/material/Menu";
 import { shell } from "@tauri-apps/api";
-import { useState, MouseEvent, useCallback } from "react";
-import About from "./About";
-import Import from "./Import";
-import Export from "./Export";
-import InstallFrom from "./InstallFrom";
+import { useState, MouseEvent, useCallback, lazy, Suspense } from "react";
+
+const About = lazy(() => import("./About"));
+const Import = lazy(() => import("./Import"));
+const Export = lazy(() => import("./Export"));
+const InstallFrom = lazy(() => import("./InstallFrom"));
 
 const OverflowMenu = () => {
     const getTranslation = useGetTranslation();
@@ -51,16 +52,20 @@ const OverflowMenu = () => {
                     "aria-labelledby": "overflow-button"
                 }}
             >
-                <InstallFrom onClick={onClose} />
-                <Export onClick={onClose} />
-                <Import onClick={onClose} />
+                <Suspense>
+                    <InstallFrom onClick={onClose} />
+                    <Export onClick={onClose} />
+                    <Import onClick={onClose} />
+                </Suspense>
                 <MenuItem onClick={onHelp}>
                     <ListItemIcon>
                         <HelpRounded fontSize="small" />
                     </ListItemIcon>
                     <ListItemText>{getTranslation("HELP")}</ListItemText>
                 </MenuItem>
-                <About onClick={onClose} />
+                <Suspense>
+                    <About onClick={onClose} />
+                </Suspense>
             </Menu>
         </>
     );

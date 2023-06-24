@@ -8,10 +8,18 @@ use crate::mods::local::{LocalMod, ModWarning};
 /// Represents an alert gotten from the database.
 #[typeshare]
 #[derive(Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct Alert {
+    /// Whether the alert should be shown
     pub enabled: bool,
+    /// The severity for the alert, should be `info`, `warning`, or `error`
     pub severity: Option<String>,
+    /// The message for the alert
     pub message: Option<String>,
+    /// Displays a link or button in the cli and gui respectively. **Note this is limited to GitHub, Discord, and the Mods Website**
+    pub url: Option<String>,
+    /// Optional label to display for the link instead of "More Info"
+    pub url_label: Option<String>,
 }
 
 /// Fetch an alert from the given url.
@@ -22,12 +30,28 @@ pub struct Alert {
 ///
 /// ## Errors
 ///
-/// Any errors that can happen when fetching json (HTTP errors, Deserialization errors, etc).
+/// Any errors that can happen when fetching json (Networking errors, Deserialization errors).  
+///
+///
+/// It should be noted this will **NOT** error if we get a 404 or other HTTP error code,
+/// and instead will return a disabled alert.
 ///
 pub async fn fetch_alert(url: &str) -> Result<Alert> {
-    debug!("Fetching {}", url);
-    let alert: Alert = reqwest::get(url).await?.json().await?;
-    Ok(alert)
+    debug!("Fetching Alert At: {}", url);
+    let req = reqwest::get(url).await?.error_for_status();
+    // If we get a 404 or anything that's not an actual networking issue simply return a disabled result
+    if let Ok(alert) = req {
+        let alert = alert.json().await?;
+        Ok(alert)
+    } else {
+        Ok(Alert {
+            enabled: false,
+            severity: None,
+            message: None,
+            url: None,
+            url_label: None,
+        })
+    }
 }
 
 /// Get the warnings for a list of mods, ignoring the ones in `ignore`

@@ -196,8 +196,19 @@ fn extract_mod_zip(
 ///
 /// If we can't download or extract the OWML zip for any reason.
 ///
-pub async fn download_and_install_owml(config: &Config, owml: &RemoteMod) -> Result<()> {
-    let url = &owml.download_url;
+pub async fn download_and_install_owml(
+    config: &Config,
+    owml: &RemoteMod,
+    prerelease: bool,
+) -> Result<()> {
+    let url = if prerelease {
+        owml.prerelease
+            .as_ref()
+            .map(|p| &p.download_url)
+            .ok_or_else(|| anyhow!("No prerelease for OWML found"))
+    } else {
+        Ok(&owml.download_url)
+    }?;
     let target_path = PathBuf::from(&config.owml_path);
     let temp_dir = TempDir::new()?;
     let download_path = temp_dir.path().join("OWML.zip");

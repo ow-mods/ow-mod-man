@@ -36,7 +36,10 @@ async fn run_from_cli(cli: BaseCli) -> Result<()> {
 
     let ran_setup = matches!(
         &cli.command,
-        Commands::Setup { owml_path: _ } | Commands::Version
+        Commands::Setup {
+            owml_path: _,
+            prerelease: _
+        } | Commands::Version
     );
 
     if !config.check_owml() && !ran_setup {
@@ -52,7 +55,10 @@ async fn run_from_cli(cli: BaseCli) -> Result<()> {
         Commands::Version => {
             info!(env!("CARGO_PKG_VERSION"));
         }
-        Commands::Setup { owml_path } => {
+        Commands::Setup {
+            owml_path,
+            prerelease,
+        } => {
             if let Some(owml_path) = owml_path {
                 let mut new_config = config.clone();
                 new_config.owml_path = owml_path.to_str().unwrap().to_string();
@@ -73,7 +79,7 @@ async fn run_from_cli(cli: BaseCli) -> Result<()> {
                 let owml = db
                     .get_owml()
                     .ok_or_else(|| anyhow!("OWML not found, is the database URL correct?"))?;
-                download_and_install_owml(&config, owml).await?;
+                download_and_install_owml(&config, owml, *prerelease).await?;
                 info!("Done! Happy Modding!");
             }
         }
@@ -88,6 +94,13 @@ async fn run_from_cli(cli: BaseCli) -> Result<()> {
                         .to_ascii_uppercase(),
                     alert.message.unwrap_or_else(|| "No message".to_string())
                 );
+                if let Some(url) = alert.url {
+                    info!(
+                        "{}: {}",
+                        alert.url_label.unwrap_or(String::from("More Info")),
+                        url
+                    );
+                }
             } else {
                 info!("No alert");
             };

@@ -7,8 +7,8 @@ use typeshare::typeshare;
 
 use crate::{
     constants::{
-        CONFIG_FILE_NAME, DEFAULT_ALERT_URL, DEFAULT_DB_URL, OWML_DEFAULT_CONFIG_NAME,
-        OWML_EXE_NAME, OWML_MANIFEST_NAME,
+        CONFIG_FILE_NAME, DEFAULT_ALERT_URL, DEFAULT_DB_URL, OLD_ALERT_URL,
+        OWML_DEFAULT_CONFIG_NAME, OWML_EXE_NAME, OWML_MANIFEST_NAME,
     },
     file::{deserialize_from_json, get_app_path, get_default_owml_path, serialize_to_json},
 };
@@ -83,7 +83,15 @@ impl Config {
         debug!("Reading Config From {}", path.to_str().unwrap());
         let mut new_conf: Config = deserialize_from_json(path)?;
         new_conf.path = path.to_path_buf();
-        Ok(new_conf)
+        Ok(new_conf.migrate())
+    }
+
+    // Migrate a config from older versions
+    fn migrate(mut self) -> Self {
+        if self.alert_url == OLD_ALERT_URL {
+            self.alert_url = DEFAULT_ALERT_URL.to_string();
+        }
+        self
     }
 
     /// Get the config from the provided path (or default one), creating a default file if it doesn't exist.
@@ -173,6 +181,18 @@ mod tests {
         config.save().unwrap();
         let config = Config::get(Some(path)).unwrap();
         assert_eq!(config.owml_path, "/different/path");
+        dir.close().unwrap();
+    }
+
+    #[test]
+    pub fn test_config_migrate_alert() {
+        let dir = make_test_dir();
+        let path = dir.path().join("settings.json");
+        let mut config = Config::default(Some(path.clone())).unwrap();
+        config.alert_url = OLD_ALERT_URL.to_string();
+        config.save().unwrap();
+        let config = Config::get(Some(path)).unwrap();
+        assert_eq!(config.alert_url, DEFAULT_ALERT_URL);
         dir.close().unwrap();
     }
 

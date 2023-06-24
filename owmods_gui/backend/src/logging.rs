@@ -83,7 +83,9 @@ impl log::Log for Logger {
                 handle.emit_all("PROGRESS-UPDATE", "").ok();
             });
             Ok(())
-        } else if self.enabled(record.metadata()) && record.target().starts_with("owmods") {
+        } else if self.enabled(record.metadata()) && record.target().starts_with("owmods")
+            || record.target().starts_with("outer-wilds-mod-manager")
+        {
             let message = format!("{}", record.args());
             self.write_log_to_file(record.level(), &message)
                 .unwrap_or_else(|e| {

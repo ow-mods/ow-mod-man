@@ -49,13 +49,13 @@ pub fn get_mod_enabled(mod_path: &Path) -> Result<bool> {
         let conf = read_config(&config_path)?;
         Ok(conf.enabled)
     } else {
-        Ok(false)
+        generate_config(&config_path)?;
+        Ok(true)
     }
 }
 
 /// Toggle a mod to a given enabled value.
 /// Also support applying this action recursively.
-///
 ///
 /// ## Returns
 ///
@@ -256,7 +256,7 @@ mod tests {
         let (dir, db, new_mod) = setup();
         let mod_path = PathBuf::from(new_mod.mod_path);
         remove_file(mod_path.join("config.json")).unwrap();
-        assert!(!get_mod_enabled(&mod_path).unwrap());
+        assert!(get_mod_enabled(&mod_path).unwrap());
         toggle_mod("Bwc9876.TimeSaver", &db, false, false).unwrap();
         assert!(mod_path.join("config.json").is_file());
         let new_mod = LocalDatabase::read_local_mod(&mod_path.join("manifest.json")).unwrap();

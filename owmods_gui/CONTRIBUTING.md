@@ -6,6 +6,10 @@ This package is called `owmods_gui` so anytime you want to perform cargo command
 
 Ex: `cargo add tokio` should become `cargo add clap -p owmods_gui`.
 
+## Setup on Linux
+
+Please follow the [tauri docs](https://tauri.app/v1/guides/getting-started/prerequisites#setting-up-linux) for instructions on installing the necessary system packages.
+
 ## pnpm
 
 The frontend for this package is made with TS so you need to install related dependencies. First cd in to `owmods_gui/frontend`, then run `pnpm i`
@@ -27,7 +31,7 @@ cd owmods_gui/frontend
 pnpm gen-types
 ```
 
-This will generate `types.d.ts` in `owmods_gui/frontend/src/types.d.ts`, **make sure to format this file with prettier (`pnpm prettify`)**.
+This will generate `types.d.ts` in `owmods_gui/frontend/src/types.d.ts`.
 
 ## Formatting & Linting
 

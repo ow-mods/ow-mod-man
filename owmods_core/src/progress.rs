@@ -136,6 +136,7 @@ pub struct ProgressBar {
     id: String,
     len: ProgressValue,
     progress: ProgressValue,
+    throttled_progress: ProgressValue,
     failure_message: String,
     complete: bool,
 }
@@ -153,6 +154,7 @@ impl ProgressBar {
             id: id.to_string(),
             len,
             progress: 0,
+            throttled_progress: 0,
             failure_message: failure_message.to_string(),
             complete: false,
         };
@@ -161,12 +163,18 @@ impl ProgressBar {
     }
 
     pub fn inc(&mut self, amount: ProgressValue) {
+        const THROTTLING_AMOUNT: ProgressValue = 30;
+
         self.progress = if self.progress + amount >= self.len {
             self.len
         } else {
             self.progress + amount
         };
-        info!(target: "progress", "Increment|{}|{}", self.id, self.progress);
+
+        if self.progress - self.throttled_progress > self.len / THROTTLING_AMOUNT {
+            self.throttled_progress = self.progress;
+            info!(target: "progress", "Increment|{}|{}", self.id, self.progress);
+        }
     }
 
     pub fn set_msg(&self, msg: &str) {

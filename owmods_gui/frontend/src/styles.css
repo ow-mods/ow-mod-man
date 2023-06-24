@@ -1,0 +1,11 @@
+body {
+    /* Try to reduce white screen */
+    background-color: #121212;
+    height: 100vh;
+}
+
+#root {
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+}

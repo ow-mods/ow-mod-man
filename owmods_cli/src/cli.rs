@@ -24,7 +24,15 @@ pub enum Commands {
     #[command(about = "Print Version")]
     Version,
     #[command(about = "Install/Update OWML (default installs to %APPDATA%/ow-mod-man/OWML)")]
-    Setup { owml_path: Option<PathBuf> },
+    Setup {
+        owml_path: Option<PathBuf>,
+        #[arg(
+            help = "Use the prerelease version of OWML to setup (if there is one)",
+            short = 'p',
+            long = "prerelease"
+        )]
+        prerelease: bool,
+    },
     #[command(
         about = "View the current database alert (if there is one)",
         alias = "alerts"

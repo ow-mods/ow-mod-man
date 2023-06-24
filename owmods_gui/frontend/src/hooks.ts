@@ -5,9 +5,7 @@ import {
     TranslationMap,
     type TranslationKey
 } from "@components/common/TranslationContext";
-import ThemeMap from "./theme";
-import { Theme } from "@types";
-import rainbowTheme from "@styles/rainbow.scss?inline";
+import { FailedMod, LocalMod, RemoteMod, UnsafeLocalMod } from "@types";
 
 export type LoadState = "Loading" | "Done" | "Error";
 
@@ -77,12 +75,70 @@ export const useGetTranslation = () => {
     );
 };
 
-export const useTheme = (theme: Theme, rainbow: boolean) => {
+export function useDebounce<TValue>(value: TValue, delayMs: number): TValue {
+    const [debouncedValue, setDebouncedValue] = useState<TValue>(value);
+
     useEffect(() => {
-        let newTheme = ThemeMap[theme ?? "White"];
-        if (rainbow) {
-            newTheme += rainbowTheme;
-        }
-        document.getElementById("currentTheme")!.textContent = newTheme;
-    }, [theme, rainbow]);
+        const handler = setTimeout(() => {
+            setDebouncedValue(value);
+        }, delayMs);
+
+        return () => {
+            clearTimeout(handler);
+        };
+    }, [value, delayMs]);
+
+    return debouncedValue;
+}
+
+export interface UnifiedMod {
+    name: string;
+    author: string;
+    description: string | undefined;
+    version: string;
+    enabled: boolean;
+    outdated: boolean;
+}
+
+const safeOrNull = (mod: UnsafeLocalMod | null) => {
+    if (mod === null) return null;
+    if (mod.loadState === "invalid") {
+        return null;
+    } else {
+        return mod.mod as LocalMod;
+    }
 };
+
+export function useUnifiedMod(local: UnsafeLocalMod | null, remote: RemoteMod | null) {
+    const name = useMemo(
+        () =>
+            remote?.name ??
+            safeOrNull(local)?.manifest.name ??
+            ((local?.mod as FailedMod) ?? { displayPath: null }).displayPath ??
+            "",
+        [local, remote]
+    );
+    const author = useMemo(
+        () => remote?.authorDisplay ?? remote?.author ?? safeOrNull(local)?.manifest.author ?? "—",
+        [local, remote]
+    );
+
+    const description = remote?.description;
+
+    const version = useMemo(() => safeOrNull(local)?.manifest.version ?? "—", [local]);
+
+    const enabled = safeOrNull(local)?.enabled ?? false;
+
+    const outdated = useMemo(
+        () => safeOrNull(local)?.errors.find((e) => e.errorType === "Outdated") ?? false,
+        [local]
+    );
+    return {
+        name,
+        author,
+        description,
+        version,
+        enabled,
+        outdated
+    } as UnifiedMod;
+}

@@ -7,7 +7,7 @@
     },
     "package": {
         "productName": "Outer Wilds Mod Manager",
-        "version": "0.6.1"
+        "version": "0.7.0"
     },
     "tauri": {
         "allowlist": {
@@ -27,7 +27,7 @@
                 "all": true
             },
             "shell": {
-                "open": "(^https://github.com/)|(^https://discord.gg/)"
+                "open": "(^https://github.com/)|(^https://discord.gg/wusTQYbYTc$)|(^https://outerwildsmods.com/)"
             },
             "window": {
                 "setTitle": true,
@@ -81,7 +81,11 @@
             }
         },
         "security": {
-            "csp": "default-src 'self'"
+            "csp": "default-src 'self'; style-src 'self' 'unsafe-inline'; font-src 'self' data:",
+            "dangerousDisableAssetCspModification": [
+                "style-src",
+                "font-src"
+            ]
         },
         "updater": {
             "active": true,

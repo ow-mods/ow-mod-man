@@ -8,10 +8,18 @@ use crate::mods::local::{LocalMod, ModWarning};
 /// Represents an alert gotten from the database.
 #[typeshare]
 #[derive(Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct Alert {
+    /// Whether the alert should be shown
     pub enabled: bool,
+    /// The severity for the alert, should be `info`, `warning`, or `error`
     pub severity: Option<String>,
+    /// The message for the alert
     pub message: Option<String>,
+    /// Displays a link or button in the cli and gui respectively. **Note this is limited to GitHub, Discord, and the Mods Website**
+    pub url: Option<String>,
+    /// Optional label to display for the link instead of "More Info"
+    pub url_label: Option<String>,
 }
 
 /// Fetch an alert from the given url.
@@ -40,6 +48,8 @@ pub async fn fetch_alert(url: &str) -> Result<Alert> {
             enabled: false,
             severity: None,
             message: None,
+            url: None,
+            url_label: None,
         })
     }
 }

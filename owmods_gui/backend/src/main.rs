@@ -6,9 +6,10 @@
 use std::{collections::HashMap, error::Error, fs::File, io::BufWriter, sync::Arc};
 
 use commands::*;
+use fs_watch::setup_fs_watch;
 use game::GameMessage;
 use gui_config::GuiConfig;
-use log::{debug, set_boxed_logger, set_max_level, warn};
+use log::{debug, error, set_boxed_logger, set_max_level, warn};
 use logging::Logger;
 use owmods_core::{
     config::Config,
@@ -21,6 +22,7 @@ use tauri::Manager;
 use tokio::sync::RwLock as TokioLock;
 
 mod commands;
+mod fs_watch;
 mod game;
 mod gui_config;
 mod logging;
@@ -72,10 +74,12 @@ fn main() -> Result<(), Box<dyn Error>> {
             gui_config: manage(gui_config),
             game_log: manage(HashMap::new()),
             protocol_url: manage(url),
-            progress_bars: manage(ProgressBars(HashMap::new())),
+            progress_bars: manage(ProgressBars::new()),
             mods_in_progress: manage(vec![]),
         })
         .setup(move |app| {
+            // Logger Setup
+
             let logger = Logger::new(app.handle());
             logger
                 .write_log_to_file(
@@ -87,6 +91,8 @@ fn main() -> Result<(), Box<dyn Error>> {
                 )
                 .ok();
             set_boxed_logger(Box::new(logger)).map(|_| set_max_level(log::LevelFilter::Debug))?;
+
+            // Protocol Listener Setup
 
             let handle = app.handle();
 
@@ -106,6 +112,16 @@ fn main() -> Result<(), Box<dyn Error>> {
 
             if let Err(why) = res {
                 warn!("Failed to register URI handler: {:?}", why);
+            }
+
+            // File System Watch Setup
+
+            let handle = app.handle();
+
+            let res = setup_fs_watch(handle);
+
+            if let Err(why) = res {
+                error!("Failed to setup file watching: {:?}", why);
             }
 
             Ok(())
@@ -149,7 +165,6 @@ fn main() -> Result<(), Box<dyn Error>> {
             fix_mod_deps,
             db_has_issues,
             get_alert,
-            get_watcher_paths,
             pop_protocol_url,
             check_owml,
             get_defaults,
@@ -159,7 +174,6 @@ fn main() -> Result<(), Box<dyn Error>> {
             has_disabled_deps
         ])
         .plugin(tauri_plugin_window_state::Builder::default().build())
-        .plugin(tauri_plugin_fs_watch::init())
         .run(tauri::generate_context!())
         .expect("Error while running tauri application.");
     Ok(())

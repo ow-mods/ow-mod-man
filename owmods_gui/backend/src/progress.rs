@@ -16,12 +16,12 @@ pub struct ProgressBar {
     progress_type: ProgressType,
     progress_action: ProgressAction,
     len: ProgressValue,
-    total: ProgressValue,
     success: Option<bool>,
+    position: u32,
 }
 
-impl From<ProgressStartPayload> for ProgressBar {
-    fn from(value: ProgressStartPayload) -> Self {
+impl ProgressBar {
+    fn from_payload(value: ProgressStartPayload, position: u32) -> Self {
         Self {
             id: value.id,
             message: value.msg,
@@ -30,35 +30,48 @@ impl From<ProgressStartPayload> for ProgressBar {
             progress: 0,
             len: value.len,
             success: None,
-            total: value.len,
+            position,
         }
     }
 }
 
 #[typeshare]
 #[derive(Serialize, Clone)]
-pub struct ProgressBars(pub HashMap<String, ProgressBar>);
+pub struct ProgressBars {
+    pub bars: HashMap<String, ProgressBar>,
+    counter: u32,
+}
 
 impl ProgressBars {
+    pub fn new() -> Self {
+        Self {
+            bars: HashMap::new(),
+            counter: 0,
+        }
+    }
+
     pub fn process(&mut self, payload: &str) {
         let payload = ProgressPayload::parse(payload);
         match payload {
             ProgressPayload::Start(start_payload) => {
-                self.0
-                    .insert(start_payload.id.clone(), start_payload.into());
+                self.bars.insert(
+                    start_payload.id.clone(),
+                    ProgressBar::from_payload(start_payload, self.counter),
+                );
+                self.counter += 1;
             }
             ProgressPayload::Increment(payload) => {
-                if let Some(bar) = self.0.get_mut(&payload.id) {
+                if let Some(bar) = self.bars.get_mut(&payload.id) {
                     bar.progress = payload.progress
                 }
             }
             ProgressPayload::Msg(payload) => {
-                if let Some(bar) = self.0.get_mut(&payload.id) {
+                if let Some(bar) = self.bars.get_mut(&payload.id) {
                     bar.message = payload.msg
                 }
             }
             ProgressPayload::Finish(payload) => {
-                if let Some(bar) = self.0.get_mut(&payload.id) {
+                if let Some(bar) = self.bars.get_mut(&payload.id) {
                     bar.message = payload.msg;
                     bar.progress = bar.len;
                     bar.success = Some(payload.success);

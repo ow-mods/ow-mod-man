@@ -4,7 +4,6 @@ use owmods_core::file::{deserialize_from_json, get_app_path, serialize_to_json};
 use serde::{Deserialize, Serialize};
 use typeshare::typeshare;
 
-#[typeshare]
 #[derive(Default, Serialize, Deserialize, Clone)]
 pub enum Theme {
     #[default]

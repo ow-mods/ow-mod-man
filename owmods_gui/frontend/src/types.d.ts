@@ -200,18 +200,6 @@ export type ModValidationError =
     /** The mod is outdated, contains the newest version */
     | { errorType: "Outdated"; payload: string };
 
-export enum Theme {
-    White = "White",
-    Blue = "Blue",
-    Green = "Green",
-    Pink = "Pink",
-    Purple = "Purple",
-    Yellow = "Yellow",
-    Orange = "Orange",
-    Blurple = "Blurple",
-    GhostlyGreen = "GhostlyGreen"
-}
-
 export enum Language {
     English = "English",
     Wario = "Wario"

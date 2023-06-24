@@ -85,7 +85,7 @@ pub async fn update_all(
                 owml.as_ref().unwrap().manifest.version,
                 remote_owml.unwrap().version
             );
-            download_and_install_owml(config, remote_owml.unwrap()).await?;
+            download_and_install_owml(config, remote_owml.unwrap(), false).await?;
         }
     }
 

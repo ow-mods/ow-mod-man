@@ -49,7 +49,7 @@ const commandInfo = {
     installMod: $<CommandInfo<{ uniqueName: string; prerelease?: boolean }, void>>("install_mod"),
     installUrl: $<ActionCommand<{ url: string }>>("install_url"),
     installZip: $<ActionCommand<{ path: string }>>("install_zip"),
-    installOwml: $<EmptyCommand>("install_owml"),
+    installOwml: $<ActionCommand<{ prerelease: boolean }>>("install_owml"),
     setOwml: $<CommandInfo<{ path: string }, boolean>>("set_owml"),
     saveConfig: $<ActionCommand<{ config: Config }>>("save_config"),
     saveGuiConfig: $<ActionCommand<{ guiConfig: GuiConfig }>>("save_gui_config"),

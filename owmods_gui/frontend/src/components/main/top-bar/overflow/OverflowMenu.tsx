@@ -1,9 +1,10 @@
 import { useGetTranslation } from "@hooks";
-import { HelpRounded, MoreHoriz } from "@mui/icons-material";
+import { BuildRounded, HelpRounded, MoreHoriz } from "@mui/icons-material";
 import { ListItemIcon, ListItemText, MenuItem, Tooltip } from "@mui/material";
 import IconButton from "@mui/material/IconButton";
 import Menu from "@mui/material/Menu";
 import { shell } from "@tauri-apps/api";
+import { emit } from "@tauri-apps/api/event";
 import { useState, MouseEvent, useCallback, lazy, Suspense } from "react";
 
 const About = lazy(() => import("./About"));
@@ -24,6 +25,11 @@ const OverflowMenu = () => {
 
     const onHelp = useCallback(() => {
         shell.open("https://github.com/Bwc9876/ow-mod-man/blob/main/owmods_gui/HELP.md");
+        onClose();
+    }, [onClose]);
+
+    const onOwmlEdit = useCallback(() => {
+        emit("OPEN_OWML_SETUP", {});
         onClose();
     }, [onClose]);
 
@@ -57,6 +63,12 @@ const OverflowMenu = () => {
                     <Export onClick={onClose} />
                     <Import onClick={onClose} />
                 </Suspense>
+                <MenuItem onClick={onOwmlEdit}>
+                    <ListItemIcon>
+                        <BuildRounded fontSize="small" />
+                    </ListItemIcon>
+                    <ListItemText>{getTranslation("EDIT_OWML")}</ListItemText>
+                </MenuItem>
                 <MenuItem onClick={onHelp}>
                     <ListItemIcon>
                         <HelpRounded fontSize="small" />

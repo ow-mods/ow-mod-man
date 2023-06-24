@@ -17,13 +17,14 @@ import { dialog } from "@tauri-apps/api";
 import { listen } from "@tauri-apps/api/event";
 import { memo, useCallback, useEffect, useState } from "react";
 
-type SetupType = "INSTALL_OWML" | "LOCATE_OWML";
+type SetupType = "INSTALL_OWML" | "LOCATE_OWML" | "INSTALL_OWML_PRERELEASE";
 
 const OwmlModal = memo(function OwmlModal() {
     const getTranslation = useGetTranslation();
     const theme = useTheme();
 
     const [open, setOpen] = useState(false);
+    const [canCancel, setCanCancel] = useState(false);
     const [installingOwml, setInstallingOwml] = useState(false);
 
     if (import.meta.env.DEV) {
@@ -39,23 +40,33 @@ const OwmlModal = memo(function OwmlModal() {
 
     const owmlCheck = useCallback(() => {
         commands.checkOWML().then((valid) => {
-            if (!valid) setOpen(true);
+            if (!valid) {
+                setOpen(true);
+                setCanCancel(false);
+            }
         });
     }, []);
 
-    const onClose = useCallback(() => {
+    const onSubmit = useCallback(() => {
         setInstallingOwml(true);
-        if (setupMethod === "INSTALL_OWML") {
+        if (setupMethod === "INSTALL_OWML" || setupMethod === "INSTALL_OWML_PRERELEASE") {
             commands
-                .installOwml({}, false)
+                .installOwml({ prerelease: setupMethod === "INSTALL_OWML_PRERELEASE" }, false)
                 .then(() => {
                     handleClose();
                 })
-                .catch(() => {
-                    dialog.message(getTranslation("OWML_INSTALL_ERROR"), {
-                        type: "error",
-                        title: getTranslation("FATAL_ERROR")
-                    });
+                .catch((e) => {
+                    dialog.message(
+                        getTranslation(
+                            e === "No prerelease for OWML found"
+                                ? "OWML_NO_PRERELEASE"
+                                : "OWML_INSTALL_ERROR"
+                        ),
+                        {
+                            type: "error",
+                            title: getTranslation("FATAL_ERROR")
+                        }
+                    );
                 })
                 .finally(() => setInstallingOwml(false));
         } else {
@@ -76,6 +87,18 @@ const OwmlModal = memo(function OwmlModal() {
     useEffect(() => owmlCheck(), [owmlCheck]);
 
     useEffect(() => {
+        let cancel = false;
+        listen("OPEN_OWML_SETUP", () => {
+            if (cancel) return;
+            setOpen(true);
+            setCanCancel(true);
+        });
+        return () => {
+            cancel = true;
+        };
+    }, []);
+
+    useEffect(() => {
         let cancelled = false;
         listen("OWML_CONFIG_RELOAD", () => {
             if (cancelled) return;
@@ -87,7 +110,7 @@ const OwmlModal = memo(function OwmlModal() {
     }, [owmlCheck]);
 
     return (
-        <Dialog open={open}>
+        <Dialog onClose={canCancel ? handleClose : undefined} open={open}>
             <DialogTitle>{getTranslation("SETUP")}</DialogTitle>
             <DialogContent dividers>
                 <Box display="flex" flexDirection="column" gap={theme.spacing(1)}>
@@ -100,6 +123,9 @@ const OwmlModal = memo(function OwmlModal() {
                         onChange={(e) => setSetupMethod(e.target.value as SetupType)}
                     >
                         <MenuItem value="INSTALL_OWML">{getTranslation("INSTALL_OWML")}</MenuItem>
+                        <MenuItem value="INSTALL_OWML_PRERELEASE">
+                            {getTranslation("INSTALL_OWML_PRERELEASE")}
+                        </MenuItem>
                         <MenuItem value="LOCATE_OWML">{getTranslation("LOCATE_OWML")}</MenuItem>
                     </TextField>
                     {setupMethod === "LOCATE_OWML" && (
@@ -118,11 +144,12 @@ const OwmlModal = memo(function OwmlModal() {
                 </Box>
             </DialogContent>
             <DialogActions>
+                {canCancel && <Button onClick={handleClose}>{getTranslation("CANCEL")}</Button>}
                 <Button
                     disabled={installingOwml}
                     color="primary"
                     variant="contained"
-                    onClick={onClose}
+                    onClick={onSubmit}
                 >
                     {getTranslation("CONTINUE")}
                 </Button>

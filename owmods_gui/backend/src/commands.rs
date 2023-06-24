@@ -408,15 +408,18 @@ pub async fn get_owml_config(state: tauri::State<'_, State>) -> Result<OWMLConfi
 }
 
 #[tauri::command]
-pub async fn install_owml(state: tauri::State<'_, State>, handle: tauri::AppHandle) -> Result {
+pub async fn install_owml(
+    prerelease: bool,
+    state: tauri::State<'_, State>,
+    handle: tauri::AppHandle,
+) -> Result {
     let config = state.config.read().await;
     let db = state.remote_db.read().await;
     let owml = db
         .get_owml()
         .ok_or_else(|| anyhow!("Error Installing OWML"))?;
-    download_and_install_owml(&config, owml).await?;
+    download_and_install_owml(&config, owml, prerelease).await?;
     handle.emit_all("OWML_CONFIG_RELOAD", "").ok();
-
     Ok(())
 }
 
@@ -501,6 +504,7 @@ pub async fn update_mod(
             remote_db
                 .get_owml()
                 .ok_or_else(|| anyhow!("OWML Not Found!"))?,
+            false,
         )
         .await?;
     } else {

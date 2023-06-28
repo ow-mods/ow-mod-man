@@ -856,3 +856,9 @@ pub async fn has_disabled_deps(unique_name: &str, state: tauri::State<'_, State>
     }
     Ok(flag)
 }
+
+#[tauri::command]
+pub async fn log_error(err: &str) -> Result {
+    error!("Error Received From Frontend: {}", err);
+    Ok(())
+}

@@ -5,6 +5,7 @@ import theme from "../../theme";
 import { TranslationContext } from "./TranslationContext";
 import { Language } from "@types";
 import { ReactNode, memo } from "react";
+import StyledErrorBoundary from "./StyledErrorBoundary";
 
 export interface BaseAppProps {
     isLoading: boolean;
@@ -25,19 +26,21 @@ const BaseApp = memo(function BaseApp(props: BaseAppProps) {
                         alignItems="center"
                         justifyContent="center"
                     >
-                        {props.isLoading ? (
-                            <CircularProgress color="neutral" />
-                        ) : (
+                        {props.fatalError ? (
                             <Typography variant="h5" color="error">
-                                <ErrorRounded /> Fatal Error <br /> {props.fatalError}
+                                <ErrorRounded /> Fatal Error <br /> {props.fatalError?.toString()}
                             </Typography>
+                        ) : (
+                            <CircularProgress color="neutral" />
                         )}
                     </Box>
                 ) : (
                     <TranslationContext.Provider value={props.language!}>
-                        <Box display="flex" flexDirection="column" height="100%">
-                            {props.children}
-                        </Box>
+                        <StyledErrorBoundary center>
+                            <Box display="flex" flexDirection="column" height="100%">
+                                {props.children}
+                            </Box>
+                        </StyledErrorBoundary>
                     </TranslationContext.Provider>
                 )}
             </CssBaseline>

@@ -78,18 +78,30 @@ pub async fn send_analytics_event(event_name: AnalyticsEventName, unique_name: &
         let client = Client::new();
         let payload = AnalyticsPayload::new(&event_name, unique_name);
         debug!("Sending {:?}", payload);
-        let resp = client.post(url).json(&payload).send().await?;
-        if resp.status().is_success() {
-            debug!(
-                "Successfully Sent Analytics Event {:?} for {}",
-                event_name, unique_name
-            );
-        } else {
-            warn!(
-                "Couldn't Send Analytics Event For {}! {}",
-                unique_name,
-                resp.status().as_u16()
-            )
+        let resp = client.post(url).json(&payload).send().await;
+        match resp {
+            Ok(resp) => {
+                if resp.status().is_success() {
+                    debug!(
+                        "Successfully Sent Analytics Event {:?} for {}",
+                        event_name, unique_name
+                    );
+                } else {
+                    warn!(
+                        "Couldn't Send Analytics Event For {}! {}",
+                        unique_name,
+                        resp.status()
+                    )
+                }
+            }
+            Err(why) => {
+                let err_text = format!(
+                    "Couldn't Send Analytics Event For {}! {:?}",
+                    unique_name, why
+                )
+                .replace(api_key, "***");
+                warn!("{}", err_text);
+            }
         }
     } else {
         debug!(

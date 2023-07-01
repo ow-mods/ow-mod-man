@@ -6,7 +6,7 @@ import { UpdateRounded } from "@mui/icons-material";
 import { Button } from "@mui/material";
 import { useGetTranslation } from "@hooks";
 
-const UpdateModsPage = memo(function UpdateModsPage(props: { show: boolean }) {
+const UpdateModsPage = memo(function UpdateModsPage() {
     const getTranslation = useGetTranslation();
 
     const [filter, setFilter] = useState("");
@@ -46,7 +46,6 @@ const UpdateModsPage = memo(function UpdateModsPage(props: { show: boolean }) {
             isLoading={status === "Loading" && updateMods === null}
             actionsSize={130}
             noModsText={getTranslation("NO_UPDATES")}
-            show={props.show}
             filter={filter}
             onFilterChange={setFilter}
             uniqueNames={updateMods ?? []}

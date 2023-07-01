@@ -6,8 +6,9 @@ import {
     type TranslationKey
 } from "@components/common/TranslationContext";
 import { FailedMod, LocalMod, RemoteMod, UnsafeLocalMod } from "@types";
+import { useErrorBoundary } from "react-error-boundary";
 
-export type LoadState = "Loading" | "Done" | "Error";
+export type LoadState = "Loading" | "Done";
 
 /**
  * Use @commands:hooks if possible
@@ -16,32 +17,33 @@ export const useTauri = <T>(
     eventName: string | string[],
     commandFn: () => Promise<T>,
     payload: unknown
-): [LoadState, T | null, string | null] => {
+): [LoadState, T | null] => {
     const [status, setStatus] = useState<LoadState>("Loading");
     const [data, setData] = useState<T | null>(null);
-    const [error, setError] = useState<string | null>(null);
     const events = useMemo(() => (Array.isArray(eventName) ? eventName : [eventName]), [eventName]);
+
+    const errorBound = useErrorBoundary();
 
     useEffect(() => {
         if (status !== "Loading") {
             for (const eventToSubscribe of events) {
                 listen(eventToSubscribe, () => setStatus("Loading")).catch((e) => {
-                    setStatus("Error");
-                    setError(e);
+                    setStatus("Done");
+                    errorBound.showBoundary(e);
                 });
             }
         } else {
             commandFn()
                 .then((data) => {
                     setData(data as T);
-                    setStatus("Done");
+                    errorBound.resetBoundary();
                 })
                 .catch((e) => {
-                    setError(e as string);
-                    setStatus("Error");
-                });
+                    errorBound.showBoundary(e);
+                })
+                .finally(() => setStatus("Done"));
         }
-    }, [commandFn, events, status]);
+    }, [commandFn, errorBound, events, status]);
 
     useEffect(() => {
         if (status === "Done") {
@@ -50,7 +52,7 @@ export const useTauri = <T>(
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [...Object.values(payload ?? [])]);
 
-    return [status, data, error];
+    return [status, data];
 };
 
 export const useGetTranslation = () => {

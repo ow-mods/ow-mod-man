@@ -5,7 +5,7 @@ import LocalModRow from "./LocalModRow";
 import LocalModsToggleButtons from "./LocalModsToggleButtons";
 import { useGetTranslation } from "@hooks";
 
-const LocalModsPage = memo(function LocalModsPage(props: { show: boolean }) {
+const LocalModsPage = memo(function LocalModsPage() {
     useEffect(() => {
         commands.refreshLocalDb();
     }, []);
@@ -34,7 +34,6 @@ const LocalModsPage = memo(function LocalModsPage(props: { show: boolean }) {
             isLoading={status === "Loading" && localMods === null}
             actionsSize={130}
             noModsText={getTranslation("NO_MODS")}
-            show={props.show}
             filter={filter}
             onFilterChange={setFilter}
             uniqueNames={localMods ?? []}

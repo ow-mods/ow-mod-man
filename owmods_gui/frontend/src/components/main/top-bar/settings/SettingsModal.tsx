@@ -9,7 +9,6 @@ import {
     Dialog,
     DialogActions,
     DialogContent,
-    DialogContentText,
     DialogTitle
 } from "@mui/material";
 
@@ -21,9 +20,9 @@ export interface SettingsModalProps {
 const SettingsModal = memo(function SettingsModal({ open, onClose }: SettingsModalProps) {
     const settingsFormRef = useRef<SettingsFormHandle>();
 
-    const [configStatus, config, err1] = hooks.getConfig("CONFIG_RELOAD");
-    const [guiConfigStatus, guiConfig, err2] = hooks.getGuiConfig("GUI_CONFIG_RELOAD");
-    const [owmlConfigStatus, owmlConfig, err3] = hooks.getOwmlConfig("OWML_CONFIG_RELOAD");
+    const [configStatus, config] = hooks.getConfig("CONFIG_RELOAD");
+    const [guiConfigStatus, guiConfig] = hooks.getGuiConfig("GUI_CONFIG_RELOAD");
+    const [owmlConfigStatus, owmlConfig] = hooks.getOwmlConfig("OWML_CONFIG_RELOAD");
 
     const status = [configStatus, guiConfigStatus, owmlConfigStatus];
 
@@ -43,15 +42,8 @@ const SettingsModal = memo(function SettingsModal({ open, onClose }: SettingsMod
         <Dialog maxWidth="md" keepMounted fullWidth open={open} onClose={onCancel}>
             <DialogTitle>{getTranslation("SETTINGS")}</DialogTitle>
             <DialogContent dividers>
-                {status.includes("Error") ? (
-                    <DialogContentText>
-                        {/* Since we couldn't load settings we'll be stuck in English anyway, 
-                                so no need to translate this */}
-                        Error: Couldn&apos;t Load Settings: {err1?.toString() ?? ""}{" "}
-                        {err2?.toString() ?? ""} {err3?.toString() ?? ""}
-                    </DialogContentText>
-                ) : status.includes("Loading") &&
-                  (config === null || guiConfig === null || owmlConfig === null) ? (
+                {status.includes("Loading") &&
+                (config === null || guiConfig === null || owmlConfig === null) ? (
                     <Box display="flex" alignItems="center" justifyContent="center">
                         <CircularProgress color="neutral" />
                     </Box>

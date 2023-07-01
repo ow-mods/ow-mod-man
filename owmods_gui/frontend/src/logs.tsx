@@ -3,7 +3,8 @@ import { commands } from "@commands";
 import { listen } from "@tauri-apps/api/event";
 import LogApp from "@components/logs/LogApp";
 import { ErrorBoundary } from "react-error-boundary";
-import { fallbackRender, onError } from "./main";
+import { fallbackRender } from "./main";
+import { onError } from "@components/common/StyledErrorBoundary";
 
 let port = 0;
 

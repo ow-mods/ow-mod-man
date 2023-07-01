@@ -23,7 +23,7 @@ const ReloadIcon = memo(function ReloadIcon() {
                     await commands.initialSetup();
                 }
                 if (refreshRemote) {
-                    await commands.refreshRemoteDb();
+                    await commands.refreshRemoteDb({}, false);
                 }
             };
             task().finally(() => {

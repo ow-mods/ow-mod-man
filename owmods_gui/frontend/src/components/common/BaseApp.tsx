@@ -1,6 +1,5 @@
 import { ThemeProvider } from "@emotion/react";
-import { ErrorRounded } from "@mui/icons-material";
-import { CssBaseline, Box, CircularProgress, Typography } from "@mui/material";
+import { CssBaseline, Box, CircularProgress } from "@mui/material";
 import theme from "../../theme";
 import { TranslationContext } from "./TranslationContext";
 import { Language } from "@types";
@@ -11,7 +10,6 @@ export interface BaseAppProps {
     isLoading: boolean;
     children: ReactNode;
     language?: Language;
-    fatalError?: string;
 }
 
 const BaseApp = memo(function BaseApp(props: BaseAppProps) {
@@ -26,13 +24,7 @@ const BaseApp = memo(function BaseApp(props: BaseAppProps) {
                         alignItems="center"
                         justifyContent="center"
                     >
-                        {props.fatalError ? (
-                            <Typography variant="h5" color="error">
-                                <ErrorRounded /> Fatal Error <br /> {props.fatalError?.toString()}
-                            </Typography>
-                        ) : (
-                            <CircularProgress color="neutral" />
-                        )}
+                        <CircularProgress color="neutral" />
                     </Box>
                 ) : (
                     <TranslationContext.Provider value={props.language!}>

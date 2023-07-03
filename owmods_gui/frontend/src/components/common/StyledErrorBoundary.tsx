@@ -114,4 +114,10 @@ export const withStyledErrorBoundary = <Props extends object>(
         onError
     });
 
+export const basicFallbackRender = ({ error }: { error: unknown }) => (
+    <p
+        style={{ color: "rgb(255, 83, 83)", marginTop: "50vh", textAlign: "center" }}
+    >{`Fatal Error: ${error}`}</p>
+);
+
 export default StyledErrorBoundary;

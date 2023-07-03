@@ -3,8 +3,7 @@ import { commands } from "@commands";
 import { listen } from "@tauri-apps/api/event";
 import LogApp from "@components/logs/LogApp";
 import { ErrorBoundary } from "react-error-boundary";
-import { fallbackRender } from "./main";
-import { onError } from "@components/common/StyledErrorBoundary";
+import { basicFallbackRender, onError } from "@components/common/StyledErrorBoundary";
 
 let port = 0;
 
@@ -14,7 +13,7 @@ listen("GAME-START", (e) => {
     port = e.payload as number;
 
     ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
-        <ErrorBoundary fallbackRender={fallbackRender} onError={onError}>
+        <ErrorBoundary fallbackRender={basicFallbackRender} onError={onError}>
             <LogApp port={port} />
         </ErrorBoundary>
     );

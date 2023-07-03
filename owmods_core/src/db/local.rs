@@ -230,7 +230,12 @@ impl LocalDatabase {
             }
         }) {
             let (needs_update, remote) = check_mod_needs_update(local_mod, db);
-            if needs_update {
+            if needs_update
+                && !local_mod
+                    .errors
+                    .iter()
+                    .any(|e| matches!(e, ModValidationError::Outdated(_)))
+            {
                 local_mod.errors.push(ModValidationError::Outdated(
                     remote.unwrap().version.clone(),
                 ));

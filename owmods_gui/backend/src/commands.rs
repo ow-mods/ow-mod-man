@@ -28,6 +28,7 @@ use owmods_core::{
     validate::fix_deps,
 };
 use serde::Serialize;
+use tauri::AppHandle;
 use tauri::{api::dialog, async_runtime, Manager, WindowEvent};
 use time::{macros::format_description, OffsetDateTime};
 use tokio::{sync::mpsc, try_join};
@@ -94,6 +95,19 @@ pub async fn initial_setup(handle: tauri::AppHandle, state: tauri::State<'_, Sta
     Ok(())
 }
 
+pub fn sync_remote_and_local(handle: &AppHandle) -> Result {
+    let handle2 = handle.clone();
+    // Defer checking if a mod needs to update to prevent deadlock
+    async_runtime::spawn(async move {
+        let state = handle2.state::<State>();
+        let mut local_db = state.local_db.write().await;
+        let remote_db = state.remote_db.read().await;
+        local_db.validate_updates(&remote_db);
+        handle2.emit_all("LOCAL-REFRESH", "").ok();
+    });
+    Ok(())
+}
+
 #[tauri::command]
 pub async fn refresh_local_db(handle: tauri::AppHandle, state: tauri::State<'_, State>) -> Result {
     let conf = state.config.read().await;
@@ -103,16 +117,7 @@ pub async fn refresh_local_db(handle: tauri::AppHandle, state: tauri::State<'_, 
         *db = local_db;
     }
     handle.emit_all("LOCAL-REFRESH", "").ok();
-
-    let handle2 = handle.clone();
-    // Defer checking if a mod needs to update to prevent deadlock
-    async_runtime::spawn(async move {
-        let state = handle2.state::<State>();
-        let mut local_db = state.local_db.write().await;
-        let remote_db = state.remote_db.read().await;
-        local_db.validate_updates(&remote_db);
-        handle.emit_all("LOCAL-REFRESH", "").ok();
-    });
+    sync_remote_and_local(&handle)?;
     Ok(())
 }
 
@@ -165,7 +170,7 @@ pub async fn refresh_remote_db(handle: tauri::AppHandle, state: tauri::State<'_,
         *db = remote_db;
     }
     handle.emit_all("REMOTE-REFRESH", "").ok();
-
+    sync_remote_and_local(&handle)?;
     Ok(())
 }
 

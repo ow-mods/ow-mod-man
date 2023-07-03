@@ -533,19 +533,32 @@ pub async fn update_all_mods(
     let local_db = state.local_db.read().await;
     let remote_db = state.remote_db.read().await;
     let mut busy_mods = state.mods_in_progress.write().await;
+    let owml_in_list = unique_names.contains(&OWML_UNIQUE_NAME.to_string());
     let unique_names: Vec<String> = unique_names
         .iter()
-        .filter(|m| !busy_mods.contains(m))
+        .filter(|m| !busy_mods.contains(m) && m != &&OWML_UNIQUE_NAME.to_string())
         .cloned()
         .collect();
     busy_mods.extend(unique_names.clone());
+    if owml_in_list {
+        busy_mods.push(OWML_UNIQUE_NAME.to_string());
+    }
     drop(busy_mods);
     handle.emit_all("MOD-BUSY", "").ok();
     install_mods_parallel(unique_names.clone(), &config, &remote_db, &local_db).await?;
+    if owml_in_list {
+        download_and_install_owml(
+            &config,
+            remote_db
+                .get_owml()
+                .ok_or_else(|| anyhow!("Couldn't find OWML in database"))?,
+            false,
+        )
+        .await?;
+    }
     let mut busy_mods = state.mods_in_progress.write().await;
-    busy_mods.retain(|m| !unique_names.contains(m));
+    busy_mods.retain(|m| !unique_names.contains(m) && (!owml_in_list || m != OWML_UNIQUE_NAME));
     handle.emit_all("MOD-BUSY", "").ok();
-
     Ok(())
 }
 

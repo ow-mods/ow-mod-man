@@ -1,6 +1,6 @@
 import { useGetTranslation } from "@hooks";
 import { ErrorRounded } from "@mui/icons-material";
-import { Box, Paper, Typography, useTheme } from "@mui/material";
+import { Box, Button, Paper, Typography, useTheme } from "@mui/material";
 import { ComponentType, ReactNode, useEffect, useMemo } from "react";
 import { ErrorBoundary, withErrorBoundary } from "react-error-boundary";
 import { TranslationKey } from "./TranslationContext";
@@ -12,6 +12,8 @@ export interface StyledErrorBoundaryProps {
     center?: boolean;
     errorKey?: TranslationKey;
     resetEvent?: string;
+    onFix?: () => void;
+    fixButtonKey?: TranslationKey;
 }
 
 export const onError = (err: unknown, info: { componentStack: string }) => {
@@ -20,11 +22,7 @@ export const onError = (err: unknown, info: { componentStack: string }) => {
     });
 };
 
-const fallback = (
-    center?: StyledErrorBoundaryProps["center"],
-    errKey?: StyledErrorBoundaryProps["errorKey"],
-    resetEvent?: StyledErrorBoundaryProps["resetEvent"]
-) =>
+const fallback = (options: Omit<StyledErrorBoundaryProps, "children">) =>
     function Fallback({
         error,
         resetErrorBoundary
@@ -38,8 +36,8 @@ const fallback = (
 
         useEffect(() => {
             let cancel = false;
-            if (resetEvent) {
-                listen(resetEvent, () => {
+            if (options.resetEvent) {
+                listen(options.resetEvent, () => {
                     if (cancel) return;
                     resetErrorBoundary();
                 });
@@ -65,18 +63,23 @@ const fallback = (
                         display="flex"
                         flexDirection="row"
                     >
-                        <ErrorRounded /> {getTranslation(errKey ?? "FATAL_ERROR")}
+                        <ErrorRounded /> {getTranslation(options.errorKey ?? "FATAL_ERROR")}
                     </Box>
                     <Box bgcolor={theme.palette.grey[900]}>
                         <Typography padding={3} variant="body2">
                             {errorString ? errorString : getTranslation("UNKNOWN_ERROR")}
                         </Typography>
                     </Box>
+                    {options.onFix && (
+                        <Button fullWidth onClick={options.onFix}>
+                            {getTranslation(options.fixButtonKey ?? "FIX")}
+                        </Button>
+                    )}
                 </Box>
             </Paper>
         );
 
-        return center ? (
+        return options.center ? (
             <Box
                 display="flex"
                 width="100%"
@@ -93,14 +96,13 @@ const fallback = (
     };
 
 const StyledErrorBoundary = (props: StyledErrorBoundaryProps) => {
-    const FallbackComp = useMemo(
-        () => fallback(props.center, props.errorKey, props.resetEvent),
-        [props.center, props.errorKey, props.resetEvent]
-    );
+    const { children, ...options } = props;
+
+    const FallbackComp = useMemo(() => fallback(options), [options]);
 
     return (
         <ErrorBoundary FallbackComponent={FallbackComp} onError={onError}>
-            {props.children}
+            {children}
         </ErrorBoundary>
     );
 };
@@ -116,7 +118,7 @@ export const withStyledErrorBoundary = <Props extends object>(
 
 export const basicFallbackRender = ({ error }: { error: unknown }) => (
     <p
-        style={{ color: "rgb(255, 83, 83)", marginTop: "50vh", textAlign: "center" }}
+        style={{ color: "rgb(255, 83, 83)", margin: "50vh 10vw", textAlign: "center" }}
     >{`Fatal Error: ${error}`}</p>
 );
 

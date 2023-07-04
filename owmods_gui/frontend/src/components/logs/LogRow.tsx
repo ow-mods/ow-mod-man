@@ -105,4 +105,4 @@ const LogRow = memo(function LogRow(props: LogRowProps) {
     );
 });
 
-export default withStyledErrorBoundary(LogRow);
+export default withStyledErrorBoundary(LogRow, {});

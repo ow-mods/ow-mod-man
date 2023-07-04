@@ -80,9 +80,23 @@ pub async fn mark_mod_busy(
 #[tauri::command]
 pub async fn initial_setup(handle: tauri::AppHandle, state: tauri::State<'_, State>) -> Result {
     let mut config = state.config.write().await;
-    *config = Config::get(None)?;
+    *config = Config::get(None).map_err(|e| {
+        anyhow!(
+            "Error loading Settings: {}. Please delete or fix {}",
+            e,
+            config.path.to_str().unwrap()
+        )
+    })?;
     let mut gui_config = state.gui_config.write().await;
-    *gui_config = GuiConfig::get()?;
+    *gui_config = GuiConfig::get().map_err(|e| {
+        anyhow!(
+            "Error loading GUI Settings: {}. Please delete or fix {}",
+            e,
+            GuiConfig::path()
+                .map(|p| p.to_str().unwrap().to_string())
+                .unwrap_or("Error Loading Path".to_string())
+        )
+    })?;
     handle
         .emit_all("GUI_CONFIG_RELOAD", gui_config.watch_fs)
         .ok();

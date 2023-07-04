@@ -11,6 +11,7 @@ import AppAlert from "./AppAlert";
 import BaseApp from "@components/common/BaseApp";
 import OwmlModal from "./OwmlModal";
 import StyledErrorBoundary from "@components/common/StyledErrorBoundary";
+import { useErrorBoundary } from "react-error-boundary";
 
 const RemoteModsPage = lazy(() => import("./mods/remote/RemoteModsPage"));
 const UpdateModsPage = lazy(() => import("./mods/updates/UpdateModsPage"));
@@ -38,9 +39,11 @@ const MainApp = () => {
     const [selectedTab, setSelectedTab] = useState<ModsTab>("local");
     const [status, guiConfig] = hooks.getGuiConfig("GUI_CONFIG_RELOAD");
 
+    const errorBound = useErrorBoundary();
+
     useEffect(() => {
-        commands.initialSetup();
-    }, []);
+        commands.initialSetup({}, false).catch((e) => errorBound.showBoundary(e));
+    }, [errorBound]);
 
     useEffect(() => {
         if (guiConfig?.language !== null) {

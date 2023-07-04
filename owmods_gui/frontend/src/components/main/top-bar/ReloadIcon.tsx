@@ -5,12 +5,15 @@ import { CircularProgress } from "@mui/material";
 import { RefreshRounded } from "@mui/icons-material";
 import { AppIcon } from "./AppIcons";
 import { listen } from "@tauri-apps/api/event";
+import { useErrorBoundary } from "react-error-boundary";
 
 const ReloadIcon = memo(function ReloadIcon() {
     const getTranslation = useGetTranslation();
 
     const [isRefreshing, setRefreshing] = useState(false);
     const currentTimeout = useRef<number | null>(null);
+
+    const errorBound = useErrorBoundary();
 
     const onRefresh = useCallback(
         (refreshLocal: boolean, refreshRemote: boolean, refreshConfigs: boolean) => {
@@ -20,7 +23,7 @@ const ReloadIcon = memo(function ReloadIcon() {
                     await commands.refreshLocalDb();
                 }
                 if (refreshConfigs) {
-                    await commands.initialSetup();
+                    await commands.initialSetup({}, false).catch((e) => errorBound.showBoundary(e));
                 }
                 if (refreshRemote) {
                     await commands.refreshRemoteDb({}, false);
@@ -30,7 +33,7 @@ const ReloadIcon = memo(function ReloadIcon() {
                 setRefreshing(false);
             });
         },
-        []
+        [errorBound]
     );
 
     const onRefreshButton = useCallback(() => {

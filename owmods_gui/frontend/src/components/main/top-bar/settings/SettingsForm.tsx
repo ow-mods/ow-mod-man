@@ -77,7 +77,7 @@ const SettingsForm = forwardRef(function SettingsForm(props: SettingsFormProps, 
                     setGuiConfig(props.initialGuiConfig);
                     setOwmlConfig(props.initialOwmlConfig);
                 }
-            } as SettingsFormHandle),
+            }) as SettingsFormHandle,
         [
             config,
             owmlConfig,

@@ -17,6 +17,7 @@ import { app, os, shell } from "@tauri-apps/api";
 import { memo, useCallback, useEffect, useState } from "react";
 import logo from "@assets/images/logo.png?w=256&h=256&format=webp&imagetools";
 import ODTooltip from "@components/common/ODTooltip";
+import { commands } from "@commands";
 
 export interface ModalProps {
     onClick?: () => void;
@@ -32,9 +33,28 @@ const About = memo(function About({ onClick }: ModalProps) {
     const [archRaw, setArch] = useState("");
 
     useEffect(() => {
-        app.getVersion().then(setVersion);
-        os.platform().then(setPlatform);
-        os.arch().then(setArch);
+        const onErr = (e: string) => {
+            commands.logError({ err: e.toString() });
+        };
+
+        app.getVersion()
+            .then(setVersion)
+            .catch((e) => {
+                onErr(e);
+                setVersion("Error");
+            });
+        os.platform()
+            .then(setPlatform)
+            .catch((e) => {
+                onErr(e);
+                setPlatform("Error");
+            });
+        os.arch()
+            .then(setArch)
+            .catch((e) => {
+                onErr(e);
+                setArch("Error");
+            });
     }, []);
 
     const handleClick = useCallback(() => {

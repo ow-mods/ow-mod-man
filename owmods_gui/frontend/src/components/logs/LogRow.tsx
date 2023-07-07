@@ -1,6 +1,5 @@
 import { hooks } from "@commands";
 import ODTooltip from "@components/common/ODTooltip";
-import { withStyledErrorBoundary } from "@components/common/StyledErrorBoundary";
 import { Box, Chip, Palette, Skeleton, TableCell, Typography, useTheme } from "@mui/material";
 import { SocketMessageType } from "@types";
 import { Fragment, MutableRefObject, memo, useLayoutEffect, useMemo } from "react";
@@ -105,4 +104,4 @@ const LogRow = memo(function LogRow(props: LogRowProps) {
     );
 });
 
-export default withStyledErrorBoundary(LogRow, {});
+export default LogRow;

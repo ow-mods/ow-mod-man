@@ -1,6 +1,6 @@
-import { hooks } from "@commands";
+import { commands, hooks } from "@commands";
 import { useGetTranslation } from "@hooks";
-import { memo, useCallback, useRef } from "react";
+import { forwardRef, memo, useCallback, useRef } from "react";
 import SettingsForm, { SettingsFormHandle } from "./SettingsForm";
 import {
     Box,
@@ -9,24 +9,42 @@ import {
     Dialog,
     DialogActions,
     DialogContent,
-    DialogContentText,
     DialogTitle
 } from "@mui/material";
+import StyledErrorBoundary from "@components/common/StyledErrorBoundary";
 
 export interface SettingsModalProps {
     open: boolean;
     onClose: () => void;
 }
 
+const SettingsModalContent = memo(
+    forwardRef(function SettingsModalContent(_, ref) {
+        const [configStatus, config] = hooks.getConfig("CONFIG_RELOAD");
+        const [guiConfigStatus, guiConfig] = hooks.getGuiConfig("GUI_CONFIG_RELOAD");
+        const [owmlConfigStatus, owmlConfig] = hooks.getOwmlConfig("OWML_CONFIG_RELOAD");
+
+        const status = [configStatus, guiConfigStatus, owmlConfigStatus];
+
+        return status.includes("Loading") &&
+            (config === null || guiConfig === null || owmlConfig === null) ? (
+            <Box display="flex" alignItems="center" justifyContent="center">
+                <CircularProgress color="neutral" />
+            </Box>
+        ) : (
+            <SettingsForm
+                key={status.join("-")}
+                ref={ref}
+                initialConfig={config!}
+                initialOwmlConfig={owmlConfig!}
+                initialGuiConfig={guiConfig!}
+            />
+        );
+    })
+);
+
 const SettingsModal = memo(function SettingsModal({ open, onClose }: SettingsModalProps) {
     const settingsFormRef = useRef<SettingsFormHandle>();
-
-    const [configStatus, config, err1] = hooks.getConfig("CONFIG_RELOAD");
-    const [guiConfigStatus, guiConfig, err2] = hooks.getGuiConfig("GUI_CONFIG_RELOAD");
-    const [owmlConfigStatus, owmlConfig, err3] = hooks.getOwmlConfig("OWML_CONFIG_RELOAD");
-
-    const status = [configStatus, guiConfigStatus, owmlConfigStatus];
-
     const getTranslation = useGetTranslation();
 
     const onSave = useCallback(() => {
@@ -39,31 +57,25 @@ const SettingsModal = memo(function SettingsModal({ open, onClose }: SettingsMod
         onClose?.();
     }, [onClose]);
 
+    const onFix = useCallback(() => {
+        commands.getDefaultConfigs().then((defaults) => {
+            commands.saveOwmlConfig({ owmlConfig: defaults[2] });
+        });
+    }, []);
+
     return (
         <Dialog maxWidth="md" keepMounted fullWidth open={open} onClose={onCancel}>
             <DialogTitle>{getTranslation("SETTINGS")}</DialogTitle>
             <DialogContent dividers>
-                {status.includes("Error") ? (
-                    <DialogContentText>
-                        {/* Since we couldn't load settings we'll be stuck in English anyway, 
-                                so no need to translate this */}
-                        Error: Couldn&apos;t Load Settings: {err1?.toString() ?? ""}{" "}
-                        {err2?.toString() ?? ""} {err3?.toString() ?? ""}
-                    </DialogContentText>
-                ) : status.includes("Loading") &&
-                  (config === null || guiConfig === null || owmlConfig === null) ? (
-                    <Box display="flex" alignItems="center" justifyContent="center">
-                        <CircularProgress color="neutral" />
-                    </Box>
-                ) : (
-                    <SettingsForm
-                        key={status.join("-")}
-                        ref={settingsFormRef}
-                        initialConfig={config!}
-                        initialOwmlConfig={owmlConfig!}
-                        initialGuiConfig={guiConfig!}
-                    />
-                )}
+                <StyledErrorBoundary
+                    center
+                    errorKey="ERROR_LOADING_OWML_CONFIG"
+                    resetEvent="OWML_CONFIG_RELOAD"
+                    onFix={onFix}
+                    fixButtonKey="RESET"
+                >
+                    <SettingsModalContent />
+                </StyledErrorBoundary>
             </DialogContent>
             <DialogActions>
                 <Button onClick={onCancel}>{getTranslation("CANCEL")}</Button>

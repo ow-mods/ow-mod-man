@@ -80,7 +80,8 @@ const commandInfo = {
     getDownloads: $<GetCommand<ProgressBars>>("get_downloads"),
     clearDownloads: $<EmptyCommand>("clear_downloads"),
     getModBusy: $<ModCommand<boolean>>("get_mod_busy"),
-    hasDisabledDeps: $<ModCommand<boolean>>("has_disabled_deps")
+    hasDisabledDeps: $<ModCommand<boolean>>("has_disabled_deps"),
+    logError: $<ActionCommand<{ err: string }>>("log_error")
 };
 
 type Command = keyof typeof commandInfo;

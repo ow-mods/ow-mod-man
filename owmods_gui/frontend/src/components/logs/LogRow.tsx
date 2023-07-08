@@ -33,7 +33,7 @@ const getColor = (palette: Palette, messageType: SocketMessageType) => {
 const LogRow = memo(function LogRow(props: LogRowProps) {
     const theme = useTheme();
 
-    const [status, logLine, err] = hooks.getLogLine("LOG-UPDATE", {
+    const [status, logLine] = hooks.getLogLine("", {
         port: props.port,
         line: props.index
     });
@@ -82,10 +82,6 @@ const LogRow = memo(function LogRow(props: LogRowProps) {
                                 <Skeleton width={150} />
                                 <Skeleton width={102} />
                             </>
-                        ) : status === "Error" ? (
-                            <Typography flexGrow={1} color="error">
-                                {err?.toString()}
-                            </Typography>
                         ) : (
                             <Typography minWidth={0} color={getColor(theme.palette, messageType)}>
                                 {messageLines.map((line, i) => (

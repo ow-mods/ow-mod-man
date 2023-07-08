@@ -28,6 +28,7 @@ use owmods_core::{
     validate::fix_deps,
 };
 use serde::Serialize;
+use tauri::AppHandle;
 use tauri::{api::dialog, async_runtime, Manager, WindowEvent};
 use time::{macros::format_description, OffsetDateTime};
 use tokio::{sync::mpsc, try_join};
@@ -79,9 +80,23 @@ pub async fn mark_mod_busy(
 #[tauri::command]
 pub async fn initial_setup(handle: tauri::AppHandle, state: tauri::State<'_, State>) -> Result {
     let mut config = state.config.write().await;
-    *config = Config::get(None)?;
+    *config = Config::get(None).map_err(|e| {
+        anyhow!(
+            "Error loading Settings: {}. Please delete or fix {}",
+            e,
+            config.path.to_str().unwrap()
+        )
+    })?;
     let mut gui_config = state.gui_config.write().await;
-    *gui_config = GuiConfig::get()?;
+    *gui_config = GuiConfig::get().map_err(|e| {
+        anyhow!(
+            "Error loading GUI Settings: {}. Please delete or fix {}",
+            e,
+            GuiConfig::path()
+                .map(|p| p.to_str().unwrap().to_string())
+                .unwrap_or("Error Loading Path".to_string())
+        )
+    })?;
     handle
         .emit_all("GUI_CONFIG_RELOAD", gui_config.watch_fs)
         .ok();
@@ -94,6 +109,19 @@ pub async fn initial_setup(handle: tauri::AppHandle, state: tauri::State<'_, Sta
     Ok(())
 }
 
+pub fn sync_remote_and_local(handle: &AppHandle) -> Result {
+    let handle2 = handle.clone();
+    // Defer checking if a mod needs to update to prevent deadlock
+    async_runtime::spawn(async move {
+        let state = handle2.state::<State>();
+        let mut local_db = state.local_db.write().await;
+        let remote_db = state.remote_db.read().await;
+        local_db.validate_updates(&remote_db);
+        handle2.emit_all("LOCAL-REFRESH", "").ok();
+    });
+    Ok(())
+}
+
 #[tauri::command]
 pub async fn refresh_local_db(handle: tauri::AppHandle, state: tauri::State<'_, State>) -> Result {
     let conf = state.config.read().await;
@@ -103,16 +131,7 @@ pub async fn refresh_local_db(handle: tauri::AppHandle, state: tauri::State<'_, 
         *db = local_db;
     }
     handle.emit_all("LOCAL-REFRESH", "").ok();
-
-    let handle2 = handle.clone();
-    // Defer checking if a mod needs to update to prevent deadlock
-    async_runtime::spawn(async move {
-        let state = handle2.state::<State>();
-        let mut local_db = state.local_db.write().await;
-        let remote_db = state.remote_db.read().await;
-        local_db.validate_updates(&remote_db);
-        handle.emit_all("LOCAL-REFRESH", "").ok();
-    });
+    sync_remote_and_local(&handle)?;
     Ok(())
 }
 
@@ -165,7 +184,7 @@ pub async fn refresh_remote_db(handle: tauri::AppHandle, state: tauri::State<'_,
         *db = remote_db;
     }
     handle.emit_all("REMOTE-REFRESH", "").ok();
-
+    sync_remote_and_local(&handle)?;
     Ok(())
 }
 
@@ -533,19 +552,32 @@ pub async fn update_all_mods(
     let local_db = state.local_db.read().await;
     let remote_db = state.remote_db.read().await;
     let mut busy_mods = state.mods_in_progress.write().await;
+    let owml_in_list = unique_names.contains(&OWML_UNIQUE_NAME.to_string());
     let unique_names: Vec<String> = unique_names
         .iter()
-        .filter(|m| !busy_mods.contains(m))
+        .filter(|m| !busy_mods.contains(m) && m != &&OWML_UNIQUE_NAME.to_string())
         .cloned()
         .collect();
     busy_mods.extend(unique_names.clone());
+    if owml_in_list {
+        busy_mods.push(OWML_UNIQUE_NAME.to_string());
+    }
     drop(busy_mods);
     handle.emit_all("MOD-BUSY", "").ok();
     install_mods_parallel(unique_names.clone(), &config, &remote_db, &local_db).await?;
+    if owml_in_list {
+        download_and_install_owml(
+            &config,
+            remote_db
+                .get_owml()
+                .ok_or_else(|| anyhow!("Couldn't find OWML in database"))?,
+            false,
+        )
+        .await?;
+    }
     let mut busy_mods = state.mods_in_progress.write().await;
-    busy_mods.retain(|m| !unique_names.contains(m));
+    busy_mods.retain(|m| !unique_names.contains(m) && (!owml_in_list || m != OWML_UNIQUE_NAME));
     handle.emit_all("MOD-BUSY", "").ok();
-
     Ok(())
 }
 
@@ -855,4 +887,10 @@ pub async fn has_disabled_deps(unique_name: &str, state: tauri::State<'_, State>
         }
     }
     Ok(flag)
+}
+
+#[tauri::command]
+pub async fn log_error(err: &str) -> Result {
+    error!("Error Received From Frontend: {}", err);
+    Ok(())
 }

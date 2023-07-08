@@ -6,7 +6,6 @@ import ModsTable from "./ModsTable";
 export interface ModsPageProps {
     isLoading: boolean;
     actionsSize: number;
-    show: boolean;
     filter: string;
     noModsText: string;
     onFilterChange: (newVal: string) => void;
@@ -23,7 +22,6 @@ const ModsPage = memo(function ModsPage(props: ModsPageProps) {
             sx={{
                 padding: theme.spacing(2),
                 height: "100%",
-                display: props.show ? "flex" : "none",
                 flexDirection: "column"
             }}
             disableGutters

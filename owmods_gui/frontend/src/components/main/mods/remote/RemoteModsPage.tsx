@@ -6,13 +6,18 @@ import { Button } from "@mui/material";
 import { useGetTranslation } from "@hooks";
 import { PublicRounded } from "@mui/icons-material";
 import { shell } from "@tauri-apps/api";
+import { useErrorBoundary } from "react-error-boundary";
 
-const RemoteModsPage = memo(function RemoteModsPage(props: { show: boolean }) {
+const RemoteModsPage = memo(function RemoteModsPage() {
     const getTranslation = useGetTranslation();
 
+    const errorBound = useErrorBoundary();
+
     useEffect(() => {
-        commands.refreshRemoteDb({}, false).catch(console.warn);
-    }, []);
+        commands.refreshRemoteDb({}, false).catch((e) => {
+            errorBound.showBoundary(e?.toString() ?? getTranslation("UNKNOWN_ERROR"));
+        });
+    }, [errorBound, getTranslation]);
 
     const [filter, setFilter] = useState("");
 
@@ -32,7 +37,6 @@ const RemoteModsPage = memo(function RemoteModsPage(props: { show: boolean }) {
 
     return (
         <ModsPage
-            show={props.show}
             actionsSize={100}
             noModsText={getTranslation("NO_REMOTE_MODS")}
             isLoading={status === "Loading" && remoteMods === null}

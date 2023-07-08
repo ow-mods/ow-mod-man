@@ -25,7 +25,7 @@ const getFilterToPass = (activeFilter: LogFilter) => {
 };
 
 const LogApp = ({ port }: { port: number }) => {
-    const [status, guiConfig, err] = hooks.getGuiConfig("GUI_CONFIG_RELOAD");
+    const [status, guiConfig] = hooks.getGuiConfig("GUI_CONFIG_RELOAD");
 
     const [activeFilter, setActiveFilter] = useState<LogFilter>("Any");
     const [activeSearch, setActiveSearch] = useState<string>("");
@@ -81,7 +81,6 @@ const LogApp = ({ port }: { port: number }) => {
         <BaseApp
             language={guiConfig?.language}
             isLoading={status === "Loading" || logLines === null}
-            fatalError={err?.toString()}
         >
             <Container
                 disableGutters

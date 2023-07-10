@@ -74,7 +74,7 @@ const SettingsModal = memo(function SettingsModal({ open, onClose }: SettingsMod
                     onFix={onFix}
                     fixButtonKey="RESET"
                 >
-                    <SettingsModalContent />
+                    <SettingsModalContent ref={settingsFormRef} />
                 </StyledErrorBoundary>
             </DialogContent>
             <DialogActions>

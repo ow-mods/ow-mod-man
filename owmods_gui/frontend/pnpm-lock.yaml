@@ -15,14 +15,14 @@ dependencies:
         specifier: ^5.0.5
         version: 5.0.5
     "@mui/icons-material":
-        specifier: ^5.13.7
-        version: 5.13.7(@mui/material@5.13.7)(@types/react@18.2.14)(react@18.2.0)
+        specifier: ^5.14.0
+        version: 5.14.0(@mui/material@5.14.0)(@types/react@18.2.14)(react@18.2.0)
     "@mui/lab":
         specifier: 5.0.0-alpha.135
-        version: 5.0.0-alpha.135(@emotion/react@11.11.1)(@emotion/styled@11.11.0)(@mui/material@5.13.7)(@types/react@18.2.14)(react-dom@18.2.0)(react@18.2.0)
+        version: 5.0.0-alpha.135(@emotion/react@11.11.1)(@emotion/styled@11.11.0)(@mui/material@5.14.0)(@types/react@18.2.14)(react-dom@18.2.0)(react@18.2.0)
     "@mui/material":
-        specifier: ^5.13.7
-        version: 5.13.7(@emotion/react@11.11.1)(@emotion/styled@11.11.0)(@types/react@18.2.14)(react-dom@18.2.0)(react@18.2.0)
+        specifier: ^5.14.0
+        version: 5.14.0(@emotion/react@11.11.1)(@emotion/styled@11.11.0)(@types/react@18.2.14)(react-dom@18.2.0)(react@18.2.0)
     "@tauri-apps/api":
         specifier: ^1.4.0
         version: 1.4.0
@@ -54,7 +54,7 @@ devDependencies:
         version: 6.0.0(eslint@8.44.0)(typescript@5.1.6)
     "@vitejs/plugin-react":
         specifier: ^4.0.3
-        version: 4.0.3(vite@4.4.2)
+        version: 4.0.3(vite@4.4.3)
     eslint:
         specifier: ^8.44.0
         version: 8.44.0
@@ -71,14 +71,14 @@ devDependencies:
         specifier: ^5.1.6
         version: 5.1.6
     vite:
-        specifier: ^4.4.2
-        version: 4.4.2
+        specifier: ^4.4.3
+        version: 4.4.3
     vite-imagetools:
         specifier: ^5.0.5
         version: 5.0.5
     vite-plugin-html:
         specifier: ^3.2.0
-        version: 3.2.0(vite@4.4.2)
+        version: 3.2.0(vite@4.4.3)
 
 packages:
     /@aashutoshrathi/word-wrap@1.2.6:
@@ -989,17 +989,44 @@ packages:
             react-is: 18.2.0
         dev: false
 
-    /@mui/core-downloads-tracker@5.13.7:
+    /@mui/base@5.0.0-beta.7(@types/react@18.2.14)(react-dom@18.2.0)(react@18.2.0):
         resolution:
             {
-                integrity: sha512-/suIo4WoeL/OyO3KUsFVpdOmKiSAr6NpWXmQ4WLSxwKrTiha1FJxM6vwAki5W/5kR9WnVLw5E8JC4oHHsutT8w==
+                integrity: sha512-Pjbwm6gjiS96kOMF7E5fjEJsenc0tZBesrLQ4rrdi3eT/c/yhSWnPbCUkHSz8bnS0l3/VQ8bA+oERSGSV2PK6A==
+            }
+        engines: { node: ">=12.0.0" }
+        peerDependencies:
+            "@types/react": ^17.0.0 || ^18.0.0
+            react: ^17.0.0 || ^18.0.0
+            react-dom: ^17.0.0 || ^18.0.0
+        peerDependenciesMeta:
+            "@types/react":
+                optional: true
+        dependencies:
+            "@babel/runtime": 7.22.6
+            "@emotion/is-prop-valid": 1.2.1
+            "@mui/types": 7.2.4(@types/react@18.2.14)
+            "@mui/utils": 5.13.7(react@18.2.0)
+            "@popperjs/core": 2.11.8
+            "@types/react": 18.2.14
+            clsx: 1.2.1
+            prop-types: 15.8.1
+            react: 18.2.0
+            react-dom: 18.2.0(react@18.2.0)
+            react-is: 18.2.0
+        dev: false
+
+    /@mui/core-downloads-tracker@5.14.0:
+        resolution:
+            {
+                integrity: sha512-SYBOVCatVDUf/lbrLGah09bHhX5WfUXg7kSskfLILr6SvKRni0NLp0aonxQ0SMALVVK3Qwa6cW4CdWuwS0gC1w==
             }
         dev: false
 
-    /@mui/icons-material@5.13.7(@mui/material@5.13.7)(@types/react@18.2.14)(react@18.2.0):
+    /@mui/icons-material@5.14.0(@mui/material@5.14.0)(@types/react@18.2.14)(react@18.2.0):
         resolution:
             {
-                integrity: sha512-zoVtkb9jYVUGfI7CobOdDBEAlpg3XESiO6cWqSDGwEma69+CBDIAwGpnO5truvQDJHBGSAfzFj3nObwxjkyA7Q==
+                integrity: sha512-z7lYNteDi1GMkF9JP/m2RWuCYK1M/FlaeBSUK7/IhIYzIXNhAVjfD8jRq5vFBV31qkEi2aGBS2z5SfLXwH6U0A==
             }
         engines: { node: ">=12.0.0" }
         peerDependencies:
@@ -1011,12 +1038,12 @@ packages:
                 optional: true
         dependencies:
             "@babel/runtime": 7.22.6
-            "@mui/material": 5.13.7(@emotion/react@11.11.1)(@emotion/styled@11.11.0)(@types/react@18.2.14)(react-dom@18.2.0)(react@18.2.0)
+            "@mui/material": 5.14.0(@emotion/react@11.11.1)(@emotion/styled@11.11.0)(@types/react@18.2.14)(react-dom@18.2.0)(react@18.2.0)
             "@types/react": 18.2.14
             react: 18.2.0
         dev: false
 
-    /@mui/lab@5.0.0-alpha.135(@emotion/react@11.11.1)(@emotion/styled@11.11.0)(@mui/material@5.13.7)(@types/react@18.2.14)(react-dom@18.2.0)(react@18.2.0):
+    /@mui/lab@5.0.0-alpha.135(@emotion/react@11.11.1)(@emotion/styled@11.11.0)(@mui/material@5.14.0)(@types/react@18.2.14)(react-dom@18.2.0)(react@18.2.0):
         resolution:
             {
                 integrity: sha512-l/Yus4dGZbwm51GXpepgSmvlVxrK3CNUxPamEocqdhFkh0U/8QlfyOqeRGPXGLvxpj+efABXT0yZTapwbZBjcg==
@@ -1041,8 +1068,8 @@ packages:
             "@emotion/react": 11.11.1(@types/react@18.2.14)(react@18.2.0)
             "@emotion/styled": 11.11.0(@emotion/react@11.11.1)(@types/react@18.2.14)(react@18.2.0)
             "@mui/base": 5.0.0-beta.6(@types/react@18.2.14)(react-dom@18.2.0)(react@18.2.0)
-            "@mui/material": 5.13.7(@emotion/react@11.11.1)(@emotion/styled@11.11.0)(@types/react@18.2.14)(react-dom@18.2.0)(react@18.2.0)
-            "@mui/system": 5.13.7(@emotion/react@11.11.1)(@emotion/styled@11.11.0)(@types/react@18.2.14)(react@18.2.0)
+            "@mui/material": 5.14.0(@emotion/react@11.11.1)(@emotion/styled@11.11.0)(@types/react@18.2.14)(react-dom@18.2.0)(react@18.2.0)
+            "@mui/system": 5.14.0(@emotion/react@11.11.1)(@emotion/styled@11.11.0)(@types/react@18.2.14)(react@18.2.0)
             "@mui/types": 7.2.4(@types/react@18.2.14)
             "@mui/utils": 5.13.7(react@18.2.0)
             "@types/react": 18.2.14
@@ -1053,10 +1080,10 @@ packages:
             react-is: 18.2.0
         dev: false
 
-    /@mui/material@5.13.7(@emotion/react@11.11.1)(@emotion/styled@11.11.0)(@types/react@18.2.14)(react-dom@18.2.0)(react@18.2.0):
+    /@mui/material@5.14.0(@emotion/react@11.11.1)(@emotion/styled@11.11.0)(@types/react@18.2.14)(react-dom@18.2.0)(react@18.2.0):
         resolution:
             {
-                integrity: sha512-+n453jDDm88zZM3b5YK29nZ7gXY+s+rryH9ovDbhmfSkOlFtp+KSqbXy5cTaC/UlDqDM7sYYJGq8BmJov3v9Tg==
+                integrity: sha512-HP7CP71NhMkui2HUIEKl2/JfuHMuoarSUWAKlNw6s17bl/Num9rN61EM6uUzc2A2zHjj/00A66GnvDnmixEJEw==
             }
         engines: { node: ">=12.0.0" }
         peerDependencies:
@@ -1076,9 +1103,9 @@ packages:
             "@babel/runtime": 7.22.6
             "@emotion/react": 11.11.1(@types/react@18.2.14)(react@18.2.0)
             "@emotion/styled": 11.11.0(@emotion/react@11.11.1)(@types/react@18.2.14)(react@18.2.0)
-            "@mui/base": 5.0.0-beta.6(@types/react@18.2.14)(react-dom@18.2.0)(react@18.2.0)
-            "@mui/core-downloads-tracker": 5.13.7
-            "@mui/system": 5.13.7(@emotion/react@11.11.1)(@emotion/styled@11.11.0)(@types/react@18.2.14)(react@18.2.0)
+            "@mui/base": 5.0.0-beta.7(@types/react@18.2.14)(react-dom@18.2.0)(react@18.2.0)
+            "@mui/core-downloads-tracker": 5.14.0
+            "@mui/system": 5.14.0(@emotion/react@11.11.1)(@emotion/styled@11.11.0)(@types/react@18.2.14)(react@18.2.0)
             "@mui/types": 7.2.4(@types/react@18.2.14)
             "@mui/utils": 5.13.7(react@18.2.0)
             "@types/react": 18.2.14
@@ -1137,10 +1164,10 @@ packages:
             react: 18.2.0
         dev: false
 
-    /@mui/system@5.13.7(@emotion/react@11.11.1)(@emotion/styled@11.11.0)(@types/react@18.2.14)(react@18.2.0):
+    /@mui/system@5.14.0(@emotion/react@11.11.1)(@emotion/styled@11.11.0)(@types/react@18.2.14)(react@18.2.0):
         resolution:
             {
-                integrity: sha512-7R2KdI6vr8KtnauEfg9e9xQmPk6Gg/1vGNiALYyhSI+cYztxN6WmlSqGX4bjWn/Sygp1TUE1jhFEgs7MWruhkQ==
+                integrity: sha512-0HZGkX8miJbiNw+rjlZ9l0Cfkz1bSqfSHQH0EH9J+nx0aAm5cBleg9piOlLdCNIWGgecCqsw4x62erGrGjjcJg==
             }
         engines: { node: ">=12.0.0" }
         peerDependencies:
@@ -1517,7 +1544,7 @@ packages:
             eslint-visitor-keys: 3.4.1
         dev: true
 
-    /@vitejs/plugin-react@4.0.3(vite@4.4.2):
+    /@vitejs/plugin-react@4.0.3(vite@4.4.3):
         resolution:
             {
                 integrity: sha512-pwXDog5nwwvSIzwrvYYmA2Ljcd/ZNlcsSG2Q9CNDBwnsd55UGAyr2doXtB5j+2uymRCnCfExlznzzSFbBRcoCg==
@@ -1530,7 +1557,7 @@ packages:
             "@babel/plugin-transform-react-jsx-self": 7.22.5(@babel/core@7.22.8)
             "@babel/plugin-transform-react-jsx-source": 7.22.5(@babel/core@7.22.8)
             react-refresh: 0.14.0
-            vite: 4.4.2
+            vite: 4.4.3
         transitivePeerDependencies:
             - supports-color
         dev: true
@@ -1687,6 +1714,13 @@ packages:
         engines: { node: ">= 0.4" }
         dev: true
 
+    /b4a@1.6.4:
+        resolution:
+            {
+                integrity: sha512-fpWrvyVHEKyeEvbKZTVOeZF3VSKKWtJxFIxX/jaVPf+cLbGUSitjb49pHLqPV2BUNNZ0LcoeEGfE/YCpyDYHIw==
+            }
+        dev: true
+
     /babel-plugin-macros@3.1.0:
         resolution:
             {
@@ -1768,7 +1802,7 @@ packages:
         engines: { node: ^6 || ^7 || ^8 || ^9 || ^10 || ^11 || ^12 || >=13.7 }
         hasBin: true
         dependencies:
-            caniuse-lite: 1.0.30001514
+            caniuse-lite: 1.0.30001515
             electron-to-chromium: 1.4.455
             node-releases: 2.0.13
             update-browserslist-db: 1.0.11(browserslist@4.21.9)
@@ -1818,10 +1852,10 @@ packages:
             tslib: 2.6.0
         dev: true
 
-    /caniuse-lite@1.0.30001514:
+    /caniuse-lite@1.0.30001515:
         resolution:
             {
-                integrity: sha512-ENcIpYBmwAAOm/V2cXgM7rZUrKKaqisZl4ZAI520FIkqGXUxJjmaIssbRW5HVVR5tyV6ygTLIm15aU8LUmQSaQ==
+                integrity: sha512-eEFDwUOZbE24sb+Ecsx3+OvNETqjWIdabMy52oOkIgcUtAsQifjUG9q4U9dgTHJM2mfk4uEPxc0+xuFdJ629QA==
             }
         dev: true
 
@@ -2400,7 +2434,7 @@ packages:
             object.values: 1.1.6
             prop-types: 15.8.1
             resolve: 2.0.0-next.4
-            semver: 6.3.0
+            semver: 6.3.1
             string.prototype.matchall: 4.0.8
         dev: true
 
@@ -2560,6 +2594,13 @@ packages:
         resolution:
             {
                 integrity: sha512-f3qQ9oQy9j2AhBe/H9VC91wLmKBCCU/gDOnKNAYG5hswO7BLKj09Hc5HYNz9cGI++xlpDCIgDaitVs03ATR84Q==
+            }
+        dev: true
+
+    /fast-fifo@1.3.0:
+        resolution:
+            {
+                integrity: sha512-IgfweLvEpwyA4WgiQe9Nx6VV2QkML2NkvZnk1oKnIzXgXdWxuhF7zw4DvLTPZJn6PIUneiAXPF24QmoEqHTjyw==
             }
         dev: true
 
@@ -2979,7 +3020,7 @@ packages:
             he: 1.2.0
             param-case: 3.0.4
             relateurl: 0.2.7
-            terser: 5.18.2
+            terser: 5.19.0
         dev: true
 
     /ieee754@1.2.1:
@@ -3004,7 +3045,7 @@ packages:
             }
         engines: { node: ">=12.0.0" }
         dependencies:
-            sharp: 0.32.1
+            sharp: 0.32.2
         dev: true
 
     /import-fresh@3.3.0:
@@ -3881,6 +3922,13 @@ packages:
             }
         dev: true
 
+    /queue-tick@1.0.1:
+        resolution:
+            {
+                integrity: sha512-kJt5qhMxoszgU/62PLP1CJytzd2NKetjSRnyuj31fDd3Rlcz3fzlFdFLD1SItunPwyqEOkca6GbV612BWfaBag==
+            }
+        dev: true
+
     /rc@1.2.8:
         resolution:
             {
@@ -4116,10 +4164,10 @@ packages:
             loose-envify: 1.4.0
         dev: false
 
-    /semver@6.3.0:
+    /semver@6.3.1:
         resolution:
             {
-                integrity: sha512-b39TBaTSfV6yBrapU89p5fKekE2m/NwnDocOVruQFS1/veMgdzuPcnOM34M6CwxW8jH/lxEa5rBoDeUwu5HHTw==
+                integrity: sha512-BR7VvDCVHO+q2xBEWskxS6DJE1qRnb7DxzUrogb71CWoSficBxYsiAGd+Kl0mmq/MprG9yArRkyrQxTO6XjMzA==
             }
         hasBin: true
         dev: true
@@ -4135,10 +4183,10 @@ packages:
             lru-cache: 6.0.0
         dev: true
 
-    /sharp@0.32.1:
+    /sharp@0.32.2:
         resolution:
             {
-                integrity: sha512-kQTFtj7ldpUqSe8kDxoGLZc1rnMFU0AO2pqbX6pLy3b7Oj8ivJIdoKNwxHVQG2HN6XpHPJqCSM2nsma2gOXvOg==
+                integrity: sha512-e4hyWKtU7ks/rLmoPys476zhpQnLqPJopz4+5b6OPeyJfvCTInAp0pe5tGhstjsNdUvDLrUVGEwevewYdZM8Eg==
             }
         engines: { node: ">=14.15.0" }
         requiresBuild: true
@@ -4149,7 +4197,7 @@ packages:
             prebuild-install: 7.1.1
             semver: 7.5.4
             simple-get: 4.0.1
-            tar-fs: 2.1.1
+            tar-fs: 3.0.4
             tunnel-agent: 0.6.0
         dev: true
 
@@ -4249,6 +4297,16 @@ packages:
                 integrity: sha512-UjgapumWlbMhkBgzT7Ykc5YXUT46F0iKu8SGXq0bcwP5dz/h0Plj6enJqjz1Zbq2l5WaqYnrVbwWOWMyF3F47g==
             }
         engines: { node: ">=0.10.0" }
+        dev: true
+
+    /streamx@2.15.0:
+        resolution:
+            {
+                integrity: sha512-HcxY6ncGjjklGs1xsP1aR71INYcsXFJet5CU1CHqihQ2J5nOsbd4OjgjHO42w/4QNv9gZb3BueV+Vxok5pLEXg==
+            }
+        dependencies:
+            fast-fifo: 1.3.0
+            queue-tick: 1.0.1
         dev: true
 
     /string.prototype.matchall@4.0.8:
@@ -4381,6 +4439,17 @@ packages:
             tar-stream: 2.2.0
         dev: true
 
+    /tar-fs@3.0.4:
+        resolution:
+            {
+                integrity: sha512-5AFQU8b9qLfZCX9zp2duONhPmZv0hGYiBPJsyUdqMjzq/mqVpy/rEUSeHk1+YitmxugaptgBh5oDGU3VsAJq4w==
+            }
+        dependencies:
+            mkdirp-classic: 0.5.3
+            pump: 3.0.0
+            tar-stream: 3.1.6
+        dev: true
+
     /tar-stream@2.2.0:
         resolution:
             {
@@ -4395,10 +4464,21 @@ packages:
             readable-stream: 3.6.2
         dev: true
 
-    /terser@5.18.2:
+    /tar-stream@3.1.6:
         resolution:
             {
-                integrity: sha512-Ah19JS86ypbJzTzvUCX7KOsEIhDaRONungA4aYBjEP3JZRf4ocuDzTg4QWZnPn9DEMiMYGJPiSOy7aykoCc70w==
+                integrity: sha512-B/UyjYwPpMBv+PaFSWAmtYjwdrlEaZQEhMIBFNC5oEG8lpiW8XjcSdmEaClj28ArfKScKHs2nshz3k2le6crsg==
+            }
+        dependencies:
+            b4a: 1.6.4
+            fast-fifo: 1.3.0
+            streamx: 2.15.0
+        dev: true
+
+    /terser@5.19.0:
+        resolution:
+            {
+                integrity: sha512-JpcpGOQLOXm2jsomozdMDpd5f8ZHh1rR48OFgWUH3QsyZcfPgv2qDCYbcDEAYNd4OZRj2bWYKpwdll/udZCk/Q==
             }
         engines: { node: ">=10" }
         hasBin: true
@@ -4562,7 +4642,7 @@ packages:
             - rollup
         dev: true
 
-    /vite-plugin-html@3.2.0(vite@4.4.2):
+    /vite-plugin-html@3.2.0(vite@4.4.3):
         resolution:
             {
                 integrity: sha512-2VLCeDiHmV/BqqNn5h2V+4280KRgQzCFN47cst3WiNK848klESPQnzuC3okH5XHtgwHH/6s1Ho/YV6yIO0pgoQ==
@@ -4582,13 +4662,13 @@ packages:
             html-minifier-terser: 6.1.0
             node-html-parser: 5.4.2
             pathe: 0.2.0
-            vite: 4.4.2
+            vite: 4.4.3
         dev: true
 
-    /vite@4.4.2:
+    /vite@4.4.3:
         resolution:
             {
-                integrity: sha512-zUcsJN+UvdSyHhYa277UHhiJ3iq4hUBwHavOpsNUGsTgjBeoBlK8eDt+iT09pBq0h9/knhG/SPrZiM7cGmg7NA==
+                integrity: sha512-IMnXQXXWgLi5brBQx/4WzDxdzW0X3pjO4nqFJAuNvwKtxzAmPzFE1wszW3VDpAGQJm3RZkm/brzRdyGsnwgJIA==
             }
         engines: { node: ^14.18.0 || >=16.0.0 }
         hasBin: true

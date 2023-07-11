@@ -11,6 +11,7 @@ use typeshare::typeshare;
 #[serde(rename_all = "camelCase")]
 pub struct ProgressBar {
     id: String,
+    unique_name: Option<String>,
     message: String,
     progress: ProgressValue,
     progress_type: ProgressType,
@@ -24,6 +25,7 @@ impl ProgressBar {
     fn from_payload(value: ProgressStartPayload, position: u32) -> Self {
         Self {
             id: value.id,
+            unique_name: value.unique_name,
             message: value.msg,
             progress_type: value.progress_type,
             progress_action: value.progress_action,
@@ -48,6 +50,16 @@ impl ProgressBars {
             bars: HashMap::new(),
             counter: 0,
         }
+    }
+
+    pub fn by_unique_name(&self, unique_name: &str) -> Option<&ProgressBar> {
+        self.bars
+            .values()
+            .filter(|b| matches!(b.success, None))
+            .find(|b| match &b.unique_name {
+                Some(bar_name) => bar_name == unique_name,
+                _ => false,
+            })
     }
 
     pub fn process(&mut self, payload: &str) {

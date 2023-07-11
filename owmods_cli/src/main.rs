@@ -254,7 +254,7 @@ async fn run_from_cli(cli: BaseCli) -> Result<()> {
         Commands::InstallUrl { url } => {
             let local_db = LocalDatabase::fetch(&config.owml_path)?;
             info!("Installing From {}", url);
-            let new_mod = install_mod_from_url(url, &config, &local_db).await?;
+            let new_mod = install_mod_from_url(url, None, &config, &local_db).await?;
             info!("Installed {}!", new_mod.manifest.name);
         }
         Commands::Uninstall { unique_name } => {

@@ -8,7 +8,8 @@ import {
     GameMessage,
     UnsafeLocalMod,
     Alert,
-    ProgressBars
+    ProgressBars,
+    ProgressBar
 } from "@types";
 
 type CommandInfo<P, R> = [P, R];
@@ -79,6 +80,7 @@ const commandInfo = {
     checkOWML: $<GetCommand<boolean>>("check_owml"),
     getDownloads: $<GetCommand<ProgressBars>>("get_downloads"),
     clearDownloads: $<EmptyCommand>("clear_downloads"),
+    getBarByUniqueName: $<ModCommand<ProgressBar>>("get_bar_by_unique_name"),
     getModBusy: $<ModCommand<boolean>>("get_mod_busy"),
     hasDisabledDeps: $<ModCommand<boolean>>("has_disabled_deps"),
     logError: $<ActionCommand<{ err: string }>>("log_error")

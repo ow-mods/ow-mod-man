@@ -172,7 +172,8 @@ fn main() -> Result<(), Box<dyn Error>> {
             clear_downloads,
             get_mod_busy,
             has_disabled_deps,
-            log_error
+            log_error,
+            get_bar_by_unique_name
         ])
         .plugin(tauri_plugin_window_state::Builder::default().build())
         .run(tauri::generate_context!())

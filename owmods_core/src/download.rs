@@ -15,6 +15,7 @@ use zip::ZipArchive;
 use crate::{
     analytics::{send_analytics_event, AnalyticsEventName},
     config::Config,
+    constants::OWML_UNIQUE_NAME,
     db::{LocalDatabase, RemoteDatabase},
     file::{check_file_matches_paths, create_all_parents, fix_json},
     mods::local::{get_paths_to_preserve, LocalMod, ModManifest},
@@ -28,7 +29,7 @@ fn get_end_of_url(url: &str) -> &str {
     url.split('/').last().unwrap_or(url)
 }
 
-async fn download_zip(url: &str, target_path: &Path) -> Result<()> {
+async fn download_zip(url: &str, unique_name: Option<&str>, target_path: &Path) -> Result<()> {
     debug!(
         "Begin download of {} to {}",
         url,
@@ -51,6 +52,7 @@ async fn download_zip(url: &str, target_path: &Path) -> Result<()> {
 
     let mut progress = ProgressBar::new(
         target_path.to_str().unwrap(),
+        unique_name,
         file_size.try_into().unwrap_or(u32::MAX), // Fallback for HUGE files, means files >4GB will get progress reported incorrectly
         &format!("Downloading {}", zip_name),
         &format!("Failed to download {}", zip_name),
@@ -115,6 +117,7 @@ fn extract_zip(zip_path: &PathBuf, target_path: &PathBuf, display_name: &str) ->
     );
     let mut progress = ProgressBar::new(
         zip_path.to_str().unwrap(),
+        None,
         0,
         &format!("Extracting {display_name}"),
         &format!("Failed To Extract {display_name}"),
@@ -130,6 +133,7 @@ fn extract_zip(zip_path: &PathBuf, target_path: &PathBuf, display_name: &str) ->
 
 fn extract_mod_zip(
     zip_path: &PathBuf,
+    unique_name: Option<&str>,
     target_path: &Path,
     exclude_paths: Vec<PathBuf>,
 ) -> Result<LocalMod> {
@@ -151,7 +155,8 @@ fn extract_mod_zip(
 
     let mut progress = ProgressBar::new(
         zip_path.to_str().unwrap(),
-        archive.len().try_into().unwrap(),
+        unique_name,
+        archive.len().try_into().unwrap_or(0),
         &format!("Extracting {}", zip_name),
         &format!("Failed To Extract {}", zip_name),
         ProgressType::Definite,
@@ -212,7 +217,7 @@ pub async fn download_and_install_owml(
     let target_path = PathBuf::from(&config.owml_path);
     let temp_dir = TempDir::new()?;
     let download_path = temp_dir.path().join("OWML.zip");
-    download_zip(url, &download_path).await?;
+    download_zip(url, Some(OWML_UNIQUE_NAME), &download_path).await?;
     extract_zip(&download_path, &target_path, "OWML")?;
 
     if config.owml_path.is_empty() {
@@ -259,7 +264,12 @@ pub fn install_mod_from_zip(
 
     let paths_to_preserve = get_paths_to_preserve(local_mod);
 
-    let new_mod = extract_mod_zip(zip_path, &target_path, paths_to_preserve)?;
+    let new_mod = extract_mod_zip(
+        zip_path,
+        Some(&unique_name),
+        &target_path,
+        paths_to_preserve,
+    )?;
     let config_path = target_path.join("config.json");
     if local_mod.is_none() || !config_path.is_file() {
         // First install, generate config
@@ -282,6 +292,7 @@ pub fn install_mod_from_zip(
 ///
 pub async fn install_mod_from_url(
     url: &str,
+    unique_name: Option<&str>,
     config: &Config,
     local_db: &LocalDatabase,
 ) -> Result<LocalMod> {
@@ -290,7 +301,7 @@ pub async fn install_mod_from_url(
     let temp_dir = TempDir::new()?;
     let download_path = temp_dir.path().join(format!("{}.zip", zip_name));
 
-    download_zip(url, &download_path).await?;
+    download_zip(url, unique_name, &download_path).await?;
     let new_mod = install_mod_from_zip(&download_path, config, local_db)?;
 
     temp_dir.close()?;
@@ -300,7 +311,7 @@ pub async fn install_mod_from_url(
 
 /// Install a list of mods concurrently.
 /// This should be your preferred method when installing many mods.
-/// **Note that this does no send an analytics event**
+/// **Note that this does not send an analytics event**
 ///
 /// ## Returns
 ///
@@ -323,7 +334,12 @@ pub async fn install_mods_parallel(
             .get_mod(name)
             .ok_or_else(|| anyhow!("Mod {} not found in database.", name))?;
 
-        let task = install_mod_from_url(&remote_mod.download_url, config, local_db);
+        let task = install_mod_from_url(
+            &remote_mod.download_url,
+            Some(&remote_mod.unique_name),
+            config,
+            local_db,
+        );
         set.push(task);
     }
     while let Some(res) = set.next().await {
@@ -371,7 +387,8 @@ pub async fn install_mod_from_db(
     } else {
         remote_mod.download_url.clone()
     };
-    let new_mod = install_mod_from_url(&target_url, config, local_db).await?;
+    let new_mod =
+        install_mod_from_url(&target_url, Some(&remote_mod.unique_name), config, local_db).await?;
 
     if recursive {
         let mut to_install: Vec<String> = new_mod.manifest.dependencies.unwrap_or_default();
@@ -460,7 +477,7 @@ mod tests {
         tokio_test::block_on(async {
             let dir = make_test_dir();
             let path = dir.path().join("test.zip");
-            download_zip(TEST_URL, &path).await.unwrap();
+            download_zip(TEST_URL, None, &path).await.unwrap();
             assert!(path.is_file());
             dir.close().unwrap();
         });
@@ -499,7 +516,7 @@ mod tests {
         let zip_path = get_test_file("Bwc9876.NestedManifest.zip");
         let dir = make_test_dir();
         let target_path = dir.path().join("Bwc9876.TimeSaver");
-        let new_mod = extract_mod_zip(&zip_path, &target_path, vec![]).unwrap();
+        let new_mod = extract_mod_zip(&zip_path, None, &target_path, vec![]).unwrap();
         assert!(target_path.join("manifest.json").is_file());
         assert_eq!(new_mod.mod_path, target_path.to_str().unwrap());
         assert!(!target_path.join("Folder1").is_dir());
@@ -511,7 +528,7 @@ mod tests {
         let zip_path = get_test_file("Bwc9876.TimeSaver.zip");
         let dir = make_test_dir();
         let target_path = dir.path().join("Bwc9876.TimeSaver");
-        extract_mod_zip(&zip_path, &target_path, vec![]).unwrap();
+        extract_mod_zip(&zip_path, None, &target_path, vec![]).unwrap();
         let preserve_path = target_path.join("preserve_me.json");
         assert!(preserve_path.is_file());
         let mut file = File::create(&preserve_path).unwrap();
@@ -519,6 +536,7 @@ mod tests {
         drop(file);
         extract_mod_zip(
             &zip_path,
+            None,
             &target_path,
             vec![PathBuf::from("preserve_me.json")],
         )
@@ -554,7 +572,7 @@ mod tests {
         let mut config = Config::default(None).unwrap();
         config.owml_path = dir.path().to_str().unwrap().to_string();
         let mut db = LocalDatabase::default();
-        let new_mod = extract_mod_zip(&zip_path, &target_path, vec![]).unwrap();
+        let new_mod = extract_mod_zip(&zip_path, None, &target_path, vec![]).unwrap();
         db.mods.insert(
             "Bwc9876.TimeSaver".to_string(),
             UnsafeLocalMod::Valid(new_mod),
@@ -576,7 +594,9 @@ mod tests {
             let mut config = Config::default(None).unwrap();
             config.owml_path = dir.path().to_str().unwrap().to_string();
             let db = LocalDatabase::default();
-            let new_mod = install_mod_from_url(TEST_URL, &config, &db).await.unwrap();
+            let new_mod = install_mod_from_url(TEST_URL, None, &config, &db)
+                .await
+                .unwrap();
             assert!(target_path.is_dir());
             assert_eq!(new_mod.mod_path, target_path.to_str().unwrap());
             dir.close().unwrap();

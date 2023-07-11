@@ -33,6 +33,7 @@ use tauri::{api::dialog, async_runtime, Manager, WindowEvent};
 use time::{macros::format_description, OffsetDateTime};
 use tokio::{sync::mpsc, try_join};
 
+use crate::progress::ProgressBar;
 use crate::{
     game::{get_logs_indices, make_log_window, show_warnings, write_log, GameMessage},
     gui_config::GuiConfig,
@@ -299,7 +300,7 @@ pub async fn install_url(
 ) -> Result {
     let conf = state.config.read().await;
     let db = state.local_db.read().await;
-    install_mod_from_url(url, &conf, &db).await?;
+    install_mod_from_url(url, None, &conf, &db).await?;
 
     Ok(())
 }
@@ -868,6 +869,15 @@ pub async fn get_mod_busy(unique_name: &str, state: tauri::State<'_, State>) -> 
     let mods_in_progress = state.mods_in_progress.read().await;
     let exists = mods_in_progress.contains(&unique_name.to_string());
     Ok(exists)
+}
+
+#[tauri::command]
+pub async fn get_bar_by_unique_name(
+    unique_name: &str,
+    state: tauri::State<'_, State>,
+) -> Result<Option<ProgressBar>> {
+    let bars = state.progress_bars.read().await;
+    Ok(bars.by_unique_name(unique_name).cloned())
 }
 
 #[tauri::command]

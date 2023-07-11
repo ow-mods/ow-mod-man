@@ -1,9 +1,8 @@
 import { DownloadRounded, DescriptionRounded, ScienceRounded } from "@mui/icons-material";
-import { Box, CircularProgress } from "@mui/material";
 import { memo, useRef } from "react";
-import ModActionIcon from "../ModActionIcon";
 import ModActionOverflow, { ModActionOverflowItem } from "../ModActionOverflow";
 import { useGetTranslation } from "@hooks";
+import ModDownloadIcon from "../ModDownloadIcon";
 
 export interface RemoteModActionsProps {
     uniqueName: string;
@@ -21,17 +20,12 @@ const RemoteModActions = memo(function RemoteModToolbar(props: RemoteModActionsP
 
     return (
         <>
-            {props.busy ? (
-                <Box display="flex" alignItems="center">
-                    <CircularProgress color="inherit" size={22} />
-                </Box>
-            ) : (
-                <ModActionIcon
-                    onClick={props.onInstall}
-                    label={getTranslation("INSTALL")}
-                    icon={<DownloadRounded />}
-                />
-            )}
+            <ModDownloadIcon
+                icon={<DownloadRounded />}
+                tooltip={getTranslation("INSTALL")}
+                onClick={props.onInstall}
+                uniqueName={props.uniqueName}
+            />
             <ModActionOverflow id={`remote-${props.uniqueName}`} ref={overflowRef}>
                 <ModActionOverflowItem
                     label={getTranslation("OPEN_README")}

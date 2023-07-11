@@ -3,6 +3,7 @@ use std::{
     fs::File,
     io::{BufReader, BufWriter, Read, Write},
     path::{Path, PathBuf},
+    time::Duration,
 };
 
 use anyhow::anyhow;
@@ -151,48 +152,59 @@ fn extract_mod_zip(
     let zip_name = zip_path.file_name().unwrap().to_str().unwrap();
 
     let file = File::open(zip_path)?;
-    let mut archive = ZipArchive::new(file)?;
+    let mut archive = ZipArchive::new(file);
 
     let mut progress = ProgressBar::new(
         zip_path.to_str().unwrap(),
         unique_name,
-        archive.len().try_into().unwrap_or(0),
+        archive
+            .as_ref()
+            .map(|a| a.len().try_into().unwrap_or(0))
+            .unwrap_or(0),
         &format!("Extracting {}", zip_name),
         &format!("Failed To Extract {}", zip_name),
         ProgressType::Definite,
         ProgressAction::Extract,
     );
 
-    for idx in 0..archive.len() {
-        progress.inc(1);
-        let zip_file = archive.by_index(idx)?;
-        if zip_file.is_file() {
-            let file_path = zip_file
-                .enclosed_name()
-                .ok_or_else(|| anyhow!("Can't Read Zip File"))?;
-            if file_path.starts_with(parent_path) {
-                // Unwrap is safe bc we know it's a file and OsStr.to_str shouldn't fail
-                let file_name = file_path.file_name().unwrap().to_str().unwrap();
-                progress.set_msg(&format!("Extracting {}", file_name));
-                // Unwrap is safe bc we just checked if it starts with the parent path
-                let rel_path = file_path.strip_prefix(parent_path).unwrap();
-                if !check_file_matches_paths(rel_path, &exclude_paths) {
-                    let output_path = target_path.join(rel_path);
-                    create_all_parents(&output_path)?;
-                    let out_file = File::create(&output_path)?;
-                    let reader = BufReader::new(zip_file);
-                    let mut writer = BufWriter::new(out_file);
-                    for byte in reader.bytes() {
-                        writer.write_all(&[byte?])?;
+    match &mut archive {
+        Ok(archive) => {
+            for idx in 0..archive.len() {
+                progress.inc(1);
+                let zip_file = archive.by_index(idx)?;
+                if zip_file.is_file() {
+                    let file_path = zip_file
+                        .enclosed_name()
+                        .ok_or_else(|| anyhow!("Can't Read Zip File"))?;
+                    if file_path.starts_with(parent_path) {
+                        // Unwrap is safe bc we know it's a file and OsStr.to_str shouldn't fail
+                        let file_name = file_path.file_name().unwrap().to_str().unwrap();
+                        progress.set_msg(&format!("Extracting {}", file_name));
+                        // Unwrap is safe bc we just checked if it starts with the parent path
+                        let rel_path = file_path.strip_prefix(parent_path).unwrap();
+                        if !check_file_matches_paths(rel_path, &exclude_paths) {
+                            let output_path = target_path.join(rel_path);
+                            create_all_parents(&output_path)?;
+                            let out_file = File::create(&output_path)?;
+                            let reader = BufReader::new(zip_file);
+                            let mut writer = BufWriter::new(out_file);
+                            for byte in reader.bytes() {
+                                writer.write_all(&[byte?])?;
+                            }
+                        }
                     }
                 }
             }
+
+            let new_mod = LocalDatabase::read_local_mod(&target_path.join("manifest.json"))?;
+            progress.finish(true, &format!("Installed {}", new_mod.manifest.name));
+            Ok(new_mod)
+        }
+        Err(why) => {
+            progress.finish(false, "");
+            Err(anyhow!("Failed to extract {zip_name}: {why:?}"))
         }
     }
-
-    let new_mod = LocalDatabase::read_local_mod(&target_path.join("manifest.json"))?;
-    progress.finish(true, &format!("Installed {}", new_mod.manifest.name));
-    Ok(new_mod)
 }
 
 /// Downloads and install OWML to the path specified in config.owml_path
@@ -247,35 +259,59 @@ pub fn install_mod_from_zip(
     config: &Config,
     local_db: &LocalDatabase,
 ) -> Result<LocalMod> {
-    let unique_name = get_unique_name_from_zip(zip_path)?;
-    let target_path = local_db
-        .get_mod_unsafe(&unique_name)
-        .map(|m| PathBuf::from(m.get_path().to_string()))
-        .unwrap_or_else(|| {
-            PathBuf::from(&config.owml_path)
-                .join("Mods")
-                .join(&unique_name)
-        });
-    let local_mod = local_db.get_mod(&unique_name);
+    let unique_name = get_unique_name_from_zip(zip_path);
 
-    if let Some(local_mod) = local_mod {
-        remove_old_mod_files(local_mod)?;
+    match unique_name {
+        Ok(unique_name) => {
+            let target_path = local_db
+                .get_mod_unsafe(&unique_name)
+                .map(|m| PathBuf::from(m.get_path().to_string()))
+                .unwrap_or_else(|| {
+                    PathBuf::from(&config.owml_path)
+                        .join("Mods")
+                        .join(&unique_name)
+                });
+            let local_mod = local_db.get_mod(&unique_name);
+
+            if let Some(local_mod) = local_mod {
+                remove_old_mod_files(local_mod)?;
+            }
+
+            let paths_to_preserve = get_paths_to_preserve(local_mod);
+
+            let new_mod = extract_mod_zip(
+                zip_path,
+                Some(&unique_name),
+                &target_path,
+                paths_to_preserve,
+            )?;
+            let config_path = target_path.join("config.json");
+            if local_mod.is_none() || !config_path.is_file() {
+                // First install, generate config
+                generate_config(&config_path)?;
+            }
+            Ok(new_mod)
+        }
+        Err(why) => {
+            // Make a stub progress bar
+            let mut progress = ProgressBar::new(
+                zip_path.to_str().unwrap(),
+                None,
+                0,
+                "",
+                &format!("Failed To Extract {}", zip_path.to_str().unwrap()),
+                ProgressType::Indefinite,
+                ProgressAction::Extract,
+            );
+            // Need to wait a sec for the progress to be reported, otherwise the log messages overlap and create an unknown bar
+            std::thread::sleep(Duration::from_secs(1));
+            progress.finish(false, "");
+            Err(anyhow!(
+                "Failed To Extract {}: {why:?}",
+                zip_path.to_str().unwrap()
+            ))
+        }
     }
-
-    let paths_to_preserve = get_paths_to_preserve(local_mod);
-
-    let new_mod = extract_mod_zip(
-        zip_path,
-        Some(&unique_name),
-        &target_path,
-        paths_to_preserve,
-    )?;
-    let config_path = target_path.join("config.json");
-    if local_mod.is_none() || !config_path.is_file() {
-        // First install, generate config
-        generate_config(&config_path)?;
-    }
-    Ok(new_mod)
 }
 
 /// Download and install a mod from a URL

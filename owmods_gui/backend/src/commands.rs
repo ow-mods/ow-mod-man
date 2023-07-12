@@ -28,12 +28,13 @@ use owmods_core::{
     validate::fix_deps,
 };
 use serde::Serialize;
-use tauri::AppHandle;
-use tauri::{api::dialog, async_runtime, Manager, WindowEvent};
+use tauri::FileDropEvent;
+use tauri::{api::dialog, async_runtime, AppHandle, Manager, WindowEvent};
 use time::{macros::format_description, OffsetDateTime};
 use tokio::{sync::mpsc, try_join};
 
 use crate::progress::ProgressBar;
+use crate::protocol::{ProtocolInstallType, ProtocolPayload};
 use crate::{
     game::{get_logs_indices, make_log_window, show_warnings, write_log, GameMessage},
     gui_config::GuiConfig,
@@ -897,6 +898,45 @@ pub async fn has_disabled_deps(unique_name: &str, state: tauri::State<'_, State>
         }
     }
     Ok(flag)
+}
+
+#[tauri::command]
+pub async fn register_drop_handler(window: tauri::Window) -> Result {
+    let handle = window.app_handle();
+    window.on_window_event(move |e| {
+        if let WindowEvent::FileDrop(e) = e {
+            match e {
+                FileDropEvent::Dropped(f) => {
+                    if let Some(f) = f.first() {
+                        if f.extension().map(|e| e == "zip").unwrap_or(false) {
+                            handle.emit_all("DRAG_LEAVE", "").ok();
+                            handle
+                                .emit_all(
+                                    "PROTOCOL_INVOKE",
+                                    ProtocolPayload {
+                                        install_type: ProtocolInstallType::InstallZip,
+                                        payload: f.to_str().unwrap().to_string(),
+                                    },
+                                )
+                                .ok();
+                        }
+                    }
+                }
+                FileDropEvent::Hovered(f) => {
+                    if let Some(f) = f.first() {
+                        if f.extension().map(|e| e == "zip").unwrap_or(false) {
+                            handle.emit_all("DRAG_ENTER", "").ok();
+                        }
+                    }
+                }
+                FileDropEvent::Cancelled => {
+                    handle.emit_all("DRAG_LEAVE", "").ok();
+                }
+                _ => {}
+            }
+        }
+    });
+    Ok(())
 }
 
 #[tauri::command]

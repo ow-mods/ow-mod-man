@@ -12,6 +12,7 @@ import BaseApp from "@components/common/BaseApp";
 import OwmlModal from "./OwmlModal";
 import StyledErrorBoundary from "@components/common/StyledErrorBoundary";
 import { useErrorBoundary } from "react-error-boundary";
+import FileDrop from "./FileDrop";
 
 const RemoteModsPage = lazy(() => import("./mods/remote/RemoteModsPage"));
 const UpdateModsPage = lazy(() => import("./mods/updates/UpdateModsPage"));
@@ -66,6 +67,7 @@ const MainApp = () => {
             isLoading={status === "Loading" && guiConfig === null}
         >
             <OwmlModal />
+            <FileDrop />
             <TabContext value={selectedTab}>
                 <TopBar />
                 <AppAlert />

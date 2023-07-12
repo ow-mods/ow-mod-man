@@ -83,6 +83,7 @@ const commandInfo = {
     getBarByUniqueName: $<ModCommand<ProgressBar>>("get_bar_by_unique_name"),
     getModBusy: $<ModCommand<boolean>>("get_mod_busy"),
     hasDisabledDeps: $<ModCommand<boolean>>("has_disabled_deps"),
+    registerDropHandler: $<EmptyCommand>("register_drop_handler"),
     logError: $<ActionCommand<{ err: string }>>("log_error")
 };
 

@@ -9,6 +9,7 @@ pub enum ProtocolInstallType {
     InstallMod,
     InstallURL,
     InstallPreRelease,
+    InstallZip,
     Unknown,
 }
 
@@ -18,6 +19,7 @@ impl ProtocolInstallType {
             "install-mod" => Self::InstallMod,
             "install-url" => Self::InstallURL,
             "install-prerelease" => Self::InstallPreRelease,
+            "install-zip" => Self::InstallZip,
             _ => Self::Unknown,
         }
     }

@@ -31,6 +31,7 @@
     "EXPORT_MODS": "Export Mod List",
     "Error": "Error",
     "FATAL_ERROR": "Fatal Error",
+    "FILE_DROP_MESSAGE": "Drop To Install From Zip",
     "FILE_PATH": "File Path",
     "FILTER": "Filter",
     "FIX": "Fix Issues",

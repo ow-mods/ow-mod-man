@@ -37,6 +37,8 @@ const getSourceTypeFromProtocol = (installType: ProtocolInstallType): SourceType
             return "URL";
         case "installPreRelease":
             return "UNIQUE_NAME";
+        case "installZip":
+            return "ZIP";
         default:
             return null;
     }

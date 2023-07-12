@@ -17,4 +17,4 @@ listen("gameStart", (inPort) => {
             <LogApp port={port} />
         </ErrorBoundary>
     );
-}).then(() => commands.runGame().catch(console.warn));
+}).then(() => commands.runGame().catch(commands.logError));

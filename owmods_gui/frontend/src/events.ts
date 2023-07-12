@@ -14,7 +14,6 @@ export const listen = async <E extends Event["name"]>(
     name: E,
     callback: (params: Params<E>) => void
 ) => {
-    console.debug(initialized);
     if (!initialized) {
         initialized = true;
         await tauriListen("owmods://events/invoke", (e) => {

@@ -54,7 +54,7 @@ const MainApp = () => {
                     TranslationMap[guiConfig?.language ?? "English"]["APP_TITLE"] ??
                         "Outer Wilds Mod Manager (*)"
                 )
-                .catch(console.warn);
+                .catch(commands.logError);
         }
     }, [guiConfig?.language]);
 

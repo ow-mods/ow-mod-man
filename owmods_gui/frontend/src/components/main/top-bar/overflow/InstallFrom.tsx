@@ -79,13 +79,13 @@ const InstallFrom = memo(function InstallFrom({ onClick }: ModalProps) {
                             setPrerelease(protocolPayload.installType === "installPreRelease");
                         }
                         setOpen(true);
-                        getCurrent().setFocus().catch(console.warn);
+                        getCurrent().setFocus().catch(commands.logError);
                     }
                 }
             });
         })
             .then(() => commands.popProtocolURL())
-            .catch(console.warn);
+            .catch(commands.logError);
         return () => {
             cancel = true;
         };
@@ -106,19 +106,19 @@ const InstallFrom = memo(function InstallFrom({ onClick }: ModalProps) {
                 commands
                     .installMod({ uniqueName: target, prerelease })
                     .then(() => commands.refreshLocalDb())
-                    .catch(console.error);
+                    .catch(commands.logError);
                 break;
             case "URL":
                 commands
                     .installUrl({ url: target })
                     .then(() => commands.refreshLocalDb())
-                    .catch(console.error);
+                    .catch(commands.logError);
                 break;
             case "ZIP":
                 commands
                     .installZip({ path: target })
                     .then(() => commands.refreshLocalDb())
-                    .catch(console.error);
+                    .catch(commands.logError);
                 break;
         }
         onClose();

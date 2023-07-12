@@ -14,7 +14,7 @@ const StartGameButton = () => {
             commands
                 .startLogs()
                 .then(() => setLogsStarting(false))
-                .catch(console.warn);
+                .catch(commands.logError);
         setLogsStarting(true);
         const task = async () => {
             const hasIssues = await commands.checkDBForIssues();

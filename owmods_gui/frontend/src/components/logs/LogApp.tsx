@@ -45,12 +45,12 @@ const LogApp = ({ port }: { port: number }) => {
         if (logsTitleTranslation) {
             thisWindow
                 .setTitle(logsTitleTranslation.replace("$port$", port.toString()))
-                .catch(console.warn);
+                .catch(commands.logError);
         }
     }, [guiConfig?.language, port]);
 
     const onClear = useCallback(() => {
-        commands.clearLogs({ port }).catch(console.warn);
+        commands.clearLogs({ port }).catch(commands.logError);
         setLogLines([]);
     }, [port]);
 
@@ -59,7 +59,7 @@ const LogApp = ({ port }: { port: number }) => {
         listen("logUpdate", (portPayload) => {
             if (cancel || portPayload !== port) return;
             fetchLogLines();
-        }).catch(console.warn);
+        }).catch(commands.logError);
         listen("logFatal", (msg) => {
             if (cancel || msg.port !== port) return;
             dialog.message(`[${msg.message.senderName ?? "Unknown"}]: ${msg.message.message}`, {

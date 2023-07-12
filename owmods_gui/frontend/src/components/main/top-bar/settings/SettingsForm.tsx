@@ -70,7 +70,7 @@ const SettingsForm = forwardRef(function SettingsForm(props: SettingsFormProps, 
                             await commands.refreshRemoteDb();
                         }
                     };
-                    task().catch(console.error);
+                    task().catch(commands.logError);
                 },
                 reset: () => {
                     setConfig(props.initialConfig);

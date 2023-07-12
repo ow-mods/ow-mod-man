@@ -40,7 +40,7 @@ const Import = memo(function Import({ onClick }: ModalProps) {
         commands
             .importMods({ path: filePath, disableMissing })
             .then(() => commands.refreshLocalDb())
-            .catch(console.error);
+            .catch(commands.logError);
         onClose();
     }, [disableMissing, filePath, onClose]);
 

@@ -27,9 +27,9 @@ const RemoteModRow = memo(function RemoteModRow(props: RemoteModRowProps) {
         commands
             .installMod({ uniqueName: props.uniqueName })
             .then(() => {
-                commands.refreshLocalDb().catch(console.error);
+                commands.refreshLocalDb().catch(commands.logError);
             })
-            .catch(console.error);
+            .catch(commands.logError);
     }, [props.uniqueName]);
 
     const onPrerelease = useCallback(() => {
@@ -41,16 +41,16 @@ const RemoteModRow = memo(function RemoteModRow(props: RemoteModRowProps) {
                 commands
                     .installMod({ uniqueName: props.uniqueName, prerelease: true })
                     .then(() => {
-                        commands.refreshLocalDb().catch(console.error);
+                        commands.refreshLocalDb().catch(commands.logError);
                     })
-                    .catch(console.error);
+                    .catch(commands.logError);
             }
         };
         task();
     }, [getTranslation, prereleaseLabel, props.uniqueName]);
 
     const onReadme = useCallback(() => {
-        commands.openModReadme({ uniqueName: props.uniqueName }).catch(console.warn);
+        commands.openModReadme({ uniqueName: props.uniqueName }).catch(commands.logError);
     }, [props.uniqueName]);
 
     const modActions = useMemo(

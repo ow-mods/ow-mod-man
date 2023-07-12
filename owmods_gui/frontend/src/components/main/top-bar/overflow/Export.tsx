@@ -22,7 +22,7 @@ const Export = memo(function Export({ onClick }: ModalProps) {
             })
             .then((path) => {
                 if (path) {
-                    commands.exportMods({ path }).catch(console.error);
+                    commands.exportMods({ path }).catch(commands.logError);
                 }
             });
     }, [getTranslation]);

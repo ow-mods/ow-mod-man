@@ -29,6 +29,7 @@ pub enum Event {
     LogFatal(GameMessage),
     ProtocolInvoke(ProtocolPayload),
     ProgressUpdate(EmptyParams),
+    ProgressBatchFinish(EmptyParams),
     DragEnter(EmptyParams),
     DragLeave(EmptyParams),
     // Used on frontend

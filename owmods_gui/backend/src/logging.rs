@@ -82,8 +82,11 @@ impl log::Log for Logger {
             async_runtime::spawn(async move {
                 let state = handle.state::<State>();
                 let mut bars = state.progress_bars.write().await;
-                bars.process(&raw);
+                let batch_finished = bars.process(&raw);
                 handle.typed_emit_all(&Event::ProgressUpdate(())).ok();
+                if batch_finished {
+                    handle.typed_emit_all(&Event::ProgressBatchFinish(())).ok();
+                }
             });
             Ok(())
         } else if self.enabled(record.metadata()) && record.target().starts_with("owmods")

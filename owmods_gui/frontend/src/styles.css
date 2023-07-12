@@ -9,3 +9,19 @@ body {
     display: flex;
     flex-direction: column;
 }
+
+@keyframes flash {
+    0% {
+        color: unset;
+    }
+    50% {
+        color: #66bb6a;
+    }
+    100% {
+        color: unset;
+    }
+}
+
+.downloads-flashing {
+    animation: flash 700ms ease-in-out 3;
+}

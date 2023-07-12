@@ -1,9 +1,10 @@
 import { hooks } from "@commands";
 import { DownloadingRounded } from "@mui/icons-material";
-import { Suspense, lazy, memo, useMemo, useState } from "react";
+import { Suspense, lazy, memo, useEffect, useMemo, useRef, useState } from "react";
 import { AppIcon } from "../AppIcons";
 import { Box, CircularProgress, CircularProgressProps, Typography } from "@mui/material";
 import { ProgressBar } from "@types";
+import { listen } from "@events";
 
 const DownloadsPopover = lazy(() => import("./DownloadsPopover"));
 
@@ -21,6 +22,8 @@ export const determineProgressVariant = (bar: ProgressBar): CircularProgressProp
 
 const DownloadsIcon = memo(function DownloadsIcon() {
     const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>();
+    const [recentComplete, setRecentComplete] = useState(false);
+    const currentTimeout = useRef<number | null>();
     const downloads = hooks.getDownloads("progressUpdate")[1];
 
     const sortedDownloads = Object.values(downloads?.bars ?? {});
@@ -38,7 +41,7 @@ const DownloadsIcon = memo(function DownloadsIcon() {
     const openPopover = Boolean(anchorEl);
 
     const activeDownloads = useMemo(
-        () => sortedDownloads.filter((d) => d.success === null || d.progressAction === "Download"),
+        () => sortedDownloads.filter((d) => d.success === null),
         [sortedDownloads]
     );
 
@@ -46,12 +49,39 @@ const DownloadsIcon = memo(function DownloadsIcon() {
 
     const current = activeDownloads[0];
 
+    useEffect(() => {
+        let cancel = false;
+        listen("progressBatchFinish", () => {
+            if (cancel) return;
+            if (currentTimeout.current) {
+                clearTimeout(currentTimeout.current);
+            }
+            setRecentComplete(true);
+            currentTimeout.current = setTimeout(() => {
+                setRecentComplete(false);
+            }, 700 * 3); // Animation lasts 700ms and happens 3 times
+        });
+        return () => {
+            cancel = true;
+        };
+    }, []);
+
+    useEffect(() => {
+        if (len !== 0) setRecentComplete(false);
+        if (currentTimeout.current) {
+            clearTimeout(currentTimeout.current);
+        }
+    }, [len]);
+
     return (
         <>
             <Box display="flex" position="relative">
                 <Box zIndex={100}>
                     <AppIcon onClick={handleClick} label="Downloads">
-                        <DownloadingRounded color={len !== 0 ? "secondary" : "inherit"} />
+                        <DownloadingRounded
+                            className={recentComplete ? "downloads-flashing" : undefined}
+                            color={len !== 0 ? "secondary" : "inherit"}
+                        />
                     </AppIcon>
                 </Box>
                 {len !== 0 && (

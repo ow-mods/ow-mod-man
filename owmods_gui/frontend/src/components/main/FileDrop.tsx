@@ -1,4 +1,4 @@
-import { commands } from "@commands";
+import { commands, hooks } from "@commands";
 import { useGetTranslation } from "@hooks";
 import { FileOpenRounded } from "@mui/icons-material";
 import { Box, Modal } from "@mui/material";
@@ -7,6 +7,8 @@ import { memo, useCallback, useEffect, useState } from "react";
 
 const FileDrop = memo(function FileDrop() {
     const [isShown, setIsShown] = useState(false);
+
+    const owmlInstalled = hooks.checkOWML("OWML_CONFIG_RELOAD")[1];
 
     const getTranslation = useGetTranslation();
 
@@ -21,17 +23,17 @@ const FileDrop = memo(function FileDrop() {
     useEffect(() => {
         let cancel = false;
         listen("DRAG_ENTER", () => {
-            if (cancel) return;
+            if (cancel || !owmlInstalled) return;
             onDragEnter();
         });
         listen("DRAG_LEAVE", () => {
-            if (cancel) return;
+            if (cancel || !owmlInstalled) return;
             onDragLeave();
         });
         return () => {
             cancel = true;
         };
-    }, [onDragLeave, onDragEnter]);
+    }, [onDragLeave, onDragEnter, owmlInstalled]);
 
     useEffect(() => {
         commands.registerDropHandler();

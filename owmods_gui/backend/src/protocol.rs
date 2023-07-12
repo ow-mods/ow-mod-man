@@ -36,6 +36,7 @@ impl ProtocolInstallType {
 /// Some examples of valid URIs are:
 /// - owmods://install-mod/Bwc9876.TimeSaver
 /// - owmods://install-url/https://example.com/Mod.zip
+/// - owmods://install-zip//home/user/Downloads/Mod.zip
 /// - owmods://install-prerelease/Raicuparta.NomaiVR
 #[typeshare]
 #[derive(Serialize, Clone)]

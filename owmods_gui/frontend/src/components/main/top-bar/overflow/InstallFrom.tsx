@@ -66,20 +66,24 @@ const InstallFrom = memo(function InstallFrom({ onClick }: ModalProps) {
         let cancel = false;
         listen("PROTOCOL_INVOKE", ({ payload }) => {
             if (cancel) return;
-            const protocolPayload = payload as ProtocolPayload;
-            const sourceType = getSourceTypeFromProtocol(protocolPayload.installType);
-            if (sourceType !== null) {
-                setSource(sourceType);
-                setTarget(protocolPayload.payload);
-                if (
-                    protocolPayload.installType === "installPreRelease" ||
-                    protocolPayload.installType === "installMod"
-                ) {
-                    setPrerelease(protocolPayload.installType === "installPreRelease");
+            commands.checkOWML().then((valid) => {
+                if (valid) {
+                    const protocolPayload = payload as ProtocolPayload;
+                    const sourceType = getSourceTypeFromProtocol(protocolPayload.installType);
+                    if (sourceType !== null) {
+                        setSource(sourceType);
+                        setTarget(protocolPayload.payload);
+                        if (
+                            protocolPayload.installType === "installPreRelease" ||
+                            protocolPayload.installType === "installMod"
+                        ) {
+                            setPrerelease(protocolPayload.installType === "installPreRelease");
+                        }
+                        setOpen(true);
+                        getCurrent().setFocus().catch(console.warn);
+                    }
                 }
-                setOpen(true);
-                getCurrent().setFocus().catch(console.warn);
-            }
+            });
         })
             .then(() => commands.popProtocolURL())
             .catch(console.warn);

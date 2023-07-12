@@ -21,7 +21,7 @@ const RemoteModsPage = memo(function RemoteModsPage() {
 
     const [filter, setFilter] = useState("");
 
-    const [status, remoteMods] = hooks.getRemoteMods("REMOTE-REFRESH", { filter });
+    const [status, remoteMods] = hooks.getRemoteMods("remoteRefresh", { filter });
 
     const modsWebsiteButton = useMemo(
         () => (

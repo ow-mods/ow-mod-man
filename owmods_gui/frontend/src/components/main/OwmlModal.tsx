@@ -14,8 +14,8 @@ import {
     useTheme
 } from "@mui/material";
 import { dialog } from "@tauri-apps/api";
-import { listen } from "@tauri-apps/api/event";
 import { memo, useCallback, useEffect, useState } from "react";
+import { listen } from "@events";
 
 type SetupType = "INSTALL_OWML" | "LOCATE_OWML" | "INSTALL_OWML_PRERELEASE";
 
@@ -88,7 +88,7 @@ const OwmlModal = memo(function OwmlModal() {
 
     useEffect(() => {
         let cancel = false;
-        listen("OPEN_OWML_SETUP", () => {
+        listen("openOwmlSetup", () => {
             if (cancel) return;
             setOpen(true);
             setCanCancel(true);
@@ -100,7 +100,7 @@ const OwmlModal = memo(function OwmlModal() {
 
     useEffect(() => {
         let cancelled = false;
-        listen("OWML_CONFIG_RELOAD", () => {
+        listen("owmlConfigReload", () => {
             if (cancelled) return;
             owmlCheck();
         });

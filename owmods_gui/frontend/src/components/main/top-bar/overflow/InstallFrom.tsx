@@ -21,11 +21,11 @@ import {
     Checkbox,
     DialogContentText
 } from "@mui/material";
-import { ProtocolInstallType, ProtocolPayload } from "@types";
+import { ProtocolInstallType } from "@types";
 import { commands } from "@commands";
-import { listen } from "@tauri-apps/api/event";
 import { getCurrent } from "@tauri-apps/api/window";
 import { OpenFileInput } from "@components/common/FileInput";
+import { listen } from "@events";
 
 type SourceType = "UNIQUE_NAME" | "URL" | "ZIP";
 
@@ -64,11 +64,10 @@ const InstallFrom = memo(function InstallFrom({ onClick }: ModalProps) {
 
     useEffect(() => {
         let cancel = false;
-        listen("PROTOCOL_INVOKE", ({ payload }) => {
+        listen("protocolInvoke", (protocolPayload) => {
             if (cancel) return;
             commands.checkOWML().then((valid) => {
                 if (valid) {
-                    const protocolPayload = payload as ProtocolPayload;
                     const sourceType = getSourceTypeFromProtocol(protocolPayload.installType);
                     if (sourceType !== null) {
                         setSource(sourceType);

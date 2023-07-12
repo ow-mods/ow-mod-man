@@ -9,7 +9,8 @@ import {
     UnsafeLocalMod,
     Alert,
     ProgressBars,
-    ProgressBar
+    ProgressBar,
+    Event
 } from "@types";
 
 type CommandInfo<P, R> = [P, R];
@@ -106,7 +107,7 @@ const makeInvoke = (key: Command, forceNoDisplayErr?: boolean) => {
 
 const makeHook = (key: Command) => {
     const name = commandInfo[key];
-    return (eventName: string, payload?: (typeof name)[0]) => {
+    return (eventName: Event["name"] | Event["name"][], payload?: (typeof name)[0]) => {
         const fn = makeInvoke(key, true);
         return useTauri<(typeof name)[1]>(
             eventName,
@@ -125,7 +126,7 @@ export type Commands = {
 
 export type Hooks = {
     [T in Command]: (
-        eventName: string | string[],
+        eventName: Event["name"] | Event["name"][],
         payload?: (typeof commandInfo)[T][0]
     ) => [LoadState, (typeof commandInfo)[T][1] | null, Error | null];
 };

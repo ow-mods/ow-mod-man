@@ -20,9 +20,9 @@ export interface SettingsModalProps {
 
 const SettingsModalContent = memo(
     forwardRef(function SettingsModalContent(_, ref) {
-        const [configStatus, config] = hooks.getConfig("CONFIG_RELOAD");
-        const [guiConfigStatus, guiConfig] = hooks.getGuiConfig("GUI_CONFIG_RELOAD");
-        const [owmlConfigStatus, owmlConfig] = hooks.getOwmlConfig("OWML_CONFIG_RELOAD");
+        const [configStatus, config] = hooks.getConfig("configReload");
+        const [guiConfigStatus, guiConfig] = hooks.getGuiConfig("guiConfigReload");
+        const [owmlConfigStatus, owmlConfig] = hooks.getOwmlConfig("owmlConfigReload");
 
         const status = [configStatus, guiConfigStatus, owmlConfigStatus];
 
@@ -70,7 +70,7 @@ const SettingsModal = memo(function SettingsModal({ open, onClose }: SettingsMod
                 <StyledErrorBoundary
                     center
                     errorKey="ERROR_LOADING_OWML_CONFIG"
-                    resetEvent="OWML_CONFIG_RELOAD"
+                    resetEvent="owmlConfigReload"
                     onFix={onFix}
                     fixButtonKey="RESET"
                 >

@@ -33,7 +33,7 @@ const getColor = (palette: Palette, messageType: SocketMessageType) => {
 const LogRow = memo(function LogRow(props: LogRowProps) {
     const theme = useTheme();
 
-    const [status, logLine] = hooks.getLogLine("", {
+    const [status, logLine] = hooks.getLogLine("none", {
         port: props.port,
         line: props.index
     });

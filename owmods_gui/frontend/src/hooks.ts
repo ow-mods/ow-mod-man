@@ -1,12 +1,12 @@
-import { listen } from "@tauri-apps/api/event";
 import { useCallback, useContext, useEffect, useMemo, useState } from "react";
 import {
     TranslationContext,
     TranslationMap,
     type TranslationKey
 } from "@components/common/TranslationContext";
-import { FailedMod, LocalMod, RemoteMod, UnsafeLocalMod } from "@types";
+import { Event, FailedMod, LocalMod, RemoteMod, UnsafeLocalMod } from "@types";
 import { useErrorBoundary } from "react-error-boundary";
+import { listen } from "@events";
 
 export type LoadState = "Loading" | "Done";
 
@@ -14,7 +14,7 @@ export type LoadState = "Loading" | "Done";
  * Use @commands:hooks if possible
  */
 export const useTauri = <T>(
-    eventName: string | string[],
+    eventName: Event["name"] | Event["name"][],
     commandFn: () => Promise<T>,
     payload: unknown
 ): [LoadState, T | null] => {

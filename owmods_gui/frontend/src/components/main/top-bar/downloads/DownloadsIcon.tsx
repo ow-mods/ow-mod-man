@@ -21,7 +21,7 @@ export const determineProgressVariant = (bar: ProgressBar): CircularProgressProp
 
 const DownloadsIcon = memo(function DownloadsIcon() {
     const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>();
-    const downloads = hooks.getDownloads("PROGRESS-UPDATE")[1];
+    const downloads = hooks.getDownloads("progressUpdate")[1];
 
     const sortedDownloads = Object.values(downloads?.bars ?? {});
 

@@ -13,8 +13,8 @@ const UpdateModRow = memo(function UpdateModRow(props: UpdateModRowProps) {
     const getTranslation = useGetTranslation();
 
     // Fetch data
-    const [status1, local] = hooks.getLocalMod("LOCAL-REFRESH", { ...props });
-    const [status2, remote] = hooks.getRemoteMod("REMOTE-REFRESH", { ...props });
+    const [status1, local] = hooks.getLocalMod("localRefresh", { ...props });
+    const [status2, remote] = hooks.getRemoteMod("remoteRefresh", { ...props });
 
     // Transform data
     const { name, author, description, version, outdated } = useUnifiedMod(local, remote);

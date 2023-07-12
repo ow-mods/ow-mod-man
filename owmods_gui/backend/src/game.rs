@@ -11,14 +11,14 @@ use owmods_core::{
     db::LocalDatabase,
     socket::{SocketMessage, SocketMessageType},
 };
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 use tauri::{api::dialog, AppHandle, Window, WindowBuilder};
 use typeshare::typeshare;
 
 use crate::LogPort;
 
 #[typeshare]
-#[derive(Serialize, Clone, Debug)]
+#[derive(Deserialize, Serialize, Clone, Debug)]
 pub struct GameMessage {
     pub port: LogPort,
     pub message: SocketMessage,

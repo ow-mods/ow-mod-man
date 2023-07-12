@@ -13,6 +13,7 @@ import OwmlModal from "./OwmlModal";
 import StyledErrorBoundary from "@components/common/StyledErrorBoundary";
 import { useErrorBoundary } from "react-error-boundary";
 import FileDrop from "./FileDrop";
+import { Event } from "@types";
 
 const RemoteModsPage = lazy(() => import("./mods/remote/RemoteModsPage"));
 const UpdateModsPage = lazy(() => import("./mods/updates/UpdateModsPage"));
@@ -20,7 +21,7 @@ const UpdateModsPage = lazy(() => import("./mods/updates/UpdateModsPage"));
 const Pane = memo(function Pane(props: {
     show: boolean;
     errKey?: TranslationKey;
-    resetEvent?: string;
+    resetEvent?: Event["name"];
     children: ReactNode;
 }) {
     return (
@@ -38,7 +39,7 @@ const Pane = memo(function Pane(props: {
 
 const MainApp = () => {
     const [selectedTab, setSelectedTab] = useState<ModsTab>("local");
-    const [status, guiConfig] = hooks.getGuiConfig("GUI_CONFIG_RELOAD");
+    const [status, guiConfig] = hooks.getGuiConfig("guiConfigReload");
 
     const errorBound = useErrorBoundary();
 
@@ -73,11 +74,11 @@ const MainApp = () => {
                 <AppAlert />
                 <AppTabs onChange={onTabChange} />
                 <Box display="flex" flexGrow={1} minHeight="0">
-                    <Pane resetEvent="LOCAL-REFRESH" show={selectedTab === "local"}>
+                    <Pane resetEvent="localRefresh" show={selectedTab === "local"}>
                         <LocalModsPage />
                     </Pane>
                     <Pane
-                        resetEvent="REMOTE-REFRESH"
+                        resetEvent="remoteRefresh"
                         errKey="NO_REMOTE_MODS"
                         show={selectedTab === "remote"}
                     >

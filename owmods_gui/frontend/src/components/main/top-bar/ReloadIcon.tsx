@@ -4,8 +4,8 @@ import { memo, useCallback, useEffect, useRef, useState } from "react";
 import { CircularProgress } from "@mui/material";
 import { RefreshRounded } from "@mui/icons-material";
 import { AppIcon } from "./AppIcons";
-import { listen } from "@tauri-apps/api/event";
 import { useErrorBoundary } from "react-error-boundary";
+import { listen } from "@events";
 
 const ReloadIcon = memo(function ReloadIcon() {
     const getTranslation = useGetTranslation();
@@ -42,9 +42,8 @@ const ReloadIcon = memo(function ReloadIcon() {
 
     useEffect(() => {
         let cancel = false;
-        listen("REQUEST-RELOAD", (e) => {
+        listen("requestReload", (reloadType) => {
             if (cancel) return;
-            const reloadType = e.payload as string;
             if (currentTimeout.current !== null) {
                 clearTimeout(currentTimeout.current);
             }

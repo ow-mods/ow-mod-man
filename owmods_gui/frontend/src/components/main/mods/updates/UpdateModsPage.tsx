@@ -12,7 +12,7 @@ const UpdateModsPage = memo(function UpdateModsPage() {
     const [filter, setFilter] = useState("");
     const [updatingAll, setUpdatingAll] = useState(false);
 
-    const [status, updateMods] = hooks.getUpdatableMods(["LOCAL-REFRESH", "REMOTE-REFRESH"], {
+    const [status, updateMods] = hooks.getUpdatableMods(["localRefresh", "remoteRefresh"], {
         filter
     });
 

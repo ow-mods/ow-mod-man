@@ -1,10 +1,10 @@
+import { emit } from "@events";
 import { useGetTranslation } from "@hooks";
 import { BuildRounded, HelpRounded, MoreHoriz } from "@mui/icons-material";
 import { ListItemIcon, ListItemText, MenuItem, Tooltip } from "@mui/material";
 import IconButton from "@mui/material/IconButton";
 import Menu from "@mui/material/Menu";
 import { shell } from "@tauri-apps/api";
-import { emit } from "@tauri-apps/api/event";
 import { useState, MouseEvent, useCallback, lazy, Suspense } from "react";
 
 const About = lazy(() => import("./About"));
@@ -29,7 +29,7 @@ const OverflowMenu = () => {
     }, [onClose]);
 
     const onOwmlEdit = useCallback(() => {
-        emit("OPEN_OWML_SETUP", {});
+        emit("openOwmlSetup", undefined);
         onClose();
     }, [onClose]);
 

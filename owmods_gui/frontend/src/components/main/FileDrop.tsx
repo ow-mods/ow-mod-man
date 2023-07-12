@@ -2,13 +2,13 @@ import { commands, hooks } from "@commands";
 import { useGetTranslation } from "@hooks";
 import { FileOpenRounded } from "@mui/icons-material";
 import { Box, Modal } from "@mui/material";
-import { listen } from "@tauri-apps/api/event";
 import { memo, useCallback, useEffect, useState } from "react";
+import { listen } from "@events";
 
 const FileDrop = memo(function FileDrop() {
     const [isShown, setIsShown] = useState(false);
 
-    const owmlInstalled = hooks.checkOWML("OWML_CONFIG_RELOAD")[1];
+    const owmlInstalled = hooks.checkOWML("owmlConfigReload")[1];
 
     const getTranslation = useGetTranslation();
 
@@ -22,11 +22,11 @@ const FileDrop = memo(function FileDrop() {
 
     useEffect(() => {
         let cancel = false;
-        listen("DRAG_ENTER", () => {
+        listen("dragEnter", () => {
             if (cancel || !owmlInstalled) return;
             onDragEnter();
         });
-        listen("DRAG_LEAVE", () => {
+        listen("dragLeave", () => {
             if (cancel || !owmlInstalled) return;
             onDragLeave();
         });

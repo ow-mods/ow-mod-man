@@ -16,7 +16,7 @@ const AppTabs = memo(function AppTabs({ onChange }: AppTabsProps) {
     const getTranslation = useGetTranslation();
     const theme = useTheme();
     const count =
-        hooks.getUpdatableMods(["LOCAL-REFRESH", "REMOTE-REFRESH"], { filter: "" })[1]?.length ?? 0;
+        hooks.getUpdatableMods(["localRefresh", "remoteRefresh"], { filter: "" })[1]?.length ?? 0;
     const countText = count === 0 ? "" : `(${count})`;
 
     return (

@@ -12,8 +12,8 @@ export interface RemoteModRowProps {
 const RemoteModRow = memo(function RemoteModRow(props: RemoteModRowProps) {
     const getTranslation = useGetTranslation();
 
-    const [status, remote] = hooks.getRemoteMod("REMOTE-REFRESH", { uniqueName: props.uniqueName });
-    const busy = hooks.getModBusy("MOD-BUSY", { uniqueName: props.uniqueName })[1];
+    const [status, remote] = hooks.getRemoteMod("remoteRefresh", { uniqueName: props.uniqueName });
+    const busy = hooks.getModBusy("modBusy", { uniqueName: props.uniqueName })[1];
 
     const hasPrerelease = useMemo(() => remote?.prerelease !== undefined, [remote?.prerelease]);
 

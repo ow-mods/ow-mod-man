@@ -10,6 +10,12 @@ body {
     flex-direction: column;
 }
 
+@media only print {
+    * {
+        display: none !important;
+    }
+}
+
 @keyframes flash {
     0% {
         color: unset;

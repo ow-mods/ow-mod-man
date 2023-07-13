@@ -7,9 +7,9 @@ This file contains common questions for the manager.
 - [Help](#help)
   - [Table of Contents](#table-of-contents)
   - [How do I use this?](#how-do-i-use-this)
-  - [Rainbow mode won't work](#rainbow-mode-wont-work)
   - [How do I uninstall it?](#how-do-i-uninstall-it)
   - [The game won't launch on Linux](#the-game-wont-launch-on-linux)
+  - [Steam deck game mode won't work](#steam-deck-game-mode-wont-work)
   - [I made a mod! How do I submit it?](#i-made-a-mod-how-do-i-submit-it)
   - [My issue isn't listed here](#my-issue-isnt-listed-here)
 
@@ -23,10 +23,6 @@ This file contains common questions for the manager.
 - Head to the "Get Mods" tab to install any mods you want;
 - Press the top center play button to launch the game;
 - You won't believe what happens next.
-
-## Rainbow mode won't work
-
-Switch off White theme, the manager simply hue shifts to achieve rainbow mode so the more saturated the color the better.
 
 ## How do I uninstall it?
 
@@ -46,6 +42,10 @@ To debug issues with mono set the `MONO_LOG_LEVEL` variable to `debug`. and look
 ### On Flatpak
 
 Also ensure the game is located in `~/.steam/steam/steamapps/common/Outer Wilds`, otherwise the manager won't be able to find the game as it only has access to that folder.
+
+## Steam deck game mode won't work
+
+The manager itself can only be launched in desktop mode, but mods will persist if you switch to game mode and launch the game itself.
 
 ## I made a mod! How do I submit it?
 

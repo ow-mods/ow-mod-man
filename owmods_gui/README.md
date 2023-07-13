@@ -25,6 +25,14 @@ The GUI interface for the [Outer Wilds Mod Manager](https://github.com/Bwc9876/o
 
 Check out the [mods website](https://outerwildsmods.com/mod-manager/) for instructions.
 
+### Steam Deck Installation
+
+Go into the Discover app in desktop mode and search "Outer Wilds" and the manager should appear.
+
+#### Note For Deck
+
+The manager itself can only be launched in desktop mode, but mods will persist if you switch to game mode and launch the game itself.
+
 ## Building
 
 Prerequisites:

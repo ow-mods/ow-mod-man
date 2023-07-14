@@ -1,6 +1,7 @@
+import { commands } from "@commands";
 import { emit } from "@events";
 import { useGetTranslation } from "@hooks";
-import { BuildRounded, HelpRounded, MoreHoriz } from "@mui/icons-material";
+import { BuildRounded, FolderOpenRounded, HelpRounded, MoreHoriz } from "@mui/icons-material";
 import { ListItemIcon, ListItemText, MenuItem, Tooltip } from "@mui/material";
 import IconButton from "@mui/material/IconButton";
 import Menu from "@mui/material/Menu";
@@ -33,6 +34,10 @@ const OverflowMenu = () => {
         onClose();
     }, [onClose]);
 
+    const onOpenOwml = useCallback(() => {
+        commands.openOwml();
+    }, []);
+
     return (
         <>
             <Tooltip title={getTranslation("MORE")}>
@@ -63,6 +68,12 @@ const OverflowMenu = () => {
                     <Export onClick={onClose} />
                     <Import onClick={onClose} />
                 </Suspense>
+                <MenuItem onClick={onOpenOwml}>
+                    <ListItemIcon>
+                        <FolderOpenRounded fontSize="small" />
+                    </ListItemIcon>
+                    <ListItemText>{getTranslation("OPEN_OWML")}</ListItemText>
+                </MenuItem>
                 <MenuItem onClick={onOwmlEdit}>
                     <ListItemIcon>
                         <BuildRounded fontSize="small" />

@@ -147,6 +147,7 @@ fn main() -> Result<(), Box<dyn Error>> {
             install_url,
             install_zip,
             open_mod_readme,
+            open_owml,
             save_config,
             get_config,
             save_gui_config,

@@ -359,6 +359,14 @@ pub async fn open_mod_readme(unique_name: &str, state: tauri::State<'_, State>) 
 }
 
 #[tauri::command]
+pub async fn open_owml(state: tauri::State<'_, State>) -> Result {
+    let config = state.config.read().await;
+    let local_db = state.local_db.read().await;
+    open_shortcut("owml", &config, &local_db)?;
+    Ok(())
+}
+
+#[tauri::command]
 pub async fn save_config(
     config: Config,
     state: tauri::State<'_, State>,

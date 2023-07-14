@@ -40,7 +40,7 @@ const FileDrop = memo(function FileDrop() {
     }, []);
 
     return (
-        <Modal keepMounted open={isShown}>
+        <Modal open={isShown}>
             <Box
                 sx={{ pointerEvents: "none" }}
                 display="flex"

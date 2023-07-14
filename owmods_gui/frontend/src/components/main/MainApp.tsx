@@ -1,4 +1,4 @@
-import { Box } from "@mui/material";
+import { Box, useTheme } from "@mui/material";
 import TopBar from "./top-bar/TopBar";
 import { ReactNode, Suspense, lazy, memo, useCallback, useEffect, useState } from "react";
 import { TabContext } from "@mui/lab";
@@ -24,8 +24,10 @@ const Pane = memo(function Pane(props: {
     resetEvent?: Event["name"];
     children: ReactNode;
 }) {
+    const theme = useTheme();
+
     return (
-        <Box width="100%" display={props.show ? undefined : "none"}>
+        <Box marginBottom={theme.spacing(8)} width="100%" display={props.show ? undefined : "none"}>
             <StyledErrorBoundary
                 resetEvent={props.resetEvent}
                 errorKey={props.errKey ?? "PAGE_ERROR"}

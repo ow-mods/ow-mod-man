@@ -21,17 +21,17 @@ const FileDrop = memo(function FileDrop() {
     }, []);
 
     useEffect(() => {
-        let cancel = false;
-        listen("dragEnter", () => {
-            if (cancel || !owmlInstalled) return;
+        const unsubscribe1 = listen("dragEnter", () => {
+            if (!owmlInstalled) return;
             onDragEnter();
         });
-        listen("dragLeave", () => {
-            if (cancel || !owmlInstalled) return;
+        const unsubscribe2 = listen("dragLeave", () => {
+            if (!owmlInstalled) return;
             onDragLeave();
         });
         return () => {
-            cancel = true;
+            unsubscribe1();
+            unsubscribe2();
         };
     }, [onDragLeave, onDragEnter, owmlInstalled]);
 

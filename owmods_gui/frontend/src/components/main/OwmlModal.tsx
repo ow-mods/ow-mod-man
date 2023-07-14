@@ -87,15 +87,11 @@ const OwmlModal = memo(function OwmlModal() {
     useEffect(() => owmlCheck(), [owmlCheck]);
 
     useEffect(() => {
-        let cancel = false;
-        listen("openOwmlSetup", () => {
-            if (cancel) return;
+        const unsubscribe = listen("openOwmlSetup", () => {
             setOpen(true);
             setCanCancel(true);
         });
-        return () => {
-            cancel = true;
-        };
+        return unsubscribe;
     }, []);
 
     useEffect(() => {

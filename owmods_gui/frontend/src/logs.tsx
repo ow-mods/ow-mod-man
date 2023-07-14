@@ -21,4 +21,6 @@ listen("gameStart", (inPort) => {
             <LogApp port={port} />
         </ErrorBoundary>
     );
-}).then(() => commands.runGame().catch(simpleOnError));
+});
+
+commands.runGame().catch(simpleOnError);

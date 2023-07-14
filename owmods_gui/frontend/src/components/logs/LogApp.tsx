@@ -56,21 +56,18 @@ const LogApp = ({ port }: { port: number }) => {
     }, [port]);
 
     useEffect(() => {
-        let cancel = false;
-        listen("logUpdate", (portPayload) => {
-            if (cancel || portPayload !== port) return;
+        const unsubscribe = listen("logUpdate", (portPayload) => {
+            if (portPayload !== port) return;
             fetchLogLines();
-        }).catch(simpleOnError);
+        });
         listen("logFatal", (msg) => {
-            if (cancel || msg.port !== port) return;
+            if (msg.port !== port) return;
             dialog.message(`[${msg.message.senderName ?? "Unknown"}]: ${msg.message.message}`, {
                 type: "error",
                 title: getTranslation("FATAL_ERROR")
             });
         });
-        return () => {
-            cancel = true;
-        };
+        return unsubscribe;
     }, [fetchLogLines, getTranslation, port]);
 
     useEffect(() => {

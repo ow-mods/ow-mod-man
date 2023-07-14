@@ -43,15 +43,14 @@ const fallback = (options: Omit<StyledErrorBoundaryProps, "children">) =>
         const theme = useTheme();
 
         useEffect(() => {
-            let cancel = false;
+            let unsubscribe: (() => void) | null = null;
             if (options.resetEvent) {
-                listen(options.resetEvent, () => {
-                    if (cancel) return;
+                unsubscribe = listen(options.resetEvent, () => {
                     resetErrorBoundary();
                 });
             }
             return () => {
-                cancel = true;
+                unsubscribe?.();
             };
         }, [resetErrorBoundary]);
 

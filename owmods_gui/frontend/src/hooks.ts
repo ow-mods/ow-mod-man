@@ -27,10 +27,7 @@ export const useTauri = <T>(
     useEffect(() => {
         if (status !== "Loading") {
             for (const eventToSubscribe of events) {
-                listen(eventToSubscribe, () => setStatus("Loading")).catch((e) => {
-                    setStatus("Done");
-                    errorBound.showBoundary(e);
-                });
+                listen(eventToSubscribe, () => setStatus("Loading"));
             }
         } else {
             commandFn()

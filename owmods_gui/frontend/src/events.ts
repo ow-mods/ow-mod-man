@@ -1,3 +1,4 @@
+import { simpleOnError } from "@components/common/StyledErrorBoundary";
 import { listen as tauriListen, emit as tauriEmit } from "@tauri-apps/api/event";
 import { Event } from "@types";
 
@@ -10,25 +11,25 @@ type EventSubscriptions = {
 let initialized = false;
 const subscriptions = {} as EventSubscriptions;
 
-export const listen = async <E extends Event["name"]>(
-    name: E,
-    callback: (params: Params<E>) => void
-) => {
+export const listen = <E extends Event["name"]>(name: E, callback: (params: Params<E>) => void) => {
     if (!initialized) {
         initialized = true;
-        await tauriListen("owmods://events/invoke", (e) => {
+        tauriListen("owmods://events/invoke", (e) => {
             const payload = e.payload as Event;
             if (subscriptions[payload.name]) {
                 for (const handler of subscriptions[payload.name]) {
                     (handler as (params: Params<typeof payload.name>) => void)(payload.params);
                 }
             }
-        });
+        }).catch(simpleOnError);
     }
     if (subscriptions[name] === undefined) {
         subscriptions[name] = [];
     }
-    subscriptions[name].push(callback);
+    const newIndex = subscriptions[name].push(callback) - 1;
+    return () => {
+        subscriptions[name].splice(newIndex, 1);
+    };
 };
 
 export const emit = async <E extends Event["name"]>(name: E, params: Params<E>) => {

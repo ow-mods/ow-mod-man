@@ -41,9 +41,7 @@ const ReloadIcon = memo(function ReloadIcon() {
     }, [onRefresh]);
 
     useEffect(() => {
-        let cancel = false;
-        listen("requestReload", (reloadType) => {
-            if (cancel) return;
+        const unsubscribe = listen("requestReload", (reloadType) => {
             if (currentTimeout.current !== null) {
                 clearTimeout(currentTimeout.current);
             }
@@ -55,9 +53,7 @@ const ReloadIcon = memo(function ReloadIcon() {
                 );
             }, 500);
         });
-        return () => {
-            cancel = true;
-        };
+        return unsubscribe;
     }, [onRefresh]);
 
     return (

@@ -64,9 +64,7 @@ const InstallFrom = memo(function InstallFrom({ onClick }: ModalProps) {
     );
 
     useEffect(() => {
-        let cancel = false;
-        listen("protocolInvoke", (protocolPayload) => {
-            if (cancel) return;
+        const unsubscribe = listen("protocolInvoke", (protocolPayload) => {
             commands.checkOWML().then((valid) => {
                 if (valid) {
                     const sourceType = getSourceTypeFromProtocol(protocolPayload.installType);
@@ -84,12 +82,9 @@ const InstallFrom = memo(function InstallFrom({ onClick }: ModalProps) {
                     }
                 }
             });
-        })
-            .then(() => commands.popProtocolURL())
-            .catch(simpleOnError);
-        return () => {
-            cancel = true;
-        };
+        });
+        commands.popProtocolURL();
+        return unsubscribe;
     }, []);
 
     const handleClick = useCallback(() => {

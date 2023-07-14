@@ -10,7 +10,7 @@ import { getCurrent } from "@tauri-apps/api/window";
 import AppAlert from "./AppAlert";
 import BaseApp from "@components/common/BaseApp";
 import OwmlModal from "./OwmlModal";
-import StyledErrorBoundary from "@components/common/StyledErrorBoundary";
+import StyledErrorBoundary, { simpleOnError } from "@components/common/StyledErrorBoundary";
 import { useErrorBoundary } from "react-error-boundary";
 import FileDrop from "./FileDrop";
 import { Event } from "@types";
@@ -54,7 +54,7 @@ const MainApp = () => {
                     TranslationMap[guiConfig?.language ?? "English"]["APP_TITLE"] ??
                         "Outer Wilds Mod Manager (*)"
                 )
-                .catch(commands.logError);
+                .catch(simpleOnError);
         }
     }, [guiConfig?.language]);
 

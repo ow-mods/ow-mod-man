@@ -10,6 +10,7 @@ import LogHeader from "./LogHeader";
 import { Container, useTheme } from "@mui/material";
 import LogTable from "./LogTable";
 import { listen } from "@events";
+import { simpleOnError } from "@components/common/StyledErrorBoundary";
 
 export type LogFilter = keyof typeof SocketMessageType | "Any";
 export type LogLines = [number, number][];
@@ -45,12 +46,12 @@ const LogApp = ({ port }: { port: number }) => {
         if (logsTitleTranslation) {
             thisWindow
                 .setTitle(logsTitleTranslation.replace("$port$", port.toString()))
-                .catch(commands.logError);
+                .catch(simpleOnError);
         }
     }, [guiConfig?.language, port]);
 
     const onClear = useCallback(() => {
-        commands.clearLogs({ port }).catch(commands.logError);
+        commands.clearLogs({ port }).catch(simpleOnError);
         setLogLines([]);
     }, [port]);
 
@@ -59,7 +60,7 @@ const LogApp = ({ port }: { port: number }) => {
         listen("logUpdate", (portPayload) => {
             if (cancel || portPayload !== port) return;
             fetchLogLines();
-        }).catch(commands.logError);
+        }).catch(simpleOnError);
         listen("logFatal", (msg) => {
             if (cancel || msg.port !== port) return;
             dialog.message(`[${msg.message.senderName ?? "Unknown"}]: ${msg.message.message}`, {

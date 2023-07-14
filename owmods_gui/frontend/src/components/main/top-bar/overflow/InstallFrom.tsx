@@ -26,6 +26,7 @@ import { commands } from "@commands";
 import { getCurrent } from "@tauri-apps/api/window";
 import { OpenFileInput } from "@components/common/FileInput";
 import { listen } from "@events";
+import { simpleOnError } from "@components/common/StyledErrorBoundary";
 
 type SourceType = "UNIQUE_NAME" | "URL" | "ZIP";
 
@@ -79,13 +80,13 @@ const InstallFrom = memo(function InstallFrom({ onClick }: ModalProps) {
                             setPrerelease(protocolPayload.installType === "installPreRelease");
                         }
                         setOpen(true);
-                        getCurrent().setFocus().catch(commands.logError);
+                        getCurrent().setFocus().catch(simpleOnError);
                     }
                 }
             });
         })
             .then(() => commands.popProtocolURL())
-            .catch(commands.logError);
+            .catch(simpleOnError);
         return () => {
             cancel = true;
         };
@@ -106,19 +107,19 @@ const InstallFrom = memo(function InstallFrom({ onClick }: ModalProps) {
                 commands
                     .installMod({ uniqueName: target, prerelease })
                     .then(() => commands.refreshLocalDb())
-                    .catch(commands.logError);
+                    .catch(simpleOnError);
                 break;
             case "URL":
                 commands
                     .installUrl({ url: target })
                     .then(() => commands.refreshLocalDb())
-                    .catch(commands.logError);
+                    .catch(simpleOnError);
                 break;
             case "ZIP":
                 commands
                     .installZip({ path: target })
                     .then(() => commands.refreshLocalDb())
-                    .catch(commands.logError);
+                    .catch(simpleOnError);
                 break;
         }
         onClose();

@@ -18,6 +18,12 @@ export interface StyledErrorBoundaryProps {
     fixButtonKey?: TranslationKey;
 }
 
+export const simpleOnError = (err: string) => {
+    commands.logError({
+        err: err.toString()
+    });
+};
+
 export const onError = (err: unknown, info: { componentStack: string }) => {
     commands.logError({
         err: `${err?.toString() ?? "null"}\nAt: ${info.componentStack}`

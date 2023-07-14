@@ -5,6 +5,7 @@ import { NorthEastRounded } from "@mui/icons-material";
 import { MenuItem, ListItemIcon, ListItemText } from "@mui/material";
 import { dialog } from "@tauri-apps/api";
 import { commands } from "@commands";
+import { simpleOnError } from "@components/common/StyledErrorBoundary";
 
 const Export = memo(function Export({ onClick }: ModalProps) {
     const getTranslation = useGetTranslation();
@@ -22,7 +23,7 @@ const Export = memo(function Export({ onClick }: ModalProps) {
             })
             .then((path) => {
                 if (path) {
-                    commands.exportMods({ path }).catch(commands.logError);
+                    commands.exportMods({ path }).catch(simpleOnError);
                 }
             });
     }, [getTranslation]);

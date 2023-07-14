@@ -2,7 +2,11 @@ import ReactDOM from "react-dom/client";
 import { commands } from "@commands";
 import LogApp from "@components/logs/LogApp";
 import { ErrorBoundary } from "react-error-boundary";
-import { basicFallbackRender, onError } from "@components/common/StyledErrorBoundary";
+import {
+    basicFallbackRender,
+    onError,
+    simpleOnError
+} from "@components/common/StyledErrorBoundary";
 import { listen } from "@events";
 
 let port = 0;
@@ -17,4 +21,4 @@ listen("gameStart", (inPort) => {
             <LogApp port={port} />
         </ErrorBoundary>
     );
-}).then(() => commands.runGame().catch(commands.logError));
+}).then(() => commands.runGame().catch(simpleOnError));

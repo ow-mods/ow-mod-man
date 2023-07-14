@@ -17,6 +17,7 @@ import SettingsSelect from "./SettingsSelect";
 import SettingsText from "./SettingsText";
 import SettingsCheck from "./SettingsCheck";
 import SettingsHeader from "./SettingsHeader";
+import { simpleOnError } from "@components/common/StyledErrorBoundary";
 
 const LanguageArr = Object.values(Language);
 
@@ -70,7 +71,7 @@ const SettingsForm = forwardRef(function SettingsForm(props: SettingsFormProps, 
                             await commands.refreshRemoteDb();
                         }
                     };
-                    task().catch(commands.logError);
+                    task().catch(simpleOnError);
                 },
                 reset: () => {
                     setConfig(props.initialConfig);

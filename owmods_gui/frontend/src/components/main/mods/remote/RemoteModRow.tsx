@@ -4,6 +4,7 @@ import { commands, hooks } from "@commands";
 import { useGetTranslation } from "@hooks";
 import { dialog } from "@tauri-apps/api";
 import RemoteModActions from "./RemoteModActions";
+import { simpleOnError } from "@components/common/StyledErrorBoundary";
 
 export interface RemoteModRowProps {
     uniqueName: string;
@@ -27,9 +28,9 @@ const RemoteModRow = memo(function RemoteModRow(props: RemoteModRowProps) {
         commands
             .installMod({ uniqueName: props.uniqueName })
             .then(() => {
-                commands.refreshLocalDb().catch(commands.logError);
+                commands.refreshLocalDb().catch(simpleOnError);
             })
-            .catch(commands.logError);
+            .catch(simpleOnError);
     }, [props.uniqueName]);
 
     const onPrerelease = useCallback(() => {
@@ -41,16 +42,16 @@ const RemoteModRow = memo(function RemoteModRow(props: RemoteModRowProps) {
                 commands
                     .installMod({ uniqueName: props.uniqueName, prerelease: true })
                     .then(() => {
-                        commands.refreshLocalDb().catch(commands.logError);
+                        commands.refreshLocalDb().catch(simpleOnError);
                     })
-                    .catch(commands.logError);
+                    .catch(simpleOnError);
             }
         };
         task();
     }, [getTranslation, prereleaseLabel, props.uniqueName]);
 
     const onReadme = useCallback(() => {
-        commands.openModReadme({ uniqueName: props.uniqueName }).catch(commands.logError);
+        commands.openModReadme({ uniqueName: props.uniqueName }).catch(simpleOnError);
     }, [props.uniqueName]);
 
     const modActions = useMemo(

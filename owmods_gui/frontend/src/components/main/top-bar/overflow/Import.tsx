@@ -18,6 +18,7 @@ import {
 } from "@mui/material";
 import { OpenFileInput } from "@components/common/FileInput";
 import { commands } from "@commands";
+import { simpleOnError } from "@components/common/StyledErrorBoundary";
 
 const Import = memo(function Import({ onClick }: ModalProps) {
     const getTranslation = useGetTranslation();
@@ -40,7 +41,7 @@ const Import = memo(function Import({ onClick }: ModalProps) {
         commands
             .importMods({ path: filePath, disableMissing })
             .then(() => commands.refreshLocalDb())
-            .catch(commands.logError);
+            .catch(simpleOnError);
         onClose();
     }, [disableMissing, filePath, onClose]);
 

@@ -4,6 +4,7 @@ import { useCallback, useState } from "react";
 import { commands } from "@commands";
 import { useGetTranslation } from "@hooks";
 import { dialog } from "@tauri-apps/api";
+import { simpleOnError } from "@components/common/StyledErrorBoundary";
 
 const StartGameButton = () => {
     const getTranslation = useGetTranslation();
@@ -14,7 +15,7 @@ const StartGameButton = () => {
             commands
                 .startLogs()
                 .then(() => setLogsStarting(false))
-                .catch(commands.logError);
+                .catch(simpleOnError);
         setLogsStarting(true);
         const task = async () => {
             const hasIssues = await commands.checkDBForIssues();

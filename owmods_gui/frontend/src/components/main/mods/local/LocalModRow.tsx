@@ -54,7 +54,10 @@ const canFix = (mod?: UnsafeLocalMod): boolean => {
     }
 
     return (mod.mod as LocalMod).errors.every(
-        (e) => e.errorType === "MissingDep" || e.errorType === "DisabledDep"
+        (e) =>
+            e.errorType === "MissingDep" ||
+            e.errorType === "DisabledDep" ||
+            e.errorType === "Outdated"
     );
 };
 
@@ -144,8 +147,15 @@ const LocalModRow = memo(function LocalModRow(props: LocalModRowProps) {
         });
     }, [getTranslation, name, props.uniqueName]);
     const onFix = useCallback(() => {
-        commands.fixDeps({ uniqueName: props.uniqueName }).then(() => commands.refreshLocalDb());
-    }, [props.uniqueName]);
+        const task = async () => {
+            if (outdated) {
+                await commands.updateMod({ uniqueName: props.uniqueName });
+            }
+            await commands.fixDeps({ uniqueName: props.uniqueName });
+            await commands.refreshLocalDb();
+        };
+        task();
+    }, [outdated, props.uniqueName]);
 
     const modsToolbar = useMemo(
         () => (

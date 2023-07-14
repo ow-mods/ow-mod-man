@@ -1,7 +1,12 @@
 import { commands } from "@commands";
 import { emit } from "@events";
 import { useGetTranslation } from "@hooks";
-import { BuildRounded, FolderOpenRounded, HelpRounded, MoreHoriz } from "@mui/icons-material";
+import {
+    BuildRounded,
+    FolderOpenRounded,
+    HelpRounded,
+    MoreHorizRounded
+} from "@mui/icons-material";
 import { ListItemIcon, ListItemText, MenuItem, Tooltip } from "@mui/material";
 import IconButton from "@mui/material/IconButton";
 import Menu from "@mui/material/Menu";
@@ -50,7 +55,7 @@ const OverflowMenu = () => {
                     aria-expanded={open ? "true" : undefined}
                     onClick={onClick}
                 >
-                    <MoreHoriz />
+                    <MoreHorizRounded />
                 </IconButton>
             </Tooltip>
             <Menu

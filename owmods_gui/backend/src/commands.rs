@@ -274,7 +274,7 @@ pub async fn install_mod(
             ),
         );
     }
-    if should_install {
+    let res = if should_install {
         install_mod_from_db(
             &unique_name.to_string(),
             &conf,
@@ -283,10 +283,12 @@ pub async fn install_mod(
             true,
             prerelease.unwrap_or(false),
         )
-        .await?;
-    }
+        .await
+    } else {
+        Ok(())
+    };
     mark_mod_busy(unique_name, false, true, &state, &handle).await;
-
+    res?;
     Ok(())
 }
 
@@ -513,7 +515,7 @@ pub async fn update_mod(
     let local_db = state.local_db.read().await;
     let remote_db = state.remote_db.read().await;
 
-    if unique_name == OWML_UNIQUE_NAME {
+    let res = if unique_name == OWML_UNIQUE_NAME {
         download_and_install_owml(
             &config,
             remote_db
@@ -521,7 +523,7 @@ pub async fn update_mod(
                 .ok_or_else(|| anyhow!("OWML Not Found!"))?,
             false,
         )
-        .await?;
+        .await
     } else {
         install_mod_from_db(
             &unique_name.to_string(),
@@ -531,10 +533,10 @@ pub async fn update_mod(
             false,
             false,
         )
-        .await?;
-    }
-
+        .await
+    };
     mark_mod_busy(unique_name, false, true, &state, &handle).await;
+    res?;
     Ok(())
 }
 
@@ -790,7 +792,7 @@ pub async fn import_mods(
 pub async fn fix_mod_deps(
     unique_name: &str,
     state: tauri::State<'_, State>,
-    _handle: tauri::AppHandle,
+    handle: tauri::AppHandle,
 ) -> Result {
     let config = state.config.read().await;
     let local_db = state.local_db.read().await;
@@ -799,8 +801,10 @@ pub async fn fix_mod_deps(
         .get_mod(unique_name)
         .ok_or_else(|| anyhow!("Can't find mod {}", unique_name))?;
 
-    fix_deps(local_mod, &config, &local_db, &remote_db).await?;
-
+    mark_mod_busy(unique_name, true, true, &state, &handle).await;
+    let res = fix_deps(local_mod, &config, &local_db, &remote_db).await;
+    mark_mod_busy(unique_name, false, true, &state, &handle).await;
+    res?;
     Ok(())
 }
 

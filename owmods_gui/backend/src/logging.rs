@@ -84,8 +84,10 @@ impl log::Log for Logger {
                 let mut bars = state.progress_bars.write().await;
                 let batch_finished = bars.process(&raw);
                 handle.typed_emit_all(&Event::ProgressUpdate(())).ok();
-                if batch_finished {
-                    handle.typed_emit_all(&Event::ProgressBatchFinish(())).ok();
+                if let Some(has_error) = batch_finished {
+                    handle
+                        .typed_emit_all(&Event::ProgressBatchFinish(has_error))
+                        .ok();
                 }
             });
             Ok(())

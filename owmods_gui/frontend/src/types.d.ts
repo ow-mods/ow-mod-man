@@ -229,7 +229,7 @@ export type Event =
     | { name: "logFatal"; params: GameMessage }
     | { name: "protocolInvoke"; params: ProtocolPayload }
     | { name: "progressUpdate"; params: EmptyParams }
-    | { name: "progressBatchFinish"; params: EmptyParams }
+    | { name: "progressBatchFinish"; params: boolean }
     | { name: "dragEnter"; params: EmptyParams }
     | { name: "dragLeave"; params: EmptyParams }
     | { name: "openOwmlSetup"; params: EmptyParams }

@@ -21,7 +21,7 @@ body {
         color: unset;
     }
     50% {
-        color: #66bb6a;
+        color: var(--flash-color);
     }
     100% {
         color: unset;
@@ -29,5 +29,10 @@ body {
 }
 
 .downloads-flashing {
+    --flash-color: #66bb6a;
     animation: flash 700ms ease-in-out 3;
+}
+
+.error {
+    --flash-color: rgb(246, 104, 94);
 }

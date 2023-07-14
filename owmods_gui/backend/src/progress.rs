@@ -62,7 +62,7 @@ impl ProgressBars {
             })
     }
 
-    pub fn process(&mut self, payload: &str) -> bool {
+    pub fn process(&mut self, payload: &str) -> Option<bool> {
         let payload = ProgressPayload::parse(payload);
         match payload {
             ProgressPayload::Start(start_payload) => {
@@ -92,11 +92,11 @@ impl ProgressBars {
                     matches!(b.success, Some(_))
                         && matches!(b.progress_action, ProgressAction::Extract)
                 }) {
-                    return true;
+                    return Some(self.bars.iter().any(|b| !b.1.success.unwrap_or(true)));
                 }
             }
             ProgressPayload::Unknown => {}
         }
-        false
+        None
     }
 }

@@ -20,9 +20,17 @@ export const determineProgressVariant = (bar: ProgressBar): CircularProgressProp
     }
 };
 
+type RecentComplete = "none" | "success" | "error";
+
+const recentCompleteClassMap: Record<RecentComplete, string | undefined> = {
+    none: undefined,
+    success: "downloads-flashing",
+    error: "downloads-flashing error"
+};
+
 const DownloadsIcon = memo(function DownloadsIcon() {
     const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>();
-    const [recentComplete, setRecentComplete] = useState(false);
+    const [recentComplete, setRecentComplete] = useState<RecentComplete>("none");
     const currentTimeout = useRef<number | null>();
     const downloads = hooks.getDownloads("progressUpdate")[1];
 
@@ -51,14 +59,14 @@ const DownloadsIcon = memo(function DownloadsIcon() {
 
     useEffect(() => {
         let cancel = false;
-        listen("progressBatchFinish", () => {
+        listen("progressBatchFinish", (hasError) => {
             if (cancel) return;
             if (currentTimeout.current) {
                 clearTimeout(currentTimeout.current);
             }
-            setRecentComplete(true);
+            setRecentComplete(hasError ? "error" : "success");
             currentTimeout.current = setTimeout(() => {
-                setRecentComplete(false);
+                setRecentComplete("none");
             }, 700 * 3); // Animation lasts 700ms and happens 3 times
         });
         return () => {
@@ -67,7 +75,7 @@ const DownloadsIcon = memo(function DownloadsIcon() {
     }, []);
 
     useEffect(() => {
-        if (len !== 0) setRecentComplete(false);
+        if (len !== 0) setRecentComplete("none");
         if (currentTimeout.current) {
             clearTimeout(currentTimeout.current);
         }
@@ -79,7 +87,7 @@ const DownloadsIcon = memo(function DownloadsIcon() {
                 <Box zIndex={100}>
                     <AppIcon onClick={handleClick} label="Downloads">
                         <DownloadingRounded
-                            className={recentComplete ? "downloads-flashing" : undefined}
+                            className={recentCompleteClassMap[recentComplete]}
                             color={len !== 0 ? "secondary" : "inherit"}
                         />
                     </AppIcon>

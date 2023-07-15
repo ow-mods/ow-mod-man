@@ -3,13 +3,14 @@ import BaseApp from "@components/common/BaseApp";
 import { TranslationMap } from "@components/common/TranslationContext";
 import { useGetTranslation } from "@hooks";
 import { dialog } from "@tauri-apps/api";
-import { listen } from "@tauri-apps/api/event";
 import { getCurrent } from "@tauri-apps/api/window";
-import { GameMessage, SocketMessageType } from "@types";
+import { SocketMessageType } from "@types";
 import { useState, useCallback, useEffect } from "react";
 import LogHeader from "./LogHeader";
 import { Container, useTheme } from "@mui/material";
 import LogTable from "./LogTable";
+import { listen } from "@events";
+import { simpleOnError } from "@components/common/StyledErrorBoundary";
 
 export type LogFilter = keyof typeof SocketMessageType | "Any";
 export type LogLines = [number, number][];
@@ -25,7 +26,7 @@ const getFilterToPass = (activeFilter: LogFilter) => {
 };
 
 const LogApp = ({ port }: { port: number }) => {
-    const [status, guiConfig] = hooks.getGuiConfig("GUI_CONFIG_RELOAD");
+    const [status, guiConfig] = hooks.getGuiConfig("guiConfigReload");
 
     const [activeFilter, setActiveFilter] = useState<LogFilter>("Any");
     const [activeSearch, setActiveSearch] = useState<string>("");
@@ -45,32 +46,28 @@ const LogApp = ({ port }: { port: number }) => {
         if (logsTitleTranslation) {
             thisWindow
                 .setTitle(logsTitleTranslation.replace("$port$", port.toString()))
-                .catch(console.warn);
+                .catch(simpleOnError);
         }
     }, [guiConfig?.language, port]);
 
     const onClear = useCallback(() => {
-        commands.clearLogs({ port }).catch(console.warn);
+        commands.clearLogs({ port }).catch(simpleOnError);
         setLogLines([]);
     }, [port]);
 
     useEffect(() => {
-        let cancel = false;
-        listen("LOG-UPDATE", (e) => {
-            if (cancel || (e.payload as number) !== port) return;
+        const unsubscribe = listen("logUpdate", (portPayload) => {
+            if (portPayload !== port) return;
             fetchLogLines();
-        }).catch(console.warn);
-        listen("LOG-FATAL", (e) => {
-            const msg = e.payload as GameMessage;
-            if (cancel || msg.port !== port) return;
+        });
+        listen("logFatal", (msg) => {
+            if (msg.port !== port) return;
             dialog.message(`[${msg.message.senderName ?? "Unknown"}]: ${msg.message.message}`, {
                 type: "error",
                 title: getTranslation("FATAL_ERROR")
             });
         });
-        return () => {
-            cancel = true;
-        };
+        return unsubscribe;
     }, [fetchLogLines, getTranslation, port]);
 
     useEffect(() => {

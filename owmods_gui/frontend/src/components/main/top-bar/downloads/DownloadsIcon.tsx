@@ -1,9 +1,10 @@
 import { hooks } from "@commands";
 import { DownloadingRounded } from "@mui/icons-material";
-import { Suspense, lazy, memo, useMemo, useState } from "react";
+import { Suspense, lazy, memo, useEffect, useMemo, useRef, useState } from "react";
 import { AppIcon } from "../AppIcons";
 import { Box, CircularProgress, CircularProgressProps, Typography } from "@mui/material";
 import { ProgressBar } from "@types";
+import { listen } from "@events";
 
 const DownloadsPopover = lazy(() => import("./DownloadsPopover"));
 
@@ -19,9 +20,19 @@ export const determineProgressVariant = (bar: ProgressBar): CircularProgressProp
     }
 };
 
+type RecentComplete = "none" | "success" | "error";
+
+const recentCompleteClassMap: Record<RecentComplete, string | undefined> = {
+    none: undefined,
+    success: "downloads-flashing",
+    error: "downloads-flashing error"
+};
+
 const DownloadsIcon = memo(function DownloadsIcon() {
     const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>();
-    const downloads = hooks.getDownloads("PROGRESS-UPDATE")[1];
+    const [recentComplete, setRecentComplete] = useState<RecentComplete>("none");
+    const currentTimeout = useRef<number | null>();
+    const downloads = hooks.getDownloads("progressUpdate")[1];
 
     const sortedDownloads = Object.values(downloads?.bars ?? {});
 
@@ -38,7 +49,7 @@ const DownloadsIcon = memo(function DownloadsIcon() {
     const openPopover = Boolean(anchorEl);
 
     const activeDownloads = useMemo(
-        () => sortedDownloads.filter((d) => d.success === null || d.progressAction === "Download"),
+        () => sortedDownloads.filter((d) => d.success === null),
         [sortedDownloads]
     );
 
@@ -46,12 +57,35 @@ const DownloadsIcon = memo(function DownloadsIcon() {
 
     const current = activeDownloads[0];
 
+    useEffect(() => {
+        const unsubscribe = listen("progressBatchFinish", (hasError) => {
+            if (currentTimeout.current) {
+                clearTimeout(currentTimeout.current);
+            }
+            setRecentComplete(hasError ? "error" : "success");
+            currentTimeout.current = setTimeout(() => {
+                setRecentComplete("none");
+            }, 700 * 3); // Animation lasts 700ms and happens 3 times
+        });
+        return unsubscribe;
+    }, []);
+
+    useEffect(() => {
+        if (len !== 0) setRecentComplete("none");
+        if (currentTimeout.current) {
+            clearTimeout(currentTimeout.current);
+        }
+    }, [len]);
+
     return (
         <>
             <Box display="flex" position="relative">
                 <Box zIndex={100}>
                     <AppIcon onClick={handleClick} label="Downloads">
-                        <DownloadingRounded color={len !== 0 ? "secondary" : "inherit"} />
+                        <DownloadingRounded
+                            className={recentCompleteClassMap[recentComplete]}
+                            color={len !== 0 ? "secondary" : "inherit"}
+                        />
                     </AppIcon>
                 </Box>
                 {len !== 0 && (

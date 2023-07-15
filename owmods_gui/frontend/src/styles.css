@@ -9,3 +9,30 @@ body {
     display: flex;
     flex-direction: column;
 }
+
+@media only print {
+    * {
+        display: none !important;
+    }
+}
+
+@keyframes flash {
+    0% {
+        color: unset;
+    }
+    50% {
+        color: var(--flash-color);
+    }
+    100% {
+        color: unset;
+    }
+}
+
+.downloads-flashing {
+    --flash-color: #66bb6a;
+    animation: flash 700ms ease-in-out 3;
+}
+
+.error {
+    --flash-color: rgb(246, 104, 94);
+}

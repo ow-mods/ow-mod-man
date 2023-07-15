@@ -3,8 +3,7 @@ import { useGetTranslation, useUnifiedMod } from "@hooks";
 import { memo, useCallback, useMemo } from "react";
 import ModRow from "../ModRow";
 import { UpdateRounded } from "@mui/icons-material";
-import { Box, CircularProgress } from "@mui/material";
-import ModActionIcon from "../ModActionIcon";
+import ModDownloadIcon from "../ModDownloadIcon";
 
 export interface UpdateModRowProps {
     uniqueName: string;
@@ -14,9 +13,8 @@ const UpdateModRow = memo(function UpdateModRow(props: UpdateModRowProps) {
     const getTranslation = useGetTranslation();
 
     // Fetch data
-    const [status1, local] = hooks.getLocalMod("LOCAL-REFRESH", { ...props });
-    const [status2, remote] = hooks.getRemoteMod("REMOTE-REFRESH", { ...props });
-    const busy = hooks.getModBusy("MOD-BUSY", { uniqueName: props.uniqueName })[1];
+    const [status1, local] = hooks.getLocalMod("localRefresh", { ...props });
+    const [status2, remote] = hooks.getRemoteMod("remoteRefresh", { ...props });
 
     // Transform data
     const { name, author, description, version, outdated } = useUnifiedMod(local, remote);
@@ -26,19 +24,15 @@ const UpdateModRow = memo(function UpdateModRow(props: UpdateModRowProps) {
     }, [props.uniqueName]);
 
     const updateButton = useMemo(
-        () =>
-            busy ? (
-                <Box display="flex" alignItems="center">
-                    <CircularProgress color="inherit" size={22} />
-                </Box>
-            ) : (
-                <ModActionIcon
-                    onClick={onUpdate}
-                    label={getTranslation("UPDATE")}
-                    icon={<UpdateRounded />}
-                />
-            ),
-        [busy, getTranslation, onUpdate]
+        () => (
+            <ModDownloadIcon
+                uniqueName={remote?.uniqueName ?? ""}
+                onClick={onUpdate}
+                icon={<UpdateRounded />}
+                tooltip={getTranslation("UPDATE")}
+            />
+        ),
+        [getTranslation, onUpdate, remote?.uniqueName]
     );
 
     return (

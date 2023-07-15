@@ -28,11 +28,14 @@ use owmods_core::{
     validate::fix_deps,
 };
 use serde::Serialize;
-use tauri::AppHandle;
-use tauri::{api::dialog, async_runtime, Manager, WindowEvent};
+use tauri::FileDropEvent;
+use tauri::{api::dialog, async_runtime, AppHandle, Manager, WindowEvent};
 use time::{macros::format_description, OffsetDateTime};
 use tokio::{sync::mpsc, try_join};
 
+use crate::events::{CustomEventEmitter, CustomEventEmitterAll, CustomEventTriggerGlobal, Event};
+use crate::progress::ProgressBar;
+use crate::protocol::{ProtocolInstallType, ProtocolPayload};
 use crate::{
     game::{get_logs_indices, make_log_window, show_warnings, write_log, GameMessage},
     gui_config::GuiConfig,
@@ -73,7 +76,7 @@ pub async fn mark_mod_busy(
         mods_in_progress.retain(|m| m != unique_name);
     }
     if send_event {
-        handle.emit_all("MOD-BUSY", "").ok();
+        handle.typed_emit_all(&Event::ModBusy(())).ok();
     }
 }
 
@@ -97,14 +100,10 @@ pub async fn initial_setup(handle: tauri::AppHandle, state: tauri::State<'_, Sta
                 .unwrap_or("Error Loading Path".to_string())
         )
     })?;
-    handle
-        .emit_all("GUI_CONFIG_RELOAD", gui_config.watch_fs)
-        .ok();
-    handle.trigger_global(
-        "GUI_CONFIG_RELOAD",
-        Some(serde_json::to_string::<bool>(&gui_config.watch_fs).unwrap()),
-    );
-    handle.emit_all("CONFIG_RELOAD", "").ok();
+    let event = Event::GuiConfigReload(gui_config.watch_fs);
+    handle.typed_emit_all(&event).ok();
+    handle.typed_trigger_global(&event).ok();
+    handle.typed_emit_all(&Event::ConfigReload(())).ok();
 
     Ok(())
 }
@@ -117,7 +116,7 @@ pub fn sync_remote_and_local(handle: &AppHandle) -> Result {
         let mut local_db = state.local_db.write().await;
         let remote_db = state.remote_db.read().await;
         local_db.validate_updates(&remote_db);
-        handle2.emit_all("LOCAL-REFRESH", "").ok();
+        handle2.typed_emit_all(&Event::LocalRefresh(())).ok();
     });
     Ok(())
 }
@@ -130,7 +129,7 @@ pub async fn refresh_local_db(handle: tauri::AppHandle, state: tauri::State<'_, 
         let local_db = LocalDatabase::fetch(&conf.owml_path)?;
         *db = local_db;
     }
-    handle.emit_all("LOCAL-REFRESH", "").ok();
+    handle.typed_emit_all(&Event::LocalRefresh(())).ok();
     sync_remote_and_local(&handle)?;
     Ok(())
 }
@@ -183,7 +182,7 @@ pub async fn refresh_remote_db(handle: tauri::AppHandle, state: tauri::State<'_,
         let remote_db = RemoteDatabase::fetch(&conf.database_url).await?;
         *db = remote_db;
     }
-    handle.emit_all("REMOTE-REFRESH", "").ok();
+    handle.typed_emit_all(&Event::RemoteRefresh(())).ok();
     sync_remote_and_local(&handle)?;
     Ok(())
 }
@@ -275,7 +274,7 @@ pub async fn install_mod(
             ),
         );
     }
-    if should_install {
+    let res = if should_install {
         install_mod_from_db(
             &unique_name.to_string(),
             &conf,
@@ -284,10 +283,12 @@ pub async fn install_mod(
             true,
             prerelease.unwrap_or(false),
         )
-        .await?;
-    }
+        .await
+    } else {
+        Ok(())
+    };
     mark_mod_busy(unique_name, false, true, &state, &handle).await;
-
+    res?;
     Ok(())
 }
 
@@ -299,7 +300,7 @@ pub async fn install_url(
 ) -> Result {
     let conf = state.config.read().await;
     let db = state.local_db.read().await;
-    install_mod_from_url(url, &conf, &db).await?;
+    install_mod_from_url(url, None, &conf, &db).await?;
 
     Ok(())
 }
@@ -358,6 +359,14 @@ pub async fn open_mod_readme(unique_name: &str, state: tauri::State<'_, State>) 
 }
 
 #[tauri::command]
+pub async fn open_owml(state: tauri::State<'_, State>) -> Result {
+    let config = state.config.read().await;
+    let local_db = state.local_db.read().await;
+    open_shortcut("owml", &config, &local_db)?;
+    Ok(())
+}
+
+#[tauri::command]
 pub async fn save_config(
     config: Config,
     state: tauri::State<'_, State>,
@@ -370,7 +379,7 @@ pub async fn save_config(
         let mut conf_lock = state.config.write().await;
         *conf_lock = config;
     }
-    handle.emit_all("CONFIG_RELOAD", "").ok();
+    handle.typed_emit_all(&Event::ConfigReload(())).ok();
 
     Ok(())
 }
@@ -392,12 +401,9 @@ pub async fn save_gui_config(
         let mut conf_lock = state.gui_config.write().await;
         *conf_lock = gui_config;
     }
-    handle.emit_all("GUI_CONFIG_RELOAD", &watch_fs).ok();
-    handle.trigger_global(
-        "GUI_CONFIG_RELOAD",
-        Some(serde_json::to_string::<bool>(&watch_fs).unwrap()),
-    );
-
+    let event = Event::GuiConfigReload(watch_fs);
+    handle.typed_emit_all(&event).ok();
+    handle.typed_trigger_global(&event).ok();
     Ok(())
 }
 
@@ -414,7 +420,7 @@ pub async fn save_owml_config(
 ) -> Result {
     let config = state.config.read().await;
     owml_config.save(&config)?;
-    handle.emit_all("OWML_CONFIG_RELOAD", "").ok();
+    handle.typed_emit_all(&Event::OwmlConfigReload(())).ok();
 
     Ok(())
 }
@@ -438,7 +444,7 @@ pub async fn install_owml(
         .get_owml()
         .ok_or_else(|| anyhow!("Error Installing OWML"))?;
     download_and_install_owml(&config, owml, prerelease).await?;
-    handle.emit_all("OWML_CONFIG_RELOAD", "").ok();
+    handle.typed_emit_all(&Event::OwmlConfigReload(())).ok();
     Ok(())
 }
 
@@ -454,8 +460,8 @@ pub async fn set_owml(
         let mut config = state.config.write().await;
         *config = new_config;
         config.save()?;
-        handle.emit_all("CONFIG_RELOAD", "").ok();
-        handle.emit_all("OWML_CONFIG_RELOAD", "").ok();
+        handle.typed_emit_all(&Event::ConfigReload(())).ok();
+        handle.typed_emit_all(&Event::OwmlConfigReload(())).ok();
         Ok(true)
     } else {
         Ok(false)
@@ -517,7 +523,7 @@ pub async fn update_mod(
     let local_db = state.local_db.read().await;
     let remote_db = state.remote_db.read().await;
 
-    if unique_name == OWML_UNIQUE_NAME {
+    let res = if unique_name == OWML_UNIQUE_NAME {
         download_and_install_owml(
             &config,
             remote_db
@@ -525,7 +531,7 @@ pub async fn update_mod(
                 .ok_or_else(|| anyhow!("OWML Not Found!"))?,
             false,
         )
-        .await?;
+        .await
     } else {
         install_mod_from_db(
             &unique_name.to_string(),
@@ -535,10 +541,10 @@ pub async fn update_mod(
             false,
             false,
         )
-        .await?;
-    }
-
+        .await
+    };
     mark_mod_busy(unique_name, false, true, &state, &handle).await;
+    res?;
     Ok(())
 }
 
@@ -563,7 +569,7 @@ pub async fn update_all_mods(
         busy_mods.push(OWML_UNIQUE_NAME.to_string());
     }
     drop(busy_mods);
-    handle.emit_all("MOD-BUSY", "").ok();
+    handle.typed_emit_all(&Event::ModBusy(())).ok();
     install_mods_parallel(unique_names.clone(), &config, &remote_db, &local_db).await?;
     if owml_in_list {
         download_and_install_owml(
@@ -577,7 +583,7 @@ pub async fn update_all_mods(
     }
     let mut busy_mods = state.mods_in_progress.write().await;
     busy_mods.retain(|m| !unique_names.contains(m) && (!owml_in_list || m != OWML_UNIQUE_NAME));
-    handle.emit_all("MOD-BUSY", "").ok();
+    handle.typed_emit_all(&Event::ModBusy(())).ok();
     Ok(())
 }
 
@@ -625,7 +631,7 @@ pub async fn run_game(
             let mut config = state.config.write().await;
             *config = new_config;
         }
-        handle.emit_all("CONFIG_RELOAD", "").ok();
+        handle.typed_emit_all(&Event::ConfigReload(())).ok();
     }
 
     let log_server = LogServer::new(0).await?;
@@ -674,7 +680,7 @@ pub async fn run_game(
         }
     });
 
-    window.emit("GAME-START", &port).expect("Can't Send Event");
+    window.typed_emit(&Event::GameStart(port)).ok();
 
     let (tx, mut rx) = mpsc::channel(32);
 
@@ -689,13 +695,13 @@ pub async fn run_game(
                 }
                 let msg = GameMessage::new(port, msg);
                 if matches!(msg.message.message_type, SocketMessageType::Fatal) {
-                    let res = window_handle.emit_all("LOG-FATAL", &msg);
+                    let res = window_handle.typed_emit_all(&Event::LogFatal(msg.clone()));
                     if let Err(why) = res {
                         error!("Couldn't Emit Game Log: {}", why)
                     }
                 }
                 lines.push(msg);
-                let res = window_handle.emit_all("LOG-UPDATE", port);
+                let res = window_handle.typed_emit_all(&Event::LogUpdate(port));
                 if let Err(why) = res {
                     error!("Couldn't Emit Game Log: {}", why)
                 }
@@ -723,7 +729,7 @@ pub async fn clear_logs(
     if let Some((lines, _)) = data.get_mut(&port) {
         lines.clear();
         handle
-            .emit_all("LOG-UPDATE", "")
+            .typed_emit_all(&Event::LogUpdate(port))
             .map_err(|e| anyhow!("Can't Send Event: {:?}", e))?;
     }
     Ok(())
@@ -794,7 +800,7 @@ pub async fn import_mods(
 pub async fn fix_mod_deps(
     unique_name: &str,
     state: tauri::State<'_, State>,
-    _handle: tauri::AppHandle,
+    handle: tauri::AppHandle,
 ) -> Result {
     let config = state.config.read().await;
     let local_db = state.local_db.read().await;
@@ -803,8 +809,10 @@ pub async fn fix_mod_deps(
         .get_mod(unique_name)
         .ok_or_else(|| anyhow!("Can't find mod {}", unique_name))?;
 
-    fix_deps(local_mod, &config, &local_db, &remote_db).await?;
-
+    mark_mod_busy(unique_name, true, true, &state, &handle).await;
+    let res = fix_deps(local_mod, &config, &local_db, &remote_db).await;
+    mark_mod_busy(unique_name, false, true, &state, &handle).await;
+    res?;
     Ok(())
 }
 
@@ -826,7 +834,9 @@ pub async fn get_alert(state: tauri::State<'_, State>) -> Result<Alert> {
 pub async fn pop_protocol_url(state: tauri::State<'_, State>, handle: tauri::AppHandle) -> Result {
     let mut protocol_url = state.protocol_url.write().await;
     if let Some(url) = protocol_url.as_ref() {
-        handle.emit_all("PROTOCOL_INVOKE", url).ok();
+        handle
+            .typed_emit_all(&Event::ProtocolInvoke(url.clone()))
+            .ok();
     }
     *protocol_url = None;
     Ok(())
@@ -859,7 +869,7 @@ pub async fn get_downloads(state: tauri::State<'_, State>) -> Result<ProgressBar
 pub async fn clear_downloads(state: tauri::State<'_, State>, handle: tauri::AppHandle) -> Result {
     let mut bars = state.progress_bars.write().await;
     bars.bars.clear();
-    handle.emit_all("PROGRESS-UPDATE", "").ok();
+    handle.typed_emit_all(&Event::ProgressUpdate(())).ok();
     Ok(())
 }
 
@@ -868,6 +878,15 @@ pub async fn get_mod_busy(unique_name: &str, state: tauri::State<'_, State>) -> 
     let mods_in_progress = state.mods_in_progress.read().await;
     let exists = mods_in_progress.contains(&unique_name.to_string());
     Ok(exists)
+}
+
+#[tauri::command]
+pub async fn get_bar_by_unique_name(
+    unique_name: &str,
+    state: tauri::State<'_, State>,
+) -> Result<Option<ProgressBar>> {
+    let bars = state.progress_bars.read().await;
+    Ok(bars.by_unique_name(unique_name).cloned())
 }
 
 #[tauri::command]
@@ -887,6 +906,42 @@ pub async fn has_disabled_deps(unique_name: &str, state: tauri::State<'_, State>
         }
     }
     Ok(flag)
+}
+
+#[tauri::command]
+pub async fn register_drop_handler(window: tauri::Window) -> Result {
+    let handle = window.app_handle();
+    window.on_window_event(move |e| {
+        if let WindowEvent::FileDrop(e) = e {
+            match e {
+                FileDropEvent::Dropped(f) => {
+                    if let Some(f) = f.first() {
+                        if f.extension().map(|e| e == "zip").unwrap_or(false) {
+                            handle.typed_emit_all(&Event::DragLeave(())).ok();
+                            handle
+                                .typed_emit_all(&Event::ProtocolInvoke(ProtocolPayload {
+                                    install_type: ProtocolInstallType::InstallZip,
+                                    payload: f.to_str().unwrap().to_string(),
+                                }))
+                                .ok();
+                        }
+                    }
+                }
+                FileDropEvent::Hovered(f) => {
+                    if let Some(f) = f.first() {
+                        if f.extension().map(|e| e == "zip").unwrap_or(false) {
+                            handle.typed_emit_all(&Event::DragEnter(())).ok();
+                        }
+                    }
+                }
+                FileDropEvent::Cancelled => {
+                    handle.typed_emit_all(&Event::DragLeave(())).ok();
+                }
+                _ => {}
+            }
+        }
+    });
+    Ok(())
 }
 
 #[tauri::command]

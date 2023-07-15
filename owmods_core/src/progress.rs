@@ -44,6 +44,7 @@ impl ProgressAction {
 #[serde(rename_all = "camelCase")]
 pub struct ProgressStartPayload {
     pub id: String,
+    pub unique_name: Option<String>,
     pub len: ProgressValue,
     pub msg: String,
     pub progress_type: ProgressType,
@@ -99,11 +100,18 @@ impl ProgressPayload {
         let (id, args) = rest.split_once('|').unwrap();
         match action {
             "Start" => {
-                let (len, r) = args.split_once('|').unwrap();
+                let (unique_name, r) = args.split_once('|').unwrap();
+                let unique_name = if unique_name == "None" {
+                    None
+                } else {
+                    Some(unique_name.to_string())
+                };
+                let (len, r) = r.split_once('|').unwrap();
                 let (progress_type, r) = r.split_once('|').unwrap();
                 let (progress_action, msg) = r.split_once('|').unwrap();
                 ProgressPayload::Start(ProgressStartPayload {
                     id: id.to_string(),
+                    unique_name,
                     msg: msg.to_string(),
                     progress_action: ProgressAction::parse(progress_action),
                     progress_type: ProgressType::parse(progress_type),
@@ -144,6 +152,7 @@ pub struct ProgressBar {
 impl ProgressBar {
     pub fn new(
         id: &str,
+        unique_name: Option<&str>,
         len: ProgressValue,
         msg: &str,
         failure_message: &str,
@@ -158,7 +167,7 @@ impl ProgressBar {
             failure_message: failure_message.to_string(),
             complete: false,
         };
-        info!(target: "progress", "Start|{}|{}|{:?}|{:?}|{}", id, len, progress_type, progress_action, msg);
+        info!(target: "progress", "Start|{}|{}|{}|{:?}|{:?}|{}", id, unique_name.unwrap_or("None"), len, progress_type, progress_action, msg);
         new
     }
 
@@ -203,17 +212,20 @@ mod tests {
 
     #[test]
     fn test_progress_start() {
-        let start = ProgressPayload::parse("Start|test|50|Definite|Download|Test Download");
+        let start =
+            ProgressPayload::parse("Start|test|Test.test|50|Definite|Download|Test Download");
         match start {
             ProgressPayload::Start(ProgressStartPayload {
                 id,
                 len,
+                unique_name,
                 msg,
                 progress_type,
                 progress_action,
             }) => {
                 assert_eq!(id, "test");
                 assert_eq!(len, 50);
+                assert_eq!(unique_name.unwrap(), "Test.test");
                 assert!(matches!(progress_type, ProgressType::Definite));
                 assert!(matches!(progress_action, ProgressAction::Download));
                 assert_eq!(msg, "Test Download");

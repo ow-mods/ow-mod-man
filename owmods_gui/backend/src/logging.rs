@@ -14,7 +14,10 @@ use time::macros::format_description;
 use time::OffsetDateTime;
 use typeshare::typeshare;
 
-use crate::State;
+use crate::{
+    events::{CustomEventEmitterAll, Event},
+    State,
+};
 
 pub struct Logger {
     app: AppHandle,
@@ -73,14 +76,19 @@ impl log::Log for Logger {
     }
 
     fn log(&self, record: &log::Record) {
-        let result = if record.target() == "progress" {
+        let result: Result<(), anyhow::Error> = if record.target() == "progress" {
             let raw = format!("{}", record.args());
             let handle = self.app.clone();
             async_runtime::spawn(async move {
                 let state = handle.state::<State>();
                 let mut bars = state.progress_bars.write().await;
-                bars.process(&raw);
-                handle.emit_all("PROGRESS-UPDATE", "").ok();
+                let batch_finished = bars.process(&raw);
+                handle.typed_emit_all(&Event::ProgressUpdate(())).ok();
+                if let Some(has_error) = batch_finished {
+                    handle
+                        .typed_emit_all(&Event::ProgressBatchFinish(has_error))
+                        .ok();
+                }
             });
             Ok(())
         } else if self.enabled(record.metadata()) && record.target().starts_with("owmods")
@@ -91,14 +99,7 @@ impl log::Log for Logger {
                 .unwrap_or_else(|e| {
                     println!("FAILED TO WRITE LOG: {:?}", e);
                 });
-            self.app.emit_all(
-                "LOG",
-                LogPayload {
-                    log_type: record.level(),
-                    target: record.target().to_string(),
-                    message,
-                },
-            )
+            Ok(())
         } else {
             Ok(())
         };

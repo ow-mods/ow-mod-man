@@ -9,6 +9,7 @@ import { memo, useRef } from "react";
 import ModActionIcon from "../ModActionIcon";
 import ModActionOverflow, { ModActionOverflowItem } from "../ModActionOverflow";
 import { useGetTranslation } from "@hooks";
+import { hooks } from "@commands";
 
 export interface LocalModActionsProps {
     uniqueName: string;
@@ -28,13 +29,15 @@ const LocalModActions = memo(function LocalModTools(props: LocalModActionsProps)
     const getTranslation = useGetTranslation();
     const overflowRef = useRef<{ onClose: () => void }>();
 
+    const isBusy = hooks.getModBusy("modBusy", { uniqueName: props.uniqueName })[1];
+
     return (
         <>
             <Checkbox
                 sx={{ color: theme.palette.grey[200] }}
-                color={props.isErr ? "primary" : "default"}
+                color={props.isErr || isBusy ? "primary" : "default"}
                 onChange={(e) => props.onToggle(e.target.checked)}
-                disabled={props.isErr}
+                disabled={props.isErr || (isBusy ?? false)}
                 checked={props.enabled}
             />
             {props.canFix ? (
@@ -42,6 +45,7 @@ const LocalModActions = memo(function LocalModTools(props: LocalModActionsProps)
                     icon={<ConstructionRounded />}
                     onClick={props.onFix}
                     label={getTranslation("FIX")}
+                    disabled={isBusy ?? false}
                 />
             ) : (
                 <ModActionIcon

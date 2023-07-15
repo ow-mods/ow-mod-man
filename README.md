@@ -35,6 +35,7 @@ This is the monorepo for the new <a href="https://www.mobiusdigitalgames.com/out
 - Contributors:
   - [Raicuparta](https://github.com/Raicuparta)
   - [JohnCorby](https://github.com/JohnCorby)
+  - [dgarroDC](https://github.com/dgarroDC)
 - Testing:
   - [ShoosGun](https://github.com/ShoosGun)
   - [JohnCorby](https://github.com/JohnCorby)

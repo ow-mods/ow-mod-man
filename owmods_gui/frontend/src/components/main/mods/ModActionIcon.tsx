@@ -7,6 +7,7 @@ export interface ModActionIconProps {
     icon: ReactNode;
     onClick?: (e: MouseEvent<HTMLButtonElement>) => void;
     color?: IconButtonProps["color"];
+    disabled?: boolean;
     [rest: string | number | symbol]: unknown;
 }
 
@@ -14,7 +15,13 @@ const ModActionIcon = memo(function ModActionButton(props: ModActionIconProps) {
     return (
         <ODTooltip title={props.label}>
             <Box height="100%" display="flex" alignItems="center">
-                <IconButton color={props.color} size="small" onClick={props.onClick} {...props}>
+                <IconButton
+                    disabled={props.disabled}
+                    color={props.color}
+                    size="small"
+                    onClick={props.onClick}
+                    {...props}
+                >
                     {props.icon}
                 </IconButton>
             </Box>

@@ -1,4 +1,5 @@
 import { hooks } from "@commands";
+import { withStyledErrorBoundary } from "@components/common/StyledErrorBoundary";
 import { ErrorRounded, InfoRounded, LaunchRounded, WarningRounded } from "@mui/icons-material";
 import { Box, Button, Palette, Typography, useTheme } from "@mui/material";
 import { shell } from "@tauri-apps/api";
@@ -31,7 +32,7 @@ const AlertIcon = (props: { severity: AlertSeverity }) => {
 
 const AppAlert = memo(function AppAlert() {
     const theme = useTheme();
-    const alert: Alert | null = hooks.getAlert("CONFIG_RELOAD")[1];
+    const alert: Alert | null = hooks.getAlert("configReload")[1];
 
     const severity = (alert?.severity ?? "info") as AlertSeverity;
 
@@ -74,4 +75,4 @@ const AppAlert = memo(function AppAlert() {
     );
 });
 
-export default AppAlert;
+export default withStyledErrorBoundary(AppAlert, { justHide: true });

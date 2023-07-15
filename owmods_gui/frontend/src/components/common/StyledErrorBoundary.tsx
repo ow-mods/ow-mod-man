@@ -5,16 +5,24 @@ import { ComponentType, ReactNode, useEffect, useMemo } from "react";
 import { ErrorBoundary, withErrorBoundary } from "react-error-boundary";
 import { TranslationKey } from "./TranslationContext";
 import { commands } from "@commands";
-import { listen } from "@tauri-apps/api/event";
+import { Event } from "@types";
+import { listen } from "@events";
 
 export interface StyledErrorBoundaryProps {
     children: ReactNode;
     center?: boolean;
     errorKey?: TranslationKey;
-    resetEvent?: string;
+    resetEvent?: Event["name"];
+    justHide?: boolean;
     onFix?: () => void;
     fixButtonKey?: TranslationKey;
 }
+
+export const simpleOnError = (err: string) => {
+    commands.logError({
+        err: err.toString()
+    });
+};
 
 export const onError = (err: unknown, info: { componentStack: string }) => {
     commands.logError({
@@ -35,17 +43,20 @@ const fallback = (options: Omit<StyledErrorBoundaryProps, "children">) =>
         const theme = useTheme();
 
         useEffect(() => {
-            let cancel = false;
+            let unsubscribe: (() => void) | null = null;
             if (options.resetEvent) {
-                listen(options.resetEvent, () => {
-                    if (cancel) return;
+                unsubscribe = listen(options.resetEvent, () => {
                     resetErrorBoundary();
                 });
             }
             return () => {
-                cancel = true;
+                unsubscribe?.();
             };
         }, [resetErrorBoundary]);
+
+        if (options.justHide) {
+            return <></>;
+        }
 
         const text = (
             <Paper

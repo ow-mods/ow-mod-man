@@ -36,7 +36,7 @@ jobs:
 
       - name: Get Version
         id: get_version
-        run: echo "version=$(cargo run -q -p owmods_cli --release --bin=owmods version)" >> $GITHUB_OUTPUT
+        run: echo "version=$(cargo run --release -q -p owmods_cli version)" >> $GITHUB_OUTPUT
 
       - name: Generate Dist Folder
         if: matrix.platform == 'ubuntu-20.04'

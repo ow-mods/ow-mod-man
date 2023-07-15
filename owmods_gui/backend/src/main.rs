@@ -18,10 +18,12 @@ use owmods_core::{
 
 use progress::ProgressBars;
 use protocol::{ProtocolInstallType, ProtocolPayload};
-use tauri::Manager;
 use tokio::sync::RwLock as TokioLock;
 
+use crate::events::{CustomEventEmitterAll, Event};
+
 mod commands;
+mod events;
 mod fs_watch;
 mod game;
 mod gui_config;
@@ -105,7 +107,9 @@ fn main() -> Result<(), Box<dyn Error>> {
                             "Invoking {:?} with {} from protocol",
                             protocol_payload.install_type, protocol_payload.payload
                         );
-                        handle.emit_all("PROTOCOL_INVOKE", protocol_payload).ok();
+                        handle
+                            .typed_emit_all(&Event::ProtocolInvoke(protocol_payload))
+                            .ok();
                     }
                 }
             });
@@ -143,6 +147,7 @@ fn main() -> Result<(), Box<dyn Error>> {
             install_url,
             install_zip,
             open_mod_readme,
+            open_owml,
             save_config,
             get_config,
             save_gui_config,
@@ -172,7 +177,9 @@ fn main() -> Result<(), Box<dyn Error>> {
             clear_downloads,
             get_mod_busy,
             has_disabled_deps,
-            log_error
+            log_error,
+            get_bar_by_unique_name,
+            register_drop_handler
         ])
         .plugin(tauri_plugin_window_state::Builder::default().build())
         .run(tauri::generate_context!())

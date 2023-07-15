@@ -1,10 +1,16 @@
+import { commands } from "@commands";
+import { emit } from "@events";
 import { useGetTranslation } from "@hooks";
-import { BuildRounded, HelpRounded, MoreHoriz } from "@mui/icons-material";
+import {
+    BuildRounded,
+    FolderOpenRounded,
+    HelpRounded,
+    MoreHorizRounded
+} from "@mui/icons-material";
 import { ListItemIcon, ListItemText, MenuItem, Tooltip } from "@mui/material";
 import IconButton from "@mui/material/IconButton";
 import Menu from "@mui/material/Menu";
 import { shell } from "@tauri-apps/api";
-import { emit } from "@tauri-apps/api/event";
 import { useState, MouseEvent, useCallback, lazy, Suspense } from "react";
 
 const About = lazy(() => import("./About"));
@@ -29,9 +35,13 @@ const OverflowMenu = () => {
     }, [onClose]);
 
     const onOwmlEdit = useCallback(() => {
-        emit("OPEN_OWML_SETUP", {});
+        emit("openOwmlSetup", undefined);
         onClose();
     }, [onClose]);
+
+    const onOpenOwml = useCallback(() => {
+        commands.openOwml();
+    }, []);
 
     return (
         <>
@@ -45,7 +55,7 @@ const OverflowMenu = () => {
                     aria-expanded={open ? "true" : undefined}
                     onClick={onClick}
                 >
-                    <MoreHoriz />
+                    <MoreHorizRounded />
                 </IconButton>
             </Tooltip>
             <Menu
@@ -63,6 +73,12 @@ const OverflowMenu = () => {
                     <Export onClick={onClose} />
                     <Import onClick={onClose} />
                 </Suspense>
+                <MenuItem onClick={onOpenOwml}>
+                    <ListItemIcon>
+                        <FolderOpenRounded fontSize="small" />
+                    </ListItemIcon>
+                    <ListItemText>{getTranslation("OPEN_OWML")}</ListItemText>
+                </MenuItem>
                 <MenuItem onClick={onOwmlEdit}>
                     <ListItemIcon>
                         <BuildRounded fontSize="small" />

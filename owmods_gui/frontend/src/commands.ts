@@ -8,7 +8,9 @@ import {
     GameMessage,
     UnsafeLocalMod,
     Alert,
-    ProgressBars
+    ProgressBars,
+    ProgressBar,
+    Event
 } from "@types";
 
 type CommandInfo<P, R> = [P, R];
@@ -44,6 +46,7 @@ const commandInfo = {
     toggleAll: $<CommandInfo<{ enabled: boolean }, string[]>>("toggle_all"),
     openModFolder: $<ModAction>("open_mod_folder"),
     openModReadme: $<ModAction>("open_mod_readme"),
+    openOwml: $<EmptyCommand>("open_owml"),
     uninstallMod: $<ModCommand<string[]>>("uninstall_mod"),
     uninstallBrokenMod: $<ActionCommand<{ modPath: string }>>("uninstall_broken_mod"),
     installMod: $<CommandInfo<{ uniqueName: string; prerelease?: boolean }, void>>("install_mod"),
@@ -79,8 +82,10 @@ const commandInfo = {
     checkOWML: $<GetCommand<boolean>>("check_owml"),
     getDownloads: $<GetCommand<ProgressBars>>("get_downloads"),
     clearDownloads: $<EmptyCommand>("clear_downloads"),
+    getBarByUniqueName: $<ModCommand<ProgressBar>>("get_bar_by_unique_name"),
     getModBusy: $<ModCommand<boolean>>("get_mod_busy"),
     hasDisabledDeps: $<ModCommand<boolean>>("has_disabled_deps"),
+    registerDropHandler: $<EmptyCommand>("register_drop_handler"),
     logError: $<ActionCommand<{ err: string }>>("log_error")
 };
 
@@ -103,7 +108,7 @@ const makeInvoke = (key: Command, forceNoDisplayErr?: boolean) => {
 
 const makeHook = (key: Command) => {
     const name = commandInfo[key];
-    return (eventName: string, payload?: (typeof name)[0]) => {
+    return (eventName: Event["name"] | Event["name"][], payload?: (typeof name)[0]) => {
         const fn = makeInvoke(key, true);
         return useTauri<(typeof name)[1]>(
             eventName,
@@ -122,7 +127,7 @@ export type Commands = {
 
 export type Hooks = {
     [T in Command]: (
-        eventName: string | string[],
+        eventName: Event["name"] | Event["name"][],
         payload?: (typeof commandInfo)[T][0]
     ) => [LoadState, (typeof commandInfo)[T][1] | null, Error | null];
 };

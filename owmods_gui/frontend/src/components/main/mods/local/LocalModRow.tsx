@@ -54,7 +54,10 @@ const canFix = (mod?: UnsafeLocalMod): boolean => {
     }
 
     return (mod.mod as LocalMod).errors.every(
-        (e) => e.errorType === "MissingDep" || e.errorType === "DisabledDep"
+        (e) =>
+            e.errorType === "MissingDep" ||
+            e.errorType === "DisabledDep" ||
+            e.errorType === "Outdated"
     );
 };
 
@@ -67,9 +70,9 @@ const LocalModRow = memo(function LocalModRow(props: LocalModRowProps) {
     const getTranslation = useGetTranslation();
 
     // Fetch data
-    const [status1, local] = hooks.getLocalMod("LOCAL-REFRESH", { ...props });
-    const [status2, remote] = hooks.getRemoteMod("REMOTE-REFRESH", { ...props });
-    const autoEnableDeps = hooks.getGuiConfig("GUI_CONFIG_RELOAD")[1]?.autoEnableDeps ?? false;
+    const [status1, local] = hooks.getLocalMod("localRefresh", { ...props });
+    const [status2, remote] = hooks.getRemoteMod("remoteRefresh", { ...props });
+    const autoEnableDeps = hooks.getGuiConfig("guiConfigReload")[1]?.autoEnableDeps ?? false;
 
     // Transform data
     const { name, author, description, version, outdated, enabled } = useUnifiedMod(local, remote);
@@ -144,8 +147,15 @@ const LocalModRow = memo(function LocalModRow(props: LocalModRowProps) {
         });
     }, [getTranslation, name, props.uniqueName]);
     const onFix = useCallback(() => {
-        commands.fixDeps({ uniqueName: props.uniqueName }).then(() => commands.refreshLocalDb());
-    }, [props.uniqueName]);
+        const task = async () => {
+            if (outdated) {
+                await commands.updateMod({ uniqueName: props.uniqueName });
+            }
+            await commands.fixDeps({ uniqueName: props.uniqueName });
+            await commands.refreshLocalDb();
+        };
+        task();
+    }, [outdated, props.uniqueName]);
 
     const modsToolbar = useMemo(
         () => (

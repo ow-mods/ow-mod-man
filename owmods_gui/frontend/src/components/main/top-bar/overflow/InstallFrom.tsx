@@ -21,11 +21,12 @@ import {
     Checkbox,
     DialogContentText
 } from "@mui/material";
-import { ProtocolInstallType, ProtocolPayload } from "@types";
+import { ProtocolInstallType } from "@types";
 import { commands } from "@commands";
-import { listen } from "@tauri-apps/api/event";
 import { getCurrent } from "@tauri-apps/api/window";
 import { OpenFileInput } from "@components/common/FileInput";
+import { listen } from "@events";
+import { simpleOnError } from "@components/common/StyledErrorBoundary";
 
 type SourceType = "UNIQUE_NAME" | "URL" | "ZIP";
 
@@ -37,6 +38,8 @@ const getSourceTypeFromProtocol = (installType: ProtocolInstallType): SourceType
             return "URL";
         case "installPreRelease":
             return "UNIQUE_NAME";
+        case "installZip":
+            return "ZIP";
         default:
             return null;
     }
@@ -61,29 +64,27 @@ const InstallFrom = memo(function InstallFrom({ onClick }: ModalProps) {
     );
 
     useEffect(() => {
-        let cancel = false;
-        listen("PROTOCOL_INVOKE", ({ payload }) => {
-            if (cancel) return;
-            const protocolPayload = payload as ProtocolPayload;
-            const sourceType = getSourceTypeFromProtocol(protocolPayload.installType);
-            if (sourceType !== null) {
-                setSource(sourceType);
-                setTarget(protocolPayload.payload);
-                if (
-                    protocolPayload.installType === "installPreRelease" ||
-                    protocolPayload.installType === "installMod"
-                ) {
-                    setPrerelease(protocolPayload.installType === "installPreRelease");
+        const unsubscribe = listen("protocolInvoke", (protocolPayload) => {
+            commands.checkOWML().then((valid) => {
+                if (valid) {
+                    const sourceType = getSourceTypeFromProtocol(protocolPayload.installType);
+                    if (sourceType !== null) {
+                        setSource(sourceType);
+                        setTarget(protocolPayload.payload);
+                        if (
+                            protocolPayload.installType === "installPreRelease" ||
+                            protocolPayload.installType === "installMod"
+                        ) {
+                            setPrerelease(protocolPayload.installType === "installPreRelease");
+                        }
+                        setOpen(true);
+                        getCurrent().setFocus().catch(simpleOnError);
+                    }
                 }
-                setOpen(true);
-                getCurrent().setFocus().catch(console.warn);
-            }
-        })
-            .then(() => commands.popProtocolURL())
-            .catch(console.warn);
-        return () => {
-            cancel = true;
-        };
+            });
+        });
+        commands.popProtocolURL();
+        return unsubscribe;
     }, []);
 
     const handleClick = useCallback(() => {
@@ -101,19 +102,19 @@ const InstallFrom = memo(function InstallFrom({ onClick }: ModalProps) {
                 commands
                     .installMod({ uniqueName: target, prerelease })
                     .then(() => commands.refreshLocalDb())
-                    .catch(console.error);
+                    .catch(simpleOnError);
                 break;
             case "URL":
                 commands
                     .installUrl({ url: target })
                     .then(() => commands.refreshLocalDb())
-                    .catch(console.error);
+                    .catch(simpleOnError);
                 break;
             case "ZIP":
                 commands
                     .installZip({ path: target })
                     .then(() => commands.refreshLocalDb())
-                    .catch(console.error);
+                    .catch(simpleOnError);
                 break;
         }
         onClose();

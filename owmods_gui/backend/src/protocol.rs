@@ -1,14 +1,15 @@
 use regex::Regex;
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 use typeshare::typeshare;
 
 #[typeshare]
-#[derive(Serialize, Clone, Debug)]
+#[derive(Deserialize, Serialize, Clone, Debug)]
 #[serde(rename_all = "camelCase")]
 pub enum ProtocolInstallType {
     InstallMod,
     InstallURL,
     InstallPreRelease,
+    InstallZip,
     Unknown,
 }
 
@@ -18,6 +19,7 @@ impl ProtocolInstallType {
             "install-mod" => Self::InstallMod,
             "install-url" => Self::InstallURL,
             "install-prerelease" => Self::InstallPreRelease,
+            "install-zip" => Self::InstallZip,
             _ => Self::Unknown,
         }
     }
@@ -34,9 +36,10 @@ impl ProtocolInstallType {
 /// Some examples of valid URIs are:
 /// - owmods://install-mod/Bwc9876.TimeSaver
 /// - owmods://install-url/https://example.com/Mod.zip
+/// - owmods://install-zip//home/user/Downloads/Mod.zip
 /// - owmods://install-prerelease/Raicuparta.NomaiVR
 #[typeshare]
-#[derive(Serialize, Clone)]
+#[derive(Deserialize, Serialize, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct ProtocolPayload {
     pub install_type: ProtocolInstallType,

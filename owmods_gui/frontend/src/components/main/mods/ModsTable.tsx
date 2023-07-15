@@ -11,7 +11,7 @@ import {
     useTheme
 } from "@mui/material";
 import { ReactNode, forwardRef } from "react";
-import { TableVirtuoso } from "react-virtuoso";
+import { TableVirtuoso, TableVirtuosoHandle } from "react-virtuoso";
 
 export interface ModsTableProps {
     uniqueNames: string[];
@@ -46,12 +46,16 @@ const ModsTableComponents = {
     TableBody: BodyComp
 };
 
-const ModsTable = (props: ModsTableProps) => {
+const ModsTable = forwardRef<TableVirtuosoHandle, ModsTableProps>(function ModsTable(
+    props: ModsTableProps,
+    ref
+) {
     const getTranslation = useGetTranslation();
     const theme = useTheme();
 
     return (
         <TableVirtuoso
+            ref={ref}
             components={ModsTableComponents}
             computeItemKey={(index) => `${index}-${props.uniqueNames[index]}`}
             increaseViewportBy={{ top: 200, bottom: 0 }}
@@ -71,6 +75,6 @@ const ModsTable = (props: ModsTableProps) => {
             itemContent={(_, uniqueName) => props.renderRow(uniqueName)}
         />
     );
-};
+});
 
 export default ModsTable;

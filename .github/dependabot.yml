@@ -1,31 +1,39 @@
-# To get started with Dependabot version updates, you'll need to specify which
-# package ecosystems to update and where the package manifests are located.
-# Please see the documentation for all configuration options:
 # https://docs.github.com/github/administering-a-repository/configuration-options-for-dependency-updates
 
 version: 2
 updates:
-  - package-ecosystem: "cargo" # See documentation for possible values
-    directory: "/owmods_core" # Location of package manifests
+  - package-ecosystem: "cargo"
+    directory: "/owmods_core"
     target-branch: "dev"
     labels:
       - "dependencies"
       - "core"
     schedule:
       interval: "weekly"
-  - package-ecosystem: "cargo" # See documentation for possible values
-    directory: "/owmods_cli" # Location of package manifests
+  - package-ecosystem: "cargo"
+    directory: "/owmods_cli"
     target-branch: "dev"
     labels:
       - "dependencies"
       - "cli"
     schedule:
       interval: "weekly"
-  - package-ecosystem: "cargo" # See documentation for possible values
-    directory: "/owmods_gui/backend" # Location of package manifests
+  - package-ecosystem: "cargo"
+    directory: "/owmods_gui/backend"
     target-branch: "dev"
     labels:
       - "dependencies"
       - "gui"
+    schedule:
+      interval: "weekly"
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    target-branch: "dev"
+    schedule:
+      # Check for updates to GitHub Actions every week
+      interval: "weekly"
+  - package-ecosystem: "npm"
+    directory: /owmods_gui/frontend
+    target-branch: "dev"
     schedule:
       interval: "weekly"

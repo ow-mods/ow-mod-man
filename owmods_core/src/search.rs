@@ -1,7 +1,3 @@
-use rust_fuzzy_search::fuzzy_compare;
-
-const SEARCH_THRESHOLD: f32 = 0.08;
-
 pub trait Searchable {
     fn get_values(&self) -> Vec<String>;
 }
@@ -20,17 +16,18 @@ where
                 .enumerate()
                 .map(|(index, field)| {
                     let weight = 1.0 - (index as f32 / 10.0 * 2.0);
-                    let mut score = fuzzy_compare(field, &filter);
-                    if field == &filter {
-                        score += 10.0;
+                    let mut score = if field == &filter {
+                        2.0
                     } else if field.contains(&filter) {
-                        score += 1.0;
-                    }
+                        1.0
+                    } else {
+                        0.0
+                    };
                     score *= weight;
                     score
                 })
                 .sum();
-            if final_score >= SEARCH_THRESHOLD {
+            if final_score != 0.0 {
                 Some((m, final_score))
             } else {
                 None

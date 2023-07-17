@@ -54,9 +54,7 @@ pub async fn import_mods(
     for name in unique_names.iter() {
         let local_mod = local_db.get_mod(name);
         if let Some(local_mod) = local_mod {
-            if !local_mod.enabled {
-                toggle_mod(&local_mod.manifest.unique_name, local_db, true, false)?;
-            }
+            toggle_mod(&local_mod.manifest.unique_name, local_db, true, false)?;
         } else {
             needed_install.push(name.to_string());
         }

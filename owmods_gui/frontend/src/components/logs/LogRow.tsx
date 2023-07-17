@@ -70,7 +70,9 @@ const LogRow = memo(function LogRow(props: LogRowProps) {
                             logLine?.message.senderType ?? "Unknown"
                         }`}
                     >
-                        <Typography>{logLine?.message.senderName ?? "Unknown"}</Typography>
+                        <Typography textOverflow="ellipsis" width="100%" overflow="hidden">
+                            {logLine?.message.senderName ?? "Unknown"}
+                        </Typography>
                     </ODTooltip>
                 )}
             </TableCell>

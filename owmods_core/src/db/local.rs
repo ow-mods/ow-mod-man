@@ -15,7 +15,7 @@ use crate::{
     validate::{check_mod, ModValidationError},
 };
 
-use super::{fix_version, RemoteDatabase};
+use super::RemoteDatabase;
 
 /// Represents the local (on the local PC) database of mods.
 #[derive(Default)]
@@ -91,8 +91,7 @@ impl LocalDatabase {
     pub fn get_owml(owml_path: &str) -> Option<LocalMod> {
         let manifest_path = PathBuf::from(owml_path).join("OWML.Manifest.json");
         fix_json_file(&manifest_path).ok();
-        let mut owml_manifest: ModManifest = deserialize_from_json(&manifest_path).ok()?;
-        owml_manifest.version = fix_version(&owml_manifest.version).to_string();
+        let owml_manifest: ModManifest = deserialize_from_json(&manifest_path).ok()?;
         Some(LocalMod {
             enabled: true,
             manifest: owml_manifest,
@@ -122,8 +121,7 @@ impl LocalDatabase {
         }
         let folder_path = folder_path.unwrap(); // <- Unwrap is safe, .is_none() check is above
         fix_json_file(manifest_path).ok();
-        let mut manifest: ModManifest = deserialize_from_json(manifest_path)?;
-        manifest.version = fix_version(&manifest.version).to_string();
+        let manifest: ModManifest = deserialize_from_json(manifest_path)?;
         Ok(LocalMod {
             enabled: get_mod_enabled(folder_path)?,
             manifest,

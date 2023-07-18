@@ -28,6 +28,11 @@ This is the monorepo for the new <a href="https://www.mobiusdigitalgames.com/out
 
 \* The manager itself can only be launched in desktop mode, but mods will persist if you switch to game mode and launch the game itself.
 
+## Related Repos
+
+- [Flatpak Repo](https://github.com/flathub/com.outerwildsmods.owmods_gui)
+- [Nix Flake Repo](https://github.com/loco-choco/ow-mod-man-flake)
+
 ## Credits
 
 - Main Author: [Bwc9876](https://github.com/Bwc9876)

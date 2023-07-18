@@ -9,6 +9,7 @@ This file contains common questions for the manager.
   - [How do I use this?](#how-do-i-use-this)
   - [How do I uninstall it?](#how-do-i-uninstall-it)
   - [The game won't launch on Linux](#the-game-wont-launch-on-linux)
+    - [On Flatpak](#on-flatpak)
   - [Steam deck game mode won't work](#steam-deck-game-mode-wont-work)
   - [I made a mod! How do I submit it?](#i-made-a-mod-how-do-i-submit-it)
   - [My issue isn't listed here](#my-issue-isnt-listed-here)
@@ -45,7 +46,7 @@ Also, ensure the game is located in `~/.steam/steam/steamapps/common/Outer Wilds
 
 ## Steam deck game mode won't work
 
-The manager can only be launched in desktop mode, but mods will persist if you switch to game mode and launch the game itself.
+The manager itself can only be launched in desktop mode, but mods will persist after the first run of the game from the manager if you switch to game mode and launch the game.
 
 ## I made a mod! How do I submit it?
 

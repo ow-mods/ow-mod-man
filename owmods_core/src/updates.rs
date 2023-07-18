@@ -100,7 +100,7 @@ pub async fn update_all(
                     AnalyticsEventName::ModUpdate,
                     &updated_mod.manifest.unique_name,
                 )
-                .await?;
+                .await;
             }
         }
         Ok(true)

@@ -240,6 +240,8 @@ pub async fn download_and_install_owml(
 
     temp_dir.close()?;
 
+    send_analytics_event(AnalyticsEventName::ModRequiredInstall, OWML_UNIQUE_NAME).await;
+
     Ok(())
 }
 
@@ -467,7 +469,7 @@ pub async fn install_mod_from_db(
                     AnalyticsEventName::ModRequiredInstall,
                     &installed_mod.manifest.unique_name,
                 )
-                .await?;
+                .await;
             }
             installed.append(
                 &mut newly_installed
@@ -492,7 +494,8 @@ pub async fn install_mod_from_db(
         AnalyticsEventName::ModInstall
     };
 
-    send_analytics_event(mod_event, unique_name).await
+    send_analytics_event(mod_event, unique_name).await;
+    Ok(())
 }
 
 #[cfg(test)]

@@ -51,3 +51,7 @@ pnpm prettify
 ```
 
 Git hooks are setup to run clippy on every commit, meaning they may take longer.
+
+## Connection Refused Error When Using Protocol Installs
+
+This is a result of your OS falsely thinking the dev version of the manager should handle protocols, causing it to open a window with only the frontend of the tauri application, which will fail. To remedy this simply open a release version of the manager and it will re-register as the handler for the owmods URI.

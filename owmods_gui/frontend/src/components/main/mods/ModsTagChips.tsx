@@ -31,7 +31,16 @@ const ModsTagsChips = memo(function ModsTagsChips(props: ModsTagsChipsProps) {
     );
 
     return (
-        <Stack direction="row" gap={1}>
+        <Stack
+            className="scroll-shadows"
+            sx={{
+                overflowX: "auto",
+                scrollbarWidth: "none",
+                "::-webkit-scrollbar": { display: "none" }
+            }}
+            direction="row"
+            gap={1}
+        >
             {selectedTags.length !== 0 && (
                 <Chip
                     icon={<DeleteRounded />}

@@ -1,21 +1,28 @@
 import { commands, hooks } from "@commands";
-import { memo, useCallback, useEffect, useMemo, useState } from "react";
+import { memo, useCallback, useEffect, useMemo } from "react";
 import ModsPage from "../ModsPage";
 import LocalModRow from "./LocalModRow";
 import LocalModsToggleButtons from "./LocalModsToggleButtons";
 import { useGetTranslation } from "@hooks";
 
-const LocalModsPage = memo(function LocalModsPage() {
+export interface LocalModsPageProps {
+    tags: string[];
+    filter: string;
+    onFilterChanged: (newVal: string) => void;
+    onTagsChanged: (newVal: string[]) => void;
+}
+
+const LocalModsPage = memo(function LocalModsPage(props: LocalModsPageProps) {
     useEffect(() => {
         commands.refreshLocalDb();
     }, []);
 
     const getTranslation = useGetTranslation();
 
-    const [filter, setFilter] = useState("");
-    const [tags, setTags] = useState<string[]>([]);
-
-    const [status, localMods] = hooks.getLocalMods("localRefresh", { filter, tags });
+    const [status, localMods] = hooks.getLocalMods("localRefresh", {
+        filter: props.filter,
+        tags: props.tags
+    });
 
     const onToggleAll = useCallback((newVal: boolean) => {
         commands.toggleAll({ enabled: newVal }).then(() => commands.refreshLocalDb());
@@ -35,12 +42,12 @@ const LocalModsPage = memo(function LocalModsPage() {
             isLoading={status === "Loading" && localMods === null}
             actionsSize={130}
             noModsText={getTranslation("NO_MODS")}
-            filter={filter}
-            onFilterChange={setFilter}
+            filter={props.filter}
+            onFilterChange={props.onFilterChanged}
             uniqueNames={localMods ?? []}
             renderRow={renderRow}
-            selectedTags={tags}
-            onSelectedTagsChanged={setTags}
+            selectedTags={props.tags}
+            onSelectedTagsChanged={props.onTagsChanged}
         >
             {toggleButtons}
         </ModsPage>

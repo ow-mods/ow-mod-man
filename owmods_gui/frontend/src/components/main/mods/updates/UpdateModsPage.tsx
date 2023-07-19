@@ -6,14 +6,18 @@ import { UpdateRounded } from "@mui/icons-material";
 import { Button } from "@mui/material";
 import { useGetTranslation } from "@hooks";
 
-const UpdateModsPage = memo(function UpdateModsPage() {
+export interface UpdateModsPageProps {
+    filter: string;
+    onFilterChange: (newVal: string) => void;
+}
+
+const UpdateModsPage = memo(function UpdateModsPage(props: UpdateModsPageProps) {
     const getTranslation = useGetTranslation();
 
-    const [filter, setFilter] = useState("");
     const [updatingAll, setUpdatingAll] = useState(false);
 
     const [status, updateMods] = hooks.getUpdatableMods(["localRefresh", "remoteRefresh"], {
-        filter
+        filter: props.filter
     });
 
     const renderRow = useCallback((uniqueName: string) => {
@@ -46,8 +50,8 @@ const UpdateModsPage = memo(function UpdateModsPage() {
             isLoading={status === "Loading" && updateMods === null}
             actionsSize={130}
             noModsText={getTranslation("NO_UPDATES")}
-            filter={filter}
-            onFilterChange={setFilter}
+            filter={props.filter}
+            onFilterChange={props.onFilterChange}
             uniqueNames={updateMods ?? []}
             renderRow={renderRow}
         >

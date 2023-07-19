@@ -43,6 +43,9 @@ const MainApp = () => {
 
     const errorBound = useErrorBoundary();
 
+    const [filter, setFilter] = useState("");
+    const [tags, setTags] = useState<string[]>([]);
+
     useEffect(() => {
         commands.initialSetup({}, false).catch((e) => errorBound.showBoundary(e));
     }, [errorBound]);
@@ -75,7 +78,12 @@ const MainApp = () => {
                 <AppTabs onChange={onTabChange} />
                 <Box display="flex" flexGrow={1}>
                     <Pane resetEvent="localRefresh" show={selectedTab === "local"}>
-                        <LocalModsPage />
+                        <LocalModsPage
+                            filter={filter}
+                            onFilterChanged={setFilter}
+                            tags={tags}
+                            onTagsChanged={setTags}
+                        />
                     </Pane>
                     <Pane
                         resetEvent="remoteRefresh"
@@ -83,12 +91,17 @@ const MainApp = () => {
                         show={selectedTab === "remote"}
                     >
                         <Suspense>
-                            <RemoteModsPage />
+                            <RemoteModsPage
+                                filter={filter}
+                                onFilterChanged={setFilter}
+                                tags={tags}
+                                onTagsChanged={setTags}
+                            />
                         </Suspense>
                     </Pane>
                     <Pane show={selectedTab === "updates"}>
                         <Suspense>
-                            <UpdateModsPage />
+                            <UpdateModsPage filter={filter} onFilterChange={setFilter} />
                         </Suspense>
                     </Pane>
                 </Box>

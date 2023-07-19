@@ -40,6 +40,7 @@ const LogHeader = memo(function LogHeader({ setActiveSearch, ...props }: LogHead
                 <Box maxWidth="30%">
                     <FilterInput
                         value={props.activeSearch}
+                        watchValue={false}
                         onChange={(v) => setActiveSearch(v)}
                         label={getTranslation("SEARCH_LOGS")}
                     />

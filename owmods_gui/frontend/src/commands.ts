@@ -33,8 +33,8 @@ const commandInfo = {
     getGuiConfig: $<GetCommand<GuiConfig>>("get_gui_config"),
     getOwmlConfig: $<GetCommand<OWMLConfig>>("get_owml_config"),
     getDefaultConfigs: $<GetCommand<[Config, GuiConfig, OWMLConfig]>>("get_defaults"),
-    getLocalMods: $<CommandInfo<{ filter: string }, string[]>>("get_local_mods"),
-    getRemoteMods: $<CommandInfo<{ filter: string }, string[]>>("get_remote_mods"),
+    getLocalMods: $<CommandInfo<{ filter: string; tags: string[] }, string[]>>("get_local_mods"),
+    getRemoteMods: $<CommandInfo<{ filter: string; tags: string[] }, string[]>>("get_remote_mods"),
     getUpdatableMods: $<CommandInfo<{ filter: string }, string[]>>("get_updatable_mods"),
     getLocalMod: $<ModCommand<UnsafeLocalMod>>("get_local_mod"),
     getRemoteMod: $<ModCommand<RemoteMod>>("get_remote_mod"),
@@ -87,6 +87,7 @@ const commandInfo = {
     getModBusy: $<ModCommand<boolean>>("get_mod_busy"),
     hasDisabledDeps: $<ModCommand<boolean>>("has_disabled_deps"),
     registerDropHandler: $<EmptyCommand>("register_drop_handler"),
+    getDbTags: $<GetCommand<string[]>>("get_db_tags"),
     logError: $<ActionCommand<{ err: string }>>("log_error")
 };
 

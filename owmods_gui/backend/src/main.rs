@@ -180,7 +180,8 @@ fn main() -> Result<(), Box<dyn Error>> {
             has_disabled_deps,
             log_error,
             get_bar_by_unique_name,
-            register_drop_handler
+            register_drop_handler,
+            get_db_tags
         ])
         .plugin(tauri_plugin_window_state::Builder::default().build())
         .run(tauri::generate_context!())

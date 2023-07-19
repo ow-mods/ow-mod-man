@@ -20,8 +20,9 @@ const RemoteModsPage = memo(function RemoteModsPage() {
     }, [errorBound, getTranslation]);
 
     const [filter, setFilter] = useState("");
+    const [tags, setTags] = useState<string[]>([]);
 
-    const [status, remoteMods] = hooks.getRemoteMods("remoteRefresh", { filter });
+    const [status, remoteMods] = hooks.getRemoteMods("remoteRefresh", { filter, tags });
 
     const modsWebsiteButton = useMemo(
         () => (
@@ -44,6 +45,8 @@ const RemoteModsPage = memo(function RemoteModsPage() {
             onFilterChange={setFilter}
             uniqueNames={remoteMods ?? []}
             renderRow={(uniqueName) => <RemoteModRow uniqueName={uniqueName} />}
+            selectedTags={tags}
+            onSelectedTagsChanged={setTags}
         >
             {modsWebsiteButton}
         </ModsPage>

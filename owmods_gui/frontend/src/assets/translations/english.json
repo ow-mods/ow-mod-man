@@ -11,6 +11,7 @@
     "BY": "by $author$",
     "CANCEL": "Cancel",
     "CLEAR_LOGS": "Clear Logs",
+    "CLEAR_TAGS": "Clear Tags",
     "CONFIRM": "Confirm",
     "CONTINUE": "Continue",
     "ConflictingMod": "This mod conflicts with $payload$",

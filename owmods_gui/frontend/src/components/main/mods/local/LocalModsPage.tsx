@@ -13,8 +13,9 @@ const LocalModsPage = memo(function LocalModsPage() {
     const getTranslation = useGetTranslation();
 
     const [filter, setFilter] = useState("");
+    const [tags, setTags] = useState<string[]>([]);
 
-    const [status, localMods] = hooks.getLocalMods("localRefresh", { filter });
+    const [status, localMods] = hooks.getLocalMods("localRefresh", { filter, tags });
 
     const onToggleAll = useCallback((newVal: boolean) => {
         commands.toggleAll({ enabled: newVal }).then(() => commands.refreshLocalDb());
@@ -38,6 +39,8 @@ const LocalModsPage = memo(function LocalModsPage() {
             onFilterChange={setFilter}
             uniqueNames={localMods ?? []}
             renderRow={renderRow}
+            selectedTags={tags}
+            onSelectedTagsChanged={setTags}
         >
             {toggleButtons}
         </ModsPage>

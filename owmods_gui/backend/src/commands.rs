@@ -135,7 +135,11 @@ pub async fn refresh_local_db(handle: tauri::AppHandle, state: tauri::State<'_, 
 }
 
 #[tauri::command]
-pub async fn get_local_mods(filter: &str, state: tauri::State<'_, State>) -> Result<Vec<String>> {
+pub async fn get_local_mods(
+    filter: &str,
+    tags: Vec<String>,
+    state: tauri::State<'_, State>,
+) -> Result<Vec<String>> {
     let db = state.local_db.read().await;
     let mut mods: Vec<&UnsafeLocalMod> = db.all().collect();
     if filter.is_empty() {
@@ -147,6 +151,14 @@ pub async fn get_local_mods(filter: &str, state: tauri::State<'_, State>) -> Res
         });
     } else {
         mods = db.search(filter);
+    }
+    if !tags.is_empty() {
+        let remote_db = state.remote_db.read().await;
+        let remote_mods_matching: Vec<&str> = remote_db
+            .matches_tags(tags)
+            .map(|m| m.unique_name.as_str())
+            .collect();
+        mods.retain(|m| remote_mods_matching.contains(&m.get_unique_name().as_str()))
     }
     Ok(mods
         .into_iter()
@@ -188,7 +200,11 @@ pub async fn refresh_remote_db(handle: tauri::AppHandle, state: tauri::State<'_,
 }
 
 #[tauri::command]
-pub async fn get_remote_mods(filter: &str, state: tauri::State<'_, State>) -> Result<Vec<String>> {
+pub async fn get_remote_mods(
+    filter: &str,
+    tags: Vec<String>,
+    state: tauri::State<'_, State>,
+) -> Result<Vec<String>> {
     let db = state.remote_db.read().await;
     let mut mods: Vec<&RemoteMod> = db
         .mods
@@ -199,6 +215,9 @@ pub async fn get_remote_mods(filter: &str, state: tauri::State<'_, State>) -> Re
         mods.sort_by(|a, b| b.download_count.cmp(&a.download_count));
     } else {
         mods = db.search(filter);
+    }
+    if !tags.is_empty() {
+        mods = RemoteDatabase::filter_by_tags(mods.into_iter(), tags).collect();
     }
     Ok(mods.into_iter().map(|m| m.unique_name.clone()).collect())
 }
@@ -948,6 +967,12 @@ pub async fn register_drop_handler(window: tauri::Window) -> Result {
         }
     });
     Ok(())
+}
+
+#[tauri::command]
+pub async fn get_db_tags(state: tauri::State<'_, State>) -> Result<Vec<String>> {
+    let db = state.remote_db.read().await;
+    Ok(db.get_tags())
 }
 
 #[tauri::command]

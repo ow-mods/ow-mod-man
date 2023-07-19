@@ -1,4 +1,4 @@
-import { Box, CircularProgress, Container, Paper, Typography, useTheme } from "@mui/material";
+import { Box, CircularProgress, Container, Paper, Typography } from "@mui/material";
 import { ReactNode, memo, useCallback, useRef } from "react";
 import ModsToolbar from "./ModsToolbar";
 import ModsTable from "./ModsTable";
@@ -10,14 +10,14 @@ export interface ModsPageProps {
     filter: string;
     noModsText: string;
     onFilterChange: (newVal: string) => void;
+    selectedTags?: string[];
+    onSelectedTagsChanged?: (newVal: string[]) => void;
     uniqueNames: string[];
     renderRow: (uniqueName: string) => ReactNode;
     children?: ReactNode;
 }
 
 const ModsPage = memo(function ModsPage(props: ModsPageProps) {
-    const theme = useTheme();
-
     const virtuosoRef = useRef<TableVirtuosoHandle | null>(null);
 
     const propFilterChange = props.onFilterChange;
@@ -33,18 +33,25 @@ const ModsPage = memo(function ModsPage(props: ModsPageProps) {
     return (
         <Container
             sx={{
-                padding: theme.spacing(2),
+                padding: 2,
+                display: "flex",
                 height: "100%",
-                flexDirection: "column"
+                flexDirection: "column",
+                gap: 2
             }}
             disableGutters
             maxWidth="xl"
         >
-            <ModsToolbar filter={props.filter} onFilterChanged={onFilterChange}>
+            <ModsToolbar
+                selectedTags={props.selectedTags}
+                onSelectedTagsChanged={props.onSelectedTagsChanged}
+                filter={props.filter}
+                onFilterChanged={onFilterChange}
+            >
                 {props.children}
             </ModsToolbar>
             {props.isLoading ? (
-                <Paper sx={{ marginTop: theme.spacing(2), height: "100%" }}>
+                <Paper sx={{ flexGrow: 1, height: "100%" }}>
                     <Box height="100%" display="flex" alignItems="center" justifyContent="center">
                         <CircularProgress color="secondary" />
                     </Box>
@@ -52,7 +59,7 @@ const ModsPage = memo(function ModsPage(props: ModsPageProps) {
             ) : props.uniqueNames.length !== 0 ? (
                 <ModsTable ref={virtuosoRef} {...props} />
             ) : (
-                <Paper sx={{ marginTop: theme.spacing(2), height: "100%" }}>
+                <Paper sx={{ flexGrow: 1, height: "100%" }}>
                     <Box height="100%" display="flex" alignItems="center" justifyContent="center">
                         <Typography variant="subtitle1">{props.noModsText}</Typography>
                     </Box>

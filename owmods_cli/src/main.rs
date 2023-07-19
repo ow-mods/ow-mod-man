@@ -13,7 +13,10 @@ use owmods_core::{
     },
     file::get_default_owml_path,
     io::{export_mods, import_mods},
-    mods::local::{LocalMod, UnsafeLocalMod},
+    mods::{
+        local::{LocalMod, UnsafeLocalMod},
+        remote::RemoteMod,
+    },
     open::{open_readme, open_shortcut},
     remove::{remove_failed_mod, remove_mod},
     toggle::toggle_mod,
@@ -105,16 +108,30 @@ async fn run_from_cli(cli: BaseCli) -> Result<()> {
                 info!("No alert");
             };
         }
-        Commands::List { mod_type } => match mod_type {
+        Commands::List { mod_type, tag } => match mod_type {
             Some(ModListTypes::Local) | None => {
                 let db = LocalDatabase::fetch(&config.owml_path)?;
                 let mut output = String::new();
+                let mut mods: Vec<&LocalMod> = db.valid().collect();
+                if let Some(tags) = tag {
+                    match RemoteDatabase::fetch(&config.database_url).await {
+                        Ok(remote_db) => {
+                            let remote_mods_matching: Vec<&str> = remote_db
+                                .matches_tags(tags.clone())
+                                .map(|m| m.unique_name.as_str())
+                                .collect();
+                            mods.retain(|m| {
+                                remote_mods_matching.contains(&m.manifest.unique_name.as_str())
+                            });
+                        }
+                        Err(_) => error!("Couldn't Fetch Remote Database, Can't Filter By Tag"),
+                    }
+                }
                 output += &format!(
                     "Found {} Installed Mods at {}:\n(+): Enabled\n(-): Disabled\n\n",
-                    db.mods.len(),
+                    mods.len(),
                     config.owml_path
                 );
-                let mut mods: Vec<&LocalMod> = db.valid().collect();
                 mods.sort_by(|a, b| b.enabled.cmp(&a.enabled));
                 for local_mod in mods.iter() {
                     output += &format!(
@@ -130,9 +147,14 @@ async fn run_from_cli(cli: BaseCli) -> Result<()> {
             }
             Some(ModListTypes::Remote) => {
                 let db = RemoteDatabase::fetch(&config.database_url).await?;
+                let mods: Vec<&RemoteMod> = if let Some(tags) = tag {
+                    db.matches_tags(tags.clone()).collect()
+                } else {
+                    db.mods.values().collect()
+                };
                 let mut output = String::new();
-                output += &format!("Found {} Remote Mods:\n", db.mods.values().len());
-                for remote_mod in db.mods.values() {
+                output += &format!("Found {} Remote Mods:\n", mods.len());
+                for remote_mod in mods {
                     output += &format!(
                         "- {} by {} ({})\n",
                         remote_mod.name,
@@ -146,9 +168,24 @@ async fn run_from_cli(cli: BaseCli) -> Result<()> {
                 info!("{}", &output);
             }
         },
-        Commands::Search { query } => {
+        Commands::Tags {} => {
             let db = RemoteDatabase::fetch(&config.database_url).await?;
-            let mods = db.search(query);
+            for tag in db.get_tags() {
+                info!("- {tag}");
+            }
+        }
+        Commands::Search { query, tag } => {
+            let db = RemoteDatabase::fetch(&config.database_url).await?;
+            let mut mods = db.search(query);
+            if let Some(tags) = tag {
+                let db_tags = db.get_tags();
+                for tag in tags {
+                    if !db_tags.contains(tag) {
+                        warn!("Tag {tag} was not found in the database");
+                    }
+                }
+                mods = RemoteDatabase::filter_by_tags(mods.into_iter(), tags.clone()).collect();
+            }
             for remote_mod in mods {
                 info!(
                     "{} v{} by {} ({})",

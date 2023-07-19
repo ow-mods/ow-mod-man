@@ -32,8 +32,8 @@ pub fn check_mod_needs_update<'a>(
     if let Some(remote_mod) = remote_mod {
         (
             version_compare::compare(&remote_mod.version, &local_mod.manifest.version)
-                .unwrap_or(Cmp::Eq)
-                == Cmp::Gt,
+                .map(|o| o == Cmp::Gt)
+                .unwrap_or_else(|_| local_mod.manifest.version != remote_mod.version),
             Some(remote_mod),
         )
     } else {

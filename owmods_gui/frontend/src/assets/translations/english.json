@@ -119,7 +119,6 @@
     "TOOLTIP_WATCH_FS": "Watches OWML's Mods folder and settings for changes and refreshes if detected",
     "UNKNOWN_ERROR": "Unknown Error",
     "UNINSTALL": "Uninstall",
-    "UNINSTALL_CONFIRM": "Are you sure you want to uninstall $name$?",
     "UNIQUE_NAME": "Unique Name",
     "UPDATE": "Update",
     "UPDATES": "Updates $amount$",

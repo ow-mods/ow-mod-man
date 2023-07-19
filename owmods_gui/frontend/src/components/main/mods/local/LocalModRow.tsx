@@ -129,23 +129,16 @@ const LocalModRow = memo(function LocalModRow(props: LocalModRowProps) {
         [autoEnableDeps, getTranslation, props.uniqueName]
     );
     const onUninstall = useCallback(() => {
-        const uninstallConfirmText = getTranslation("UNINSTALL_CONFIRM", {
-            name
-        });
-        dialog.confirm(uninstallConfirmText, getTranslation("CONFIRM")).then((answer) => {
-            if (answer) {
-                commands.uninstallMod({ uniqueName: props.uniqueName }).then((warnings) => {
-                    commands.refreshLocalDb();
-                    for (const modName of warnings) {
-                        dialog.message(getTranslation("PREPATCHER_WARNING", { name: modName }), {
-                            type: "warning",
-                            title: getTranslation("PREPATCHER_WARNING_TITLE", { name: modName })
-                        });
-                    }
+        commands.uninstallMod({ uniqueName: props.uniqueName }).then((warnings) => {
+            commands.refreshLocalDb();
+            for (const modName of warnings) {
+                dialog.message(getTranslation("PREPATCHER_WARNING", { name: modName }), {
+                    type: "warning",
+                    title: getTranslation("PREPATCHER_WARNING_TITLE", { name: modName })
                 });
             }
         });
-    }, [getTranslation, name, props.uniqueName]);
+    }, [getTranslation, props.uniqueName]);
     const onFix = useCallback(() => {
         const task = async () => {
             if (outdated) {

@@ -3,6 +3,7 @@ import { ReactNode, memo, useCallback, useRef } from "react";
 import ModsToolbar from "./ModsToolbar";
 import ModsTable from "./ModsTable";
 import { TableVirtuosoHandle } from "react-virtuoso";
+import { useGetTranslation } from "@hooks";
 
 export interface ModsPageProps {
     isLoading: boolean;
@@ -19,6 +20,8 @@ export interface ModsPageProps {
 
 const ModsPage = memo(function ModsPage(props: ModsPageProps) {
     const virtuosoRef = useRef<TableVirtuosoHandle | null>(null);
+
+    const getTranslation = useGetTranslation();
 
     const propFilterChange = props.onFilterChange;
 
@@ -61,7 +64,11 @@ const ModsPage = memo(function ModsPage(props: ModsPageProps) {
             ) : (
                 <Paper sx={{ flexGrow: 1, height: "100%" }}>
                     <Box height="100%" display="flex" alignItems="center" justifyContent="center">
-                        <Typography variant="subtitle1">{props.noModsText}</Typography>
+                        <Typography variant="subtitle1">
+                            {props.filter === "" && props.selectedTags?.length === 0
+                                ? props.noModsText
+                                : getTranslation("NO_MODS_FROM_FILTER")}
+                        </Typography>
                     </Box>
                 </Paper>
             )}

@@ -31,6 +31,7 @@ const recentCompleteClassMap: Record<RecentComplete, string | undefined> = {
 const DownloadsIcon = memo(function DownloadsIcon() {
     const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>();
     const [recentComplete, setRecentComplete] = useState<RecentComplete>("none");
+    const [viewedDownloads, setViewedDownloads] = useState<number>(0);
     const currentTimeout = useRef<number | null>();
     const downloads = hooks.getDownloads("progressUpdate")[1];
 
@@ -40,6 +41,7 @@ const DownloadsIcon = memo(function DownloadsIcon() {
 
     const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
         setAnchorEl(event.currentTarget);
+        setViewedDownloads(sortedDownloads.filter((d) => d.success !== null).length);
     };
 
     const handleClose = () => {
@@ -51,6 +53,11 @@ const DownloadsIcon = memo(function DownloadsIcon() {
     const activeDownloads = useMemo(
         () => sortedDownloads.filter((d) => d.success === null),
         [sortedDownloads]
+    );
+
+    const completeDownloads = useMemo(
+        () => sortedDownloads.filter((d) => d.success !== null).length - viewedDownloads,
+        [sortedDownloads, viewedDownloads]
     );
 
     const len = activeDownloads.length;
@@ -65,7 +72,7 @@ const DownloadsIcon = memo(function DownloadsIcon() {
             setRecentComplete(hasError ? "error" : "success");
             currentTimeout.current = setTimeout(() => {
                 setRecentComplete("none");
-            }, 700 * 3); // Animation lasts 700ms and happens 3 times
+            }, 750 * 3); // Animation lasts 700ms and happens 3 times
         });
         return unsubscribe;
     }, []);
@@ -77,6 +84,11 @@ const DownloadsIcon = memo(function DownloadsIcon() {
         }
     }, [len]);
 
+    const iconColor =
+        len !== 0
+            ? "secondary" // Show as orange when loading
+            : "inherit"; // Inherit (white or flash color) otherwise
+
     return (
         <>
             <Box display="flex" position="relative">
@@ -84,32 +96,31 @@ const DownloadsIcon = memo(function DownloadsIcon() {
                     <AppIcon onClick={handleClick} label="Downloads">
                         <DownloadingRounded
                             className={recentCompleteClassMap[recentComplete]}
-                            color={len !== 0 ? "secondary" : "inherit"}
+                            color={iconColor}
                         />
                     </AppIcon>
                 </Box>
-                {len !== 0 && (
-                    <>
-                        <Typography
+                {(len !== 0 || completeDownloads !== 0) && (
+                    <Typography
+                        color={iconColor}
+                        className={recentCompleteClassMap[recentComplete]}
+                        position="absolute"
+                        right="-10px"
+                        variant="subtitle2"
+                        bottom="8px"
+                    >
+                        {len === 0 ? completeDownloads.toString() : len.toString()}
+                    </Typography>
+                )}
+                {len !== 0 && current && (
+                    <Box width={30} position="absolute" bottom="-2px" right="0" left="5px">
+                        <CircularProgress
+                            size={30}
                             color="secondary"
-                            position="absolute"
-                            right="-10px"
-                            variant="subtitle2"
-                            bottom="8px"
-                        >
-                            {len.toString()}
-                        </Typography>
-                        {current && (
-                            <Box width={30} position="absolute" bottom="-2px" right="0" left="5px">
-                                <CircularProgress
-                                    size={30}
-                                    color="secondary"
-                                    value={(current.progress / current.len) * 100}
-                                    variant={determineProgressVariant(current)}
-                                />
-                            </Box>
-                        )}
-                    </>
+                            value={(current.progress / current.len) * 100}
+                            variant={determineProgressVariant(current)}
+                        />
+                    </Box>
                 )}
             </Box>
             <Suspense>

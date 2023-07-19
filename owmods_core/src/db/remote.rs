@@ -6,6 +6,8 @@ use serde::Deserialize;
 
 use crate::{constants::OWML_UNIQUE_NAME, mods::remote::RemoteMod, search::search_list};
 
+use super::fix_version;
+
 /// Used internally to construct an actual [RemoteDatabase]
 #[derive(Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -25,11 +27,15 @@ impl From<RawRemoteDatabase> for RemoteDatabase {
         // In a cli context this doesn't rly matter since we usually only get one or two mods in the entire run of the program.
         // But I'm guessing for the GUI this will help out with performance.
         // Same thing for the local DB.
-        let mods = raw
+        let mut mods = raw
             .releases
             .into_iter()
             .map(|m| (m.unique_name.to_owned(), m))
             .collect::<HashMap<_, _>>();
+
+        for remote_mod in mods.values_mut() {
+            remote_mod.version = fix_version(&remote_mod.version).to_string();
+        }
         Self { mods }
     }
 }

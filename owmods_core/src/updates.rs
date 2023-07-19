@@ -1,5 +1,6 @@
 use anyhow::Result;
 use log::info;
+use version_compare::Cmp;
 
 use crate::{
     analytics::{send_analytics_event, AnalyticsEventName},
@@ -30,7 +31,9 @@ pub fn check_mod_needs_update<'a>(
     };
     if let Some(remote_mod) = remote_mod {
         (
-            remote_mod.version != local_mod.manifest.version,
+            version_compare::compare(&remote_mod.version, &local_mod.manifest.version)
+                .unwrap_or(Cmp::Eq)
+                == Cmp::Gt,
             Some(remote_mod),
         )
     } else {

@@ -1,4 +1,5 @@
 import { hooks } from "@commands";
+import { withStyledErrorBoundary } from "@components/common/StyledErrorBoundary";
 import { useGetTranslation } from "@hooks";
 import { DeleteRounded } from "@mui/icons-material";
 import { Chip, Stack } from "@mui/material";
@@ -34,6 +35,7 @@ const ModsTagsChips = memo(function ModsTagsChips(props: ModsTagsChipsProps) {
         <Stack
             className="scroll-shadows"
             sx={{
+                minHeight: "25px",
                 overflowX: "auto",
                 scrollbarWidth: "none",
                 "::-webkit-scrollbar": { display: "none" }
@@ -64,4 +66,4 @@ const ModsTagsChips = memo(function ModsTagsChips(props: ModsTagsChipsProps) {
     );
 });
 
-export default ModsTagsChips;
+export default withStyledErrorBoundary(ModsTagsChips, { justHide: true });

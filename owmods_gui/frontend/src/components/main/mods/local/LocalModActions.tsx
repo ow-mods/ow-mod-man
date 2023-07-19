@@ -30,6 +30,8 @@ const LocalModActions = memo(function LocalModTools(props: LocalModActionsProps)
     const overflowRef = useRef<{ onClose: () => void }>();
 
     const isBusy = hooks.getModBusy("modBusy", { uniqueName: props.uniqueName })[1];
+    // Disable the fix button if ANY mods are busy, this is to stop the user from clicking fix when a dep is installing
+    const isAnyBusy = (hooks.getBusyMods("modBusy")[1] ?? []).length !== 0;
 
     return (
         <>
@@ -45,7 +47,7 @@ const LocalModActions = memo(function LocalModTools(props: LocalModActionsProps)
                     icon={<ConstructionRounded />}
                     onClick={props.onFix}
                     label={getTranslation("FIX")}
-                    disabled={isBusy ?? false}
+                    disabled={isAnyBusy ?? false}
                 />
             ) : (
                 <ModActionIcon

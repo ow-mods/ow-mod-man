@@ -83,6 +83,7 @@ const commandInfo = {
     getDownloads: $<GetCommand<ProgressBars>>("get_downloads"),
     clearDownloads: $<EmptyCommand>("clear_downloads"),
     getBarByUniqueName: $<ModCommand<ProgressBar>>("get_bar_by_unique_name"),
+    getBusyMods: $<GetCommand<string[]>>("get_busy_mods"),
     getModBusy: $<ModCommand<boolean>>("get_mod_busy"),
     hasDisabledDeps: $<ModCommand<boolean>>("has_disabled_deps"),
     registerDropHandler: $<EmptyCommand>("register_drop_handler"),

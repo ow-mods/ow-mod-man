@@ -260,9 +260,9 @@ pub async fn install_mod(
     handle: tauri::AppHandle,
 ) -> Result {
     mark_mod_busy(unique_name, true, true, &state, &handle).await;
-    let local_db = state.local_db.read().await;
-    let remote_db = state.remote_db.read().await;
-    let conf = state.config.read().await;
+    let local_db = state.local_db.read().await.clone();
+    let remote_db = state.remote_db.read().await.clone();
+    let conf = state.config.read().await.clone();
     let mut should_install = true;
     if let Some(current_mod) = local_db.get_mod(unique_name) {
         should_install = dialog::blocking::confirm(
@@ -298,8 +298,8 @@ pub async fn install_url(
     state: tauri::State<'_, State>,
     _handle: tauri::AppHandle,
 ) -> Result {
-    let conf = state.config.read().await;
-    let db = state.local_db.read().await;
+    let conf = state.config.read().await.clone();
+    let db = state.local_db.read().await.clone();
     install_mod_from_url(url, None, &conf, &db).await?;
 
     Ok(())
@@ -311,8 +311,8 @@ pub async fn install_zip(
     state: tauri::State<'_, State>,
     _handle: tauri::AppHandle,
 ) -> Result {
-    let conf = state.config.read().await;
-    let db = state.local_db.read().await;
+    let conf = state.config.read().await.clone();
+    let db = state.local_db.read().await.clone();
     println!("Installing {}", path);
     install_mod_from_zip(&PathBuf::from(path), &conf, &db)?;
 
@@ -519,9 +519,9 @@ pub async fn update_mod(
     handle: tauri::AppHandle,
 ) -> Result {
     mark_mod_busy(unique_name, true, true, &state, &handle).await;
-    let config = state.config.read().await;
-    let local_db = state.local_db.read().await;
-    let remote_db = state.remote_db.read().await;
+    let config = state.config.read().await.clone();
+    let local_db = state.local_db.read().await.clone();
+    let remote_db = state.remote_db.read().await.clone();
 
     let res = if unique_name == OWML_UNIQUE_NAME {
         download_and_install_owml(
@@ -554,9 +554,9 @@ pub async fn update_all_mods(
     state: tauri::State<'_, State>,
     handle: tauri::AppHandle,
 ) -> Result {
-    let config = state.config.read().await;
-    let local_db = state.local_db.read().await;
-    let remote_db = state.remote_db.read().await;
+    let config = state.config.read().await.clone();
+    let local_db = state.local_db.read().await.clone();
+    let remote_db = state.remote_db.read().await.clone();
     let mut busy_mods = state.mods_in_progress.write().await;
     let owml_in_list = unique_names.contains(&OWML_UNIQUE_NAME.to_string());
     let unique_names: Vec<String> = unique_names
@@ -802,9 +802,9 @@ pub async fn fix_mod_deps(
     state: tauri::State<'_, State>,
     handle: tauri::AppHandle,
 ) -> Result {
-    let config = state.config.read().await;
-    let local_db = state.local_db.read().await;
-    let remote_db = state.remote_db.read().await;
+    let config = state.config.read().await.clone();
+    let local_db = state.local_db.read().await.clone();
+    let remote_db = state.remote_db.read().await.clone();
     let local_mod = local_db
         .get_mod(unique_name)
         .ok_or_else(|| anyhow!("Can't find mod {}", unique_name))?;
@@ -871,6 +871,12 @@ pub async fn clear_downloads(state: tauri::State<'_, State>, handle: tauri::AppH
     bars.bars.clear();
     handle.typed_emit_all(&Event::ProgressUpdate(())).ok();
     Ok(())
+}
+
+#[tauri::command]
+pub async fn get_busy_mods(state: tauri::State<'_, State>) -> Result<Vec<String>> {
+    let in_progress = state.mods_in_progress.read().await.clone();
+    Ok(in_progress)
 }
 
 #[tauri::command]

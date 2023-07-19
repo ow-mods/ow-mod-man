@@ -16,7 +16,7 @@ struct RawRemoteDatabase {
 }
 
 /// Represents the remote (on the website) database of mods.
-#[derive(Default)]
+#[derive(Default, Clone)]
 pub struct RemoteDatabase {
     pub mods: HashMap<String, RemoteMod>,
 }

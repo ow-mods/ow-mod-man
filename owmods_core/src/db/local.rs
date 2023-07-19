@@ -18,7 +18,7 @@ use crate::{
 use super::{fix_version, RemoteDatabase};
 
 /// Represents the local (on the local PC) database of mods.
-#[derive(Default)]
+#[derive(Default, Clone)]
 pub struct LocalDatabase {
     pub mods: HashMap<String, UnsafeLocalMod>,
 }

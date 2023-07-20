@@ -3,7 +3,7 @@ import { withStyledErrorBoundary } from "@components/common/StyledErrorBoundary"
 import { useGetTranslation } from "@hooks";
 import { DeleteRounded } from "@mui/icons-material";
 import { Chip, Stack } from "@mui/material";
-import { memo, useCallback } from "react";
+import { memo, useCallback, useEffect, useRef } from "react";
 
 export interface ModsTagsChipsProps {
     selectedTags: string[];
@@ -15,6 +15,8 @@ const tagIsSelected = (selected: string[], tag: string) =>
 
 const ModsTagsChips = memo(function ModsTagsChips(props: ModsTagsChipsProps) {
     const availableTags = hooks.getDbTags("remoteRefresh")[1] ?? [];
+
+    const scrollRef = useRef<HTMLDivElement>(null);
 
     const getTranslation = useGetTranslation();
 
@@ -31,6 +33,16 @@ const ModsTagsChips = memo(function ModsTagsChips(props: ModsTagsChipsProps) {
         [onTagsChanged, selectedTags]
     );
 
+    useEffect(() => {
+        if (scrollRef.current) {
+            scrollRef.current.addEventListener("wheel", (event) => {
+                if (event.currentTarget) {
+                    (event.currentTarget as HTMLDivElement).scrollLeft += event.deltaY;
+                }
+            });
+        }
+    }, []);
+
     return (
         <Stack
             className="scroll-shadows"
@@ -41,6 +53,7 @@ const ModsTagsChips = memo(function ModsTagsChips(props: ModsTagsChipsProps) {
                 "::-webkit-scrollbar": { display: "none" }
             }}
             direction="row"
+            ref={scrollRef}
             gap={1}
         >
             {selectedTags.length !== 0 && (

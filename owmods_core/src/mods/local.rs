@@ -1,7 +1,7 @@
-use std::{collections::HashMap, path::PathBuf};
+use std::path::PathBuf;
 
 use serde::{Deserialize, Serialize};
-use serde_json::Value;
+use serde_json::{Map, Value};
 use typeshare::typeshare;
 
 use crate::{search::Searchable, validate::ModValidationError};
@@ -180,5 +180,5 @@ pub struct ModWarning {
 pub struct ModStubConfig {
     pub enabled: bool,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub settings: Option<HashMap<String, Value>>,
+    pub settings: Option<Map<String, Value>>,
 }

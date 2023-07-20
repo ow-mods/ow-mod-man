@@ -115,7 +115,7 @@ impl RemoteDatabase {
     ///
     /// ## Returns
     ///
-    /// A Vec<String> of tags sorted by the amount of times they appear in the database (highest -> lowest)
+    /// A `Vec<String>` of tags sorted by the amount of times they appear in the database (highest -> lowest)
     ///
     pub fn get_tags(&self) -> Vec<String> {
         let mut tags: Vec<String> = self

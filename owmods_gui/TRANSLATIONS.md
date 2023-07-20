@@ -4,9 +4,9 @@ Thank you for taking the time to write a translation! Below you'll find a guide 
 
 ## Grab the template
 
-To get started, grab [the template.json file](https://github.com/Bwc9876/ow-mod-man/blob/main/owmods_gui/frontend/src/assets/translations/template.json).
+To get started, grab [the template.json file](https://github.com/ow-mods/ow-mod-man/blob/main/owmods_gui/frontend/src/assets/translations/template.json).
 
-In addition, you may want to keep [english.json](https://github.com/Bwc9876/ow-mod-man/blob/main/owmods_gui/frontend/src/assets/translations/english.json) open to get an idea of what each key is for.
+In addition, you may want to keep [english.json](https://github.com/ow-mods/ow-mod-man/blob/main/owmods_gui/frontend/src/assets/translations/english.json) open to get an idea of what each key is for.
 
 ## How translations work
 
@@ -48,6 +48,6 @@ The `_` key is a bit special, this key is used in the event that a translation c
 
 ## Submitting Your Translation
 
-After you're done translating, you can submit your translation by [making a new issue](https://github.com/Bwc9876/ow-mod-man/issues/new/choose) and choosing the "Translation" option.
+After you're done translating, you can submit your translation by [making a new issue](https://github.com/ow-mods/ow-mod-man/issues/new/choose) and choosing the "Translation" option.
 
 To update a translation please do the same.

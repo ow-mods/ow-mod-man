@@ -30,7 +30,7 @@ const OverflowMenu = () => {
     }, []);
 
     const onHelp = useCallback(() => {
-        shell.open("https://github.com/Bwc9876/ow-mod-man/blob/main/owmods_gui/HELP.md");
+        shell.open("https://github.com/ow-mods/ow-mod-man/blob/main/owmods_gui/HELP.md");
         onClose();
     }, [onClose]);
 

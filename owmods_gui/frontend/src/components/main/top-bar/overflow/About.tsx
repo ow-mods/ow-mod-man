@@ -67,7 +67,7 @@ const About = memo(function About({ onClick }: ModalProps) {
     }, []);
 
     const onGithub = useCallback(() => {
-        shell.open("https://github.com/Bwc9876/ow-mod-man/");
+        shell.open("https://github.com/ow-mods/ow-mod-man/");
     }, []);
 
     const onDiscord = useCallback(() => {

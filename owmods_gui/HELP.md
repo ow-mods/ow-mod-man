@@ -19,7 +19,7 @@ This file contains common questions for the manager.
 
 ## How do I use this?
 
-- Download the Outer Wilds Mod Manager installer [from the latest release](https://github.com/Bwc9876/ow-mod-man/releases/latest);
+- Download the Outer Wilds Mod Manager installer [from the latest release](https://github.com/ow-mods/ow-mod-man/releases/latest);
 - Run the downloaded .msi (you might need to ignore some Chrome / Windows warnings);
 - Shortcuts are added to the desktop and start menu, use them to run the manager;
 - Run the manager;
@@ -71,6 +71,6 @@ Please refer to the [OWML documentation](https://owml.outerwildsmods.com) for in
 
 ## My issue isn't listed here
 
-If you're encountering issues or have questions, please [open an Issue](https://github.com/Bwc9876/ow-mod-man/issues/new/choose). You can also [view closed issues](https://github.com/Bwc9876/ow-mod-man/issues?q=is%3Aissue+is%3Aclosed) to see if your issue has already been resolved.
+If you're encountering issues or have questions, please [open an Issue](https://github.com/ow-mods/ow-mod-man/issues/new/choose). You can also [view closed issues](https://github.com/ow-mods/ow-mod-man/issues?q=is%3Aissue+is%3Aclosed) to see if your issue has already been resolved.
 
 We also have [a Discord server](https://discord.com/invite/wusTQYbYTc) available if you want to chat.

@@ -3,11 +3,11 @@
 # Outer Wilds Mod Manager
 
 <p align="center">
-<a href="https://github.com/Bwc9876/ow-mod-man"><img src="https://raw.githubusercontent.com/Bwc9876/ow-mod-man/main/.github/assets/logo.png" alt="OWMM Logo"/></a><br/>
+<a href="https://github.com/ow-mods/ow-mod-man"><img src="https://raw.githubusercontent.com/ow-mods/ow-mod-man/main/.github/assets/logo.png" alt="OWMM Logo"/></a><br/>
 This is the monorepo for the new <a href="https://www.mobiusdigitalgames.com/outer-wilds.html">Outer Wilds</a> Mod Manager.<br/>
-<a href="https://github.com/Bwc9876/ow-mod-man/tree/main/owmods_core">Core</a><b> |</b>
-<a href="https://github.com/Bwc9876/ow-mod-man/tree/main/owmods_cli">CLI</a><b> |</b>
-<a href="https://github.com/Bwc9876/ow-mod-man/tree/main/owmods_gui">GUI</a>
+<a href="https://github.com/ow-mods/ow-mod-man/tree/main/owmods_core">Core</a><b> |</b>
+<a href="https://github.com/ow-mods/ow-mod-man/tree/main/owmods_cli">CLI</a><b> |</b>
+<a href="https://github.com/ow-mods/ow-mod-man/tree/main/owmods_gui">GUI</a>
 </p>
 
 ## Packages

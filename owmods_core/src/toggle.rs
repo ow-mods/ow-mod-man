@@ -6,7 +6,7 @@ use log::warn;
 use crate::{
     db::LocalDatabase,
     file::{deserialize_from_json, fix_json_file, serialize_to_json},
-    mods::local::ModStubConfig,
+    mods::local::{LocalMod, ModStubConfig},
 };
 
 fn read_config(config_path: &Path) -> Result<ModStubConfig> {
@@ -20,6 +20,9 @@ fn write_config(conf: &ModStubConfig, config_path: &Path) -> Result<()> {
 }
 
 /// Generates an empty, enabled config to the given path.
+///
+/// Note this doesn't read from default-config.json, it just creates a blank config.
+/// OWML will fill in the default values when it loads the config.
 ///
 /// ## Errors
 ///
@@ -54,12 +57,28 @@ pub fn get_mod_enabled(mod_path: &Path) -> Result<bool> {
     }
 }
 
+fn _toggle_mod(local_mod: &LocalMod, enabled: bool) -> Result<bool> {
+    let config_path = PathBuf::from(&local_mod.mod_path).join("config.json");
+
+    if config_path.is_file() {
+        let mut config = read_config(&config_path)?;
+        config.enabled = enabled;
+        write_config(&config, &config_path)?;
+    } else {
+        generate_config(&config_path)?;
+        return _toggle_mod(local_mod, enabled);
+    }
+
+    Ok(!enabled && local_mod.uses_pre_patcher())
+}
+
 /// Toggle a mod to a given enabled value.
-/// Also support applying this action recursively.
+/// Also supports applying this action recursively.
 ///
 /// ## Returns
 ///
-/// A list of mod names that were disabled and use pre patchers, and therefore **should alert the user to check the mod's README for instructions on how to fully disable it**.
+/// A list of mod unique names that were disabled and use pre patchers,
+/// and therefore **should alert the user to check the mod's README for instructions on how to fully disable it**.
 ///
 /// ## Errors
 ///
@@ -75,29 +94,26 @@ pub fn toggle_mod(
 
     let local_mod = local_db
         .get_mod(unique_name)
-        .ok_or_else(|| anyhow!("Mod {} not found", unique_name))?;
-    let config_path = PathBuf::from(&local_mod.mod_path).join("config.json");
+        .ok_or_else(|| anyhow!("Mod {} not found in local database.", unique_name))?;
+    let show_warning = _toggle_mod(local_mod, enabled)?;
 
-    if !enabled && local_mod.uses_pre_patcher() {
-        show_warnings_for.push(local_mod.manifest.name.clone());
-    }
-
-    if config_path.is_file() {
-        let mut config = read_config(&config_path)?;
-        config.enabled = enabled;
-        write_config(&config, &config_path)?;
-    } else {
-        generate_config(&config_path)?;
-        show_warnings_for.extend(toggle_mod(unique_name, local_db, enabled, recursive)?);
+    if show_warning {
+        show_warnings_for.push(unique_name.to_string());
     }
 
     if recursive {
-        if let Some(deps) = local_mod.manifest.dependencies.as_ref() {
-            for dep in deps.iter() {
-                let dep_mod = local_db.get_mod(dep);
+        let mut to_toggle: Vec<String> =
+            local_mod.manifest.dependencies.clone().unwrap_or_default();
+        let mut toggled_mods: Vec<String> = vec![unique_name.to_string()];
+        while !to_toggle.is_empty() {
+            for dep in to_toggle.drain(..).collect::<Vec<String>>() {
+                if toggled_mods.contains(&dep) {
+                    continue;
+                }
+                let dep_mod = local_db.get_mod(&dep);
                 if let Some(dep_mod) = dep_mod {
-                    if enabled {
-                        toggle_mod(&dep_mod.manifest.unique_name, local_db, enabled, recursive)?;
+                    let show_warnings = if enabled {
+                        _toggle_mod(dep_mod, enabled)
                     } else {
                         let mut flag = true;
                         for dependent_mod in local_db.dependent(dep_mod).filter(|m| m.enabled) {
@@ -111,14 +127,16 @@ pub fn toggle_mod(
                             }
                         }
                         if flag {
-                            show_warnings_for.extend(toggle_mod(
-                                &dep_mod.manifest.unique_name,
-                                local_db,
-                                enabled,
-                                recursive,
-                            )?);
+                            _toggle_mod(dep_mod, enabled)
+                        } else {
+                            Ok(false)
                         }
+                    };
+                    if show_warnings? {
+                        show_warnings_for.push(dep_mod.manifest.unique_name.clone());
                     }
+                    toggled_mods.push(dep_mod.manifest.unique_name.clone());
+                    to_toggle.extend(dep_mod.manifest.dependencies.clone().unwrap_or_default());
                 } else {
                     warn!("Dependency {} Was Not Found, Ignoring.", dep);
                 }
@@ -162,6 +180,27 @@ mod tests {
             .mods
             .get_mut(&String::from("Bwc9876.TimeSaver"))
             .unwrap() = UnsafeLocalMod::Valid(new_mod);
+        toggle_mod("Bwc9876.TimeSaver", &ctx.local_db, false, true).unwrap();
+        ctx.fetch_local_db();
+        assert!(!ctx.local_db.get_mod("Bwc9876.TimeSaver").unwrap().enabled);
+        assert!(!ctx.local_db.get_mod("Bwc9876.SaveEditor").unwrap().enabled);
+    }
+
+    #[test]
+    fn test_toggle_mod_recursive_cyclical_deps() {
+        let mut ctx = TestContext::new();
+        let mut new_mod = ctx.install_test_zip("Bwc9876.TimeSaver.zip", false);
+        let mut new_mod_2 = ctx.install_test_zip("Bwc9876.SaveEditor.zip", true);
+        new_mod.manifest.dependencies = Some(vec!["Bwc9876.SaveEditor".to_string()]);
+        *ctx.local_db
+            .mods
+            .get_mut(&String::from("Bwc9876.TimeSaver"))
+            .unwrap() = UnsafeLocalMod::Valid(new_mod);
+        new_mod_2.manifest.dependencies = Some(vec!["Bwc9876.TimeSaver".to_string()]);
+        *ctx.local_db
+            .mods
+            .get_mut(&String::from("Bwc9876.SaveEditor"))
+            .unwrap() = UnsafeLocalMod::Valid(new_mod_2);
         toggle_mod("Bwc9876.TimeSaver", &ctx.local_db, false, true).unwrap();
         ctx.fetch_local_db();
         assert!(!ctx.local_db.get_mod("Bwc9876.TimeSaver").unwrap().enabled);

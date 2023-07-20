@@ -225,6 +225,30 @@ mod tests {
     }
 
     #[test]
+    fn test_remote_db_matches_tags() {
+        let mut mod1 = RemoteMod::get_test(1);
+        mod1.tags = Some(vec!["story".to_string()]);
+        let mut mod2 = RemoteMod::get_test(2);
+        mod2.tags = Some(vec!["story".to_string(), "gameplay".to_string()]);
+        let mut mod3 = RemoteMod::get_test(3);
+        mod3.tags = Some(vec!["story".to_string(), "gameplay".to_string()]);
+        let mut mod4 = RemoteMod::get_test(4);
+        mod4.tags = Some(vec!["other".to_string()]);
+        let raw_db = RawRemoteDatabase {
+            releases: vec![mod1, mod2, mod3, mod4],
+        };
+        let db = RemoteDatabase::from(raw_db);
+        let tags = vec!["story".to_string(), "gameplay".to_string()];
+        let mods = db.matches_tags(tags);
+        let mods: Vec<&str> = mods.map(|m| m.unique_name.as_str()).collect();
+
+        assert_eq!(mods.len(), 3);
+        assert!(mods.contains(&"Example.TestMod1"));
+        assert!(mods.contains(&"Example.TestMod2"));
+        assert!(mods.contains(&"Example.TestMod3"));
+    }
+
+    #[test]
     fn test_remote_db_get_owml() {
         let mut mod1 = RemoteMod::get_test(1);
         mod1.unique_name = OWML_UNIQUE_NAME.to_string();

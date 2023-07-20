@@ -68,14 +68,17 @@ pub async fn import_mods(
 #[cfg(test)]
 mod tests {
 
-    use std::{fs::File, io::Write};
+    use std::{fs, path::PathBuf};
 
-    use crate::{
-        download::install_mod_from_zip,
-        test_utils::{get_test_file, make_test_dir},
-    };
+    use crate::test_utils::{get_test_file, TestContext};
 
     use super::*;
+
+    fn make_list_json(ctx: &TestContext, list: &str) -> PathBuf {
+        let path = ctx.temp_dir.path().join("list.json");
+        fs::write(&path, list).unwrap();
+        path
+    }
 
     #[test]
     fn test_export_mods() {
@@ -89,82 +92,74 @@ mod tests {
     #[test]
     fn test_import_mods() {
         tokio_test::block_on(async {
-            let dir = make_test_dir();
-            let mut config = Config::default(Some(dir.path().join("settings.json"))).unwrap();
-            config.owml_path = dir.path().to_str().unwrap().to_string();
-            let remote_db = RemoteDatabase::fetch(&config.database_url).await.unwrap();
-            let list_path = dir.path().join("list.json");
-            let mut file = File::create(&list_path).unwrap();
-            write!(file, "[\"Bwc9876.TimeSaver\"]").unwrap();
-            drop(file);
-            let local_db = LocalDatabase::default();
-            import_mods(&config, &local_db, &remote_db, &list_path, false)
-                .await
-                .unwrap();
-            assert!(dir.path().join("Mods").join("Bwc9876.TimeSaver").is_dir());
-            dir.close().unwrap();
+            let mut ctx = TestContext::new();
+            ctx.fetch_remote_db().await;
+            let list_path = make_list_json(&ctx, "[\"Bwc9876.TimeSaver\"]");
+            import_mods(
+                &ctx.config,
+                &ctx.local_db,
+                &ctx.remote_db,
+                &list_path,
+                false,
+            )
+            .await
+            .unwrap();
+            assert!(ctx.get_test_path("Bwc9876.TimeSaver").is_dir());
         });
     }
 
     #[test]
     fn test_import_mods_with_disabled() {
         tokio_test::block_on(async {
-            let dir = make_test_dir();
-            let zip_path = get_test_file("Bwc9876.TimeSaver.zip");
-            let mut config = Config::default(Some(dir.path().join("settings.json"))).unwrap();
-            config.owml_path = dir.path().to_str().unwrap().to_string();
-            let remote_db = RemoteDatabase::fetch(&config.database_url).await.unwrap();
-            let local_db = LocalDatabase::default();
-            install_mod_from_zip(&zip_path, &config, &local_db).unwrap();
-            let local_db = LocalDatabase::fetch(&config.owml_path).unwrap();
-            toggle_mod("Bwc9876.TimeSaver", &local_db, false, false).unwrap();
-            let list_path = dir.path().join("list.json");
-            let mut file = File::create(&list_path).unwrap();
-            write!(file, "[\"Bwc9876.TimeSaver\"]").unwrap();
-            drop(file);
-            let local_db = LocalDatabase::fetch(dir.path().to_str().unwrap()).unwrap();
-            import_mods(&config, &local_db, &remote_db, &list_path, false)
-                .await
-                .unwrap();
-            let new_mod = LocalDatabase::read_local_mod(
-                &dir.path()
-                    .join("Mods")
-                    .join("Bwc9876.TimeSaver")
-                    .join("manifest.json"),
+            let mut ctx = TestContext::new();
+            ctx.fetch_remote_db().await;
+            ctx.install_test_zip("Bwc9876.TimeSaver.zip", true);
+            toggle_mod("Bwc9876.TimeSaver", &ctx.local_db, false, false).unwrap();
+            let list_path = make_list_json(&ctx, "[\"Bwc9876.TimeSaver\"]");
+            import_mods(
+                &ctx.config,
+                &ctx.local_db,
+                &ctx.remote_db,
+                &list_path,
+                false,
             )
+            .await
             .unwrap();
+            ctx.fetch_local_db();
+            let new_mod = ctx.local_db.get_mod("Bwc9876.TimeSaver").unwrap();
             assert!(new_mod.enabled);
-            dir.close().unwrap();
         });
     }
 
     #[test]
     fn test_import_mods_disable_missing() {
         tokio_test::block_on(async {
-            let dir = make_test_dir();
-            let zip_path = get_test_file("Bwc9876.TimeSaver.zip");
-            let mut config = Config::default(Some(dir.path().join("settings.json"))).unwrap();
-            config.owml_path = dir.path().to_str().unwrap().to_string();
-            let remote_db = RemoteDatabase::fetch(&config.database_url).await.unwrap();
-            let local_db = LocalDatabase::default();
-            install_mod_from_zip(&zip_path, &config, &local_db).unwrap();
-            let list_path = dir.path().join("list.json");
-            let mut file = File::create(&list_path).unwrap();
-            write!(file, "[]").unwrap();
-            drop(file);
-            let local_db = LocalDatabase::fetch(dir.path().to_str().unwrap()).unwrap();
-            import_mods(&config, &local_db, &remote_db, &list_path, true)
+            let mut ctx = TestContext::new();
+            ctx.fetch_remote_db().await;
+            ctx.install_test_zip("Bwc9876.TimeSaver.zip", true);
+            let list_path = make_list_json(&ctx, "[]");
+            import_mods(&ctx.config, &ctx.local_db, &ctx.remote_db, &list_path, true)
                 .await
                 .unwrap();
-            let new_mod = LocalDatabase::read_local_mod(
-                &dir.path()
-                    .join("Mods")
-                    .join("Bwc9876.TimeSaver")
-                    .join("manifest.json"),
-            )
-            .unwrap();
+            ctx.fetch_local_db();
+            let new_mod = ctx.local_db.get_mod("Bwc9876.TimeSaver").unwrap();
             assert!(!new_mod.enabled);
-            dir.close().unwrap();
+        });
+    }
+
+    #[test]
+    fn test_import_mods_disable_missing_already_enabled() {
+        tokio_test::block_on(async {
+            let mut ctx = TestContext::new();
+            ctx.fetch_remote_db().await;
+            ctx.install_test_zip("Bwc9876.TimeSaver.zip", true);
+            let list_path = make_list_json(&ctx, "[\"Bwc9876.TimeSaver\"]");
+            import_mods(&ctx.config, &ctx.local_db, &ctx.remote_db, &list_path, true)
+                .await
+                .unwrap();
+            ctx.fetch_local_db();
+            let new_mod = ctx.local_db.get_mod("Bwc9876.TimeSaver").unwrap();
+            assert!(new_mod.enabled);
         });
     }
 }

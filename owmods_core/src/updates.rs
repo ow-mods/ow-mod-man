@@ -147,4 +147,11 @@ mod tests {
         let (needs_update, _) = check_mod_needs_update(&new_mod, &db);
         assert!(!needs_update);
     }
+
+    #[test]
+    fn test_check_needs_update_invalid_mismatched_versions() {
+        let (new_mod, db) = setup("burger", "burger2.0");
+        let (needs_update, _) = check_mod_needs_update(&new_mod, &db);
+        assert!(needs_update);
+    }
 }

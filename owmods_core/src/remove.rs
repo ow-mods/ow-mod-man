@@ -89,150 +89,44 @@ pub fn remove_old_mod_files(local_mod: &LocalMod) -> Result<()> {
 #[cfg(test)]
 mod tests {
 
-    use std::{fs::File, io::Write};
+    use std::fs;
 
-    use crate::{
-        config::Config,
-        download::install_mod_from_zip,
-        file::create_all_parents,
-        mods::local::UnsafeLocalMod,
-        test_utils::{get_test_file, make_test_dir},
-    };
+    use crate::{file::create_all_parents, mods::local::UnsafeLocalMod, test_utils::TestContext};
 
     use super::*;
 
     #[test]
     fn test_remove_mod() {
-        let dir = make_test_dir();
-        let test_path = get_test_file("Bwc9876.TimeSaver.zip");
-        let mut config = Config::default(None).unwrap();
-        config.owml_path = dir.path().join("").to_str().unwrap().to_string();
-        let db = LocalDatabase::default();
-        install_mod_from_zip(&test_path, &config, &db).unwrap();
-        let db = LocalDatabase::fetch(&config.owml_path).unwrap();
-        let new_mod = db.get_mod("Bwc9876.TimeSaver").unwrap();
-        remove_mod(new_mod, &db, false).unwrap();
-        assert!(!dir.path().join("Mods").join("Bwc9876.TimeSaver").is_dir());
-        dir.close().unwrap();
+        let mut ctx = TestContext::new();
+        let new_mod = ctx.install_test_zip("Bwc9876.TimeSaver.zip", true);
+        remove_mod(&new_mod, &ctx.local_db, false).unwrap();
+        ctx.fetch_local_db();
+        assert!(!ctx.get_test_path("Bwc9876.TimeSaver").is_dir());
+        assert!(ctx.local_db.get_mod("Bwc9876.TimeSaver").is_none());
     }
 
     #[test]
     fn test_remove_mod_recursive() {
-        let dir = make_test_dir();
-        let test_path = get_test_file("Bwc9876.TimeSaver.zip");
-        let test_path_2 = get_test_file("Bwc9876.SaveEditor.zip");
-        let mut config = Config::default(None).unwrap();
-        config.owml_path = dir.path().join("").to_str().unwrap().to_string();
-        let db = LocalDatabase::default();
-        install_mod_from_zip(&test_path, &config, &db).unwrap();
-        install_mod_from_zip(&test_path_2, &config, &db).unwrap();
-        let db = LocalDatabase::fetch(&config.owml_path).unwrap();
-        let mut new_mod = db.get_mod("Bwc9876.TimeSaver").unwrap().clone();
+        let mut ctx = TestContext::new();
+        let mut new_mod = ctx.install_test_zip("Bwc9876.TimeSaver.zip", false);
+        ctx.install_test_zip("Bwc9876.SaveEditor.zip", true);
         new_mod.manifest.dependencies = Some(vec!["Bwc9876.SaveEditor".to_string()]);
-        remove_mod(&new_mod, &db, true).unwrap();
-        assert!(!dir.path().join("Mods").join("Bwc9876.TimeSaver").is_dir());
-        assert!(!dir.path().join("Mods").join("Bwc9876.SaveEditor").is_dir());
-        dir.close().unwrap();
-    }
-
-    #[test]
-    fn test_remove_old_mod_files() {
-        let dir = make_test_dir();
-        let test_path = get_test_file("Bwc9876.TimeSaver.zip");
-        let target_path = dir.path().join("Mods").join("Bwc9876.TimeSaver");
-        let mut config = Config::default(None).unwrap();
-        config.owml_path = dir.path().to_str().unwrap().to_string();
-        let db = LocalDatabase::default();
-        let new_mod = install_mod_from_zip(&test_path, &config, &db).unwrap();
-        remove_old_mod_files(&new_mod).unwrap();
-        assert!(target_path.is_dir());
-        assert!(!target_path.join("TimeSaver.dll").is_file());
-        assert!(target_path.join("config.json").is_file());
-        dir.close().unwrap();
-    }
-
-    #[test]
-    fn test_remove_old_mod_files_folder() {
-        let dir = make_test_dir();
-        let test_path = get_test_file("Bwc9876.TimeSaver.zip");
-        let target_path = dir.path().join("Mods").join("Bwc9876.TimeSaver");
-        let unimportant_path = target_path
-            .join("UnimportantFolder")
-            .join("unimportant.json");
-        let mut config = Config::default(None).unwrap();
-        config.owml_path = dir.path().to_str().unwrap().to_string();
-        let db = LocalDatabase::default();
-        let new_mod = install_mod_from_zip(&test_path, &config, &db).unwrap();
-        create_all_parents(&unimportant_path).unwrap();
-        let mut file = File::create(&unimportant_path).unwrap();
-        write!(file, "{{}}").unwrap();
-        drop(file);
-        remove_old_mod_files(&new_mod).unwrap();
-        assert!(target_path.is_dir());
-        assert!(!target_path.join("TimeSaver.dll").is_file());
-        assert!(target_path.join("config.json").is_file());
-        dir.close().unwrap();
-    }
-
-    #[test]
-    fn test_remove_old_mod_files_paths_to_preserve() {
-        let dir = make_test_dir();
-        let test_path = get_test_file("Bwc9876.TimeSaver.zip");
-        let target_path = dir.path().join("Mods").join("Bwc9876.TimeSaver");
-        let important_path = target_path.join("important.json");
-        let mut config = Config::default(None).unwrap();
-        config.owml_path = dir.path().join("").to_str().unwrap().to_string();
-        let db = LocalDatabase::default();
-        let mut new_mod = install_mod_from_zip(&test_path, &config, &db).unwrap();
-        new_mod.manifest.paths_to_preserve = Some(vec!["important.json".to_string()]);
-        let mut file = File::create(&important_path).unwrap();
-        write!(file, "{{}}").unwrap();
-        drop(file);
-        remove_old_mod_files(&new_mod).unwrap();
-        assert!(target_path.is_dir());
-        assert!(!target_path.join("TimeSaver.dll").is_file());
-        assert!(important_path.is_file());
-        assert!(target_path.join("config.json").is_file());
-        dir.close().unwrap();
-    }
-
-    #[test]
-    fn test_remove_old_mod_files_paths_to_preserve_folder() {
-        let dir = make_test_dir();
-        let test_path = get_test_file("Bwc9876.TimeSaver.zip");
-        let target_path = dir.path().join("Mods").join("Bwc9876.TimeSaver");
-        let important_path = target_path.join("ImportantFolder").join("important.json");
-        let mut config = Config::default(None).unwrap();
-        config.owml_path = dir.path().join("").to_str().unwrap().to_string();
-        let db = LocalDatabase::default();
-        let mut new_mod = install_mod_from_zip(&test_path, &config, &db).unwrap();
-        new_mod.manifest.paths_to_preserve = Some(vec!["ImportantFolder".to_string()]);
-        create_all_parents(&important_path).unwrap();
-        let mut file = File::create(&important_path).unwrap();
-        write!(file, "{{}}").unwrap();
-        drop(file);
-        remove_old_mod_files(&new_mod).unwrap();
-        assert!(target_path.is_dir());
-        assert!(!target_path.join("TimeSaver.dll").is_file());
-        assert!(important_path.is_file());
-        assert!(target_path.join("config.json").is_file());
-        dir.close().unwrap();
+        remove_mod(&new_mod, &ctx.local_db, true).unwrap();
+        ctx.fetch_local_db();
+        assert!(!ctx.get_test_path("Bwc9876.TimeSaver").is_dir());
+        assert!(ctx.local_db.get_mod("Bwc9876.TimeSaver").is_none());
+        assert!(!ctx.get_test_path("Bwc9876.SaveEditor").is_dir());
+        assert!(ctx.local_db.get_mod("Bwc9876.SaveEditor").is_none());
     }
 
     #[test]
     fn test_remove_mod_recursive_cyclical_deps() {
-        let dir = make_test_dir();
-        let test_path = get_test_file("Bwc9876.TimeSaver.zip");
-        let test_path_2 = get_test_file("Bwc9876.SaveEditor.zip");
-        let mut config = Config::default(None).unwrap();
-        config.owml_path = dir.path().join("").to_str().unwrap().to_string();
-        let db = LocalDatabase::default();
-        install_mod_from_zip(&test_path, &config, &db).unwrap();
-        install_mod_from_zip(&test_path_2, &config, &db).unwrap();
-        let mut db = LocalDatabase::fetch(&config.owml_path).unwrap();
-        let mut new_mod = db.get_mod("Bwc9876.TimeSaver").unwrap().clone();
+        let mut ctx = TestContext::new();
+        let mut new_mod = ctx.install_test_zip("Bwc9876.TimeSaver.zip", false);
+        ctx.install_test_zip("Bwc9876.SaveEditor.zip", true);
         new_mod.manifest.dependencies = Some(vec!["Bwc9876.SaveEditor".to_string()]);
-        db.mods
+        ctx.local_db
+            .mods
             .get_mut("Bwc9876.SaveEditor")
             .map(|m| match m {
                 UnsafeLocalMod::Valid(m) => m,
@@ -243,9 +137,69 @@ mod tests {
             .unwrap()
             .manifest
             .dependencies = Some(vec!["Bwc9876.TimeSaver".to_string()]);
-        remove_mod(&new_mod, &db, true).unwrap();
-        assert!(!dir.path().join("Mods").join("Bwc9876.TimeSaver").is_dir());
-        assert!(!dir.path().join("Mods").join("Bwc9876.SaveEditor").is_dir());
-        dir.close().unwrap();
+        remove_mod(&new_mod, &ctx.local_db, true).unwrap();
+        ctx.fetch_local_db();
+        assert!(!ctx.get_test_path("Bwc9876.TimeSaver").is_dir());
+        assert!(ctx.local_db.get_mod("Bwc9876.TimeSaver").is_none());
+        assert!(!ctx.get_test_path("Bwc9876.SaveEditor").is_dir());
+        assert!(ctx.local_db.get_mod("Bwc9876.SaveEditor").is_none());
+    }
+
+    #[test]
+    fn test_remove_old_mod_files() {
+        let mut ctx = TestContext::new();
+        let new_mod = ctx.install_test_zip("Bwc9876.TimeSaver.zip", true);
+        let target_path = ctx.get_test_path("Bwc9876.TimeSaver");
+        remove_old_mod_files(&new_mod).unwrap();
+        assert!(target_path.is_dir());
+        assert!(!target_path.join("TimeSaver.dll").is_file());
+        assert!(target_path.join("config.json").is_file());
+    }
+
+    #[test]
+    fn test_remove_old_mod_files_folder() {
+        let mut ctx = TestContext::new();
+        let new_mod = ctx.install_test_zip("Bwc9876.TimeSaver.zip", true);
+        let target_path = ctx.get_test_path("Bwc9876.TimeSaver");
+        let unimportant_path = target_path
+            .join("UnimportantFolder")
+            .join("unimportant.json");
+        create_all_parents(&unimportant_path).unwrap();
+        fs::write(&unimportant_path, "{{}}").unwrap();
+        remove_old_mod_files(&new_mod).unwrap();
+        assert!(target_path.is_dir());
+        assert!(!target_path.join("TimeSaver.dll").is_file());
+        assert!(target_path.join("config.json").is_file());
+    }
+
+    #[test]
+    fn test_remove_old_mod_files_paths_to_preserve() {
+        let mut ctx = TestContext::new();
+        let mut new_mod = ctx.install_test_zip("Bwc9876.TimeSaver.zip", true);
+        let target_path = ctx.get_test_path("Bwc9876.TimeSaver");
+        let important_path = target_path.join("important.json");
+        new_mod.manifest.paths_to_preserve = Some(vec!["important.json".to_string()]);
+        fs::write(&important_path, "{{}}").unwrap();
+        remove_old_mod_files(&new_mod).unwrap();
+        assert!(target_path.is_dir());
+        assert!(!target_path.join("TimeSaver.dll").is_file());
+        assert!(important_path.is_file());
+        assert!(target_path.join("config.json").is_file());
+    }
+
+    #[test]
+    fn test_remove_old_mod_files_paths_to_preserve_folder() {
+        let mut ctx = TestContext::new();
+        let mut new_mod = ctx.install_test_zip("Bwc9876.TimeSaver.zip", true);
+        let target_path = ctx.get_test_path("Bwc9876.TimeSaver");
+        let important_path = target_path.join("ImportantFolder").join("important.json");
+        new_mod.manifest.paths_to_preserve = Some(vec!["ImportantFolder".to_string()]);
+        create_all_parents(&important_path).unwrap();
+        fs::write(&important_path, "{{}}").unwrap();
+        remove_old_mod_files(&new_mod).unwrap();
+        assert!(target_path.is_dir());
+        assert!(!target_path.join("TimeSaver.dll").is_file());
+        assert!(important_path.is_file());
+        assert!(target_path.join("config.json").is_file());
     }
 }

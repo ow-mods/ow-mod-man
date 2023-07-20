@@ -129,17 +129,29 @@ impl OWMLConfig {
 #[cfg(test)]
 mod tests {
 
-    use std::{fs::File, io::Write};
+    use std::fs;
 
-    use crate::test_utils::{get_test_file, make_test_dir};
+    use crate::test_utils::{get_test_file, TestContext};
 
     use super::*;
 
+    fn setup_default_conf(ctx: &TestContext) {
+        fs::create_dir_all(ctx.temp_dir.path().join("OWML")).unwrap();
+        fs::write(
+            ctx.temp_dir
+                .path()
+                .join("OWML")
+                .join("OWML.DefaultConfig.json"),
+            include_str!("../test_files/OWML.Config.json"),
+        )
+        .unwrap();
+    }
+
     #[test]
     fn test_owml_config_read() {
-        let mut config = Config::default(None).unwrap();
-        config.owml_path = get_test_file("").to_str().unwrap().to_string();
-        let conf = OWMLConfig::read(&config).unwrap();
+        let mut ctx = TestContext::new();
+        ctx.config.owml_path = get_test_file("").to_str().unwrap().to_string();
+        let conf = OWMLConfig::read(&ctx.config).unwrap();
         assert!(conf.debug_mode);
         assert!(conf.force_exe);
         assert!(conf.incremental_GC);
@@ -147,40 +159,40 @@ mod tests {
 
     #[test]
     fn test_owml_config_save() {
-        let dir = make_test_dir();
-        let mut config = Config::default(None).unwrap();
-        config.owml_path = get_test_file("").to_str().unwrap().to_string();
-        let conf = OWMLConfig::read(&config).unwrap();
-        config.owml_path = dir.path().to_str().unwrap().to_string();
-        conf.save(&config).unwrap();
-        assert!(dir.path().join("OWML.Config.json").is_file());
-        dir.close().unwrap();
+        let ctx = TestContext::new();
+        let owml_conf: OWMLConfig =
+            serde_json::from_str(include_str!("../test_files/OWML.Config.json")).unwrap();
+        owml_conf.save(&ctx.config).unwrap();
+        assert!(ctx
+            .temp_dir
+            .path()
+            .join("OWML")
+            .join("OWML.Config.json")
+            .is_file());
     }
 
     #[test]
     fn test_owml_config_get() {
-        let dir = make_test_dir();
-        let mut file = File::create(dir.path().join("OWML.Config.json")).unwrap();
-        write!(file, "{}", include_str!("../test_files/OWML.Config.json")).unwrap();
-        drop(file);
-        let mut config = Config::default(None).unwrap();
-        config.owml_path = dir.path().to_str().unwrap().to_string();
-        let conf = OWMLConfig::get(&config).unwrap();
+        let ctx = TestContext::new();
+        setup_default_conf(&ctx);
+        let mut conf = OWMLConfig::get(&ctx.config).unwrap();
+        conf.debug_mode = true;
+        conf.save(&ctx.config).unwrap();
+        let conf = OWMLConfig::get(&ctx.config).unwrap();
         assert!(conf.debug_mode);
-        dir.close().unwrap();
     }
 
     #[test]
     fn test_owml_config_get_default() {
-        let dir = make_test_dir();
-        let mut file = File::create(dir.path().join("OWML.DefaultConfig.json")).unwrap();
-        write!(file, "{}", include_str!("../test_files/OWML.Config.json")).unwrap();
-        drop(file);
-        let mut config = Config::default(None).unwrap();
-        config.owml_path = dir.path().to_str().unwrap().to_string();
-        let conf = OWMLConfig::get(&config).unwrap();
-        assert!(dir.path().join("OWML.Config.json").is_file());
+        let ctx = TestContext::new();
+        setup_default_conf(&ctx);
+        let conf = OWMLConfig::get(&ctx.config).unwrap();
         assert!(conf.debug_mode);
-        dir.close().unwrap();
+        assert!(ctx
+            .temp_dir
+            .path()
+            .join("OWML")
+            .join("OWML.Config.json")
+            .is_file());
     }
 }

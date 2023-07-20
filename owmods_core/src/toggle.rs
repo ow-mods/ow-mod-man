@@ -112,7 +112,7 @@ pub fn toggle_mod(
                 }
                 let dep_mod = local_db.get_mod(&dep);
                 if let Some(dep_mod) = dep_mod {
-                    let show_warnings = if enabled {
+                    let show_warning = if enabled {
                         _toggle_mod(dep_mod, enabled)
                     } else {
                         let mut flag = true;
@@ -132,7 +132,7 @@ pub fn toggle_mod(
                             Ok(false)
                         }
                     };
-                    if show_warnings? {
+                    if show_warning? {
                         show_warnings_for.push(dep_mod.manifest.unique_name.clone());
                     }
                     toggled_mods.push(dep_mod.manifest.unique_name.clone());
@@ -159,7 +159,7 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_mod_toggle() {
+    fn test_toggle_mod() {
         let mut ctx = TestContext::new();
         ctx.install_test_zip("Bwc9876.TimeSaver.zip", true);
         toggle_mod("Bwc9876.TimeSaver", &ctx.local_db, false, false).unwrap();
@@ -171,7 +171,7 @@ mod tests {
     }
 
     #[test]
-    fn test_mod_toggle_recursive() {
+    fn test_toggle_mod_recursive() {
         let mut ctx = TestContext::new();
         let mut new_mod = ctx.install_test_zip("Bwc9876.TimeSaver.zip", false);
         ctx.install_test_zip("Bwc9876.SaveEditor.zip", true);
@@ -208,7 +208,7 @@ mod tests {
     }
 
     #[test]
-    fn test_mod_toggle_recursive_other_dependent() {
+    fn test_toggle_mod_recursive_other_dependent() {
         let mut ctx = TestContext::new();
         let mut new_mod = ctx.install_test_zip("Bwc9876.TimeSaver.zip", false);
         ctx.install_test_zip("Bwc9876.SaveEditor.zip", true);
@@ -227,7 +227,7 @@ mod tests {
     }
 
     #[test]
-    fn test_mod_toggle_recursive_other_dependent_but_disabled() {
+    fn test_toggle_mod_recursive_other_dependent_but_disabled() {
         let mut ctx = TestContext::new();
         let mut new_mod = ctx.install_test_zip("Bwc9876.TimeSaver.zip", false);
         ctx.install_test_zip("Bwc9876.SaveEditor.zip", true);
@@ -257,5 +257,44 @@ mod tests {
         toggle_mod("Bwc9876.TimeSaver", &ctx.local_db, true, false).unwrap();
         ctx.fetch_local_db();
         assert!(ctx.local_db.get_mod("Bwc9876.TimeSaver").unwrap().enabled);
+    }
+
+    #[test]
+    fn test_toggle_mod_has_prepatcher() {
+        let mut ctx = TestContext::new();
+        let mut local_mod = ctx.install_test_zip("Bwc9876.TimeSaver.zip", true);
+        local_mod.manifest.patcher = Some("SomePatcher.dll".to_string());
+        *ctx.local_db
+            .mods
+            .get_mut(&String::from("Bwc9876.TimeSaver"))
+            .unwrap() = UnsafeLocalMod::Valid(local_mod);
+        let show_warnings = toggle_mod("Bwc9876.TimeSaver", &ctx.local_db, false, false).unwrap();
+        ctx.fetch_local_db();
+        assert_eq!(show_warnings[0], "Bwc9876.TimeSaver");
+        let show_warnings = toggle_mod("Bwc9876.TimeSaver", &ctx.local_db, true, false).unwrap();
+        assert!(show_warnings.is_empty());
+        ctx.fetch_local_db();
+    }
+
+    #[test]
+    fn test_toggle_mod_has_prepatcher_recursive() {
+        let mut ctx = TestContext::new();
+        let mut local_mod = ctx.install_test_zip("Bwc9876.TimeSaver.zip", true);
+        local_mod.manifest.patcher = Some("SomePatcher.dll".to_string());
+        *ctx.local_db
+            .mods
+            .get_mut(&String::from("Bwc9876.TimeSaver"))
+            .unwrap() = UnsafeLocalMod::Valid(local_mod);
+        let mut local_mod_2 = ctx.install_test_zip("Bwc9876.SaveEditor.zip", false);
+        local_mod_2.manifest.dependencies = Some(vec!["Bwc9876.TimeSaver".to_string()]);
+        local_mod_2.manifest.patcher = Some("SomePatcher.dll".to_string());
+        ctx.insert_test_mod(&local_mod_2);
+        let show_warnings = toggle_mod("Bwc9876.SaveEditor", &ctx.local_db, false, true).unwrap();
+        ctx.fetch_local_db();
+        assert!(show_warnings.contains(&"Bwc9876.TimeSaver".to_string()));
+        assert!(show_warnings.contains(&"Bwc9876.SaveEditor".to_string()));
+        let show_warnings = toggle_mod("Bwc9876.SaveEditor", &ctx.local_db, true, true).unwrap();
+        assert!(show_warnings.is_empty());
+        ctx.fetch_local_db();
     }
 }

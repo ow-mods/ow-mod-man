@@ -1,5 +1,5 @@
 import { commands, hooks } from "@commands";
-import { memo, useEffect, useMemo, useState } from "react";
+import { memo, useEffect, useMemo } from "react";
 import ModsPage from "../ModsPage";
 import RemoteModRow from "./RemoteModRow";
 import { Button } from "@mui/material";
@@ -8,7 +8,14 @@ import { PublicRounded } from "@mui/icons-material";
 import { shell } from "@tauri-apps/api";
 import { useErrorBoundary } from "react-error-boundary";
 
-const RemoteModsPage = memo(function RemoteModsPage() {
+export interface RemoteModsPageProps {
+    tags: string[];
+    filter: string;
+    onFilterChanged: (newVal: string) => void;
+    onTagsChanged: (newVal: string[]) => void;
+}
+
+const RemoteModsPage = memo(function RemoteModsPage(props: RemoteModsPageProps) {
     const getTranslation = useGetTranslation();
 
     const errorBound = useErrorBoundary();
@@ -19,9 +26,10 @@ const RemoteModsPage = memo(function RemoteModsPage() {
         });
     }, [errorBound, getTranslation]);
 
-    const [filter, setFilter] = useState("");
-
-    const [status, remoteMods] = hooks.getRemoteMods("remoteRefresh", { filter });
+    const [status, remoteMods] = hooks.getRemoteMods("remoteRefresh", {
+        filter: props.filter,
+        tags: props.tags
+    });
 
     const modsWebsiteButton = useMemo(
         () => (
@@ -40,10 +48,12 @@ const RemoteModsPage = memo(function RemoteModsPage() {
             actionsSize={100}
             noModsText={getTranslation("NO_REMOTE_MODS")}
             isLoading={status === "Loading" && remoteMods === null}
-            filter={filter}
-            onFilterChange={setFilter}
+            filter={props.filter}
+            onFilterChange={props.onFilterChanged}
             uniqueNames={remoteMods ?? []}
             renderRow={(uniqueName) => <RemoteModRow uniqueName={uniqueName} />}
+            selectedTags={props.tags}
+            onSelectedTagsChanged={props.onTagsChanged}
         >
             {modsWebsiteButton}
         </ModsPage>

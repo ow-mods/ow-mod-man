@@ -10,6 +10,11 @@ use crate::{config::Config, constants::OWML_EXE_NAME, owml::OWMLConfig};
 /// If no port is given, the output of OWML.Launcher.exe will be written to stdout.  
 /// You can set `open_in_new_window` to `true` to make the command open in a new cmd window (**Windows Only**).  
 /// On Linux there's no reliable way to open a new terminal window, so it's recommended you disallow that arg to be false on linux.  
+///
+/// ## Errors
+///
+/// If we can't launch the game/OWML, if we can't start a log server, or if we can't read the config.
+///
 pub async fn launch_game(
     config: &Config,
     open_in_new_window: bool,

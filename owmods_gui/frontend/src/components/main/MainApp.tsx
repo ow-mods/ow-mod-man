@@ -1,4 +1,4 @@
-import { Box, useTheme } from "@mui/material";
+import { Box } from "@mui/material";
 import TopBar from "./top-bar/TopBar";
 import { ReactNode, Suspense, lazy, memo, useCallback, useEffect, useState } from "react";
 import { TabContext } from "@mui/lab";
@@ -24,10 +24,8 @@ const Pane = memo(function Pane(props: {
     resetEvent?: Event["name"];
     children: ReactNode;
 }) {
-    const theme = useTheme();
-
     return (
-        <Box marginBottom={theme.spacing(8)} width="100%" display={props.show ? undefined : "none"}>
+        <Box width="100%" minHeight="0" display={props.show ? "flex" : "none"}>
             <StyledErrorBoundary
                 resetEvent={props.resetEvent}
                 errorKey={props.errKey ?? "PAGE_ERROR"}
@@ -44,6 +42,9 @@ const MainApp = () => {
     const [status, guiConfig] = hooks.getGuiConfig("guiConfigReload");
 
     const errorBound = useErrorBoundary();
+
+    const [filter, setFilter] = useState("");
+    const [tags, setTags] = useState<string[]>([]);
 
     useEffect(() => {
         commands.initialSetup({}, false).catch((e) => errorBound.showBoundary(e));
@@ -75,9 +76,14 @@ const MainApp = () => {
                 <TopBar />
                 <AppAlert />
                 <AppTabs onChange={onTabChange} />
-                <Box display="flex" flexGrow={1} minHeight="0">
+                <Box display="flex" flexGrow={1}>
                     <Pane resetEvent="localRefresh" show={selectedTab === "local"}>
-                        <LocalModsPage />
+                        <LocalModsPage
+                            filter={filter}
+                            onFilterChanged={setFilter}
+                            tags={tags}
+                            onTagsChanged={setTags}
+                        />
                     </Pane>
                     <Pane
                         resetEvent="remoteRefresh"
@@ -85,12 +91,17 @@ const MainApp = () => {
                         show={selectedTab === "remote"}
                     >
                         <Suspense>
-                            <RemoteModsPage />
+                            <RemoteModsPage
+                                filter={filter}
+                                onFilterChanged={setFilter}
+                                tags={tags}
+                                onTagsChanged={setTags}
+                            />
                         </Suspense>
                     </Pane>
                     <Pane show={selectedTab === "updates"}>
                         <Suspense>
-                            <UpdateModsPage />
+                            <UpdateModsPage filter={filter} onFilterChange={setFilter} />
                         </Suspense>
                     </Pane>
                 </Box>

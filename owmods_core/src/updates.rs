@@ -32,8 +32,8 @@ pub fn check_mod_needs_update<'a>(
     if let Some(remote_mod) = remote_mod {
         (
             version_compare::compare(&remote_mod.version, &local_mod.manifest.version)
-                .unwrap_or(Cmp::Eq)
-                == Cmp::Gt,
+                .map(|o| o == Cmp::Gt)
+                .unwrap_or_else(|_| local_mod.manifest.version != remote_mod.version),
             Some(remote_mod),
         )
     } else {
@@ -103,7 +103,7 @@ pub async fn update_all(
                     AnalyticsEventName::ModUpdate,
                     &updated_mod.manifest.unique_name,
                 )
-                .await?;
+                .await;
             }
         }
         Ok(true)
@@ -146,5 +146,12 @@ mod tests {
         let (new_mod, db) = setup("burger", "burger");
         let (needs_update, _) = check_mod_needs_update(&new_mod, &db);
         assert!(!needs_update);
+    }
+
+    #[test]
+    fn test_check_needs_update_invalid_mismatched_versions() {
+        let (new_mod, db) = setup("burger", "burger2.0");
+        let (needs_update, _) = check_mod_needs_update(&new_mod, &db);
+        assert!(needs_update);
     }
 }

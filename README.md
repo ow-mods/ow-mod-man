@@ -26,7 +26,12 @@ This is the monorepo for the new <a href="https://www.mobiusdigitalgames.com/out
 | **Linux**    | ✅              |
 | **Deck**     | ✅*             |
 
-\* The manager itself can only be launched in desktop mode, but mods will persist if you switch to game mode and launch the game itself.
+\* The manager itself can only be launched in desktop mode, but mods will persist if you switch to game mode and launch the game itself. Note that in order for OWML to be injected into the game you need to press "Launch Game" in the manager once.
+
+## Related Repos
+
+- [Flatpak Repo](https://github.com/flathub/com.outerwildsmods.owmods_gui)
+- [Nix Flake Repo](https://github.com/loco-choco/ow-mod-man-flake)
 
 ## Credits
 

@@ -75,6 +75,7 @@ impl Config {
     }
 
     /// Set that a specific mod's warning was shown.
+    /// (Doesn't save the config, you have to do that yourself)
     pub fn set_warning_shown(&mut self, unique_name: &str) {
         self.viewed_alerts.push(unique_name.to_string());
     }
@@ -98,7 +99,7 @@ impl Config {
     ///
     /// ## Returns
     ///
-    /// The newly created or loaded config.
+    /// The newly created or loaded [Config].
     ///
     /// ## Errors
     ///
@@ -138,7 +139,7 @@ impl Config {
 #[cfg(test)]
 mod tests {
 
-    use crate::test_utils::make_test_dir;
+    use crate::test_utils::TestContext;
 
     use super::*;
 
@@ -151,58 +152,90 @@ mod tests {
 
     #[test]
     pub fn test_config_save() {
-        let dir = make_test_dir();
-        let path = dir.path().join("settings.json");
-        let mut config = Config::default(Some(path.clone())).unwrap();
-        config.database_url = "test".to_string();
-        config.save().unwrap();
+        let mut ctx = TestContext::new();
+        let path = ctx.temp_dir.path().join("settings.json");
+        ctx.config.database_url = "test".to_string();
+        ctx.config.save().unwrap();
         assert!(path.is_file());
         let new_config = Config::read(&path).unwrap();
-        assert_eq!(config.database_url, new_config.database_url);
-        dir.close().unwrap();
+        assert_eq!(ctx.config.database_url, new_config.database_url);
     }
 
     #[test]
     pub fn test_config_get_new() {
-        let dir = make_test_dir();
-        let path = dir.path().join("settings.json");
-        let config = Config::get(Some(path.clone())).unwrap();
+        let mut ctx = TestContext::new();
+        let path = ctx.temp_dir.path().join("settings.json");
+        ctx.config = Config::get(Some(path.clone())).unwrap();
         assert!(path.is_file());
-        assert_eq!(config.database_url, DEFAULT_DB_URL.to_string());
-        dir.close().unwrap();
+        assert_eq!(ctx.config.database_url, DEFAULT_DB_URL.to_string());
     }
 
     #[test]
     pub fn test_config_get_existing() {
-        let dir = make_test_dir();
-        let path = dir.path().join("settings.json");
-        let mut config = Config::default(Some(path.clone())).unwrap();
-        config.owml_path = "/different/path".to_string();
-        config.save().unwrap();
+        let mut ctx = TestContext::new();
+        let path = ctx.temp_dir.path().join("settings.json");
+        ctx.config.owml_path = "/different/path".to_string();
+        ctx.config.save().unwrap();
         let config = Config::get(Some(path)).unwrap();
         assert_eq!(config.owml_path, "/different/path");
-        dir.close().unwrap();
     }
 
     #[test]
     pub fn test_config_migrate_alert() {
-        let dir = make_test_dir();
-        let path = dir.path().join("settings.json");
-        let mut config = Config::default(Some(path.clone())).unwrap();
-        config.alert_url = OLD_ALERT_URL.to_string();
-        config.save().unwrap();
+        let mut ctx = TestContext::new();
+        let path = ctx.temp_dir.path().join("settings.json");
+        ctx.config.alert_url = OLD_ALERT_URL.to_string();
+        ctx.config.save().unwrap();
         let config = Config::get(Some(path)).unwrap();
         assert_eq!(config.alert_url, DEFAULT_ALERT_URL);
-        dir.close().unwrap();
     }
 
-    #[test]
-    pub fn test_check_owml_no_folder() {
-        let dir = make_test_dir();
-        let path = dir.path().join("settings.json");
-        let mut config = Config::default(Some(path)).unwrap();
-        config.owml_path = "/different/path".to_string();
-        assert!(!config.check_owml());
-        dir.close().unwrap();
+    mod owml_check_tests {
+
+        use std::fs::create_dir_all;
+
+        use super::*;
+
+        fn create_owml_file(ctx: &TestContext, name: &str) {
+            std::fs::write(ctx.owml_dir.join(name), "").unwrap();
+        }
+
+        fn assert_owml_invalid_after(f: impl FnOnce(&PathBuf)) {
+            let ctx = TestContext::new();
+            create_dir_all(&ctx.owml_dir).unwrap();
+            create_owml_file(&ctx, OWML_DEFAULT_CONFIG_NAME);
+            create_owml_file(&ctx, OWML_MANIFEST_NAME);
+            create_owml_file(&ctx, OWML_EXE_NAME);
+            f(&ctx.owml_dir);
+            assert!(!ctx.config.check_owml());
+        }
+
+        #[test]
+        pub fn test_check_owml_no_folder() {
+            let mut ctx = TestContext::new();
+            ctx.config.owml_path = "/different/path".to_string();
+            assert!(!ctx.config.check_owml());
+        }
+
+        #[test]
+        pub fn test_check_owml_no_exe() {
+            assert_owml_invalid_after(|dir| {
+                std::fs::remove_file(dir.join(OWML_EXE_NAME)).unwrap();
+            });
+        }
+
+        #[test]
+        pub fn test_check_owml_no_manifest() {
+            assert_owml_invalid_after(|dir| {
+                std::fs::remove_file(dir.join(OWML_MANIFEST_NAME)).unwrap();
+            });
+        }
+
+        #[test]
+        pub fn test_check_owml_no_default_config() {
+            assert_owml_invalid_after(|dir| {
+                std::fs::remove_file(dir.join(OWML_DEFAULT_CONFIG_NAME)).unwrap();
+            });
+        }
     }
 }

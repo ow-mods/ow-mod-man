@@ -1,11 +1,18 @@
-use rust_fuzzy_search::fuzzy_compare;
-
-const SEARCH_THRESHOLD: f32 = 0.08;
-
+/// Represents an object that can be searched
 pub trait Searchable {
+    /// Get the values that can be searched
+    /// Each value will be weighted based on its position in the list (first is most important)
     fn get_values(&self) -> Vec<String>;
 }
 
+/// Search a list of [Searchable] for a string
+/// This will return a list of the items that match the search, sorted by relevance
+/// Relevance is determined like so:
+/// - If the search is an exact match for a value, that value will be weighted 2x
+/// - If the search is contained in a value, that value will be weighted 1x
+/// - If the search is not contained in a value, that value will be weighted 0x
+/// The score is then also weighted by the position of the value in the list the [Searchable] (first is most important)
+/// These scores are then summed and the list is sorted by the total score of each item
 pub fn search_list<'a, T>(source_list: Vec<&'a T>, filter: &str) -> Vec<&'a T>
 where
     T: Searchable,
@@ -20,17 +27,18 @@ where
                 .enumerate()
                 .map(|(index, field)| {
                     let weight = 1.0 - (index as f32 / 10.0 * 2.0);
-                    let mut score = fuzzy_compare(field, &filter);
-                    if field == &filter {
-                        score += 10.0;
+                    let mut score = if field == &filter {
+                        2.0
                     } else if field.contains(&filter) {
-                        score += 1.0;
-                    }
+                        1.0
+                    } else {
+                        0.0
+                    };
                     score *= weight;
                     score
                 })
                 .sum();
-            if final_score >= SEARCH_THRESHOLD {
+            if final_score != 0.0 {
                 Some((m, final_score))
             } else {
                 None
@@ -39,4 +47,56 @@ where
         .collect();
     scores.sort_by(|(_, a), (_, b)| a.total_cmp(b).reverse());
     scores.iter().map(|(m, _)| *m).collect()
+}
+
+#[cfg(test)]
+pub mod tests {
+
+    use super::*;
+
+    struct TestStruct {
+        name: String,
+        description: String,
+    }
+
+    impl Searchable for TestStruct {
+        fn get_values(&self) -> Vec<String> {
+            vec![self.name.clone(), self.description.clone()]
+        }
+    }
+
+    fn make_test_structs() -> Vec<TestStruct> {
+        vec![
+            TestStruct {
+                name: "Test".to_string(),
+                description: "This is a test".to_string(),
+            },
+            TestStruct {
+                name: "Test2".to_string(),
+                description: "This is a test2".to_string(),
+            },
+            TestStruct {
+                name: "Test3".to_string(),
+                description: "This is a test3".to_string(),
+            },
+        ]
+    }
+
+    #[test]
+    fn test_search() {
+        let test_structs = make_test_structs();
+        let results = search_list(test_structs.iter().collect(), "test");
+        assert_eq!(results.len(), 3);
+        assert_eq!(results[0].name, "Test".to_string());
+        assert_eq!(results[1].name, "Test2".to_string());
+        assert_eq!(results[2].name, "Test3".to_string());
+    }
+
+    #[test]
+    fn test_search_exact() {
+        let test_structs = make_test_structs();
+        let results = search_list(test_structs.iter().collect(), "test2");
+        assert_eq!(results.len(), 1);
+        assert_eq!(results[0].name, "Test2".to_string());
+    }
 }

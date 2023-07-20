@@ -69,15 +69,19 @@ const InstallFrom = memo(function InstallFrom({ onClick }: ModalProps) {
                 if (valid) {
                     const sourceType = getSourceTypeFromProtocol(protocolPayload.installType);
                     if (sourceType !== null) {
-                        setSource(sourceType);
-                        setTarget(protocolPayload.payload);
-                        if (
-                            protocolPayload.installType === "installPreRelease" ||
-                            protocolPayload.installType === "installMod"
-                        ) {
-                            setPrerelease(protocolPayload.installType === "installPreRelease");
+                        if (sourceType === "UNIQUE_NAME") {
+                            commands.installMod({ uniqueName: protocolPayload.payload });
+                        } else {
+                            setSource(sourceType);
+                            setTarget(protocolPayload.payload);
+                            if (
+                                protocolPayload.installType === "installPreRelease" ||
+                                protocolPayload.installType === "installMod"
+                            ) {
+                                setPrerelease(protocolPayload.installType === "installPreRelease");
+                            }
+                            setOpen(true);
                         }
-                        setOpen(true);
                         getCurrent().setFocus().catch(simpleOnError);
                     }
                 }

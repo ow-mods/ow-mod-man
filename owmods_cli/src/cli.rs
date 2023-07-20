@@ -54,11 +54,17 @@ pub enum Commands {
     List {
         #[command(subcommand)]
         mod_type: Option<ModListTypes>,
+        #[arg(global = true, help = "Filter by a specific tags", long="tag", short='t', num_args(0..), value_hint = ValueHint::Other)]
+        tag: Option<Vec<String>>,
     },
+    #[command(about = "Get the tags you can use in `owmods search` or `owmods ls`")]
+    Tags,
     #[command(about = "Search the remote database for mods")]
     Search {
         #[arg(help = "The search query to use in the search", value_hint = ValueHint::Other)]
         query: String,
+        #[arg(help = "Filter by a specific tags", long="tag", short='t', num_args(0..), value_hint = ValueHint::Other)]
+        tag: Option<Vec<String>>,
     },
     #[command(about = "View info about a specific mod")]
     Info {

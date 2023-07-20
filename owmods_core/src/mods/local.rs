@@ -1,7 +1,7 @@
-use std::{collections::HashMap, path::PathBuf};
+use std::path::PathBuf;
 
 use serde::{Deserialize, Serialize};
-use serde_json::Value;
+use serde_json::{Map, Value};
 use typeshare::typeshare;
 
 use crate::{search::Searchable, validate::ModValidationError};
@@ -97,6 +97,7 @@ impl UnsafeLocalMod {
     }
 
     /// Gets the path for a mod
+    /// This is the same for [UnsafeLocalMod::Valid] and [UnsafeLocalMod::Invalid]
     pub fn get_path(&self) -> &str {
         match self {
             Self::Invalid(m) => &m.mod_path,
@@ -180,5 +181,5 @@ pub struct ModWarning {
 pub struct ModStubConfig {
     pub enabled: bool,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub settings: Option<HashMap<String, Value>>,
+    pub settings: Option<Map<String, Value>>,
 }

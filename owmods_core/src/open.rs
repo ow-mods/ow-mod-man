@@ -44,7 +44,7 @@ pub fn open_shortcut(identifier: &str, conf: &Config, local_db: &LocalDatabase) 
 ///
 /// ## Errors
 ///
-/// If the unique name provided is not an installed mod
+/// If the unique name provided is not an installed mod or we can't open the browser.
 ///
 pub fn open_readme(unique_name: &str, db: &RemoteDatabase) -> Result<()> {
     let remote_mod = db

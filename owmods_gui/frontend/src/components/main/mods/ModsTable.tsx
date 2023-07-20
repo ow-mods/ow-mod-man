@@ -21,15 +21,7 @@ export interface ModsTableProps {
 }
 
 const ScrollerComp = forwardRef<HTMLDivElement>(function TScroller(props, ref) {
-    const theme = useTheme();
-    return (
-        <TableContainer
-            sx={{ marginTop: theme.spacing(2) }}
-            component={Paper}
-            {...props}
-            ref={ref}
-        />
-    );
+    return <TableContainer sx={{ flexGrow: 1 }} component={Paper} {...props} ref={ref} />;
 });
 const TableComp = (props: TableProps) => (
     <Table {...props} style={{ borderCollapse: "separate", tableLayout: "fixed" }} />

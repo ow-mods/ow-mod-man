@@ -34,8 +34,7 @@ jobs:
         env:
           ANALYTICS_API_KEY: ${{ secrets.ANALYTICS_API_KEY }}
 
-      - name: Get Version (Windows)
-        if: matrix.platform == 'windows-latest'
+      - name: Get Version
         id: get_version
         run: echo "version=$(cargo run --release -q -p owmods_cli version)" >> $GITHUB_OUTPUT
         shell: bash

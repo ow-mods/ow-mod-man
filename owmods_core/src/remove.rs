@@ -16,7 +16,8 @@ use crate::{
 ///
 /// ## Returns
 ///
-/// A `Vec<String>` of mods that have pre-patchers and need to have a warning shown to the user
+/// A `Vec<String>` of mods that have pre-patchers
+/// and thus **should have a warning shown to the user telling them to check the mod's README for instructions**
 ///
 /// ## Errors
 ///
@@ -55,7 +56,7 @@ pub fn remove_mod(
 ///
 /// ## Errors
 ///
-/// If we can't delete the folder
+/// If we can't delete the folder the mod was in.
 ///
 pub fn remove_failed_mod(failed_mod: &FailedMod) -> Result<()> {
     remove_dir_all(PathBuf::from(&failed_mod.mod_path))?;
@@ -63,6 +64,13 @@ pub fn remove_failed_mod(failed_mod: &FailedMod) -> Result<()> {
 }
 
 /// Removes all files not specified in `pathsToPreserve`
+///
+/// See [get_paths_to_preserve] to see implicit paths to preserve
+///
+/// ## Errors
+///
+/// If we can't delete the files
+///
 pub fn remove_old_mod_files(local_mod: &LocalMod) -> Result<()> {
     let glob_matches = glob(
         PathBuf::from(&local_mod.mod_path)

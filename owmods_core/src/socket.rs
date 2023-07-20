@@ -89,7 +89,7 @@ impl LogServer {
     ///
     /// ## Returns
     ///
-    /// A new log server that's bound to the given port, **but not ready to listen to logs**.
+    /// A new log server that's bound to the given port, **but not ready to listen to** logs.
     ///
     /// ## Errors
     ///
@@ -156,7 +156,7 @@ impl LogServer {
 
     // Loop that runs on start, listens for clients to connect
     // Makes a new client_loop for each client
-    pub async fn server_loop(
+    async fn server_loop(
         &self,
         tx: &LogServerSender,
         shutdown_sender: mpsc::Sender<()>,

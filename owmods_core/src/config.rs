@@ -75,6 +75,7 @@ impl Config {
     }
 
     /// Set that a specific mod's warning was shown.
+    /// (Doesn't save the config, you have to do that yourself)
     pub fn set_warning_shown(&mut self, unique_name: &str) {
         self.viewed_alerts.push(unique_name.to_string());
     }
@@ -98,7 +99,7 @@ impl Config {
     ///
     /// ## Returns
     ///
-    /// The newly created or loaded config.
+    /// The newly created or loaded [Config].
     ///
     /// ## Errors
     ///

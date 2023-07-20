@@ -97,6 +97,7 @@ impl UnsafeLocalMod {
     }
 
     /// Gets the path for a mod
+    /// This is the same for [UnsafeLocalMod::Valid] and [UnsafeLocalMod::Invalid]
     pub fn get_path(&self) -> &str {
         match self {
             Self::Invalid(m) => &m.mod_path,

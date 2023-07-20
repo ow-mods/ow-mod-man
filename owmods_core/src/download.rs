@@ -207,7 +207,7 @@ fn extract_mod_zip(
     }
 }
 
-/// Downloads and install OWML to the path specified in config.owml_path
+/// Downloads and installs OWML to the path specified in `config.owml_path`
 ///
 /// ## Errors
 ///
@@ -249,7 +249,7 @@ pub async fn download_and_install_owml(
 ///
 /// ## Returns
 ///
-/// The newly installed LocalMod
+/// The newly installed [LocalMod]
 ///
 /// ## Errors
 ///
@@ -320,7 +320,7 @@ pub fn install_mod_from_zip(
 ///
 /// ## Returns
 ///
-/// The newly installed local mod
+/// The newly installed [LocalMod]
 ///
 /// ## Errors
 ///
@@ -357,7 +357,7 @@ pub async fn install_mod_from_url(
 ///
 /// ## Errors
 ///
-/// If __any__ mod fails to install from the list
+/// If **any** mod fails to install from the list
 ///
 pub async fn install_mods_parallel(
     unique_names: Vec<String>,
@@ -396,7 +396,7 @@ pub async fn install_mods_parallel(
 ///
 /// - If you requested a prerelease and the mod doesn't have one.
 /// - If we can't install the target mod for any reason.
-/// - If we can't install __any__ dependencies for any reason.
+/// - If we can't install **any** dependencies for any reason.
 ///
 pub async fn install_mod_from_db(
     unique_name: &String,
@@ -406,7 +406,13 @@ pub async fn install_mod_from_db(
     recursive: bool,
     prerelease: bool,
 ) -> Result<()> {
-    let already_installed = local_db.get_mod(unique_name).is_some();
+    let existing_mod = local_db.get_mod(unique_name);
+
+    let already_installed = existing_mod.is_some();
+    let existing_version = existing_mod
+        .as_ref()
+        .map(|m| m.manifest.version.clone())
+        .unwrap_or_default();
 
     let remote_mod = remote_db
         .get_mod(unique_name)
@@ -489,7 +495,11 @@ pub async fn install_mod_from_db(
     let mod_event = if prerelease {
         AnalyticsEventName::ModPrereleaseInstall
     } else if already_installed {
-        AnalyticsEventName::ModReinstall
+        if existing_version == new_mod.manifest.version {
+            AnalyticsEventName::ModReinstall
+        } else {
+            AnalyticsEventName::ModUpdate
+        }
     } else {
         AnalyticsEventName::ModInstall
     };

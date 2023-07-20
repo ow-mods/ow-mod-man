@@ -1,7 +1,18 @@
+/// Represents an object that can be searched
 pub trait Searchable {
+    /// Get the values that can be searched
+    /// Each value will be weighted based on its position in the list (first is most important)
     fn get_values(&self) -> Vec<String>;
 }
 
+/// Search a list of [Searchable] for a string
+/// This will return a list of the items that match the search, sorted by relevance
+/// Relevance is determined like so:
+/// - If the search is an exact match for a value, that value will be weighted 2x
+/// - If the search is contained in a value, that value will be weighted 1x
+/// - If the search is not contained in a value, that value will be weighted 0x
+/// The score is then also weighted by the position of the value in the list the [Searchable] (first is most important)
+/// These scores are then summed and the list is sorted by the total score of each item
 pub fn search_list<'a, T>(source_list: Vec<&'a T>, filter: &str) -> Vec<&'a T>
 where
     T: Searchable,

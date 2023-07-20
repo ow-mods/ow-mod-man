@@ -7,6 +7,7 @@ use std::{
 
 use anyhow::anyhow;
 use log::error;
+use owmods_core::analytics::{send_analytics_event, AnalyticsEventName};
 use owmods_core::mods::local::LocalMod;
 use owmods_core::{
     alerts::{fetch_alert, Alert},
@@ -589,7 +590,8 @@ pub async fn update_all_mods(
     }
     drop(busy_mods);
     handle.typed_emit_all(&Event::ModBusy(())).ok();
-    install_mods_parallel(unique_names.clone(), &config, &remote_db, &local_db).await?;
+    let updated_mods =
+        install_mods_parallel(unique_names.clone(), &config, &remote_db, &local_db).await?;
     if owml_in_list {
         download_and_install_owml(
             &config,
@@ -603,6 +605,13 @@ pub async fn update_all_mods(
     let mut busy_mods = state.mods_in_progress.write().await;
     busy_mods.retain(|m| !unique_names.contains(m) && (!owml_in_list || m != OWML_UNIQUE_NAME));
     handle.typed_emit_all(&Event::ModBusy(())).ok();
+    for updated_mod in updated_mods {
+        send_analytics_event(
+            AnalyticsEventName::ModUpdate,
+            &updated_mod.manifest.unique_name,
+        )
+        .await;
+    }
     Ok(())
 }
 

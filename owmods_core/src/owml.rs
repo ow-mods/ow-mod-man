@@ -18,7 +18,7 @@ use crate::{
 #[typeshare]
 #[derive(Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
-#[allow(non_snake_case)] // Have to allow non_snake_case here because OWML's config uses incrementalGC, which isn't proper camelCase
+#[allow(non_snake_case)] // Have to allow non_snake_case here because OWML's config uses "incrementalGC", which isn't proper camelCase
 pub struct OWMLConfig {
     pub game_path: String,
     debug_mode: bool,
@@ -65,6 +65,12 @@ impl OWMLConfig {
         serialize_to_json(self, path, true)
     }
 
+    /// Get the default OWML config (OWML.DefaultConfig.json)
+    ///
+    /// ## Errors
+    ///
+    /// If we can't read the default config or can't get the user data dir. (Linux only)
+    ///
     #[cfg(not(windows))]
     pub fn default(config: &Config) -> Result<OWMLConfig> {
         use anyhow::anyhow;
@@ -84,6 +90,12 @@ impl OWMLConfig {
         Ok(conf)
     }
 
+    /// Get the default OWML config (OWML.DefaultConfig.json)
+    ///
+    /// ## Errors
+    ///
+    /// If we can't read the default config or can't get the user data dir. (Linux only)
+    ///
     #[cfg(windows)]
     pub fn default(config: &Config) -> Result<OWMLConfig> {
         deserialize_from_json(&Path::new(&config.owml_path).join(OWML_DEFAULT_CONFIG_NAME))

@@ -76,10 +76,8 @@ fn check_mod_conflicts(local_mod: &LocalMod, db: &LocalDatabase) -> Vec<ModValid
     errors
 }
 
-/// Check a local mod for issues such as:
-/// - Missing/Disabled Dependencies
-/// - Conflicting Mods
-/// - Missing DLL File
+/// Check a local mod for issues described in [ModValidationError]
+/// (except for [ModValidationError::InvalidManifest], [ModValidationError::DuplicateMod], and [ModValidationError::Outdated])
 ///
 /// ## Returns
 ///

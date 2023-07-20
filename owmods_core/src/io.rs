@@ -26,9 +26,9 @@ pub fn export_mods(db: &LocalDatabase) -> Result<String> {
     Ok(result)
 }
 
-/// Import mods from a JSON file that contains an array or unique name (like the one exported by `export_mods`).
+/// Import mods from a JSON file that contains an array or unique name (like the one exported by [export_mods]).
 /// Mods that aren't in the remote database will be ignored and will only log a warning.
-/// Optionally this can also disable all current mods not found in this list as well.
+/// Optionally, this can also disable all current mods not found in this list.
 ///
 /// ## Errors
 ///

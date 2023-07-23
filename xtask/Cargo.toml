@@ -5,7 +5,7 @@ edition = "2021"
 
 [dependencies]
 anyhow = "1.0.70"
-clap = { version = "4.2.2", features = ["derive", "string"] }
+clap = { version = "4.3.19", features = ["derive", "string"] }
 clap_complete = "4.2.0"
 clap_mangen = "0.2.10"
 regex = "1.7.3"

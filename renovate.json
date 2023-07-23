@@ -1,5 +1,11 @@
 {
     "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+    "baseBranches": [
+        "dev"
+    ],
+    "schedule": [
+        "before 4am on monday"
+    ],
     "extends": [
         "config:base"
     ],
@@ -31,7 +37,9 @@
             "commitMessagePrefix": "[CHORE]",
             "lockFileMaintenance": {
                 "enabled": true
-            }
+            },
+            "automerge": true,
+            "automergeType": "branch"
         },
         {
             "enabled": true,
@@ -50,7 +58,9 @@
             "commitMessagePrefix": "[CHORE]",
             "lockFileMaintenance": {
                 "enabled": true
-            }
+            },
+            "automerge": true,
+            "automergeType": "branch"
         },
         {
             "enabled": true,
@@ -69,7 +79,9 @@
             "commitMessagePrefix": "[CHORE]",
             "lockFileMaintenance": {
                 "enabled": true
-            }
+            },
+            "automerge": true,
+            "automergeType": "branch"
         },
         {
             "enabled": true,
@@ -88,7 +100,9 @@
             "commitMessagePrefix": "[CHORE]",
             "lockFileMaintenance": {
                 "enabled": true
-            }
+            },
+            "automerge": true,
+            "automergeType": "branch"
         }
     ]
 }

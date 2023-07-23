@@ -8,7 +8,7 @@ Ex: `cargo add tokio` should become `cargo add clap -p owmods_core`.
 
 ## Typeshare
 
-Upon editing any structs marked with `#[typeshare]`, you'll need to regenerate TypeScript bindings for the GUI. See the [typeshare section](https://github.com/Bwc9876/ow-mod-man/blob/main/owmods_gui/CONTRIBUTING.md#Typeshare) of the GUI contributing file for more info.
+Upon editing any structs marked with `#[typeshare]`, you'll need to regenerate TypeScript bindings for the GUI. See the [typeshare section](https://github.com/ow-mods/ow-mod-man/blob/main/owmods_gui/CONTRIBUTING.md#Typeshare) of the GUI contributing file for more info.
 
 ## Tests
 

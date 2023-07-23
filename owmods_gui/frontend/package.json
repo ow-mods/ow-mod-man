@@ -13,6 +13,7 @@
         "lint": "tsc --noEmit && eslint --cache . --fix",
         "lint-dry": "tsc --noEmit && eslint .",
         "prettify": "prettier --write . --ignore-unknown",
+        "format": "pnpm prettify",
         "prettier-check": "prettier --check . --ignore-unknown",
         "preinstall": "npx only-allow pnpm"
     },

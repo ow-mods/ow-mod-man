@@ -1,6 +1,6 @@
 #![doc = include_str!("../README.md")]
 #![doc(
-    html_logo_url = "https://github.com/Bwc9876/ow-mod-man/blob/main/.github/assets/logo-core.png?raw=true"
+    html_logo_url = "https://github.com/ow-mods/ow-mod-man/blob/main/.github/assets/logo-core.png?raw=true"
 )]
 
 /// Fetch database alerts and get mod warnings.

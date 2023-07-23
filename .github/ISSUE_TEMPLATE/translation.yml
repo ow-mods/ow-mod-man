@@ -7,7 +7,7 @@ body:
     attributes:
       value: |
         Thank you for creating a translation for the manager!
-        To get started, check out [TRANSLATIONS.md](https://github.com/Bwc9876/ow-mod-man/blob/main/owmods_gui/TRANSLATIONS.md)
+        To get started, check out [TRANSLATIONS.md](https://github.com/ow-mods/ow-mod-man/blob/main/owmods_gui/TRANSLATIONS.md)
   - type: input
     id: language
     attributes:

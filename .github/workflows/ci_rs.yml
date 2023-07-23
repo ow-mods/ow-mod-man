@@ -1,0 +1,67 @@
+name: Continuous Integration (Rust)
+
+on:
+  push:
+    paths:
+      - .github/workflows/ci_rs.yml
+      - owmods_gui/backend/**
+      - owmods_{cli,core}/src/**
+      - owmods_{cli,core}/Cargo.toml
+      - ./Cargo.toml
+      - ./Cargo.lock
+    branches:
+      - main
+      - renovate/{cli,gui,core}
+  pull_request:
+    paths:
+      - .github/workflows/ci_rs.yml
+      - owmods_gui/backend/**
+      - owmods_cli/**
+      - owmods_core/**
+      - ./Cargo.toml
+      - ./Cargo.lock
+    branches:
+      - main
+      - dev
+
+jobs:
+  rs:
+    name: Check Rust
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Install Build Dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libgtk-3-dev libwebkit2gtk-4.0-dev librsvg2-dev
+
+      - name: Setup Rust Toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          components: clippy, rustfmt
+
+      - name: Check Formatting
+        uses: actions-rs/cargo@v1
+        with:
+          command: fmt
+          args: --check
+
+      - name: Setup Rust Cache
+        uses: Swatinem/rust-cache@v2
+
+      - name: Make Stub Dist Dir
+        run: mkdir owmods_gui/dist
+
+      - name: Check Clippy
+        uses: actions-rs/cargo@v1
+        with:
+          command: lint
+
+      - name: Run Tests (Core)
+        uses: actions-rs/cargo@v1
+        with:
+          command: test
+          args: -p owmods_core

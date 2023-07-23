@@ -3,22 +3,22 @@
 # Outer Wilds Mod Manager Core Package
 
 <p align="center">
-<a href="https://github.com/Bwc9876/ow-mod-man"><img src="https://raw.githubusercontent.com/Bwc9876/ow-mod-man/main/.github/assets/logo-core.png" alt="OWMM Logo"/></a><br/>
+<a href="https://github.com/ow-mods/ow-mod-man"><img src="https://raw.githubusercontent.com/ow-mods/ow-mod-man/main/.github/assets/logo-core.png" alt="OWMM Logo"/></a><br/>
 The core library for the Outer Wilds Mod Manager.<br/>
-<a href="https://github.com/Bwc9876/ow-mod-man/tree/main/owmods_core"><b>Core</b></a><b> |</b>
-<a href="https://github.com/Bwc9876/ow-mod-man/tree/main/owmods_cli">CLI</a><b> |</b>
-<a href="https://github.com/Bwc9876/ow-mod-man/tree/main/owmods_gui">GUI</a>
+<a href="https://github.com/ow-mods/ow-mod-man/tree/main/owmods_core"><b>Core</b></a><b> |</b>
+<a href="https://github.com/ow-mods/ow-mod-man/tree/main/owmods_cli">CLI</a><b> |</b>
+<a href="https://github.com/ow-mods/ow-mod-man/tree/main/owmods_gui">GUI</a>
 </p>
 
 <hr/>
 
 [![crates.io](https://img.shields.io/crates/v/owmods_core.svg)](https://crates.io/crates/owmods_core)
 [![Documentation](https://docs.rs/owmods_core/badge.svg)](https://docs.rs/owmods_core)
-[![GPL-3 licensed](https://img.shields.io/crates/l/owmods_core.svg)](https://github.com/Bwc9876/ow-mod-man/blob/main/LICENSE)
-[![CI](https://github.com/Bwc9876/ow-mod-man/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/Bwc9876/ow-mod-man/actions/workflows/ci.yml)
-[![Release](https://github.com/Bwc9876/ow-mod-man/actions/workflows/release_core.yml/badge.svg)](https://github.com/Bwc9876/ow-mod-man/actions/workflows/release_core.yml)
+[![GPL-3 licensed](https://img.shields.io/crates/l/owmods_core.svg)](https://github.com/ow-mods/ow-mod-man/blob/main/LICENSE)
+[![CI](https://github.com/ow-mods/ow-mod-man/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/ow-mods/ow-mod-man/actions/workflows/ci.yml)
+[![Release](https://github.com/ow-mods/ow-mod-man/actions/workflows/release_core.yml/badge.svg)](https://github.com/ow-mods/ow-mod-man/actions/workflows/release_core.yml)
 
-The core library for the [Outer Wilds Mod Manager](https://github.com/Bwc9876/ow-mod-man), this package is responsible for basically everything from fetching the db to downloading mods to validating local mods to launching the game.  
+The core library for the [Outer Wilds Mod Manager](https://github.com/ow-mods/ow-mod-man), this package is responsible for basically everything from fetching the db to downloading mods to validating local mods to launching the game.  
 
 ## Usage
 
@@ -38,4 +38,4 @@ You can change the OWML path by simply passing a different path to `OWMLConfig::
 
 ## Building
 
-To build this package locally clone the repo `git clone https://github.com/Bwc9876/ow-mod-man` and run `cargo build -p owmods_core`
+To build this package locally clone the repo `git clone https://github.com/ow-mods/ow-mod-man` and run `cargo build -p owmods_core`

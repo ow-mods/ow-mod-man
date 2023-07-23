@@ -1,0 +1,108 @@
+{
+    "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+    "baseBranches": [
+        "dev"
+    ],
+    "schedule": [
+        "before 4am on monday"
+    ],
+    "extends": [
+        "config:base"
+    ],
+    "labels": [
+        "dependencies"
+    ],
+    "cargo": {
+        "enabled": true
+    },
+    "packageRules": [
+        {
+            "matchPackagePatterns": "*",
+            "enabled": false
+        },
+        {
+            "enabled": true,
+            "paths": [
+                "owmods_core/**"
+            ],
+            "labels": [
+                "core",
+                "dependencies"
+            ],
+            "matchManagers": [
+                "cargo"
+            ],
+            "groupName": "Core",
+            "groupSlug": "core",
+            "commitMessagePrefix": "[CHORE]",
+            "lockFileMaintenance": {
+                "enabled": true
+            },
+            "automerge": true,
+            "automergeType": "branch"
+        },
+        {
+            "enabled": true,
+            "paths": [
+                "owmods_cli/**"
+            ],
+            "labels": [
+                "cli",
+                "dependencies"
+            ],
+            "matchManagers": [
+                "cargo"
+            ],
+            "groupName": "CLI",
+            "groupSlug": "cli",
+            "commitMessagePrefix": "[CHORE]",
+            "lockFileMaintenance": {
+                "enabled": true
+            },
+            "automerge": true,
+            "automergeType": "branch"
+        },
+        {
+            "enabled": true,
+            "paths": [
+                "owmods_gui/backend/**"
+            ],
+            "labels": [
+                "gui",
+                "dependencies"
+            ],
+            "matchManagers": [
+                "cargo"
+            ],
+            "groupName": "GUI",
+            "groupSlug": "gui",
+            "commitMessagePrefix": "[CHORE]",
+            "lockFileMaintenance": {
+                "enabled": true
+            },
+            "automerge": true,
+            "automergeType": "branch"
+        },
+        {
+            "enabled": true,
+            "paths": [
+                "owmods_gui/frontend/**"
+            ],
+            "matchManagers": [
+                "npm"
+            ],
+            "labels": [
+                "gui",
+                "dependencies"
+            ],
+            "groupName": "GUI Frontend",
+            "groupSlug": "js",
+            "commitMessagePrefix": "[CHORE]",
+            "lockFileMaintenance": {
+                "enabled": true
+            },
+            "automerge": true,
+            "automergeType": "branch"
+        }
+    ]
+}

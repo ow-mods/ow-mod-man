@@ -5,13 +5,10 @@ on:
     paths:
       - .github/workflows/ci_rs.yml
       - owmods_gui/backend/**
-      - owmods_cli/**
-      - owmods_core/**
+      - owmods_{cli,core}/src/**
+      - owmods_{cli,core}/Cargo.toml
       - ./Cargo.toml
       - ./Cargo.lock
-    paths-ignore:
-      - owmods_cli/*.md
-      - owmods_core/*.md
     branches:
       - main
       - renovate/{cli,gui,core}
@@ -23,9 +20,6 @@ on:
       - owmods_core/**
       - ./Cargo.toml
       - ./Cargo.lock
-    paths-ignore:
-      - owmods_cli/*.md
-      - owmods_core/*.md
     branches:
       - main
       - dev

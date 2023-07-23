@@ -1,6 +1,45 @@
 {
-  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-  "extends": [
-    "config:base"
-  ]
+    "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+    "extends": [
+        "config:base"
+    ],
+    "labels": [
+        "dependencies"
+    ],
+    "cargo": {
+        "enabled": true
+    },
+    "packageRules": [
+        {
+            "matchPackagePatterns": "*",
+            "enabled": false
+        },
+        {
+            "enabled": true,
+            "matchManagers": [
+                "cargo"
+            ],
+            "groupName": "Rust",
+            "groupSlug": "rust",
+            "commitMessagePrefix": "[CHORE]",
+            "lockFileMaintenance": {
+                "enabled": true
+            }
+        },
+        {
+            "enabled": true,
+            "paths": [
+                "owmods_gui/frontend/**"
+            ],
+            "matchManagers": [
+                "npm"
+            ],
+            "groupName": "GUI Frontend",
+            "groupSlug": "js",
+            "commitMessagePrefix": "[CHORE]",
+            "lockFileMaintenance": {
+                "enabled": true
+            }
+        }
+    ]
 }

@@ -16,11 +16,50 @@
         },
         {
             "enabled": true,
+            "paths": "owmods_core/**",
+            "labels": [
+                "core",
+                "dependencies"
+            ],
             "matchManagers": [
                 "cargo"
             ],
-            "groupName": "Rust",
-            "groupSlug": "rust",
+            "groupName": "Core",
+            "groupSlug": "core",
+            "commitMessagePrefix": "[CHORE]",
+            "lockFileMaintenance": {
+                "enabled": true
+            }
+        },
+        {
+            "enabled": true,
+            "paths": "owmods_cli/**",
+            "labels": [
+                "cli",
+                "dependencies"
+            ],
+            "matchManagers": [
+                "cargo"
+            ],
+            "groupName": "CLI",
+            "groupSlug": "cli",
+            "commitMessagePrefix": "[CHORE]",
+            "lockFileMaintenance": {
+                "enabled": true
+            }
+        },
+        {
+            "enabled": true,
+            "paths": "owmods_gui/backend/**",
+            "labels": [
+                "gui",
+                "dependencies"
+            ],
+            "matchManagers": [
+                "cargo"
+            ],
+            "groupName": "GUI",
+            "groupSlug": "gui",
             "commitMessagePrefix": "[CHORE]",
             "lockFileMaintenance": {
                 "enabled": true
@@ -33,6 +72,10 @@
             ],
             "matchManagers": [
                 "npm"
+            ],
+            "labels": [
+                "gui",
+                "dependencies"
             ],
             "groupName": "GUI Frontend",
             "groupSlug": "js",

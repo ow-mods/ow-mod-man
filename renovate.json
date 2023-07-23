@@ -91,10 +91,7 @@
             ],
             "groupName": "GUI Frontend",
             "groupSlug": "js",
-            "commitMessagePrefix": "[CHORE]",
-            "lockFileMaintenance": {
-                "enabled": true
-            }
+            "commitMessagePrefix": "[CHORE]"
         }
     ]
 }

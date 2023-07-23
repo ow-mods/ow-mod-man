@@ -16,7 +16,9 @@
         },
         {
             "enabled": true,
-            "paths": "owmods_core/**",
+            "paths": [
+                "owmods_core/**"
+            ],
             "labels": [
                 "core",
                 "dependencies"
@@ -33,7 +35,9 @@
         },
         {
             "enabled": true,
-            "paths": "owmods_cli/**",
+            "paths": [
+                "owmods_cli/**"
+            ],
             "labels": [
                 "cli",
                 "dependencies"
@@ -50,7 +54,9 @@
         },
         {
             "enabled": true,
-            "paths": "owmods_gui/backend/**",
+            "paths": [
+                "owmods_gui/backend/**"
+            ],
             "labels": [
                 "gui",
                 "dependencies"

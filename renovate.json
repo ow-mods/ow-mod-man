@@ -4,7 +4,7 @@
         "dev"
     ],
     "schedule": [
-        "before 4am on monday"
+        "at any time"
     ],
     "extends": [
         "config:base"
@@ -16,6 +16,15 @@
         "enabled": true
     },
     "packageRules": [
+        {
+            "matchUpdateTypes": [
+                "minor",
+                "patch",
+                "pin",
+                "digest"
+            ],
+            "automerge": true
+        },
         {
             "matchPackagePatterns": "*",
             "enabled": false

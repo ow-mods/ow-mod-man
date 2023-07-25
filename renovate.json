@@ -15,7 +15,6 @@
     "cargo": {
         "enabled": true
     },
-    "ignoreTests": true,
     "packageRules": [
         {
             "matchUpdateTypes": [
@@ -92,16 +91,14 @@
             "paths": [
                 "owmods_gui/frontend/**"
             ],
-            "matchManagers": [
-                "npm"
-            ],
             "labels": [
                 "gui",
                 "dependencies"
             ],
             "groupName": "GUI Frontend",
             "groupSlug": "js",
-            "commitMessagePrefix": "[CHORE]"
+            "commitMessagePrefix": "[CHORE]",
+            "rangeStrategy": "pin"
         }
     ]
 }

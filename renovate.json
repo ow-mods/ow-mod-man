@@ -15,6 +15,7 @@
     "cargo": {
         "enabled": true
     },
+    "ignoreTests": true,
     "packageRules": [
         {
             "matchUpdateTypes": [

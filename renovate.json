@@ -4,7 +4,7 @@
         "dev"
     ],
     "schedule": [
-        "before 4am on monday"
+        "at any time"
     ],
     "extends": [
         "config:base"
@@ -16,6 +16,15 @@
         "enabled": true
     },
     "packageRules": [
+        {
+            "matchUpdateTypes": [
+                "minor",
+                "patch",
+                "pin",
+                "digest"
+            ],
+            "automerge": true
+        },
         {
             "matchPackagePatterns": "*",
             "enabled": false
@@ -82,16 +91,14 @@
             "paths": [
                 "owmods_gui/frontend/**"
             ],
-            "matchManagers": [
-                "npm"
-            ],
             "labels": [
                 "gui",
                 "dependencies"
             ],
             "groupName": "GUI Frontend",
             "groupSlug": "js",
-            "commitMessagePrefix": "[CHORE]"
+            "commitMessagePrefix": "[CHORE]",
+            "rangeStrategy": "pin"
         }
     ]
 }

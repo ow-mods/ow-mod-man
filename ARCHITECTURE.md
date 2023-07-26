@@ -10,7 +10,6 @@
     - [CLI](#cli)
     - [GUI](#gui)
   - [Core Package](#core-package)
-    - [Examples](#examples)
     - [Common Paths](#common-paths)
     - [Mod Installation Behavior](#mod-installation-behavior)
       - [Note about certain mods on Linux](#note-about-certain-mods-on-linux)
@@ -26,6 +25,7 @@
     - [Mod Log Server Behavior](#mod-log-server-behavior)
     - [Alert Behavior](#alert-behavior)
     - [Analytics Behavior](#analytics-behavior)
+  - [GUI Package](#gui-package)
     - [Protocol](#protocol)
 
 ## Overview
@@ -82,20 +82,6 @@ Versions of the manager are published to the following sources
 The core package contains shared code between the GUI and CLI.
 
 It has a lot of stuff in it, basically everything that isn't GUI or CLI specific.
-
-### Examples
-
-The general flow of using the core package in a mod manager might look like so:
-
-```mermaid
-flowchart LR
-    A[Fetch Config with Config::get(None)] -> B[Is OWML installed?]
-    B --> |Yes| C[Fetch the local database with LocalDatabase::fetch(&config.owml_path)]
-    B --> |No| D[Prompt the user to install OWML (you'll call download::download_and_install_owml)]
-    C --> E[Fetch the remote database with RemoteDatabase::fetch(&config.database_url)]
-    E --> F[Use LocalDatabase::validate_updates(&remote_database) to update mod errors to include outdated mods]
-    F --> G[Use the package]
-```
 
 ### Common Paths
 
@@ -234,6 +220,8 @@ This is a weird way to do this and will probably be changed in the future.
 - **No personal information is sent**, only the mod unique name, the event name, and a unique ID generated for your session, this ID changes every time you open the manager.
 - For a list of all events see [AnalyticsEventName](https://docs.rs/owmods_core/latest/owmods_core/analytics/enum.AnalyticsEventName.html)
 - Events are sent with `install_mod_from_db` and `update_all`, other functions are up to the GUI/CLI to implement.
+
+## GUI Package
 
 ### Protocol
 

@@ -45,6 +45,7 @@ const commandInfo = {
         ),
     toggleAll: $<CommandInfo<{ enabled: boolean }, string[]>>("toggle_all"),
     openModFolder: $<ModAction>("open_mod_folder"),
+    openModGithub: $<ModAction>("open_mod_github"),
     openModReadme: $<ModAction>("open_mod_readme"),
     openOwml: $<EmptyCommand>("open_owml"),
     uninstallMod: $<ModCommand<string[]>>("uninstall_mod"),

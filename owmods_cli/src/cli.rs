@@ -193,6 +193,11 @@ pub enum Commands {
         #[arg(help = "The unique name of the mod to open the README of", value_hint = ValueHint::Other)]
         unique_name: String,
     },
+    #[command(about = "Open the github repo for a mod", alias = "repo")]
+    Github {
+        #[arg(help = "The unique name of the mod to open the GitHub repo of", value_hint = ValueHint::Other)]
+        unique_name: String,
+    },
     #[command(
         about = "Validate local mods for missing dependencies and conflicts",
         alias = "check"

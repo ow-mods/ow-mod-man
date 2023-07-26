@@ -37,6 +37,7 @@ Some command shortcuts exist for convenience
 - `disable` -> `d`
 - `uninstall` -> `rm`
 - `readme` -> `man`
+- `github` -> `repo`
 
 ### Autocomplete
 

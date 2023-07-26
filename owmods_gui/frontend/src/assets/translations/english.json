@@ -81,6 +81,7 @@
     "OPEN_OWML": "Show OWML Folder",
     "OPEN_README": "Show On Website",
     "OPEN_WEBSITE": "Browse Mods Website",
+    "OPEN_GITHUB": "More info on GitHub",
     "OUTDATED": "Outdated",
     "OWML_INSTALL_ERROR": "There was an error downloading OWML, please check your network connection and try again.",
     "OWML_NO_PRERELEASE": "There is no prerelease for OWML available",

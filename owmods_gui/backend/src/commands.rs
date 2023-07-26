@@ -21,7 +21,7 @@ use owmods_core::{
     file::{create_all_parents, get_app_path},
     game::launch_game,
     mods::{local::UnsafeLocalMod, remote::RemoteMod},
-    open::{open_readme, open_shortcut},
+    open::{open_github, open_readme, open_shortcut},
     owml::OWMLConfig,
     remove::{remove_failed_mod, remove_mod},
     socket::{LogServer, SocketMessageType},
@@ -991,5 +991,12 @@ pub async fn get_db_tags(state: tauri::State<'_, State>) -> Result<Vec<String>> 
 #[tauri::command]
 pub async fn log_error(err: &str) -> Result {
     error!("Error Received From Frontend: {}", err);
+    Ok(())
+}
+
+#[tauri::command]
+pub async fn open_mod_github(unique_name: &str, state: tauri::State<'_, State>) -> Result {
+    let db = state.remote_db.read().await;
+    open_github(unique_name, &db)?;
     Ok(())
 }

@@ -39,6 +39,12 @@ export interface SettingsRowProps {
     tooltip?: string;
 }
 
+let defaultShowLogServerOption = false;
+
+// Moved to out here due to #98
+// Should work 99% of the time but the state is there just in case
+os.platform().then((p) => (defaultShowLogServerOption = p === "win32"));
+
 const SettingsForm = forwardRef(function SettingsForm(props: SettingsFormProps, ref) {
     const [config, setConfig] = useState<Config>(props.initialConfig);
     const [owmlConfig, setOwmlConfig] = useState<OWMLConfig>(props.initialOwmlConfig);
@@ -46,12 +52,10 @@ const SettingsForm = forwardRef(function SettingsForm(props: SettingsFormProps, 
     const getTranslation = useGetTranslation();
     const theme = useTheme();
 
-    const [showLogServerOption, setShowLogServerOption] = useState<boolean>(false);
+    const [showLogServerOption, setShowLogServerOption] = useState(defaultShowLogServerOption);
 
     useEffect(() => {
-        os.platform().then((p) => {
-            setShowLogServerOption(p === "win32");
-        });
+        os.platform().then((p) => setShowLogServerOption(p === "win32"));
     }, []);
 
     useImperativeHandle(

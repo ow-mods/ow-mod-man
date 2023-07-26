@@ -14,7 +14,7 @@ interface AppIconProps {
 
 export const AppIcon = (props: AppIconProps) => {
     return (
-        <Tooltip title={props.label}>
+        <Tooltip open={props.disabled === true ? false : undefined} title={props.label}>
             <IconButton
                 onClick={props.onClick}
                 disabled={props.disabled ?? false}

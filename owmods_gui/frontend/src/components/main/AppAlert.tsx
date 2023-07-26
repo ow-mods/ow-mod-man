@@ -30,6 +30,13 @@ const AlertIcon = (props: { severity: AlertSeverity }) => {
     }
 };
 
+// const testAlert: Alert = {
+//     enabled: true,
+//     severity: "error",
+//     message: "Test Alert",
+//     url: "https://outerwildsmods.com"
+// };
+
 const AppAlert = memo(function AppAlert() {
     const theme = useTheme();
     const alert: Alert | null = hooks.getAlert("configReload")[1];
@@ -75,4 +82,4 @@ const AppAlert = memo(function AppAlert() {
     );
 });
 
-export default withStyledErrorBoundary(AppAlert, { justHide: true });
+export default withStyledErrorBoundary(AppAlert, { justHide: true, resetEvent: "configReload" });

@@ -17,7 +17,7 @@ use owmods_core::{
         local::{LocalMod, UnsafeLocalMod},
         remote::RemoteMod,
     },
-    open::{open_readme, open_shortcut},
+    open::{open_github, open_readme, open_shortcut},
     remove::{remove_failed_mod, remove_mod},
     toggle::toggle_mod,
     updates::update_all,
@@ -421,6 +421,11 @@ async fn run_from_cli(cli: BaseCli) -> Result<()> {
             info!("Opening README for {}", unique_name);
             let remote_db = RemoteDatabase::fetch(&config.database_url).await?;
             open_readme(unique_name, &remote_db)?;
+        }
+        Commands::Github { unique_name } => {
+            info!("Opening GitHub repo for {}", unique_name);
+            let remote_db = RemoteDatabase::fetch(&config.database_url).await?;
+            open_github(unique_name, &remote_db)?;
         }
         Commands::Validate { fix } => {
             let mut local_db = LocalDatabase::fetch(&config.owml_path)?;

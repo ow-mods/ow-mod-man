@@ -54,6 +54,10 @@ const RemoteModRow = memo(function RemoteModRow(props: RemoteModRowProps) {
         commands.openModReadme({ uniqueName: props.uniqueName }).catch(simpleOnError);
     }, [props.uniqueName]);
 
+    const onGithub = useCallback(() => {
+        commands.openModGithub({ uniqueName: props.uniqueName }).catch(simpleOnError);
+    }, [props.uniqueName]);
+
     const modActions = useMemo(
         () => (
             <RemoteModActions
@@ -64,9 +68,19 @@ const RemoteModRow = memo(function RemoteModRow(props: RemoteModRowProps) {
                 onInstall={onInstall}
                 onPrerelease={onPrerelease}
                 onReadme={onReadme}
+                onGithub={onGithub}
             />
         ),
-        [busy, onInstall, onPrerelease, onReadme, prereleaseLabel, props.uniqueName, hasPrerelease]
+        [
+            busy,
+            onInstall,
+            onPrerelease,
+            onReadme,
+            onGithub,
+            prereleaseLabel,
+            props.uniqueName,
+            hasPrerelease
+        ]
     );
 
     return (

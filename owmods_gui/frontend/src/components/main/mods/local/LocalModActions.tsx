@@ -75,12 +75,14 @@ const LocalModActions = memo(function LocalModTools(props: LocalModActionsProps)
                     onClick={props.onFolder}
                     onClose={overflowRef.current?.onClose}
                 />
-                <ModActionOverflowItem
-                    label={getTranslation("OPEN_GITHUB")}
-                    icon={<GitHub />}
-                    onClick={props.onGithub}
-                    onClose={overflowRef.current?.onClose}
-                />
+                {props.hasRemote && (
+                    <ModActionOverflowItem
+                        label={getTranslation("OPEN_GITHUB")}
+                        icon={<GitHub />}
+                        onClick={props.onGithub}
+                        onClose={overflowRef.current?.onClose}
+                    />
+                )}
                 <ModActionOverflowItem
                     label={getTranslation("UNINSTALL")}
                     icon={<DeleteRounded />}

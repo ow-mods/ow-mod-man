@@ -51,6 +51,8 @@ pub struct GuiConfig {
     auto_enable_deps: bool,
     #[serde(default = "_default_false")]
     pub no_log_server: bool,
+    #[serde(default = "_default_false")]
+    pub hide_installed_in_remote: bool,
     // Old
     #[serde(skip_serializing_if = "Option::is_none")]
     theme: Option<Theme>,
@@ -68,6 +70,7 @@ impl Default for GuiConfig {
             no_warning: false,
             log_multi_window: false,
             auto_enable_deps: false,
+            hide_installed_in_remote: false,
             no_log_server: false,
         }
     }

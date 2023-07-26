@@ -115,7 +115,7 @@ pub fn sync_remote_and_local(handle: &AppHandle) -> Result {
     async_runtime::spawn(async move {
         let state = handle2.state::<State>();
         let mut local_db = state.local_db.write().await;
-        let remote_db = state.remote_db.read().await;
+        let remote_db = state.remote_db.read().await.clone();
         local_db.validate_updates(&remote_db);
         handle2.typed_emit_all(&Event::LocalRefresh(())).ok();
     });
@@ -141,7 +141,7 @@ pub async fn get_local_mods(
     tags: Vec<String>,
     state: tauri::State<'_, State>,
 ) -> Result<Vec<String>> {
-    let db = state.local_db.read().await;
+    let db = state.local_db.read().await.clone();
     let mut mods: Vec<&UnsafeLocalMod> = db.all().collect();
     if filter.is_empty() {
         mods.sort_by(|a, b| {
@@ -206,7 +206,7 @@ pub async fn get_remote_mods(
     tags: Vec<String>,
     state: tauri::State<'_, State>,
 ) -> Result<Vec<String>> {
-    let db = state.remote_db.read().await;
+    let db = state.remote_db.read().await.clone();
     let mut mods: Vec<&RemoteMod> = db
         .mods
         .values()
@@ -219,6 +219,10 @@ pub async fn get_remote_mods(
     }
     if !tags.is_empty() {
         mods = RemoteDatabase::filter_by_tags(mods.into_iter(), tags).collect();
+    }
+    if state.gui_config.read().await.hide_installed_in_remote {
+        let local_db = state.local_db.read().await.clone();
+        mods.retain(|m| local_db.get_mod(&m.unique_name).is_none());
     }
     Ok(mods.into_iter().map(|m| m.unique_name.clone()).collect())
 }

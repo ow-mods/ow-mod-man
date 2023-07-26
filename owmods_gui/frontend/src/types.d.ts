@@ -158,6 +158,7 @@ export interface GuiConfig {
     logMultiWindow: boolean;
     autoEnableDeps: boolean;
     noLogServer: boolean;
+    hideInstalledInRemote: boolean;
     theme?: Theme;
     rainbow?: boolean;
 }

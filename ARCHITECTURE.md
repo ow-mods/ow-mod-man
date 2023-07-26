@@ -21,8 +21,8 @@
     - [Mod Validation Behavior](#mod-validation-behavior)
     - [Mod Searching Behavior](#mod-searching-behavior)
       - [Formula](#formula)
-    - [Mod Launching Behavior](#mod-launching-behavior)
-    - [Mod Log Server Behavior](#mod-log-server-behavior)
+    - [Launching Behavior](#launching-behavior)
+    - [Log Server Behavior](#log-server-behavior)
     - [Alert Behavior](#alert-behavior)
     - [Analytics Behavior](#analytics-behavior)
   - [GUI Package](#gui-package)
@@ -185,14 +185,14 @@ $$
 
 This is a weird way to do this and will probably be changed in the future.
 
-### Mod Launching Behavior
+### Launching Behavior
 
 - The mod manager can launch the game, or more accurately launch OWML.
 - When launching the game the manager can also start a log server, this is used to collect logs from the game. Note this will not happen implicitly, you'll need to make a new `LogServer` and call `listen` on it to listen to logs from the game. To make the two tasks happen at the same time use `tokio::join!`
 - On Linux the manager also performs special behaviour that patches OWML to run properly under Mono
 - If a mod specifies a `warning` object in it manifest, the warning title and message will be the one specified in the manifest. This warning will only be shown once and on subsequent launches it will be suppressed. This is used to warn users about mods that are known to cause issues.
 
-### Mod Log Server Behavior
+### Log Server Behavior
 
 - The mod manager can start a log server, this is used to collect logs from the game.
 - The server uses TCP.

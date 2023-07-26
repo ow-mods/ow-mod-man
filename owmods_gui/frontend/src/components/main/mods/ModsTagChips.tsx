@@ -2,7 +2,7 @@ import { hooks } from "@commands";
 import { withStyledErrorBoundary } from "@components/common/StyledErrorBoundary";
 import { useGetTranslation } from "@hooks";
 import { DeleteRounded } from "@mui/icons-material";
-import { Chip, IconButton, Stack } from "@mui/material";
+import { Chip, Stack } from "@mui/material";
 import { memo, useCallback, useEffect, useRef } from "react";
 
 export interface ModsTagsChipsProps {

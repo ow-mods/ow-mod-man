@@ -23,7 +23,7 @@ zip = { version = "0.6.6", default-features = false, features = ["deflate", "zst
 futures = "0.3.28"
 log = "0.4.19"
 tokio = { version = "1.29.1", features = ["net", "time", "process", "macros"] }
-serde_repr = "0.1.15"
+serde_repr = "0.1.16"
 uuid = { version = "1.4.1", features = ["v4", "fast-rng"] }
 typeshare = "1.0.1"
 lazy_static = "1.4.0"

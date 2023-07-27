@@ -42,7 +42,7 @@
         "prettier": "3.0.0",
         "typescript": "5.1.6",
         "vite": "4.4.7",
-        "vite-imagetools": "5.0.5",
+        "vite-imagetools": "5.0.6",
         "vite-plugin-html": "3.2.0"
     }
 }

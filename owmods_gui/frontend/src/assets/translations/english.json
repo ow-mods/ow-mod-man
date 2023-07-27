@@ -106,6 +106,7 @@
     "SETUP": "Setup",
     "SHOW_FOLDER": "Open Folder",
     "Success": "Success",
+    "THEME": "Theme",
     "TOOLTIP_ALERT_URL": "URL used to get alerts to display in the Mod Manager.",
     "TOOLTIP_AUTO_ENABLE_DEPS": "When enabling a mod that has disabled dependencies, enable the dependencies without a prompt.",
     "TOOLTIP_DATABASE_URL": "URL used to check for updates for mods and OWML",
@@ -134,5 +135,12 @@
     "WATCH_FS": "Auto-Refresh When Mods Folder or Settings Change",
     "Warning": "Warning",
     "ZIP": "Zip File",
+    "Green": "Green",
+    "Blue": "Blue",
+    "Red": "Red",
+    "Pink": "Pink",
+    "Purple": "Purple",
+    "Blurple": "Blurple",
+    "GhostlyGreen": "Ghostly Green",
     "_": "(MISSING $key$): $fallback$"
 }

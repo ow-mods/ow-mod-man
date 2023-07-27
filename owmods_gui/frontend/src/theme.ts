@@ -1,5 +1,6 @@
-import { createTheme } from "@mui/material";
-import { green, grey, red } from "@mui/material/colors";
+import { PaletteColorOptions, createTheme } from "@mui/material";
+import { green, grey, blue, red } from "@mui/material/colors";
+import { Theme } from "@types";
 
 declare module "@mui/material/styles" {
     export interface Palette {
@@ -29,9 +30,13 @@ declare module "@mui/material/CircularProgress" {
     }
 }
 
-export default createTheme({
-    palette: {
-        mode: "dark",
+type UserTheme = {
+    primary: PaletteColorOptions;
+    secondary: PaletteColorOptions;
+};
+
+const themeMap: Record<Theme, UserTheme> = {
+    Green: {
         primary: {
             main: green[700]
         },
@@ -39,83 +44,141 @@ export default createTheme({
             main: "#ca7300",
             dark: "#975d2e",
             light: "#ffc380"
-        },
-        neutral: {
-            main: grey[300],
-            contrastText: "#1c1c1c"
-        },
-        error: {
-            main: red[500],
-            dark: "#7e1e1e"
         }
     },
-    components: {
-        MuiCssBaseline: {
-            styleOverrides: {
-                body: {
-                    innerHeight: "100vh",
-                    overflowY: "hidden"
-                },
-                "*::-webkit-scrollbar": {
-                    width: "1em",
-                    cursor: "pointer"
-                },
-                "*::-webkit-scrollbar-track": {
-                    background: grey[800],
-                    borderRadius: "5px"
-                },
-                "*::-webkit-scrollbar-thumb": {
-                    background: grey[600],
-                    border: `2px solid ${grey[800]}`,
-                    borderRadius: "5px",
-                    "&:hover": {
-                        background: grey[600]
-                    }
-                }
-            }
+    Blue: {
+        primary: {
+            main: blue[700]
         },
-        MuiTab: {
-            styleOverrides: {
-                root: {
-                    minHeight: 0,
-                    padding: 10
-                }
-            }
+        secondary: {
+            main: "#c9724f"
+        }
+    },
+    Red: {
+        primary: {
+            main: red["700"]
         },
-        MuiTabs: {
-            styleOverrides: {
-                root: {
-                    minHeight: 0,
-                    padding: 0
-                }
-            }
+        secondary: {
+            main: "#77cfcf"
+        }
+    },
+    Pink: {
+        primary: {
+            main: "#d15291"
         },
-        MuiTableCell: {
-            styleOverrides: {
-                head: {
-                    paddingTop: 10,
-                    paddingBottom: 10
-                }
-            }
+        secondary: {
+            main: "#7777cf"
+        }
+    },
+    Purple: {
+        primary: {
+            main: "#7d3f92"
         },
-        MuiTooltip: {
-            styleOverrides: {
-                tooltip: {
-                    fontSize: "1em"
-                }
-            }
+        secondary: {
+            main: "#5b8f82"
+        }
+    },
+    Blurple: {
+        primary: {
+            main: "#94a0cc"
         },
-        MuiButton: {
-            defaultProps: {
-                variant: "outlined",
-                color: "neutral"
-            }
+        secondary: {
+            main: "#a67a68"
+        }
+    },
+    GhostlyGreen: {
+        primary: {
+            main: "#1dc99e"
         },
-        MuiButtonGroup: {
-            defaultProps: {
-                variant: "outlined",
-                color: "neutral"
-            }
+        secondary: {
+            main: "#e4b3f4"
         }
     }
-});
+};
+
+export const getMuiTheme = (selectedTheme: Theme) => {
+    const baseTheme = themeMap[selectedTheme];
+    return createTheme({
+        palette: {
+            mode: "dark",
+            ...baseTheme,
+            neutral: {
+                main: grey[300],
+                contrastText: "#1c1c1c"
+            },
+            error: {
+                main: red[500],
+                dark: "#7e1e1e"
+            }
+        },
+        components: {
+            MuiCssBaseline: {
+                styleOverrides: {
+                    body: {
+                        innerHeight: "100vh",
+                        overflowY: "hidden"
+                    },
+                    "*::-webkit-scrollbar": {
+                        width: "1em",
+                        cursor: "pointer"
+                    },
+                    "*::-webkit-scrollbar-track": {
+                        background: grey[800],
+                        borderRadius: "5px"
+                    },
+                    "*::-webkit-scrollbar-thumb": {
+                        background: grey[600],
+                        border: `2px solid ${grey[800]}`,
+                        borderRadius: "5px",
+                        "&:hover": {
+                            background: grey[600]
+                        }
+                    }
+                }
+            },
+            MuiTab: {
+                styleOverrides: {
+                    root: {
+                        minHeight: 0,
+                        padding: 10
+                    }
+                }
+            },
+            MuiTabs: {
+                styleOverrides: {
+                    root: {
+                        minHeight: 0,
+                        padding: 0
+                    }
+                }
+            },
+            MuiTableCell: {
+                styleOverrides: {
+                    head: {
+                        paddingTop: 10,
+                        paddingBottom: 10
+                    }
+                }
+            },
+            MuiTooltip: {
+                styleOverrides: {
+                    tooltip: {
+                        fontSize: "1em"
+                    }
+                }
+            },
+            MuiButton: {
+                defaultProps: {
+                    variant: "outlined",
+                    color: "neutral"
+                }
+            },
+            MuiButtonGroup: {
+                defaultProps: {
+                    variant: "outlined",
+                    color: "neutral"
+                }
+            }
+        }
+    });
+};

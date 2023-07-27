@@ -77,6 +77,7 @@ const LogApp = ({ port }: { port: number }) => {
     return (
         <BaseApp
             language={guiConfig?.language}
+            theme={guiConfig?.theme}
             isLoading={status === "Loading" || logLines === null}
         >
             <Container

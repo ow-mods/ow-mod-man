@@ -6,7 +6,7 @@ import {
     useImperativeHandle,
     useState
 } from "react";
-import { Config, GuiConfig, Language, OWMLConfig } from "@types";
+import { Config, GuiConfig, Language, OWMLConfig, Theme } from "@types";
 import { useGetTranslation } from "@hooks";
 import { commands } from "@commands";
 import { TranslationNameMap } from "@components/common/TranslationContext";
@@ -20,6 +20,7 @@ import SettingsHeader from "./SettingsHeader";
 import { simpleOnError } from "@components/common/StyledErrorBoundary";
 
 const LanguageArr = Object.values(Language);
+const ThemeArr = Object.values(Theme);
 
 interface SettingsFormProps {
     initialConfig: Config;
@@ -124,6 +125,14 @@ const SettingsForm = forwardRef(function SettingsForm(props: SettingsFormProps, 
                 options={LanguageArr}
                 id="language"
                 nameMap={TranslationNameMap}
+            />
+            <SettingsSelect
+                onChange={handleGui}
+                value={guiConfig.theme}
+                translate
+                label={getTranslation("THEME")}
+                options={ThemeArr}
+                id="theme"
             />
             <SettingsCheck
                 onChange={handleGui}

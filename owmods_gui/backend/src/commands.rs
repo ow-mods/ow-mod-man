@@ -34,7 +34,10 @@ use tauri::{api::dialog, async_runtime, AppHandle, Manager, WindowEvent};
 use time::{macros::format_description, OffsetDateTime};
 use tokio::{sync::mpsc, try_join};
 
-use crate::events::{CustomEventEmitter, CustomEventEmitterAll, CustomEventTriggerGlobal, Event};
+use crate::events::{
+    CustomEventEmitter, CustomEventEmitterAll, CustomEventTriggerGlobal, Event,
+    LogLineCountUpdatePayload,
+};
 use crate::progress::ProgressBar;
 use crate::protocol::{ProtocolInstallType, ProtocolPayload};
 use crate::{
@@ -721,6 +724,21 @@ pub async fn run_game(
             let window_handle = window.app_handle();
             let mut game_log = state.game_log.write().await;
             if let Some((lines, writer)) = game_log.get_mut(&port) {
+                if let Some(last_message) = lines.last_mut() {
+                    if msg == last_message.message {
+                        last_message.amount += 1;
+                        let res = window_handle.typed_emit_all(&Event::LogLineCountUpdate(
+                            LogLineCountUpdatePayload {
+                                port,
+                                line: (lines.len() - 1).try_into().unwrap_or(u32::MAX),
+                            },
+                        ));
+                        if let Err(why) = res {
+                            error!("Couldn't Emit Game Log: {}", why)
+                        }
+                        continue;
+                    }
+                }
                 let res = write_log(writer, &msg);
                 if let Err(why) = res {
                     error!("Couldn't Write Game Log: {}", why);
@@ -773,7 +791,7 @@ pub async fn get_log_lines(
     filter_type: Option<SocketMessageType>,
     search: &str,
     state: tauri::State<'_, State>,
-) -> Result<Vec<(usize, usize)>> {
+) -> Result<Vec<usize>> {
     let logs = state.game_log.read().await;
     if let Some((lines, _)) = logs.get(&port) {
         let lines = get_logs_indices(lines, filter_type, search)?;

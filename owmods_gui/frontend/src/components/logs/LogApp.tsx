@@ -13,7 +13,7 @@ import { listen } from "@events";
 import { simpleOnError } from "@components/common/StyledErrorBoundary";
 
 export type LogFilter = keyof typeof SocketMessageType | "Any";
-export type LogLines = [number, number][];
+export type LogLines = number[];
 
 const thisWindow = getCurrent();
 

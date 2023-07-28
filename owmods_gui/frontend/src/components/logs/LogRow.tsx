@@ -1,14 +1,13 @@
 import { hooks } from "@commands";
 import ODTooltip from "@components/common/ODTooltip";
 import { Box, Chip, Palette, Skeleton, TableCell, Typography, useTheme } from "@mui/material";
-import { SocketMessageType } from "@types";
+import { LogLineCountUpdatePayload, SocketMessageType } from "@types";
 import { Fragment, MutableRefObject, memo, useLayoutEffect, useMemo } from "react";
 import { VirtuosoHandle } from "react-virtuoso";
 
 export interface LogRowProps {
     port: number;
     index: number;
-    count: number;
     virtuosoRef?: MutableRefObject<VirtuosoHandle | null>;
 }
 
@@ -33,10 +32,16 @@ const getColor = (palette: Palette, messageType: SocketMessageType) => {
 const LogRow = memo(function LogRow(props: LogRowProps) {
     const theme = useTheme();
 
-    const [status, logLine] = hooks.getLogLine("none", {
-        port: props.port,
-        line: props.index
-    });
+    const [status, logLine] = hooks.getLogLine(
+        "logLineCountUpdate",
+        {
+            port: props.port,
+            line: props.index
+        },
+        (params) => {
+            return (params as LogLineCountUpdatePayload).line === props.index;
+        }
+    );
 
     const messageType = useMemo(() => {
         return Object.values(SocketMessageType)[
@@ -58,6 +63,8 @@ const LogRow = memo(function LogRow(props: LogRowProps) {
     useLayoutEffect(() => {
         props.virtuosoRef?.current?.autoscrollToBottom?.();
     }, [status, props.virtuosoRef]);
+
+    console.debug(logLine?.amount ?? 1);
 
     return (
         <>
@@ -95,9 +102,13 @@ const LogRow = memo(function LogRow(props: LogRowProps) {
                             </Typography>
                         )}{" "}
                     </Box>
-                    {props.count > 1 && (
+                    {(logLine?.amount ?? 1) > 1 && (
                         <Box justifySelf="end">
-                            <Chip size="small" label={`x${props.count}`} />
+                            <Chip
+                                color={logLine?.amount === 65535 ? "error" : "default"}
+                                size="small"
+                                label={`x${logLine?.amount}`}
+                            />
                         </Box>
                     )}
                 </Box>

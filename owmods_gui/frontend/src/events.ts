@@ -2,7 +2,7 @@ import { simpleOnError } from "@components/common/StyledErrorBoundary";
 import { listen as tauriListen, emit as tauriEmit } from "@tauri-apps/api/event";
 import { Event } from "@types";
 
-type Params<E extends Event["name"]> = Extract<Event, { name: E }>["params"];
+export type Params<E extends Event["name"]> = Extract<Event, { name: E }>["params"];
 
 type EventSubscriptions = {
     [E in Event["name"]]: Array<(params: Params<E>) => void>;

@@ -1,5 +1,5 @@
 use anyhow::{anyhow, Result};
-use log::{error, info};
+use log::{error, info, warn};
 use serde::{Deserialize, Serialize};
 use serde_repr::{Deserialize_repr, Serialize_repr};
 use tokio::{
@@ -105,9 +105,13 @@ impl LogServer {
 
     // Give a log to the tx channel
     async fn yield_log(tx: &LogServerSender, message: SocketMessage) {
-        let res = tx.send(message).await;
-        if let Err(why) = res {
-            error!("Couldn't Yield Log: {why:?}")
+        if tx.capacity() == 0 {
+            warn!("Logs incoming too fast! Logs may be dropped!");
+        } else {
+            let res = tx.send(message).await;
+            if let Err(why) = res {
+                error!("Couldn't Yield Log: {why:?}")
+            }
         }
     }
 

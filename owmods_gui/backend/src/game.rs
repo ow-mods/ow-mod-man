@@ -22,11 +22,16 @@ use crate::LogPort;
 pub struct GameMessage {
     pub port: LogPort,
     pub message: SocketMessage,
+    pub amount: u32,
 }
 
 impl GameMessage {
     pub fn new(port: LogPort, message: SocketMessage) -> Self {
-        Self { port, message }
+        Self {
+            port,
+            message,
+            amount: 1,
+        }
     }
 }
 
@@ -79,43 +84,28 @@ pub fn get_logs_indices(
     lines: &[GameMessage],
     filter_type: Option<SocketMessageType>,
     search: &str,
-) -> Result<Vec<(usize, usize)>> {
+) -> Result<Vec<usize>> {
     let mut indices = Vec::with_capacity(lines.len());
     let search = search.to_ascii_lowercase();
-    let mut count = 1;
     for (line_number, line) in lines.iter().enumerate() {
-        let mut same = false;
-        if let Some(next_line) = lines.get(line_number + 1) {
-            if next_line.message.message == line.message.message
-                && next_line.message.message_type == line.message.message_type
-                && next_line.message.sender_name == line.message.sender_name
-            {
-                same = true;
+        let mut include = true;
+        if filter_type.is_some() || !search.trim().is_empty() {
+            let matches_type = filter_type.is_none()
+                || line.message.message_type == *filter_type.as_ref().unwrap();
+            let matches_search = search.is_empty()
+                || line.message.message.to_ascii_lowercase().contains(&search)
+                || line
+                    .message
+                    .sender_name
+                    .as_ref()
+                    .map(|v| v.to_ascii_lowercase().contains(&search))
+                    .unwrap_or(false);
+            if !(matches_type && matches_search) {
+                include = false;
             }
         }
-        if same {
-            count += 1;
-        } else {
-            let mut include = true;
-            if filter_type.is_some() || !search.trim().is_empty() {
-                let matches_type = filter_type.is_none()
-                    || line.message.message_type == *filter_type.as_ref().unwrap();
-                let matches_search = search.is_empty()
-                    || line.message.message.to_ascii_lowercase().contains(&search)
-                    || line
-                        .message
-                        .sender_name
-                        .as_ref()
-                        .map(|v| v.to_ascii_lowercase().contains(&search))
-                        .unwrap_or(false);
-                if !(matches_type && matches_search) {
-                    include = false;
-                }
-            }
-            if include {
-                indices.push((line_number, count));
-            }
-            count = 1;
+        if include {
+            indices.push(line_number);
         }
     }
     Ok(indices)

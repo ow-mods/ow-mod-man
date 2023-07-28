@@ -7,6 +7,7 @@ use regex::RegexBuilder;
 
 mod cli_tasks;
 mod gui_tasks;
+mod log_spammer;
 
 pub fn get_out_dir() -> Result<PathBuf> {
     let out_dir = std::path::PathBuf::from(std::env::var_os("CARGO_MANIFEST_DIR").unwrap())
@@ -40,6 +41,13 @@ fn main() -> Result<()> {
         "cli_pkg_build" => generate_cli_pkg_build()?,
         "gui_pkg_build" => generate_gui_pkg_build()?,
         "cli_version" => print_version()?,
+        "spam_logs" => log_spammer::spam_logs(
+            std::env::args()
+                .nth(2)
+                .expect("Enter port")
+                .parse()
+                .unwrap(),
+        )?,
         _ => panic!("Invalid Command: {cmd}"),
     }
     Ok(())

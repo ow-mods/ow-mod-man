@@ -6,17 +6,18 @@ import {
 } from "@components/common/TranslationContext";
 import { Event, FailedMod, LocalMod, RemoteMod, UnsafeLocalMod } from "@types";
 import { useErrorBoundary } from "react-error-boundary";
-import { listen } from "@events";
+import { Params, listen } from "@events";
 
 export type LoadState = "Loading" | "Done";
 
 /**
  * Use @commands:hooks if possible
  */
-export const useTauri = <T>(
+export const useTauri = <T, E extends Event["name"]>(
     eventName: Event["name"] | Event["name"][],
     commandFn: () => Promise<T>,
-    payload: unknown
+    payload: unknown,
+    shouldChangeFn?: (params: Params<E>) => boolean
 ): [LoadState, T | null] => {
     const [status, setStatus] = useState<LoadState>("Loading");
     const [data, setData] = useState<T | null>(null);
@@ -27,7 +28,10 @@ export const useTauri = <T>(
     useEffect(() => {
         if (status !== "Loading") {
             for (const eventToSubscribe of events) {
-                listen(eventToSubscribe, () => setStatus("Loading"));
+                listen(eventToSubscribe, (params) => {
+                    if (shouldChangeFn && !shouldChangeFn(params)) return;
+                    setStatus("Loading");
+                });
             }
         } else {
             commandFn()
@@ -40,7 +44,7 @@ export const useTauri = <T>(
                 })
                 .finally(() => setStatus("Done"));
         }
-    }, [commandFn, errorBound, events, status]);
+    }, [commandFn, shouldChangeFn, errorBound, events, status]);
 
     useEffect(() => {
         if (status === "Done") {

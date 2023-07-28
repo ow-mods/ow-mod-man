@@ -49,7 +49,7 @@ const LogTable = memo(function LogTable(props: LogTableProps) {
         <TableVirtuoso
             ref={virtuoso}
             components={LogTableComponents}
-            computeItemKey={(index) => `${index}-${props.logLines[index][0]}`}
+            computeItemKey={(index) => `${index}-${props.logLines[index]}`}
             increaseViewportBy={500}
             atBottomThreshold={1000}
             data={props.logLines}
@@ -60,7 +60,7 @@ const LogTable = memo(function LogTable(props: LogTableProps) {
                 </TableRow>
             )}
             itemContent={(_, data) => (
-                <LogRow port={props.port} index={data[0]} count={data[1]} virtuosoRef={virtuoso} />
+                <LogRow port={props.port} index={data} virtuosoRef={virtuoso} />
             )}
             followOutput
             alignToBottom

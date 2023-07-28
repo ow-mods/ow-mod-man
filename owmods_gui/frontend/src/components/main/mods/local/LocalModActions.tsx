@@ -1,6 +1,7 @@
 import {
     DescriptionRounded,
     FolderRounded,
+    GitHub,
     DeleteRounded,
     ConstructionRounded
 } from "@mui/icons-material";
@@ -21,6 +22,7 @@ export interface LocalModActionsProps {
     onReadme: () => void;
     onFolder: () => void;
     onFix: () => void;
+    onGithub: () => void;
     onUninstall: () => void;
 }
 
@@ -73,6 +75,14 @@ const LocalModActions = memo(function LocalModTools(props: LocalModActionsProps)
                     onClick={props.onFolder}
                     onClose={overflowRef.current?.onClose}
                 />
+                {props.hasRemote && (
+                    <ModActionOverflowItem
+                        label={getTranslation("OPEN_GITHUB")}
+                        icon={<GitHub />}
+                        onClick={props.onGithub}
+                        onClose={overflowRef.current?.onClose}
+                    />
+                )}
                 <ModActionOverflowItem
                     label={getTranslation("UNINSTALL")}
                     icon={<DeleteRounded />}

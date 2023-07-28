@@ -16,7 +16,8 @@ The GUI Version Of The Outer Wilds Mod Manager.<br/>
 [![Flathub](https://img.shields.io/flathub/v/com.outerwildsmods.owmods_gui)](https://flathub.org/apps/com.outerwildsmods.owmods_gui)
 [![AUR](https://img.shields.io/aur/version/owmods-gui-bin)](https://aur.archlinux.org/packages/owmods-gui-bin)
 [![GPL-3 licensed](https://img.shields.io/aur/license/owmods-gui-bin)](https://github.com/ow-mods/ow-mod-man/blob/main/LICENSE)
-[![CI](https://github.com/ow-mods/ow-mod-man/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/ow-mods/ow-mod-man/actions/workflows/ci.yml)
+[![CI JS](https://github.com/ow-mods/ow-mod-man/actions/workflows/ci_js.yml/badge.svg?branch=main)](https://github.com/ow-mods/ow-mod-man/actions/workflows/ci_js.yml)
+[![CI RS](https://github.com/ow-mods/ow-mod-man/actions/workflows/ci_rs.yml/badge.svg?branch=main)](https://github.com/ow-mods/ow-mod-man/actions/workflows/ci_rs.yml)
 [![Release](https://github.com/ow-mods/ow-mod-man/actions/workflows/release_gui.yml/badge.svg)](https://github.com/ow-mods/ow-mod-man/actions/workflows/release_gui.yml)
 
 The GUI interface for the [Outer Wilds Mod Manager](https://github.com/ow-mods/ow-mod-man), this package is responsible for providing a streamlined way to manage, install, and validate your mods. As well as running the game. This is achieved using the [owmods_core](https://crates.io/crates/owmods_core) package.

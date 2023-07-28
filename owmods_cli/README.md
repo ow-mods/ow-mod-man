@@ -14,7 +14,7 @@ The CLI interface for the Outer Wilds Mod Manager, built using clap.<br/>
 
 [![crates.io](https://img.shields.io/crates/v/owmods_cli.svg)](https://crates.io/crates/owmods_cli)
 [![GPL-3 licensed](https://img.shields.io/crates/l/owmods_cli.svg)](https://github.com/ow-mods/ow-mod-man/blob/main/LICENSE)
-[![CI](https://github.com/ow-mods/ow-mod-man/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/ow-mods/ow-mod-man/actions/workflows/ci.yml)
+[![CI RS](https://github.com/ow-mods/ow-mod-man/actions/workflows/ci_rs.yml/badge.svg?branch=main)](https://github.com/ow-mods/ow-mod-man/actions/workflows/ci_rs.yml)
 [![Release](https://github.com/ow-mods/ow-mod-man/actions/workflows/release_cli.yml/badge.svg)](https://github.com/ow-mods/ow-mod-man/actions/workflows/release_cli.yml)
 [![AUR](https://img.shields.io/aur/version/owmods-cli-bin)](https://aur.archlinux.org/packages/owmods-cli-bin)
 
@@ -37,6 +37,7 @@ Some command shortcuts exist for convenience
 - `disable` -> `d`
 - `uninstall` -> `rm`
 - `readme` -> `man`
+- `github` -> `repo`
 
 ### Autocomplete
 

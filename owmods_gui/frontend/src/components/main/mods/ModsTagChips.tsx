@@ -44,18 +44,31 @@ const ModsTagsChips = memo(function ModsTagsChips(props: ModsTagsChipsProps) {
     }, []);
 
     return (
-        <Stack
-            className="scroll-shadows"
-            sx={{
-                minHeight: "25px",
-                overflowX: "auto",
-                scrollbarWidth: "none",
-                "::-webkit-scrollbar": { display: "none" }
-            }}
-            direction="row"
-            ref={scrollRef}
-            gap={1}
-        >
+        <Stack direction="row" gap={1}>
+            <Stack
+                className="scroll-shadows"
+                sx={{
+                    minHeight: "25px",
+                    overflowX: "auto",
+                    scrollbarWidth: "none",
+                    "::-webkit-scrollbar": { display: "none" }
+                }}
+                direction="row"
+                ref={scrollRef}
+                gap={1}
+            >
+                {availableTags.map((t) => (
+                    <Chip
+                        label={t}
+                        key={t}
+                        onClick={() => onChipClicked(t)}
+                        size="small"
+                        color={tagIsSelected(props.selectedTags, t) ? "primary" : "default"}
+                        variant={tagIsSelected(props.selectedTags, t) ? "filled" : "filled"}
+                    />
+                ))}
+            </Stack>
+
             {selectedTags.length !== 0 && (
                 <Chip
                     icon={<DeleteRounded />}
@@ -66,15 +79,6 @@ const ModsTagsChips = memo(function ModsTagsChips(props: ModsTagsChipsProps) {
                     onClick={() => props.onTagsChanged([])}
                 />
             )}
-            {availableTags.map((t) => (
-                <Chip
-                    label={t}
-                    key={t}
-                    onClick={() => onChipClicked(t)}
-                    size="small"
-                    variant={tagIsSelected(props.selectedTags, t) ? "filled" : "outlined"}
-                />
-            ))}
         </Stack>
     );
 });

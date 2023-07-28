@@ -26,10 +26,13 @@ const RemoteModsPage = memo(function RemoteModsPage(props: RemoteModsPageProps) 
         });
     }, [errorBound, getTranslation]);
 
-    const [status, remoteMods] = hooks.getRemoteMods("remoteRefresh", {
-        filter: props.filter,
-        tags: props.tags
-    });
+    const [status, remoteMods] = hooks.getRemoteMods(
+        ["remoteRefresh", "localRefresh", "guiConfigReload"],
+        {
+            filter: props.filter,
+            tags: props.tags
+        }
+    );
 
     const modsWebsiteButton = useMemo(
         () => (

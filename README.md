@@ -39,6 +39,7 @@ This is the monorepo for the new <a href="https://www.mobiusdigitalgames.com/out
   - [Raicuparta](https://github.com/Raicuparta)
   - [JohnCorby](https://github.com/JohnCorby)
   - [dgarroDC](https://github.com/dgarroDC)
+  - [MegaPiggy](https://github.com/MegaPiggy)
 - Testing:
   - [ShoosGun](https://github.com/ShoosGun)
   - [JohnCorby](https://github.com/JohnCorby)

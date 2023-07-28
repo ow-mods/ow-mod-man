@@ -6,7 +6,7 @@ import {
     useImperativeHandle,
     useState
 } from "react";
-import { Config, GuiConfig, Language, OWMLConfig } from "@types";
+import { Config, GuiConfig, Language, OWMLConfig, Theme } from "@types";
 import { useGetTranslation } from "@hooks";
 import { commands } from "@commands";
 import { TranslationNameMap } from "@components/common/TranslationContext";
@@ -20,6 +20,7 @@ import SettingsHeader from "./SettingsHeader";
 import { simpleOnError } from "@components/common/StyledErrorBoundary";
 
 const LanguageArr = Object.values(Language);
+const ThemeArr = Object.values(Theme);
 
 interface SettingsFormProps {
     initialConfig: Config;
@@ -39,6 +40,12 @@ export interface SettingsRowProps {
     tooltip?: string;
 }
 
+let defaultShowLogServerOption = false;
+
+// Moved to out here due to #98
+// Should work 99% of the time but the state is there just in case
+os.platform().then((p) => (defaultShowLogServerOption = p === "win32"));
+
 const SettingsForm = forwardRef(function SettingsForm(props: SettingsFormProps, ref) {
     const [config, setConfig] = useState<Config>(props.initialConfig);
     const [owmlConfig, setOwmlConfig] = useState<OWMLConfig>(props.initialOwmlConfig);
@@ -46,12 +53,10 @@ const SettingsForm = forwardRef(function SettingsForm(props: SettingsFormProps, 
     const getTranslation = useGetTranslation();
     const theme = useTheme();
 
-    const [showLogServerOption, setShowLogServerOption] = useState<boolean>(false);
+    const [showLogServerOption, setShowLogServerOption] = useState(defaultShowLogServerOption);
 
     useEffect(() => {
-        os.platform().then((p) => {
-            setShowLogServerOption(p === "win32");
-        });
+        os.platform().then((p) => setShowLogServerOption(p === "win32"));
     }, []);
 
     useImperativeHandle(
@@ -121,12 +126,27 @@ const SettingsForm = forwardRef(function SettingsForm(props: SettingsFormProps, 
                 id="language"
                 nameMap={TranslationNameMap}
             />
+            <SettingsSelect
+                onChange={handleGui}
+                value={guiConfig.theme}
+                translate
+                label={getTranslation("THEME")}
+                options={ThemeArr}
+                id="theme"
+            />
             <SettingsCheck
                 onChange={handleGui}
                 value={guiConfig.watchFs}
                 label={getTranslation("WATCH_FS")}
                 id="watchFs"
                 tooltip={getTranslation("TOOLTIP_WATCH_FS")}
+            />
+            <SettingsCheck
+                onChange={handleGui}
+                value={guiConfig.hideInstalledInRemote}
+                label={getTranslation("HIDE_INSTALLED_MODS_IN_REMOTE")}
+                id="hideInstalledInRemote"
+                tooltip={getTranslation("TOOLTIP_HIDE_INSTALLED_MODS_IN_REMOTE")}
             />
             <SettingsCheck
                 onChange={handleGui}

@@ -65,7 +65,7 @@ const ModsPage = memo(function ModsPage(props: ModsPageProps) {
                 <Paper sx={{ flexGrow: 1, height: "100%" }}>
                     <Box height="100%" display="flex" alignItems="center" justifyContent="center">
                         <Typography variant="subtitle1">
-                            {props.filter === "" && props.selectedTags?.length === 0
+                            {props.filter === "" && (props.selectedTags ?? []).length === 0
                                 ? props.noModsText
                                 : getTranslation("NO_MODS_FROM_FILTER")}
                         </Typography>

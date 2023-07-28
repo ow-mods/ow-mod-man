@@ -94,6 +94,10 @@ const LocalModRow = memo(function LocalModRow(props: LocalModRowProps) {
         () => commands.openModFolder({ uniqueName: props.uniqueName }),
         [props.uniqueName]
     );
+    const onGithub = useCallback(
+        () => commands.openModGithub({ uniqueName: props.uniqueName }),
+        [props.uniqueName]
+    );
     const onToggle = useCallback(
         (newVal: boolean) => {
             const task = async () => {
@@ -163,6 +167,7 @@ const LocalModRow = memo(function LocalModRow(props: LocalModRowProps) {
                 onFix={onFix}
                 onFolder={onFolder}
                 onUninstall={onUninstall}
+                onGithub={onGithub}
             />
         ),
         [
@@ -175,7 +180,8 @@ const LocalModRow = memo(function LocalModRow(props: LocalModRowProps) {
             onReadme,
             onFix,
             onFolder,
-            onUninstall
+            onUninstall,
+            onGithub
         ]
     );
 

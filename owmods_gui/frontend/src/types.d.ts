@@ -147,18 +147,29 @@ export interface GameMessage {
 }
 
 export enum Language {
-    English = "English",
-    Wario = "Wario"
+    Wario = "Wario",
+    English = "English"
+}
+
+export enum Theme {
+    Blue = "Blue",
+    Red = "Red",
+    Pink = "Pink",
+    Purple = "Purple",
+    Blurple = "Blurple",
+    GhostlyGreen = "GhostlyGreen",
+    Green = "Green"
 }
 
 export interface GuiConfig {
     language: Language;
+    theme: Theme;
     watchFs: boolean;
     noWarning: boolean;
     logMultiWindow: boolean;
     autoEnableDeps: boolean;
     noLogServer: boolean;
-    theme?: Theme;
+    hideInstalledInRemote: boolean;
     rainbow?: boolean;
 }
 

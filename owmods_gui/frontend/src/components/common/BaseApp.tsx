@@ -1,20 +1,21 @@
 import { ThemeProvider } from "@emotion/react";
 import { CssBaseline, Box, CircularProgress } from "@mui/material";
-import theme from "../../theme";
 import { TranslationContext } from "./TranslationContext";
-import { Language } from "@types";
+import { Language, Theme } from "@types";
 import { ReactNode, memo } from "react";
 import StyledErrorBoundary from "./StyledErrorBoundary";
+import { getMuiTheme } from "../../theme";
 
 export interface BaseAppProps {
     isLoading: boolean;
     children: ReactNode;
     language?: Language;
+    theme?: Theme;
 }
 
 const BaseApp = memo(function BaseApp(props: BaseAppProps) {
     return (
-        <ThemeProvider theme={theme}>
+        <ThemeProvider theme={getMuiTheme(props.theme ?? Theme.Green)}>
             <CssBaseline>
                 {props.isLoading ? (
                     <Box

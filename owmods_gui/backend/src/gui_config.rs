@@ -4,27 +4,27 @@ use owmods_core::file::{deserialize_from_json, get_app_path, serialize_to_json};
 use serde::{Deserialize, Serialize};
 use typeshare::typeshare;
 
+#[typeshare]
 #[derive(Default, Serialize, Deserialize, Clone)]
 pub enum Theme {
-    #[default]
-    White,
     Blue,
-    Green,
+    Red,
     Pink,
     Purple,
-    Yellow,
-    Orange,
     Blurple,
     GhostlyGreen,
+    #[default]
+    #[serde(other)]
+    Green,
 }
 
 #[typeshare]
 #[derive(Default, Serialize, Deserialize, Clone)]
 pub enum Language {
-    #[default]
-    English,
-    //BrazilianPortuguese,
     Wario,
+    #[default]
+    #[serde(other)]
+    English,
 }
 
 const fn _default_true() -> bool {
@@ -41,6 +41,8 @@ const fn _default_false() -> bool {
 pub struct GuiConfig {
     #[serde(default = "Language::default")]
     language: Language,
+    #[serde(default = "Theme::default")]
+    theme: Theme,
     #[serde(default = "_default_true")]
     pub watch_fs: bool,
     #[serde(default = "_default_false")]
@@ -51,9 +53,9 @@ pub struct GuiConfig {
     auto_enable_deps: bool,
     #[serde(default = "_default_false")]
     pub no_log_server: bool,
+    #[serde(default = "_default_false")]
+    pub hide_installed_in_remote: bool,
     // Old
-    #[serde(skip_serializing_if = "Option::is_none")]
-    theme: Option<Theme>,
     #[serde(skip_serializing_if = "Option::is_none")]
     rainbow: Option<bool>,
 }
@@ -61,13 +63,14 @@ pub struct GuiConfig {
 impl Default for GuiConfig {
     fn default() -> Self {
         Self {
-            theme: None,
+            theme: Theme::default(),
             rainbow: None,
             language: Language::default(),
             watch_fs: true,
             no_warning: false,
             log_multi_window: false,
             auto_enable_deps: false,
+            hide_installed_in_remote: false,
             no_log_server: false,
         }
     }
@@ -80,8 +83,7 @@ impl GuiConfig {
     }
 
     fn migrate(&mut self) -> bool {
-        if self.theme.is_some() || self.rainbow.is_some() {
-            self.theme = None;
+        if self.rainbow.is_some() {
             self.rainbow = None;
             return true;
         }

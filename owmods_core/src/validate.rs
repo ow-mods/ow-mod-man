@@ -6,6 +6,7 @@ use serde::Serialize;
 use typeshare::typeshare;
 
 use crate::{
+    analytics::{send_analytics_event, AnalyticsEventName},
     config::Config,
     db::{LocalDatabase, RemoteDatabase},
     download::install_mods_parallel,
@@ -123,7 +124,10 @@ pub async fn fix_deps(
     if !missing.is_empty() {
         info!("Installing {} Missing Dependencies", missing.len());
     }
-    install_mods_parallel(missing, config, remote_db, db).await?;
+    install_mods_parallel(missing.clone(), config, remote_db, db).await?;
+    for missing_mod in missing {
+        send_analytics_event(AnalyticsEventName::ModRequiredInstall, &missing_mod).await;
+    }
     Ok(())
 }
 

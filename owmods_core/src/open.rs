@@ -54,3 +54,18 @@ pub fn open_readme(unique_name: &str, db: &RemoteDatabase) -> Result<()> {
     opener::open(format!("{WEBSITE_URL}/mods/{slug}/"))?;
     Ok(())
 }
+
+/// Open the github repo for a mod in the user's browser
+///
+/// ## Errors
+///
+/// If the unique name provided is not an installed mod or we can't open the browser.
+///
+pub fn open_github(unique_name: &str, db: &RemoteDatabase) -> Result<()> {
+    let remote_mod = db
+        .get_mod(unique_name)
+        .ok_or_else(|| anyhow!("Mod {} not found", unique_name))?;
+    let repo = &remote_mod.repo; // this is the entire link to the repo
+    opener::open(repo)?;
+    Ok(())
+}

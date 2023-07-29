@@ -164,10 +164,24 @@ pub async fn get_local_mods(
             .collect();
         mods.retain(|m| remote_mods_matching.contains(&m.get_unique_name().as_str()))
     }
-    Ok(mods
+
+    let first_disabled_index = mods
+        .iter()
+        .position(|m| matches!(m, UnsafeLocalMod::Valid(_)) && !m.get_enabled());
+
+    let mut unique_names: Vec<String> = mods
         .into_iter()
         .map(|m| m.get_unique_name().clone())
-        .collect())
+        .collect();
+
+    // Only way to get a separator in the list is to insert a fake mod
+    if filter.is_empty() && first_disabled_index.map(|i| i > 0).unwrap_or(false) {
+        if let Some(index) = first_disabled_index {
+            unique_names.insert(index, "~~SEPARATOR~~".to_string());
+        }
+    }
+
+    Ok(unique_names)
 }
 
 #[tauri::command]

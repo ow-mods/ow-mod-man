@@ -19,6 +19,7 @@
     "ConflictingMod": "This mod conflicts with $payload$",
     "DB_URL": "Database URL",
     "DEBUG_MODE": "Debug Mode",
+    "DISABLED_MODS": "Disabled Mods",
     "DISABLE_ALL": "Disable All",
     "DISABLE_MISSING_MODS": "Disable any mods that aren't in the list",
     "DISABLE_WARNING": "Don't Show Errors On Game Start",

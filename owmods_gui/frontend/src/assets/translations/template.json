@@ -19,6 +19,7 @@
     "ConflictingMod": "",
     "DB_URL": "",
     "DEBUG_MODE": "",
+    "DISABLED_MODS": "",
     "DISABLE_ALL": "",
     "DISABLE_MISSING_MODS": "",
     "DISABLE_WARNING": "",

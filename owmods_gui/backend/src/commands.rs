@@ -726,7 +726,7 @@ pub async fn run_game(
             if let Some((lines, writer)) = game_log.get_mut(&port) {
                 if let Some(last_message) = lines.last_mut() {
                     if msg == last_message.message {
-                        last_message.amount += 1;
+                        last_message.amount = last_message.amount.saturating_add(1);
                         let res = window_handle.typed_emit_all(&Event::LogLineCountUpdate(
                             LogLineCountUpdatePayload {
                                 port,

@@ -4,7 +4,7 @@ import ModsPage from "../ModsPage";
 import LocalModRow from "./LocalModRow";
 import LocalModsToggleButtons from "./LocalModsToggleButtons";
 import { useGetTranslation } from "@hooks";
-import { TableCell, Typography, useTheme } from "@mui/material";
+import { TableCell, Typography } from "@mui/material";
 
 export interface LocalModsPageProps {
     tags: string[];
@@ -18,7 +18,6 @@ const LocalModsPage = memo(function LocalModsPage(props: LocalModsPageProps) {
         commands.refreshLocalDb();
     }, []);
 
-    const theme = useTheme();
     const getTranslation = useGetTranslation();
 
     const [status, localMods] = hooks.getLocalMods("localRefresh", {
@@ -33,14 +32,14 @@ const LocalModsPage = memo(function LocalModsPage(props: LocalModsPageProps) {
     const renderRow = useCallback(
         (uniqueName: string) => {
             return uniqueName === "~~SEPARATOR~~" ? (
-                <TableCell sx={{ bgcolor: theme.palette.background.default }} colSpan={4}>
+                <TableCell colSpan={4}>
                     <Typography>{getTranslation("DISABLED_MODS")}</Typography>
                 </TableCell>
             ) : (
                 <LocalModRow uniqueName={uniqueName} />
             );
         },
-        [getTranslation, theme.palette.background.default]
+        [getTranslation]
     );
 
     const toggleButtons = useMemo(

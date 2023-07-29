@@ -13,18 +13,22 @@ interface AppIconProps {
 }
 
 export const AppIcon = (props: AppIconProps) => {
-    return (
-        <Tooltip open={props.disabled === true ? false : undefined} title={props.label}>
-            <IconButton
-                onClick={props.onClick}
-                disabled={props.disabled ?? false}
-                color="inherit"
-                aria-label={props.label}
-            >
-                {props.children}
-            </IconButton>
-        </Tooltip>
+    const comp = (
+        <IconButton
+            onClick={props.onClick}
+            disabled={props.disabled ?? false}
+            color="inherit"
+            aria-label={props.label}
+        >
+            {props.children}
+        </IconButton>
     );
+
+    if (props.disabled) {
+        return comp;
+    } else {
+        return <Tooltip title={props.label}>{comp}</Tooltip>;
+    }
 };
 
 const AppIcons = () => {

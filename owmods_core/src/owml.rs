@@ -14,6 +14,14 @@ use crate::{
     file::{deserialize_from_json, serialize_to_json},
 };
 
+const fn _default_true() -> bool {
+    true
+}
+
+const fn _default_false() -> bool {
+    false
+}
+
 /// Represents the configuration for OWML
 #[typeshare]
 #[derive(Serialize, Deserialize)]
@@ -21,8 +29,11 @@ use crate::{
 #[allow(non_snake_case)] // Have to allow non_snake_case here because OWML's config uses "incrementalGC", which isn't proper camelCase
 pub struct OWMLConfig {
     pub game_path: String,
+    #[serde(default = "_default_false")]
     debug_mode: bool,
+    #[serde(default = "_default_false")]
     pub force_exe: bool,
+    #[serde(default = "_default_true")]
     incremental_GC: bool,
     #[serde(skip_serializing_if = "Option::is_none")]
     owml_path: Option<String>,

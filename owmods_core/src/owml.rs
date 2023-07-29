@@ -1,11 +1,8 @@
-use std::{
-    collections::HashMap,
-    path::{Path, PathBuf},
-};
+use std::path::{Path, PathBuf};
 
 use anyhow::Result;
 use serde::{Deserialize, Serialize};
-use serde_json::Value;
+use serde_json::{Map, Value};
 use typeshare::typeshare;
 
 use crate::{
@@ -40,7 +37,7 @@ pub struct OWMLConfig {
     pub socket_port: u16,
     #[typeshare(skip)]
     #[serde(flatten)]
-    extra: HashMap<String, Value>,
+    extra: Map<String, Value>,
 }
 
 impl OWMLConfig {

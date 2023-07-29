@@ -132,7 +132,7 @@ export interface GuiConfig {
     autoEnableDeps: boolean;
     noLogServer: boolean;
     hideInstalledInRemote: boolean;
-    rainbow?: boolean;
+    rainbow: boolean;
 }
 
 export interface LogPayload {

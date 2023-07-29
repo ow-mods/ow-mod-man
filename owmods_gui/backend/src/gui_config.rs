@@ -55,16 +55,15 @@ pub struct GuiConfig {
     pub no_log_server: bool,
     #[serde(default = "_default_false")]
     pub hide_installed_in_remote: bool,
-    // Old
-    #[serde(skip_serializing_if = "Option::is_none")]
-    rainbow: Option<bool>,
+    #[serde(default = "_default_false")]
+    rainbow: bool,
 }
 
 impl Default for GuiConfig {
     fn default() -> Self {
         Self {
             theme: Theme::default(),
-            rainbow: None,
+            rainbow: false,
             language: Language::default(),
             watch_fs: true,
             no_warning: false,
@@ -82,19 +81,8 @@ impl GuiConfig {
         Ok(path)
     }
 
-    fn migrate(&mut self) -> bool {
-        if self.rainbow.is_some() {
-            self.rainbow = None;
-            return true;
-        }
-        false
-    }
-
     fn read() -> Result<Self, anyhow::Error> {
-        let mut conf = deserialize_from_json::<GuiConfig>(&Self::path()?)?;
-        if conf.migrate() {
-            conf.save()?;
-        }
+        let conf = deserialize_from_json::<GuiConfig>(&Self::path()?)?;
         Ok(conf)
     }
 

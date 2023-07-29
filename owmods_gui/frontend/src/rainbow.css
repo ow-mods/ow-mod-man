@@ -1,0 +1,42 @@
+@keyframes scroll {
+    from {
+        background-position: 0% 0;
+    }
+    to {
+        background-position: 200% 0;
+    }
+}
+
+:root {
+    --white-shadow: 2px 0 #fff, -2px 0 #fff, 0 2px #fff, 0 -2px #fff, 1px 1px #fff, -1px -1px #fff,
+        1px -1px #fff, -1px 1px #fff;
+}
+
+.MuiChip-filledPrimary,
+.MuiButton-containedPrimary {
+    --level: 45%;
+    --saturation-offset: 20%;
+    background-image: linear-gradient(
+        90deg,
+        hsl(0, calc(100% - var(--saturation-offset)), var(--level)) 0%,
+        hsl(36, calc(100% - var(--saturation-offset)), var(--level)) 10%,
+        hsl(64, calc(74% - var(--saturation-offset)), var(--level)) 20%,
+        hsl(118, calc(68% - var(--saturation-offset)), var(--level)) 30%,
+        hsl(179, calc(68% - var(--saturation-offset)), var(--level)) 40%,
+        hsl(188, calc(76% - var(--saturation-offset)), var(--level)) 50%,
+        hsl(212, calc(86% - var(--saturation-offset)), var(--level)) 60%,
+        hsl(260, calc(89% - var(--saturation-offset)), var(--level)) 70%,
+        hsl(284, calc(94% - var(--saturation-offset)), var(--level)) 80%,
+        hsl(308, calc(97% - var(--saturation-offset)), var(--level)) 90%,
+        hsl(0, calc(100% - var(--saturation-offset)), var(--level)) 100%
+    ) !important;
+    color: black !important;
+    text-shadow: var(--white-shadow);
+    background-size: 200% 200% !important;
+    animation: scroll 10s linear infinite forwards !important;
+}
+
+.MuiButton-containedPrimary > .MuiButton-startIcon > svg {
+    stroke: white !important;
+    stroke-width: 2px;
+}

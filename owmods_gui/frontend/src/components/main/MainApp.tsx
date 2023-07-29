@@ -69,6 +69,7 @@ const MainApp = () => {
         <BaseApp
             language={guiConfig?.language}
             theme={guiConfig?.theme}
+            usesRainbow={guiConfig?.rainbow}
             isLoading={status === "Loading" && guiConfig === null}
         >
             <OwmlModal />

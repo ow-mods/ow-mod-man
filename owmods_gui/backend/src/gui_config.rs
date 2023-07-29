@@ -12,7 +12,10 @@ pub enum Theme {
     Pink,
     Purple,
     Blurple,
+    OuterWildsOrange,
     GhostlyGreen,
+    NomaiBlue,
+    NomaiYellow,
     #[default]
     #[serde(other)]
     Green,

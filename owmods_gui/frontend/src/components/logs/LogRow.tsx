@@ -105,7 +105,7 @@ const LogRow = memo(function LogRow(props: LogRowProps) {
                     {(logLine?.amount ?? 1) > 1 && (
                         <Box justifySelf="end">
                             <Chip
-                                color={logLine?.amount === 65535 ? "error" : "default"}
+                                color={logLine?.amount === 4294967295 ? "error" : "default"}
                                 size="small"
                                 label={`x${logLine?.amount}`}
                             />

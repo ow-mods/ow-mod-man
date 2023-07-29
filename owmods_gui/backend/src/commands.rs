@@ -736,6 +736,10 @@ pub async fn run_game(
                         if let Err(why) = res {
                             error!("Couldn't Emit Game Log: {}", why)
                         }
+                        let res = window_handle.typed_emit_all(&Event::LogUpdate(port));
+                        if let Err(why) = res {
+                            error!("Couldn't Emit Game Log: {}", why)
+                        }
                         continue;
                     }
                 }
@@ -791,11 +795,12 @@ pub async fn get_log_lines(
     filter_type: Option<SocketMessageType>,
     search: &str,
     state: tauri::State<'_, State>,
-) -> Result<Vec<usize>> {
+) -> Result<(Vec<usize>, u32)> {
     let logs = state.game_log.read().await;
     if let Some((lines, _)) = logs.get(&port) {
+        let sum = lines.iter().map(|l| l.amount).sum();
         let lines = get_logs_indices(lines, filter_type, search)?;
-        Ok(lines)
+        Ok((lines, sum))
     } else {
         Err(Error(anyhow!("Log Server Not Running")))
     }

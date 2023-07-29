@@ -20,6 +20,10 @@ pub async fn launch_game(
     open_in_new_window: bool,
     port: Option<&u16>,
 ) -> Result<()> {
+    if option_env!("NO_GAME").unwrap_or("FALSE") == "TRUE" {
+        return Ok(());
+    }
+
     let mut cmd = get_cmd(config, open_in_new_window)?;
 
     cmd.current_dir(PathBuf::from(&config.owml_path));

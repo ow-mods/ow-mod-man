@@ -109,11 +109,11 @@ impl UnsafeLocalMod {
 impl Searchable for UnsafeLocalMod {
     fn get_values(&self) -> Vec<String> {
         match self {
-            UnsafeLocalMod::Invalid(m) => vec![m.display_path.to_ascii_lowercase()],
+            UnsafeLocalMod::Invalid(m) => vec![m.display_path.clone()],
             UnsafeLocalMod::Valid(m) => vec![
-                m.manifest.name.to_ascii_lowercase(),
-                m.manifest.unique_name.to_ascii_lowercase(),
-                m.manifest.author.to_ascii_lowercase(),
+                m.manifest.name.clone(),
+                m.manifest.unique_name.clone(),
+                m.manifest.author.clone(),
             ],
         }
     }

@@ -28,6 +28,7 @@ uuid = { version = "1.4.1", features = ["v4", "fast-rng"] }
 typeshare = "1.0.1"
 lazy_static = "1.4.0"
 tempfile = "3.7.0"
+unicode-normalization = "0.1.22"
 
 [dev-dependencies]
 tokio-test = "0.4.2"

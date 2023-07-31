@@ -172,6 +172,11 @@ Note that the manager uses the `pathsToPreserve` field **on the installed mod** 
 - Each field is weighted by 1 if it contains the query, and by 2 if it's an exact match.
 - Each field the manager checks for search is weighted by its position in that list, so matches in the name take precedent over matches in the author for example.
 - The score of each field is then added together to get the final score of the mod.
+- All fields are normalized to increase the chances of matching
+  - The field is lowercased
+  - The field gets NFC normalized
+  - The field gets all whitespace and control characters removed
+  - The field gets any combining diacritical marks (`\u{0300}`-`\u{036f}`) removed
 - The exact formula for determining score is below
 
 #### Formula

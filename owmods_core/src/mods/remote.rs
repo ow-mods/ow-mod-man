@@ -45,10 +45,10 @@ impl RemoteMod {
 impl Searchable for RemoteMod {
     fn get_values(&self) -> Vec<String> {
         vec![
-            self.name.to_ascii_lowercase(),
-            self.unique_name.to_ascii_lowercase(),
-            self.author.to_ascii_lowercase(),
-            self.description.to_ascii_lowercase(),
+            self.name.clone(),
+            self.unique_name.clone(),
+            self.get_author().clone(),
+            self.description.clone(),
         ]
     }
 }

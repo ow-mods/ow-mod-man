@@ -2305,6 +2305,7 @@ dependencies = [
  "tokio",
  "tokio-test",
  "typeshare",
+ "unicode-normalization",
  "uuid",
  "version-compare 0.1.1",
  "zip",

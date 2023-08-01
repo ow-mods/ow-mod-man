@@ -73,6 +73,9 @@ jobs:
       - name: Build GUI
         run: tauri build --ci -b $([[ ${{ matrix.platform }} = 'windows-latest' ]] && echo 'msi nsis' || echo 'appimage deb')
         shell: bash
+        env:
+          VITE_COMMIT: ${{ github.sha }}
+          VITE_VERSION_SUFFIX: -nightly
 
       # Seperate artifacts for each platform
 

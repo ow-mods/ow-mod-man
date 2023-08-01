@@ -74,12 +74,22 @@ jobs:
         run: tauri build --ci -b $([[ ${{ matrix.platform }} = 'windows-latest' ]] && echo 'msi nsis' || echo 'appimage deb')
         shell: bash
 
-      - name: Upload GUI
+      # Seperate artifacts for each platform
+
+      - name: Upload GUI (Linux)
         uses: actions/upload-artifact@v3
+        if: matrix.platform == 'ubuntu-20.04'
         with:
-          name: GUI-Nightly
+          name: GUI-Nightly-Linux
           path: |
             target/release/bundle/**/*.deb
             target/release/bundle/**/*.AppImage
+
+      - name: Upload GUI (Windows)
+        uses: actions/upload-artifact@v3
+        if: matrix.platform == 'windows-latest'
+        with:
+          name: GUI-Nightly-Windows
+          path: |
             target/release/bundle/**/*.msi
             target/release/bundle/**/*.exe

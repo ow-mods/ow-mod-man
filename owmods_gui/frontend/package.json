@@ -31,18 +31,18 @@
         "react-virtuoso": "4.4.2"
     },
     "devDependencies": {
-        "@types/react": "18.2.17",
+        "@types/react": "18.2.18",
         "@types/react-dom": "18.2.7",
-        "@typescript-eslint/eslint-plugin": "6.2.0",
-        "@typescript-eslint/parser": "6.2.0",
-        "@vitejs/plugin-react": "4.0.3",
+        "@typescript-eslint/eslint-plugin": "6.2.1",
+        "@typescript-eslint/parser": "6.2.1",
+        "@vitejs/plugin-react": "4.0.4",
         "eslint": "8.46.0",
         "eslint-plugin-react": "7.33.1",
         "eslint-plugin-react-hooks": "4.6.0",
         "prettier": "3.0.0",
         "typescript": "5.1.6",
         "vite": "4.4.7",
-        "vite-imagetools": "5.0.6",
+        "vite-imagetools": "5.0.7",
         "vite-plugin-html": "3.2.0"
     }
 }

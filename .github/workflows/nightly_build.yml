@@ -79,4 +79,7 @@ jobs:
         with:
           name: GUI-Nightly
           path: |
-            target/release/bundle
+            target/debug/bundle/**/*.deb
+            target/debug/bundle/**/*.AppImage
+            target/debug/bundle/**/*.msi
+            target/debug/bundle/**/*.exe

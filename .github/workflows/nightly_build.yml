@@ -65,7 +65,7 @@ jobs:
         run: pnpm add -g @tauri-apps/cli
 
       - name: Build GUI
-        run: pnpm run tauri build --ci -d -b $([[ ${{ matrix.platform }} = 'windows-latest' ]] && echo 'msi nsis' || echo 'appimage deb')
+        run: tauri build --ci -d -b $([[ ${{ matrix.platform }} = 'windows-latest' ]] && echo 'msi nsis' || echo 'appimage deb')
         shell: bash
 
       - name: Upload GUI

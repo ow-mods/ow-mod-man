@@ -2322,7 +2322,7 @@ dependencies = [
 
 [[package]]
 name = "owmods_gui"
-version = "0.10.0"
+version = "0.10.1"
 dependencies = [
  "anyhow",
  "log",

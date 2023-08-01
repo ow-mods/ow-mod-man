@@ -35,6 +35,8 @@ jobs:
 
       - name: Setup Rust Cache
         uses: Swatinem/rust-cache@v2
+        with:
+          shared-key: ${{ runner.os }}-rust-cache-${{ hashFiles('Cargo.lock') }}
 
       - name: Setup Node
         uses: actions/setup-node@v3
@@ -77,4 +79,4 @@ jobs:
         with:
           name: GUI-Nightly
           path: |
-            owmods_gui/target/release/bundle
+            target/release/bundle

@@ -24,6 +24,8 @@ jobs:
 
       - name: Setup Rust Cache
         uses: Swatinem/rust-cache@v2
+        with:
+          shared-key: ${{ runner.os }}-rust-cache-${{ hashFiles('Cargo.lock') }}
 
       - name: Install Deb Generator
         if: matrix.platform == 'ubuntu-20.04'

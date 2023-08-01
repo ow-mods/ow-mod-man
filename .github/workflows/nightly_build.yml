@@ -36,7 +36,7 @@ jobs:
       - name: Setup Rust Cache
         uses: Swatinem/rust-cache@v2
         with:
-          shared-key: ${{ runner.os }}-rust-cache-${{ hashFiles('Cargo.lock') }}
+          shared-key: v1-${{ runner.os }}-rust-cache-${{ hashFiles('Cargo.lock') }}
 
       - name: Setup Node
         uses: actions/setup-node@v3
@@ -71,7 +71,7 @@ jobs:
         run: pnpm add -g @tauri-apps/cli
 
       - name: Build GUI
-        run: tauri build --ci -d -b $([[ ${{ matrix.platform }} = 'windows-latest' ]] && echo 'msi nsis' || echo 'appimage deb')
+        run: tauri build --ci -b $([[ ${{ matrix.platform }} = 'windows-latest' ]] && echo 'msi nsis' || echo 'appimage deb')
         shell: bash
 
       - name: Upload GUI
@@ -79,7 +79,7 @@ jobs:
         with:
           name: GUI-Nightly
           path: |
-            target/debug/bundle/**/*.deb
-            target/debug/bundle/**/*.AppImage
-            target/debug/bundle/**/*.msi
-            target/debug/bundle/**/*.exe
+            target/release/bundle/**/*.deb
+            target/release/bundle/**/*.AppImage
+            target/release/bundle/**/*.msi
+            target/release/bundle/**/*.exe

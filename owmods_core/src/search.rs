@@ -49,7 +49,7 @@ where
 /// - If the search is contained in a value, that value will be weighted 1x
 /// - If the search is not contained in a value, that value will be weighted 0x
 ///
-/// The score is then also weighted by the position of the value in the list the [Searchable] (first is most important)
+/// The score is then also weighted by the position of the value in the list the [Searchable] (first is most important) returns
 /// These scores are then summed and the list is sorted by the total score of each item.
 ///
 /// It's not recommended to use this function when working with the mod databases
@@ -178,5 +178,18 @@ pub mod tests {
         let results = search_list(test_structs.iter().collect(), "tëst2");
         assert_eq!(results.len(), 1);
         assert_eq!(results[0].name, "Test2".to_string());
+    }
+
+    #[test]
+    fn test_matches_query() {
+        let test_struct = TestStruct {
+            name: "Test".to_string(),
+            description: "This is a test".to_string(),
+        };
+        assert!(matches_query(&test_struct, "tést"));
+        assert!(matches_query(&test_struct, "tHiS"));
+        assert!(matches_query(&test_struct, "iS"));
+        assert!(matches_query(&test_struct, "  a  "));
+        assert!(!matches_query(&test_struct, "not related"));
     }
 }

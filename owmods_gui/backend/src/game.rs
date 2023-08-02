@@ -9,6 +9,7 @@ use owmods_core::{
     alerts::get_warnings,
     config::Config,
     db::LocalDatabase,
+    search::matches_query,
     socket::{SocketMessage, SocketMessageType},
 };
 use serde::{Deserialize, Serialize};
@@ -92,17 +93,8 @@ pub fn get_logs_indices(
         if filter_type.is_some() || !search.trim().is_empty() {
             let matches_type = filter_type.is_none()
                 || line.message.message_type == *filter_type.as_ref().unwrap();
-            let matches_search = search.is_empty()
-                || line.message.message.to_ascii_lowercase().contains(&search)
-                || line
-                    .message
-                    .sender_name
-                    .as_ref()
-                    .map(|v| v.to_ascii_lowercase().contains(&search))
-                    .unwrap_or(false);
-            if !(matches_type && matches_search) {
-                include = false;
-            }
+            let matches_search = matches_query(&line.message, &search);
+            include = matches_type && matches_search;
         }
         if include {
             indices.push(line_number);

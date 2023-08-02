@@ -15,7 +15,7 @@ The core also has a test suite that you can run with `cargo test -p owmods_core`
 You can use the `log_client` xtask for testing how the manager receives logs from the game:
 
 ```sh
-cargo run -p owmods_cli -- log_server
+cargo run -p owmods_cli -- log-server --port=12345
 ```
 
 Then in another terminal:
@@ -33,7 +33,7 @@ Then simply enter a message and press enter to send it to the manager. This does
 You can use the spam_logs xtask for testing how the manager handles a lot of logs:
 
 ```sh
-cargo run -p owmods_cli -- log_server
+cargo run -p owmods_cli -- log-server --port=12345
 ```
 
 Then in another terminal:

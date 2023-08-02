@@ -43,6 +43,7 @@ where
 
 /// Search a list of [Searchable] for a string
 /// This will return a list of the items that match the search, sorted by relevance
+///
 /// Relevance is determined like so:
 ///
 /// - If the search is an exact match for a value, that value will be weighted 2x

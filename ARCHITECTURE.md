@@ -25,6 +25,8 @@
     - [Log Server Behavior](#log-server-behavior)
     - [Alert Behavior](#alert-behavior)
     - [Analytics Behavior](#analytics-behavior)
+    - [Progress Bar Behavior](#progress-bar-behavior)
+      - [Throttling](#throttling)
   - [GUI Package](#gui-package)
     - [Protocol](#protocol)
 
@@ -196,6 +198,8 @@ This is a weird way to do this and will probably be changed in the future.
 - When launching the game the manager can also start a log server, this is used to collect logs from the game. Note this will not happen implicitly, you'll need to make a new `LogServer` and call `listen` on it to listen to logs from the game. To make the two tasks happen at the same time use `tokio::join!`
 - On Linux the manager also performs special behaviour that patches OWML to run properly under Mono
 - If a mod specifies a `warning` object in it manifest, the warning title and message will be the one specified in the manifest. This warning will only be shown once and on subsequent launches it will be suppressed. This is used to warn users about mods that are known to cause issues.
+- **On windows only**, the manager can also let OWML handle logs, meaning the manager will not collect logs from the game. This makes the manager simply open a cmd window and run the game. This behavior is disabled on Linux as there's no standard for launching a terminal emulator.
+- If the `NO_GAME` env var is set to `TRUE` at compile time, the manager will not launch the game. This is useful for testing the GUI without having to launch the game.
 
 ### Log Server Behavior
 
@@ -207,6 +211,7 @@ This is a weird way to do this and will probably be changed in the future.
 - Messages must be valid JSON and end with a newline character.
 - See [SocketMessage](https://docs.rs/owmods_core/latest/owmods_core/socket/struct.SocketMessage.html) to see the format of the messages.
 - The server may or may not stop listening when receiving the `Quit` message depending on use-case (CLI it does, GUI it doesn't).
+- The server may drop lines if the mpsc channel is full, this is to prevent the server from blocking the UI.
 
 ### Alert Behavior
 
@@ -225,6 +230,34 @@ This is a weird way to do this and will probably be changed in the future.
 - **No personal information is sent**, only the mod unique name, the event name, and a unique ID generated for your session, this ID changes every time you open the manager.
 - For a list of all events see [AnalyticsEventName](https://docs.rs/owmods_core/latest/owmods_core/analytics/enum.AnalyticsEventName.html)
 - Events are sent with `install_mod_from_db` and `update_all`, other functions are up to the GUI/CLI to implement.
+- If the `ANALYTICS_API_KEY` env var is empty at compile time, analytics will be disabled.
+
+### Progress Bar Behavior
+
+- The mod manager uses a progress bar to show progress when installing mods.
+- The progress bars are sent over log lines, and it's up to the GUI/CLI to implement the progress bar.
+- The following payloads exist for log lines:
+  - Start
+  - Increment
+  - Message
+  - Finish
+- Each payload takes the ID for the progress bar and then additional args
+- The ID is derived from the temp dir the mod is being installed to, this means if the mod is being installed to the same temp dir as another mod, the progress bar will be the same, but this is unlikely to happen.
+- Payloads are put into logs as pipe-delimited strings, for example `Inc|/tmp/someMod|5`
+- It should be noted that the progress module exists to handle this behavior, and you should prefer that to manually implementing the serializing/deserializing for this.
+- When a progress bar is dropped, the manager will send a `Finish` payload with the ID of the progress bar. But this will mean the bar will be marked as failed
+- A progress bar can optionally have a mod's unique name associated with it, this is mainly used in modeless UI (i.e. the GUI) to mark a mod as "busy" and prevent other actions from being performed on it.
+- Progress bars can be marked as indeterminate, this is used when the manager doesn't know how long the operation will take. This is mainly used for downloading mods from a URL where the server doesn't send a content-length header (e.g. GitHub actions artifacts).
+- The length of the progress bar is determined by its type
+  - Downloads will be the number of bytes downloaded (provided the server set a content-length header)
+  - Extracts will be the number of files in the zip. Note this won't always match the number of files actually extracted, as the manager only extracts the files that are siblings and children of the manifest file. This quirk shouldn't happen too much though, and it's not a big deal if it does.
+- Internally progress bars throttle its updates to prevent excessive UI updates.
+
+#### Throttling
+
+The manager will throttle progress bars on increment. Essentially it keeps two values in mind, the *actual* value of the bar and the value that was last reported to logs. If the difference between the two is larger than the total length of the bar divided by 30, an increment will be sent to logs. This tries to strike a balance between not updating the UI too much and not making the progress bar feel like it's stuck.
+
+So if I had a progress bar that was a length of 90, and I increment by 1 every 1 second, the manager would only send an increment to logs every 3 seconds.
 
 ## GUI Package
 

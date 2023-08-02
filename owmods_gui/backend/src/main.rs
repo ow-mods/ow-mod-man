@@ -3,7 +3,13 @@
     windows_subsystem = "windows"
 )]
 
-use std::{collections::HashMap, error::Error, fs::File, io::BufWriter, sync::Arc};
+use std::{
+    collections::HashMap,
+    error::Error,
+    fs::File,
+    io::{BufWriter, Write},
+    sync::Arc,
+};
 
 use commands::*;
 use fs_watch::setup_fs_watch;
@@ -14,10 +20,12 @@ use logging::Logger;
 use owmods_core::{
     config::Config,
     db::{LocalDatabase, RemoteDatabase},
+    file::get_app_path,
 };
 
 use progress::ProgressBars;
 use protocol::{ProtocolInstallType, ProtocolPayload};
+use time::macros::format_description;
 use tokio::sync::RwLock as TokioLock;
 
 use crate::events::{CustomEventEmitterAll, Event};
@@ -68,7 +76,7 @@ fn main() -> Result<(), Box<dyn Error>> {
 
     let url = std::env::args().nth(1).map(|s| ProtocolPayload::parse(&s));
 
-    tauri::Builder::default()
+    let res = tauri::Builder::default()
         .manage(State {
             local_db: manage(local_db),
             remote_db: manage(remote_db),
@@ -185,7 +193,30 @@ fn main() -> Result<(), Box<dyn Error>> {
             open_mod_github
         ])
         .plugin(tauri_plugin_window_state::Builder::default().build())
-        .run(tauri::generate_context!())
-        .expect("Error while running tauri application.");
+        .run(tauri::generate_context!());
+
+    if let Err(why) = res {
+        eprintln!("Error: {:?}", why);
+        let app_path = get_app_path()?;
+        let now = time::OffsetDateTime::now_utc();
+        let timestamp_str = now
+            .format(format_description!(
+                "[year]-[month]-[day]_[hour]-[minute]-[second]"
+            ))
+            .unwrap();
+        let log_path = app_path.join(format!("crash_log_{}.txt", timestamp_str));
+        let mut file = File::create(&log_path)?;
+        file.write_all(
+            format!(
+                "The manager encountered a fatal error when starting: {:?}",
+                why
+            )
+            .as_bytes(),
+        )?;
+        drop(file);
+        opener::open(&log_path)?;
+        std::process::exit(1);
+    }
+
     Ok(())
 }

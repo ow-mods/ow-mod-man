@@ -57,7 +57,8 @@ pub mod updates;
 /// Validate the local database for common issues
 pub mod validate;
 
-mod search;
+/// Generalized searching
+pub mod search;
 
 #[cfg(test)]
 mod test_utils {

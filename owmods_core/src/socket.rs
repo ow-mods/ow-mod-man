@@ -9,6 +9,8 @@ use tokio::{
 };
 use typeshare::typeshare;
 
+use crate::search::Searchable;
+
 pub type LogServerSender = mpsc::Sender<SocketMessage>;
 
 /// Represents the type of message sent from the game
@@ -71,6 +73,16 @@ impl SocketMessage {
             sender_name: Some("Manager".to_string()),
             sender_type: Some("LogServer".to_string()),
         }
+    }
+}
+
+impl Searchable for SocketMessage {
+    fn get_values(&self) -> Vec<String> {
+        vec![
+            self.message.clone(),
+            self.sender_name.clone().unwrap_or("".to_string()),
+            self.sender_type.clone().unwrap_or("".to_string()),
+        ]
     }
 }
 

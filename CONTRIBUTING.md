@@ -28,9 +28,9 @@ Replace 12345 with the port you see in the first terminal (or in the GUI if you'
 
 Then simply enter a message and press enter to send it to the manager. This doesn't support sending different types of messages yet, but it's good enough for testing. You can always edit `xtask/log_client.rs` to add more functionality / just change it.
 
-### log_spammer
+### spam_logs
 
-You can use the log_spammer xtask for testing how the manager handles a lot of logs:
+You can use the spam_logs xtask for testing how the manager handles a lot of logs:
 
 ```sh
 cargo run -p owmods_cli -- log_server
@@ -39,7 +39,7 @@ cargo run -p owmods_cli -- log_server
 Then in another terminal:
 
 ```sh
-cargo xtask log_spammer 12345 0.001
+cargo xtask spam_logs 12345 0.001
 ```
 
 Replace 12345 with the port you see in the first terminal (or in the GUI if you're testing that).

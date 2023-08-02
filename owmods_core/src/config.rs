@@ -18,10 +18,15 @@ use crate::{
 #[derive(Serialize, Deserialize, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct Config {
+    /// The path to the OWML install, defaults to `~/.local/share/OuterWildsModManager/OWML`
     pub owml_path: String,
+    /// The URL to the database
     pub database_url: String,
+    /// The URL to fetch alerts from
     pub alert_url: String,
+    /// The mod warnings that have been shown to the user
     pub viewed_alerts: Vec<String>,
+    /// Where the config is saved, this is not serialized
     #[serde(skip)]
     pub path: PathBuf,
 }

@@ -11,13 +11,17 @@ use typeshare::typeshare;
 
 use crate::search::Searchable;
 
+/// A channel to send logs to the server
 pub type LogServerSender = mpsc::Sender<SocketMessage>;
 
 /// Represents the type of message sent from the game
+///
+/// See [the OWML docs](https://owml.outerwildsmods.com/mod_helper/console.html#WriteLine) for what the types mean.
 #[typeshare]
 #[derive(Eq, PartialEq, Clone, Debug, Serialize_repr, Deserialize_repr)]
 #[serde(rename_all = "camelCase")]
 #[repr(u8)]
+#[allow(missing_docs)]
 pub enum SocketMessageType {
     Message = 0,
     Error = 1,
@@ -52,9 +56,14 @@ impl SocketMessageType {
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "camelCase")]
 pub struct SocketMessage {
+    /// The name of the sender, usually the name of the mod
     pub sender_name: Option<String>,
+    /// The type of the sender, usually ModHelper
     pub sender_type: Option<String>,
+    /// The message sent from the game
     pub message: String,
+    /// The type of message sent from the game
+    /// Note that the message sent calls this `type` so we have to alias it because type is a reserved keyword
     #[serde(alias = "type")]
     pub message_type: SocketMessageType,
 }
@@ -88,6 +97,7 @@ impl Searchable for SocketMessage {
 
 /// A server used to listen to logs from the game
 pub struct LogServer {
+    /// The port the server is bound to
     pub port: u16,
     listener: TcpListener,
 }

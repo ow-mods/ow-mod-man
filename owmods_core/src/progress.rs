@@ -1,6 +1,7 @@
 use log::info;
 use serde::Serialize;
 
+/// Represents a value in a progress bar
 pub type ProgressValue = u32;
 
 /// Type of progress bar
@@ -31,6 +32,7 @@ pub enum ProgressAction {
 }
 
 impl ProgressAction {
+    /// Parse a progress action from a string
     pub fn parse(input: &str) -> Self {
         match input {
             "Download" => ProgressAction::Download,
@@ -40,33 +42,56 @@ impl ProgressAction {
     }
 }
 
+/// Payload sent when a progress bar is started
+/// Contains all the information needed to create a progress bar
 #[derive(Clone, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct ProgressStartPayload {
+    /// The ID of the progress bar
     pub id: String,
+    /// The unique name of the mod this progress bar is for, sometimes this will be None if the progress bar doesn't know what mod it's for
     pub unique_name: Option<String>,
+    /// The length of the progress bar
     pub len: ProgressValue,
+    /// The message of the progress bar
     pub msg: String,
+    /// The type of progress bar
     pub progress_type: ProgressType,
+    /// The action this progress bar is reporting
     pub progress_action: ProgressAction,
 }
 
+/// Payload sent when a progress bar is incremented
+/// Note progress bars internally throttle the amount of times they can be incremented and may not report every increment
+/// This is done to prevent spamming small increments
 #[derive(Clone, Serialize)]
 pub struct ProgressIncrementPayload {
+    /// The ID of the progress bar
     pub id: String,
+    /// The amount to increment the progress bar by
     pub progress: ProgressValue,
 }
 
+/// Payload sent when a progress bar's message is updated
+/// This is usually used to show the current file being extracted
 #[derive(Clone, Serialize)]
 pub struct ProgressMessagePayload {
+    /// The ID of the progress bar
     pub id: String,
+    /// The message of the progress bar
     pub msg: String,
 }
 
+/// Payload sent when a progress bar has finished its task
+/// This is usually used to show the final message of the progress bar
+/// If the progress bar failed, the message will be the failure message
 #[derive(Clone, Serialize)]
 pub struct ProgressFinishPayload {
+    /// The ID of the progress bar
     pub id: String,
+    /// Whether the progress bar succeeded or failed
     pub success: bool,
+    /// The message of the progress bar
     pub msg: String,
 }
 
@@ -81,6 +106,7 @@ pub enum ProgressPayload {
     Msg(ProgressMessagePayload),
     /// Payload sent when a progress bar has finished its task
     Finish(ProgressFinishPayload),
+    /// An invalid payload
     Unknown,
 }
 
@@ -150,6 +176,23 @@ pub struct ProgressBar {
 }
 
 impl ProgressBar {
+    /// Create a new progress bar
+    /// This will begin reporting the progress bar to the log
+    ///
+    /// ## Arguments
+    ///
+    /// - `id` - The ID of the progress bar
+    /// - `unique_name` - The unique name of the mod this progress bar is for, pass None if the progress bar doesn't know what mod it's for
+    /// - `len` - The length of the progress bar
+    /// - `msg` - The message of the progress bar
+    /// - `failure_message` - The message to show if the progress bar fails
+    /// - `progress_type` - The type of progress bar
+    /// - `progress_action` - The action this progress bar is reporting
+    ///
+    /// ## Returns
+    ///
+    /// The new progress bar
+    /// Note that if this is dropped without calling finish, it will be considered a failure, so make sure to call finish!
     pub fn new(
         id: &str,
         unique_name: Option<&str>,
@@ -171,6 +214,9 @@ impl ProgressBar {
         new
     }
 
+    /// Increment the progress bar
+    /// This will throttle the amount of times the progress bar can be incremented, so an increment may not emit a log line
+    /// This is done to prevent spamming small increments
     pub fn inc(&mut self, amount: ProgressValue) {
         const THROTTLING_AMOUNT: ProgressValue = 30;
 
@@ -186,10 +232,21 @@ impl ProgressBar {
         }
     }
 
+    /// Set the message of the progress bar
     pub fn set_msg(&self, msg: &str) {
         info!(target: "progress", "Msg|{}|{}", self.id, msg);
     }
 
+    /// Finish the progress bar
+    ///
+    /// This will emit a log line with the final message of the progress bar
+    /// This function should always be called when the progress bar is done, as a drop will result in a failure
+    ///
+    /// ## Arguments
+    ///
+    /// - `success` - Whether the progress bar succeeded or failed
+    /// - `msg` - The message of the progress bar, **this will be ignored if the progress bar failed,
+    /// and will instead use the failure message passed initially**
     pub fn finish(&mut self, success: bool, msg: &str) {
         self.complete = true;
         let msg = if success { msg } else { &self.failure_message };

@@ -53,7 +53,7 @@ where
 /// These scores are then summed and the list is sorted by the total score of each item.
 ///
 /// It's not recommended to use this function when working with the mod databases
-/// Use [LocalDatabase::search] or [RemoteDatabase::search] instead
+/// Use [LocalDatabase::search](crate::db::LocalDatabase::search) or [RemoteDatabase::search](crate::db::RemoteDatabase::search) instead
 pub fn search_list<'a, T>(source_list: Vec<&'a T>, filter: &str) -> Vec<&'a T>
 where
     T: Searchable,

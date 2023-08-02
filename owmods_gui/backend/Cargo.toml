@@ -18,7 +18,7 @@ log = { version = "0.4.19", features = ["std", "serde"] }
 typeshare = "1.0.1"
 notify = { version = "6.0.1", default-features = false, features = ["macos_kqueue"] }
 regex = "1.9.1"
-time = { version = "0.3.24", features = ["macros"] }
+time = { version = "0.3.25", features = ["macros"] }
 tauri-plugin-deep-link = "0.1.1"
 tauri-plugin-window-state = { git = "https://github.com/tauri-apps/plugins-workspace", branch = "dev" }
 opener = "0.6.1"

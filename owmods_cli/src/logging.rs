@@ -122,10 +122,7 @@ impl log::Log for Logger {
 }
 
 pub fn log_mod_validation_errors(local_mod: &UnsafeLocalMod, local_db: &LocalDatabase) {
-    let name: &str = match local_mod {
-        UnsafeLocalMod::Valid(m) => m.manifest.name.as_ref(),
-        UnsafeLocalMod::Invalid(m) => m.mod_path.as_ref(),
-    };
+    let name: &str = local_mod.get_name();
     for err in local_mod.get_errs() {
         match err {
             ModValidationError::MissingDLL(path) => match path {

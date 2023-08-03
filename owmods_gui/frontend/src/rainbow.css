@@ -10,13 +10,9 @@
 :root {
     --white-shadow: 2px 0 #fff, -2px 0 #fff, 0 2px #fff, 0 -2px #fff, 1px 1px #fff, -1px -1px #fff,
         1px -1px #fff, -1px 1px #fff;
-}
-
-.MuiChip-filledPrimary,
-.MuiButton-containedPrimary {
     --level: 45%;
     --saturation-offset: 20%;
-    background-image: linear-gradient(
+    --rainbow: linear-gradient(
         90deg,
         hsl(0, calc(100% - var(--saturation-offset)), var(--level)) 0%,
         hsl(36, calc(100% - var(--saturation-offset)), var(--level)) 10%,
@@ -29,11 +25,29 @@
         hsl(284, calc(94% - var(--saturation-offset)), var(--level)) 80%,
         hsl(308, calc(97% - var(--saturation-offset)), var(--level)) 90%,
         hsl(0, calc(100% - var(--saturation-offset)), var(--level)) 100%
-    ) !important;
+    );
+}
+
+.MuiChip-filledPrimary,
+.MuiButton-containedPrimary,
+.MuiLinearProgress-bar {
+    background-image: var(--rainbow) !important;
     color: black !important;
     text-shadow: var(--white-shadow);
     background-size: 200% 200% !important;
     animation: scroll 10s linear infinite forwards !important;
+}
+
+h1,
+h2,
+h5,
+h6 {
+    background-image: var(--rainbow) !important;
+    background-size: 200% 200% !important;
+    animation: scroll 10s linear infinite forwards !important;
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
 }
 
 .MuiButton-containedPrimary > .MuiButton-startIcon > svg {

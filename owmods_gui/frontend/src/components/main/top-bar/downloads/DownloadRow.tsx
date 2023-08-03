@@ -9,6 +9,7 @@ const DownloadRow = memo(function DownloadRow(props: ProgressBar) {
     const done = props.success !== undefined && props.success !== null;
 
     const percent = (props.progress / props.len) * 100;
+    const variant = determineProgressVariant(props);
 
     return (
         <Card>
@@ -29,8 +30,8 @@ const DownloadRow = memo(function DownloadRow(props: ProgressBar) {
 
                     <Box width="100%">
                         <LinearProgress
-                            variant={determineProgressVariant(props)}
-                            value={percent}
+                            variant={variant}
+                            value={variant === "indeterminate" ? undefined : percent}
                             color={done ? (props.success ? "primary" : "error") : "secondary"}
                         />
                     </Box>

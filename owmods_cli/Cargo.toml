@@ -1,6 +1,6 @@
 [package]
 name = "owmods_cli"
-authors = ["Bwc9876 <bwc9876@gmail.com>"]
+authors = ["Bwc9876 <bwc9876@outerwildsmods.com>"]
 description = "A CLI Tool To Manage OWML Mods"
 version = "0.10.1"
 edition = "2021"

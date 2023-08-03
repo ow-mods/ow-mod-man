@@ -23,7 +23,7 @@ pub struct BaseCli {
 pub enum Commands {
     #[command(about = "Print Version")]
     Version,
-    #[command(about = "Install/Update OWML (default installs to %APPDATA%/ow-mod-man/OWML)")]
+    #[command(about = "Install/Update OWML")]
     Setup {
         owml_path: Option<PathBuf>,
         #[arg(

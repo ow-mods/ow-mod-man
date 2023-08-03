@@ -40,10 +40,14 @@ jobs:
         id: get_version
         run: echo "version=$(cargo run --release -q -p owmods_cli version)" >> $GITHUB_OUTPUT
         shell: bash
+        env:
+          ANALYTICS_API_KEY: ${{ secrets.ANALYTICS_API_KEY }}
 
       - name: Generate Dist Folder
         if: matrix.platform == 'ubuntu-20.04'
         run: cargo xtask dist_cli
+        env:
+          ANALYTICS_API_KEY: ${{ secrets.ANALYTICS_API_KEY }}
 
       - name: Archive Dist Files
         if: matrix.platform == 'ubuntu-20.04'

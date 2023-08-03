@@ -3,7 +3,7 @@
         background-position: 0% 0;
     }
     to {
-        background-position: 200% 0;
+        background-position: var(--bg-size) 0;
     }
 }
 
@@ -31,19 +31,21 @@
 .MuiChip-filledPrimary,
 .MuiButton-containedPrimary,
 .MuiLinearProgress-bar {
+    --bg-size: 500%;
     background-image: var(--rainbow) !important;
     color: black !important;
     text-shadow: var(--white-shadow);
-    background-size: 200% 200% !important;
-    animation: scroll 10s linear infinite forwards !important;
+    background-size: var(--bg-size) 200% !important;
+    animation: scroll 20s linear infinite forwards !important;
 }
 
 h1,
 h2,
 h5,
 h6 {
+    --bg-size: 200%;
     background-image: var(--rainbow) !important;
-    background-size: 200% 200% !important;
+    background-size: var(--bg-size) 200% !important;
     animation: scroll 10s linear infinite forwards !important;
     -webkit-background-clip: text;
     background-clip: text;

@@ -15,7 +15,8 @@
         "prettify": "prettier --write . --ignore-unknown",
         "format": "pnpm prettify",
         "prettier-check": "prettier --check . --ignore-unknown",
-        "preinstall": "npx only-allow pnpm"
+        "preinstall": "npx only-allow pnpm",
+        "test": "vitest"
     },
     "dependencies": {
         "@emotion/react": "11.11.1",
@@ -31,6 +32,7 @@
         "react-virtuoso": "4.4.2"
     },
     "devDependencies": {
+        "@testing-library/react": "^14.0.0",
         "@types/react": "18.2.18",
         "@types/react-dom": "18.2.7",
         "@typescript-eslint/eslint-plugin": "6.2.1",
@@ -39,10 +41,12 @@
         "eslint": "8.46.0",
         "eslint-plugin-react": "7.33.1",
         "eslint-plugin-react-hooks": "4.6.0",
+        "jsdom": "^22.1.0",
         "prettier": "3.0.1",
         "typescript": "5.1.6",
         "vite": "4.4.8",
         "vite-imagetools": "5.0.7",
-        "vite-plugin-html": "3.2.0"
+        "vite-plugin-html": "3.2.0",
+        "vitest": "^0.34.1"
     }
 }

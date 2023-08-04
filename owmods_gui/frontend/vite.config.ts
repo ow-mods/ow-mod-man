@@ -1,3 +1,4 @@
+/// <reference types="vitest" />
 /// <reference types="vite/client" />
 
 import { defineConfig } from "vite";
@@ -37,5 +38,11 @@ export default defineConfig({
             { find: "@commands", replacement: path.resolve(__dirname, "./src/commands.ts") },
             { find: "@events", replacement: path.resolve(__dirname, "./src/events.ts") }
         ]
+    },
+    test: {
+        globals: true,
+        environment: "jsdom",
+        watch: false,
+        setupFiles: ["./src/tests/setup.ts"]
     }
 });

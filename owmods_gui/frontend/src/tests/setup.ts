@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
-import { clearMocks, mockIPC, mockWindows } from "@tauri-apps/api/mocks";
+import { clearMocks, mockIPC } from "@tauri-apps/api/mocks";
 import { afterEach, beforeAll, beforeEach, vi } from "vitest";
 import { randomFillSync } from "crypto";
 import * as events from "@events";
@@ -23,7 +23,6 @@ beforeAll(() => {
             }
         }
     });
-    mockWindows("main");
 });
 
 beforeEach((ctx) => {

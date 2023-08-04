@@ -1,0 +1,38 @@
+# Tests to do
+
+- [ ] Components
+  - [x] AppAlert
+  - [x] FileDrop
+  - [x] OwmlModal
+  - [x] FileInput
+  - [ ] StartGameButton
+  - [ ] ReloadIcon
+  - [ ] AppTabs
+  - [ ] Import
+  - [ ] Export
+  - [ ] InstallFrom
+  - [ ] DownloadsIcon
+  - [ ] DownloadsRow
+  - [ ] DownloadsPopover
+  - [ ] SettingsForm
+  - [ ] SettingsModal
+  - [ ] ModsTagChips
+  - [ ] ModRow
+  - [ ] ModDownloadIcon
+  - [ ] ModsPage
+  - [ ] LocalModsPage
+  - [ ] RemoteModsPage
+  - [ ] UpdateModsPage
+  - [ ] LocalModRow
+  - [ ] LocalModActions
+  - [ ] LogApp
+  - [ ] LogHeader
+  - [ ] LogRow
+  - [ ] BaseApp
+  - [ ] ReloadIcon
+  - [ ] StyledErrorBoundary
+- [ ] Hooks
+  - [ ] useTauri
+  - [ ] useGetTranslation
+  - [ ] useDebounce
+  - [ ] useUnifiedMod

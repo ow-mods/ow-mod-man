@@ -3,3 +3,4 @@ src-tauri/target
 stats.html
 !.vscode
 pnpm-lock.yaml
+src/tests/TODO.md

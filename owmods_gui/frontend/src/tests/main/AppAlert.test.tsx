@@ -12,7 +12,7 @@ const baseAlert: Alert = {
     message: "Test Alert"
 };
 
-describe("App Alert Test", () => {
+describe("App Alert", () => {
     it("Should render an alert", async (ctx) => {
         ctx.commandFns.get_alert = () => baseAlert;
 

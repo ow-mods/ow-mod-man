@@ -9,7 +9,7 @@ const setupText = getTestTranslation("OWML_SETUP_MESSAGE");
 const cancelText = getTestTranslation("CANCEL");
 const continueText = getTestTranslation("CONTINUE");
 
-describe("OWML Setup Modal Test", () => {
+describe("OWML Setup Modal", () => {
     it("Should open if OWML is not installed, and not show the cancel button", async (ctx) => {
         ctx.commandFns.check_owml = () => false;
 

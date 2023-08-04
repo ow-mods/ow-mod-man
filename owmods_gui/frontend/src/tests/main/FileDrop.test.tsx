@@ -10,7 +10,7 @@ const dropText = getTestTranslation("FILE_DROP_MESSAGE");
 
 const FileDrop = withStyledErrorBoundary(_FileDrop, { justHide: true });
 
-describe("File Drop Test", () => {
+describe("File Drop", () => {
     it("Should render on dragEnter, and not render on dragLeave", async (ctx) => {
         ctx.commandFns.check_owml = () => true;
         ctx.commandFns.register_drop_handler = () => {};

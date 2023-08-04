@@ -43,6 +43,11 @@ export default defineConfig({
         globals: true,
         environment: "jsdom",
         watch: false,
-        setupFiles: ["./src/tests/setup.ts"]
+        setupFiles: ["./src/tests/setup.ts"],
+        onConsoleLog: (msg) => {
+            if (msg.includes("window.__TAURI_METADATA__")) {
+                return false;
+            }
+        }
     }
 });

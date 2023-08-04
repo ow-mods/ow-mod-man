@@ -1,14 +1,10 @@
-import { beforeAll, describe, expect, it, vi } from "vitest";
+import { describe, expect, it } from "vitest";
 import { render, screen } from "@testing-library/react";
 
 import AppAlert from "@components/main/AppAlert";
 import { Alert } from "@types";
-import { expectShellInvoke, throwTestError } from "./utils";
+import { expectShellInvoke, throwTestError } from "../utils";
 import { act } from "react-dom/test-utils";
-
-beforeAll(() => {
-    vi.mock("@events");
-});
 
 const baseAlert: Alert = {
     enabled: true,

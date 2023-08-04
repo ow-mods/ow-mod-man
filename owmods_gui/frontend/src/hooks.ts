@@ -4,7 +4,7 @@ import {
     TranslationMap,
     type TranslationKey
 } from "@components/common/TranslationContext";
-import { Event, FailedMod, LocalMod, RemoteMod, UnsafeLocalMod } from "@types";
+import { Event, FailedMod, Language, LocalMod, RemoteMod, UnsafeLocalMod } from "@types";
 import { useErrorBoundary } from "react-error-boundary";
 import { Params, listen } from "@events";
 
@@ -56,23 +56,31 @@ export const useTauri = <T, E extends Event["name"]>(
     return [status, data];
 };
 
+export const staticGetTranslation = (
+    language: Language,
+    key: TranslationKey,
+    variables?: Record<string, string>
+) => {
+    const activeTable = TranslationMap[language];
+    let translated = activeTable[key];
+    if (translated === undefined) {
+        translated = activeTable["_"];
+        const fallback = TranslationMap["English"][key] ?? "INVALID KEY: $key$";
+        translated = translated.replaceAll(`$fallback$`, fallback);
+        translated = translated.replaceAll(`$key$`, key);
+    } else {
+        for (const k in variables) {
+            translated = translated.replaceAll(`$${k}$`, variables[k]);
+        }
+    }
+    return translated;
+};
+
 export const useGetTranslation = () => {
     const context = useContext(TranslationContext);
     return useCallback(
         (key: TranslationKey, variables?: Record<string, string>) => {
-            const activeTable = TranslationMap[context];
-            let translated = activeTable[key];
-            if (translated === undefined) {
-                translated = activeTable["_"];
-                const fallback = TranslationMap["English"][key] ?? "INVALID KEY: $key$";
-                translated = translated.replaceAll(`$fallback$`, fallback);
-                translated = translated.replaceAll(`$key$`, key);
-            } else {
-                for (const k in variables) {
-                    translated = translated.replaceAll(`$${k}$`, variables[k]);
-                }
-            }
-            return translated;
+            return staticGetTranslation(context, key, variables);
         },
         [context]
     );

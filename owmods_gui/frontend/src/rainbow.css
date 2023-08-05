@@ -42,7 +42,8 @@
 h1,
 h2,
 h5,
-h6 {
+h6,
+.senderName {
     --bg-size: 200%;
     background-image: var(--rainbow) !important;
     background-size: var(--bg-size) 200% !important;

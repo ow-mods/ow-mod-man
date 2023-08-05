@@ -75,7 +75,7 @@ const LogRow = memo(function LogRow(props: LogRowProps) {
                     <ODTooltip
                         title={`${logLine?.message.senderName ?? "Unknown"}::${
                             logLine?.message.senderType ?? "Unknown"
-                        }`}
+                        }\n${logLine?.timestamp ?? ""}`}
                     >
                         <Typography textOverflow="ellipsis" width="100%" overflow="hidden">
                             {logLine?.message.senderName ?? "Unknown"}

@@ -59,9 +59,10 @@ impl Logger {
 
     pub fn write_log_to_file(&self, log_type: Level, message: &str) -> Result<()> {
         let mut writer = self.writer.lock().unwrap();
-        let now = OffsetDateTime::now_utc()
+        let now = OffsetDateTime::now_local().unwrap_or(OffsetDateTime::now_utc());
+        let now = now
             .format(format_description!("[hour]:[minute]:[second]"))
-            .unwrap();
+            .unwrap_or("Failed to get time".to_string());
         let message = format!("[{}][{}] {}", now, log_type, message);
         println!("{}", message);
         writeln!(writer, "{}", message)?;

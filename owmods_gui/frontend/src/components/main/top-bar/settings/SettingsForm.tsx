@@ -136,6 +136,13 @@ const SettingsForm = forwardRef(function SettingsForm(props: SettingsFormProps, 
             />
             <SettingsCheck
                 onChange={handleGui}
+                value={guiConfig.rainbow}
+                label={getTranslation("RAINBOW")}
+                id="rainbow"
+                tooltip={getTranslation("TOOLTIP_RAINBOW")}
+            />
+            <SettingsCheck
+                onChange={handleGui}
                 value={guiConfig.watchFs}
                 label={getTranslation("WATCH_FS")}
                 id="watchFs"

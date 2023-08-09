@@ -12,7 +12,7 @@ export const determineProgressVariant = (bar: ProgressBar): CircularProgressProp
     if (bar.success && bar.progressAction === "Download") {
         // After downloading don't give the wrong idea
         return "indeterminate";
-    } else if (bar.progressType === "Indefinite" && bar.success !== undefined) {
+    } else if (bar.progressType === "Indefinite" && bar.success !== null) {
         // Show a complete bar if the indefinite action is done
         return "determinate";
     } else {

@@ -13,7 +13,7 @@ import { listen } from "@events";
 import { simpleOnError } from "@components/common/StyledErrorBoundary";
 
 export type LogFilter = keyof typeof SocketMessageType | "Any";
-export type LogLines = [number, number][];
+export type LogLines = number[];
 
 const thisWindow = getCurrent();
 
@@ -31,13 +31,17 @@ const LogApp = ({ port }: { port: number }) => {
     const [activeFilter, setActiveFilter] = useState<LogFilter>("Any");
     const [activeSearch, setActiveSearch] = useState<string>("");
     const [logLines, setLogLines] = useState<LogLines>([]);
+    const [logTotal, setLogTotal] = useState<number>(0);
     const getTranslation = useGetTranslation();
     const theme = useTheme();
 
     const fetchLogLines = useCallback(() => {
         commands
             .getLogLines({ port, filterType: getFilterToPass(activeFilter), search: activeSearch })
-            .then(setLogLines)
+            .then(([lines, total]) => {
+                setLogLines(lines);
+                setLogTotal(total);
+            })
             .catch(() => null);
     }, [activeFilter, activeSearch, port]);
 
@@ -78,6 +82,7 @@ const LogApp = ({ port }: { port: number }) => {
         <BaseApp
             language={guiConfig?.language}
             theme={guiConfig?.theme}
+            usesRainbow={guiConfig?.rainbow}
             isLoading={status === "Loading" || logLines === null}
         >
             <Container
@@ -93,7 +98,7 @@ const LogApp = ({ port }: { port: number }) => {
             >
                 <LogHeader
                     onClear={onClear}
-                    logsLen={logLines.length}
+                    logsLen={logTotal}
                     activeSearch={activeSearch}
                     setActiveSearch={setActiveSearch}
                     activeFilter={activeFilter}

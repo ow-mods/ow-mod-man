@@ -13,13 +13,33 @@ use tokio::{sync::mpsc, try_join};
 
 fn handle_game_log(message: &SocketMessage) {
     let unknown = &"Unknown".to_string();
-    let out_message = format!(
-        "[{}::{}][{:?}] {}",
+    let log_header = format!(
+        "[{}::{}][{:?}] ",
         message.sender_name.as_ref().unwrap_or(unknown),
         message.sender_type.as_ref().unwrap_or(unknown),
-        message.message_type,
-        message.message
+        message.message_type
     );
+    let spacing = " ".repeat(log_header.len());
+    let out_message = if message.message.trim().is_empty() {
+        log_header
+    } else {
+        message
+            .message
+            .lines()
+            .enumerate()
+            .map(|(i, l)| {
+                format!(
+                    "{}{l}",
+                    if i == 0 {
+                        log_header.clone()
+                    } else {
+                        spacing.clone()
+                    }
+                )
+            })
+            .collect::<Vec<String>>()
+            .join("\n")
+    };
     match message.message_type {
         SocketMessageType::Message
         | SocketMessageType::Info

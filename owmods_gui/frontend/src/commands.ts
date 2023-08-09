@@ -71,7 +71,7 @@ const commandInfo = {
                 filterType?: number | undefined;
                 search: string;
             },
-            [number, number][]
+            [number[], number]
         >
     >("get_log_lines"),
     exportMods: $<ActionCommand<{ path: string }>>("export_mods"),
@@ -111,9 +111,12 @@ const makeInvoke = (key: Command, forceNoDisplayErr?: boolean) => {
 
 const makeHook = (key: Command) => {
     const name = commandInfo[key];
-    return (eventName: Event["name"] | Event["name"][], payload?: (typeof name)[0]) => {
+    return <E extends Event["name"]>(
+        eventName: E | Event["name"][],
+        payload?: (typeof name)[0]
+    ) => {
         const fn = makeInvoke(key, true);
-        return useTauri<(typeof name)[1]>(
+        return useTauri<(typeof name)[1], E>(
             eventName,
             () => fn(payload ?? {}) as unknown as Promise<(typeof name)[1]>,
             payload
@@ -131,7 +134,8 @@ export type Commands = {
 export type Hooks = {
     [T in Command]: (
         eventName: Event["name"] | Event["name"][],
-        payload?: (typeof commandInfo)[T][0]
+        payload?: (typeof commandInfo)[T][0],
+        shouldChangeFn?: (params: unknown) => boolean
     ) => [LoadState, (typeof commandInfo)[T][1] | null, Error | null];
 };
 

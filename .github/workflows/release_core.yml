@@ -2,7 +2,7 @@ name: Create Core Release
 
 on:
   workflow_dispatch:
-    
+
 jobs:
   release:
     permissions:
@@ -13,12 +13,14 @@ jobs:
         uses: actions/checkout@v3
 
       - name: Setup Rust Toolchain
-        uses: actions-rs/toolchain@v1
+        uses: dtolnay/rust-toolchain@stable
         with:
           toolchain: stable
 
       - name: Setup Rust Cache
         uses: Swatinem/rust-cache@v2
+        with:
+          shared-key: ${{ runner.os }}-rust-cache-${{ hashFiles('Cargo.lock') }}
 
       - name: Get Package Version
         id: pkg-version
@@ -36,7 +38,3 @@ jobs:
           draft: true
           files: |
             target/package/owmods_core-${{ steps.pkg-version.outputs.version }}.crate
-
-      
-
-      

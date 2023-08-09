@@ -34,7 +34,10 @@ use tauri::{api::dialog, async_runtime, AppHandle, Manager, WindowEvent};
 use time::{macros::format_description, OffsetDateTime};
 use tokio::{sync::mpsc, try_join};
 
-use crate::events::{CustomEventEmitter, CustomEventEmitterAll, CustomEventTriggerGlobal, Event};
+use crate::events::{
+    CustomEventEmitter, CustomEventEmitterAll, CustomEventTriggerGlobal, Event,
+    LogLineCountUpdatePayload,
+};
 use crate::progress::ProgressBar;
 use crate::protocol::{ProtocolInstallType, ProtocolPayload};
 use crate::{
@@ -161,10 +164,24 @@ pub async fn get_local_mods(
             .collect();
         mods.retain(|m| remote_mods_matching.contains(&m.get_unique_name().as_str()))
     }
-    Ok(mods
+
+    let first_disabled_index = mods
+        .iter()
+        .position(|m| matches!(m, UnsafeLocalMod::Valid(_)) && !m.get_enabled());
+
+    let mut unique_names: Vec<String> = mods
         .into_iter()
         .map(|m| m.get_unique_name().clone())
-        .collect())
+        .collect();
+
+    // Only way to get a separator in the list is to insert a fake mod
+    if filter.is_empty() && first_disabled_index.map(|i| i > 0).unwrap_or(false) {
+        if let Some(index) = first_disabled_index {
+            unique_names.insert(index, "~~SEPARATOR~~".to_string());
+        }
+    }
+
+    Ok(unique_names)
 }
 
 #[tauri::command]
@@ -721,6 +738,25 @@ pub async fn run_game(
             let window_handle = window.app_handle();
             let mut game_log = state.game_log.write().await;
             if let Some((lines, writer)) = game_log.get_mut(&port) {
+                if let Some(last_message) = lines.last_mut() {
+                    if msg == last_message.message {
+                        last_message.amount = last_message.amount.saturating_add(1);
+                        let res = window_handle.typed_emit_all(&Event::LogLineCountUpdate(
+                            LogLineCountUpdatePayload {
+                                port,
+                                line: (lines.len() - 1).try_into().unwrap_or(u32::MAX),
+                            },
+                        ));
+                        if let Err(why) = res {
+                            error!("Couldn't Emit Game Log: {}", why)
+                        }
+                        let res = window_handle.typed_emit_all(&Event::LogUpdate(port));
+                        if let Err(why) = res {
+                            error!("Couldn't Emit Game Log: {}", why)
+                        }
+                        continue;
+                    }
+                }
                 let res = write_log(writer, &msg);
                 if let Err(why) = res {
                     error!("Couldn't Write Game Log: {}", why);
@@ -773,11 +809,12 @@ pub async fn get_log_lines(
     filter_type: Option<SocketMessageType>,
     search: &str,
     state: tauri::State<'_, State>,
-) -> Result<Vec<(usize, usize)>> {
+) -> Result<(Vec<usize>, u32)> {
     let logs = state.game_log.read().await;
     if let Some((lines, _)) = logs.get(&port) {
+        let sum = lines.iter().map(|l| l.amount).sum();
         let lines = get_logs_indices(lines, filter_type, search)?;
-        Ok(lines)
+        Ok((lines, sum))
     } else {
         Err(Error(anyhow!("Log Server Not Running")))
     }

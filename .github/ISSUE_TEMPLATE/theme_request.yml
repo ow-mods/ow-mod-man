@@ -1,0 +1,41 @@
+name: 🎨 Theme Request
+title: "[Theme Request] "
+description: Suggest a new theme for the manager
+labels: ["gui", "enhancement"]
+assignees: ["Bwc9876"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thank you for suggesting a theme for the manager!
+        If you need inspiration or help with choosing colors, I recommend [Real-Time Colors](https://realtimecolors.com) (Secondary is called accent on that site)
+
+        ## Where each color is used
+
+        Primary:
+        - Start Game Button
+        - Version Chip
+        - Complete download progress bar
+        - Any CTA button (e.g. Submit, Install, Save, etc.)
+        - Selected input fields
+
+        Secondary:
+        - Selected tab (the little line)
+        - In-progress download progress bar
+  - type: input
+    id: primary
+    attributes:
+      label: Primary Color
+      description: The primary color of the theme (Start game button, version chip color, etc.) (Hex format preferred)
+      placeholder: "#000000"
+  - type: input
+    id: secondary
+    attributes:
+      label: Secondary Color
+      description: The secondary color of the theme (The selected tab color, the download progress bar color, etc) (Hex format preferred)
+      placeholder: "#000000"
+  - type: textarea
+    id: description
+    attributes:
+      label: Additional Information
+      description: Describe any other behavior you'd like to see in the theme (e.g. rainbow mode)

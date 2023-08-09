@@ -11,13 +11,18 @@ use crate::{search::Searchable, validate::ModValidationError};
 #[derive(Clone, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct LocalMod {
+    /// Whether the mod is enabled
     pub enabled: bool,
+    /// Any non-critical errors that occurred when loading the mod
     pub errors: Vec<ModValidationError>,
+    /// The path to the mod
     pub mod_path: String,
+    /// The manifest for the mod
     pub manifest: ModManifest,
 }
 
 impl LocalMod {
+    /// Determines if a mod uses a prepatcher
     pub fn uses_pre_patcher(&self) -> bool {
         self.manifest.patcher.is_some()
     }
@@ -28,8 +33,11 @@ impl LocalMod {
 #[derive(Serialize, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct FailedMod {
+    /// The error that caused the mod to fail to load
     pub error: ModValidationError,
+    /// The path to the mod
     pub mod_path: String,
+    /// The path to the mod relative to the mods folder, this usually will match the unique name so it's good for display
     pub display_path: String,
 }
 
@@ -39,7 +47,9 @@ pub struct FailedMod {
 #[serde(tag = "loadState", content = "mod", rename_all = "camelCase")]
 #[allow(clippy::large_enum_variant)]
 pub enum UnsafeLocalMod {
+    /// A mod was loaded successfully
     Valid(LocalMod),
+    /// A mod failed to load
     Invalid(FailedMod),
 }
 
@@ -109,11 +119,11 @@ impl UnsafeLocalMod {
 impl Searchable for UnsafeLocalMod {
     fn get_values(&self) -> Vec<String> {
         match self {
-            UnsafeLocalMod::Invalid(m) => vec![m.display_path.to_ascii_lowercase()],
+            UnsafeLocalMod::Invalid(m) => vec![m.display_path.clone()],
             UnsafeLocalMod::Valid(m) => vec![
-                m.manifest.name.to_ascii_lowercase(),
-                m.manifest.unique_name.to_ascii_lowercase(),
-                m.manifest.author.to_ascii_lowercase(),
+                m.manifest.name.clone(),
+                m.manifest.unique_name.clone(),
+                m.manifest.author.clone(),
             ],
         }
     }
@@ -154,16 +164,27 @@ pub fn get_paths_to_preserve(local_mod: Option<&LocalMod>) -> Vec<PathBuf> {
 #[derive(Serialize, Deserialize, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct ModManifest {
+    /// The unique name of the mod
     pub unique_name: String,
+    /// The name of the mod
     pub name: String,
+    /// The author of the mod
     pub author: String,
+    /// The version of the mod, usually in the format `major.minor.patch`
     pub version: String,
+    /// The name of the DLL file to load when starting the mod
     pub filename: Option<String>,
+    /// The version of OWML this mod was built for
     pub owml_version: Option<String>,
+    /// The dependencies of the mod
     pub dependencies: Option<Vec<String>>,
+    /// The mods this mod will conflict with
     pub conflicts: Option<Vec<String>>,
+    /// The paths to preserve when updating the mod
     pub paths_to_preserve: Option<Vec<String>>,
+    /// A warning the mod wants to show to the user on start
     pub warning: Option<ModWarning>,
+    /// An exe that runs before the game starts, a prepatcher. This is used for mods that need to patch the game before it starts
     pub patcher: Option<String>,
 }
 
@@ -172,14 +193,18 @@ pub struct ModManifest {
 #[derive(Serialize, Deserialize, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct ModWarning {
+    /// The title of the warning
     pub title: String,
+    /// The body of the warning
     pub body: String,
 }
 
 /// Represents a configuration file for a mod
 #[derive(Serialize, Deserialize)]
 pub struct ModStubConfig {
+    /// Whether the mod is enabled
     pub enabled: bool,
+    /// The settings for the mod, this is kept in a Map because the manager doesn't touch it
     #[serde(skip_serializing_if = "Option::is_none")]
     pub settings: Option<Map<String, Value>>,
 }

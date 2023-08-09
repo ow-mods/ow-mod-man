@@ -9,4 +9,4 @@
 
 ## Reporting a Vulnerability
 
-Please report security issues by adding an issue or by contacting `bwc9876@gmail.com` if the issue is sensitive.
+Please report security issues by adding an issue or by contacting `bwc9876@outerwildsmods.com` if the issue is sensitive.

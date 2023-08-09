@@ -18,6 +18,7 @@ struct RawRemoteDatabase {
 /// Represents the remote (on the website) database of mods.
 #[derive(Default, Clone)]
 pub struct RemoteDatabase {
+    /// A hashmap of unique names to mods
     pub mods: HashMap<String, RemoteMod>,
 }
 
@@ -149,6 +150,7 @@ impl RemoteDatabase {
         tag_counts.into_iter().map(|i| i.0).rev().collect()
     }
 
+    /// Filter a list of mods by a list of tags
     pub fn filter_by_tags<'a>(
         mods: impl Iterator<Item = &'a RemoteMod>,
         tags: Vec<String>,

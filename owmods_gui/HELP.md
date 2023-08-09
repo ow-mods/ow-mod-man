@@ -15,6 +15,7 @@ This file contains common questions for the manager.
     - [On Flatpak](#on-flatpak)
   - [I made a mod! How do I submit it?](#i-made-a-mod-how-do-i-submit-it)
   - [I have a question about modding](#i-have-a-question-about-modding)
+  - [I want to contribute to the manager](#i-want-to-contribute-to-the-manager)
   - [My issue isn't listed here](#my-issue-isnt-listed-here)
 
 ## How do I use this?
@@ -69,8 +70,19 @@ The mod database is stored in a separate repository. [Go here to find out how to
 
 Please refer to the [OWML documentation](https://owml.outerwildsmods.com) for information about creating mods.
 
+## I want to contribute to the manager
+
+Depending on which package you want to contribute to, please refer to the following:
+
+- [The main CONTRIBUTING (read this first)](https://github.com/ow-mods/ow-mod-man/blob/main/CONTRIBUTING.md)
+- [The CONTRIBUTING for the Core package](https://github.com/ow-mods/ow-mod-man/blob/main/owmods_core/CONTRIBUTING.md)
+- [The CONTRIBUTING for the GUI](https://github.com/ow-mods/ow-mod-man/blob/main/owmods_gui/CONTRIBUTING.md)
+- [The CONTRIBUTING for the CLI](https://github.com/ow-mods/ow-mod-man/blob/main/owmods_cli/CONTRIBUTING.md)
+
 ## My issue isn't listed here
 
 If you're encountering issues or have questions, please [open an Issue](https://github.com/ow-mods/ow-mod-man/issues/new/choose). You can also [view closed issues](https://github.com/ow-mods/ow-mod-man/issues?q=is%3Aissue+is%3Aclosed) to see if your issue has already been resolved.
 
 We also have [a Discord server](https://discord.com/invite/wusTQYbYTc) available if you want to chat.
+
+You can also email `bwc9876@outerwildsmods.com` if your issue is sensitive / security related.

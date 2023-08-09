@@ -14,6 +14,14 @@ fn map_emit_err(e: tauri::Error) -> anyhow::Error {
 #[typeshare]
 pub type EmptyParams = ();
 
+// Typeshare doesn't allow tuples, I cry
+#[typeshare]
+#[derive(Deserialize, Serialize, Clone)]
+pub struct LogLineCountUpdatePayload {
+    pub port: LogPort,
+    pub line: u32,
+}
+
 #[typeshare]
 #[derive(Deserialize, Serialize, Clone)]
 #[serde(tag = "name", content = "params", rename_all = "camelCase")]
@@ -26,6 +34,7 @@ pub enum Event {
     OwmlConfigReload(EmptyParams),
     GameStart(LogPort),
     LogUpdate(LogPort),
+    LogLineCountUpdate(LogLineCountUpdatePayload),
     LogFatal(GameMessage),
     ProtocolInvoke(ProtocolPayload),
     ProgressUpdate(EmptyParams),

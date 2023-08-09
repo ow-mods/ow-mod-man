@@ -23,6 +23,9 @@ export interface ModalProps {
     onClick?: () => void;
 }
 
+const commitHash = import.meta.env.VITE_COMMIT;
+const versionSuffix = import.meta.env.VITE_VERSION_SUFFIX;
+
 const About = memo(function About({ onClick }: ModalProps) {
     const getTranslation = useGetTranslation();
 
@@ -102,12 +105,15 @@ const About = memo(function About({ onClick }: ModalProps) {
                                 </IconButton>
                             </ODTooltip>
                         </Box>
-                        {getTranslation("APP_VERSION", { version: appVersion })}
+                        {getTranslation("APP_VERSION", {
+                            version: `${appVersion}${versionSuffix ?? ""}`
+                        })}
                         <br />
                         {getTranslation("PLATFORM", { platform: appPlatform })}
                         <br />
                         {getTranslation("ARCHITECTURE", { arch: archRaw })}
                         <br />
+                        {commitHash ?? ""}
                     </DialogContentText>
                 </DialogContent>
                 <DialogActions>

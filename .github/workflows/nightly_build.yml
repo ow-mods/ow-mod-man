@@ -1,12 +1,17 @@
-name: Create GUI Release
+name: Nightly Build
 
 on:
   workflow_dispatch:
+  push:
+    branches: [dev]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
-  release:
-    permissions:
-      contents: write
+  build:
+    name: Build Nightly Version
     strategy:
       fail-fast: false
       matrix:
@@ -31,7 +36,7 @@ jobs:
       - name: Setup Rust Cache
         uses: Swatinem/rust-cache@v2
         with:
-          shared-key: ${{ runner.os }}-rust-cache-${{ hashFiles('Cargo.lock') }}
+          shared-key: v1-${{ runner.os }}-rust-cache-${{ hashFiles('Cargo.lock') }}
 
       - name: Setup Node
         uses: actions/setup-node@v3
@@ -62,18 +67,33 @@ jobs:
         working-directory: owmods_gui/frontend
         run: pnpm install
 
+      - name: Install Tauri CLI
+        run: pnpm add -g @tauri-apps/cli
+
       - name: Build GUI
-        uses: tauri-apps/tauri-action@dev
+        run: tauri build --ci -b $([[ ${{ matrix.platform }} = 'windows-latest' ]] && echo 'msi nsis' || echo 'appimage deb')
+        shell: bash
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          TAURI_PRIVATE_KEY: ${{ secrets.TAURI_PRIVATE_KEY }}
-          TAURI_KEY_PASSWORD: ${{ secrets.TAURI_KEY_PASSWORD }}
-          ANALYTICS_API_KEY: ${{ secrets.ANALYTICS_API_KEY }}
           VITE_COMMIT: ${{ github.sha }}
+          VITE_VERSION_SUFFIX: -nightly
+
+      # Seperate artifacts for each platform
+
+      - name: Upload GUI (Linux)
+        uses: actions/upload-artifact@v3
+        if: matrix.platform == 'ubuntu-20.04'
         with:
-          tagName: gui_v__VERSION__
-          includeUpdaterJson: true
-          releaseName: "Outer Wilds Mod Manager GUI Version __VERSION__"
-          releaseBody: "See the assets to download and install this version."
-          releaseDraft: true
-          prerelease: false
+          name: GUI-Nightly-Linux
+          path: |
+            target/release/bundle/**/*.deb
+            target/release/bundle/**/*.AppImage
+
+      - name: Upload GUI (Windows)
+        uses: actions/upload-artifact@v3
+        if: matrix.platform == 'windows-latest'
+        with:
+          name: GUI-Nightly-Windows
+          path: |
+            target/release/bundle/**/*.msi
+            target/release/bundle/**/*.exe
+            target/release/*.exe

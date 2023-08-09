@@ -20,9 +20,13 @@ export interface Alert {
 
 /** Represents the core config, contains critical info needed by the core API */
 export interface Config {
+    /** The path to the OWML install, defaults to `~/.local/share/OuterWildsModManager/OWML` */
     owmlPath: string;
+    /** The URL to the database */
     databaseUrl: string;
+    /** The URL to fetch alerts from */
     alertUrl: string;
+    /** The mod warnings that have been shown to the user */
     viewedAlerts: string[];
 }
 
@@ -45,83 +49,131 @@ export type ModValidationError =
 
 /** Represents a warning a mod wants to show to the user on start */
 export interface ModWarning {
+    /** The title of the warning */
     title: string;
+    /** The body of the warning */
     body: string;
 }
 
 /** Represents a manifest file for a local mod. */
 export interface ModManifest {
+    /** The unique name of the mod */
     uniqueName: string;
+    /** The name of the mod */
     name: string;
+    /** The author of the mod */
     author: string;
+    /** The version of the mod, usually in the format `major.minor.patch` */
     version: string;
+    /** The name of the DLL file to load when starting the mod */
     filename?: string;
+    /** The version of OWML this mod was built for */
     owmlVersion?: string;
+    /** The dependencies of the mod */
     dependencies?: string[];
+    /** The mods this mod will conflict with */
     conflicts?: string[];
+    /** The paths to preserve when updating the mod */
     pathsToPreserve?: string[];
+    /** A warning the mod wants to show to the user on start */
     warning?: ModWarning;
+    /** An exe that runs before the game starts, a prepatcher. This is used for mods that need to patch the game before it starts */
     patcher?: string;
 }
 
 /** Represents an installed (and valid) mod */
 export interface LocalMod {
+    /** Whether the mod is enabled */
     enabled: boolean;
+    /** Any non-critical errors that occurred when loading the mod */
     errors: ModValidationError[];
+    /** The path to the mod */
     modPath: string;
+    /** The manifest for the mod */
     manifest: ModManifest;
 }
 
 /** Represents a mod that completely failed to load */
 export interface FailedMod {
+    /** The error that caused the mod to fail to load */
     error: ModValidationError;
+    /** The path to the mod */
     modPath: string;
+    /** The path to the mod relative to the mods folder, this usually will match the unique name so it's good for display */
     displayPath: string;
 }
 
 /** Contains URLs for a mod's README */
 export interface ModReadMe {
+    /** The URL to the README in HTML format */
     htmlUrl: string;
+    /** The URL to the README for download */
     downloadUrl: string;
 }
 
 /** A prerelease for a mod */
 export interface ModPrerelease {
+    /** The URL to download the prerelease from, always GitHub */
     downloadUrl: string;
+    /** The version of the prerelease, usually in the format `major.minor.patch` */
     version: string;
 }
 
 /** Represents a mod in the remote database */
 export interface RemoteMod {
+    /** The URL to download the mod from, always GitHub */
     downloadUrl: string;
+    /** The number of times the mod has been downloaded, this uses GitHub releases */
     downloadCount: number;
+    /** The version of the mod, usually in the format `major.minor.patch` */
     version: string;
+    /** The name of the mod */
     name: string;
+    /** The unique name of the mod */
     uniqueName: string;
+    /** The description of the mod */
     description: string;
+    /** The mod's README file, if it has one */
     readme?: ModReadMe;
+    /** The slug of the mod, this is used for the URL on the website */
     slug: string;
+    /** Whether the mod is "required" this is an artifact of old manager as it treated OWML (and the manager itself) as a mod and required it to be installed */
     required?: boolean;
+    /** A link to the mod's repository on GitHub */
     repo: string;
+    /** The author of the mod, based on GitHub author name */
     author: string;
+    /** The display name of the author of the mod, manually set in the database */
     authorDisplay?: string;
+    /** The parent of the mod if this mod is an addon, e.g. NH */
     parent?: string;
+    /** The prerelease for the mod, if it has one */
     prerelease?: ModPrerelease;
+    /** Whether the mod is for the alpha version of the game, currently alpha support is not implemented */
     alpha?: boolean;
+    /** The tags for the mod, these are manually set in the database */
     tags?: string[];
 }
 
 /** Represents the configuration for OWML */
 export interface OWMLConfig {
+    /** The path to the game */
     gamePath: string;
     debugMode: boolean;
+    /** Whether to launch the game directly */
     forceExe: boolean;
     incrementalGC: boolean;
+    /** The path to OWML */
     owmlPath?: string;
+    /** The port to use for sending logs to */
     socketPort: number;
 }
 
-/** Represents the type of message sent from the game */
+/**
+ * Represents the type of message sent from the game
+ *
+ * See [the OWML docs](https://owml.outerwildsmods.com/mod_helper/console.html#WriteLine) for what the types mean.
+ */
 export enum SocketMessageType {
     Message = "message",
     Error = "error",
@@ -135,15 +187,29 @@ export enum SocketMessageType {
 
 /** Represents a message sent from the game */
 export interface SocketMessage {
+    /** The name of the sender, usually the name of the mod */
     senderName?: string;
+    /** The type of the sender, usually ModHelper */
     senderType?: string;
+    /** The message sent from the game */
     message: string;
+    /**
+     * The type of message sent from the game
+     * Note that the message sent calls this `type` so we have to alias it because type is a reserved keyword
+     */
     messageType: SocketMessageType;
+}
+
+export interface LogLineCountUpdatePayload {
+    port: LogPort;
+    line: number;
 }
 
 export interface GameMessage {
     port: LogPort;
     message: SocketMessage;
+    amount: number;
+    timestamp: string;
 }
 
 export enum Language {
@@ -157,7 +223,10 @@ export enum Theme {
     Pink = "Pink",
     Purple = "Purple",
     Blurple = "Blurple",
+    OuterWildsOrange = "OuterWildsOrange",
     GhostlyGreen = "GhostlyGreen",
+    NomaiBlue = "NomaiBlue",
+    NomaiYellow = "NomaiYellow",
     Green = "Green"
 }
 
@@ -170,7 +239,7 @@ export interface GuiConfig {
     autoEnableDeps: boolean;
     noLogServer: boolean;
     hideInstalledInRemote: boolean;
-    rainbow?: boolean;
+    rainbow: boolean;
 }
 
 export interface LogPayload {
@@ -225,7 +294,9 @@ export interface ProtocolPayload {
 
 /** Represents a `LocalMod` that we aren't sure loaded successfully */
 export type UnsafeLocalMod =
+    /** A mod was loaded successfully */
     | { loadState: "valid"; mod: LocalMod }
+    /** A mod failed to load */
     | { loadState: "invalid"; mod: FailedMod };
 
 export type Event =
@@ -237,6 +308,7 @@ export type Event =
     | { name: "owmlConfigReload"; params: EmptyParams }
     | { name: "gameStart"; params: LogPort }
     | { name: "logUpdate"; params: LogPort }
+    | { name: "logLineCountUpdate"; params: LogLineCountUpdatePayload }
     | { name: "logFatal"; params: GameMessage }
     | { name: "protocolInvoke"; params: ProtocolPayload }
     | { name: "progressUpdate"; params: EmptyParams }

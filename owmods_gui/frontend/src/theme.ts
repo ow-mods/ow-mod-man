@@ -93,6 +93,30 @@ const themeMap: Record<Theme, UserTheme> = {
         secondary: {
             main: "#e4b3f4"
         }
+    },
+    OuterWildsOrange: {
+        primary: {
+            main: "#ff7D25"
+        },
+        secondary: {
+            main: "#17c0bb"
+        }
+    },
+    NomaiBlue: {
+        primary: {
+            main: "#8793ff"
+        },
+        secondary: {
+            main: "#999999"
+        }
+    },
+    NomaiYellow: {
+        primary: {
+            main: "#fff592"
+        },
+        secondary: {
+            main: "#996638"
+        }
     }
 };
 

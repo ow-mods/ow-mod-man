@@ -1,11 +1,8 @@
-use std::{
-    collections::HashMap,
-    path::{Path, PathBuf},
-};
+use std::path::{Path, PathBuf};
 
 use anyhow::Result;
 use serde::{Deserialize, Serialize};
-use serde_json::Value;
+use serde_json::{Map, Value};
 use typeshare::typeshare;
 
 use crate::{
@@ -14,22 +11,37 @@ use crate::{
     file::{deserialize_from_json, serialize_to_json},
 };
 
+const fn _default_true() -> bool {
+    true
+}
+
+const fn _default_false() -> bool {
+    false
+}
+
 /// Represents the configuration for OWML
 #[typeshare]
 #[derive(Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 #[allow(non_snake_case)] // Have to allow non_snake_case here because OWML's config uses "incrementalGC", which isn't proper camelCase
 pub struct OWMLConfig {
+    /// The path to the game
     pub game_path: String,
+    #[serde(default = "_default_false")]
     debug_mode: bool,
+    /// Whether to launch the game directly
+    #[serde(default = "_default_false")]
     pub force_exe: bool,
+    #[serde(default = "_default_true")]
     incremental_GC: bool,
+    /// The path to OWML
     #[serde(skip_serializing_if = "Option::is_none")]
     owml_path: Option<String>,
+    /// The port to use for sending logs to
     pub socket_port: u16,
     #[typeshare(skip)]
     #[serde(flatten)]
-    extra: HashMap<String, Value>,
+    extra: Map<String, Value>,
 }
 
 impl OWMLConfig {

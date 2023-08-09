@@ -1,4 +1,5 @@
-name: Translation
+name: 📑 Translation
+title: "[Translation] "
 description: Submit a new localization (for the GUI) to be added, or update an existing one
 labels: ["gui", "enhancement"]
 assignees: ["Bwc9876"]

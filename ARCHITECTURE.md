@@ -104,13 +104,14 @@ It has a lot of stuff in it, basically everything that isn't GUI or CLI specific
 - It can install mods from a zip file, a url, or the mods database
 - The mod manager only supports extracting zip files
 - It can recursively install mod dependencies (from the database only), and will automatically handle circular dependencies
-- It doesn't simple extract a mod's zip, it recursively searches for the manifest file in the zip and only extracts that file's siblings and children
+- It doesn't simply extract a mod's zip, it recursively searches for the manifest file in the zip and only extracts that file's siblings and children
 - OWML installs are handled specially, use downloads::download_and_install_owml to install OWML
 - Analytics are sent when a mod is installed, installed as a dependency, or updated. Note this only happens with `downloads::install_mod_from_db`.
 - If a mod uses the `pathsToPreserve` field in its manifest, the manager will not overwrite these paths when updating the mod
   - This list includes `config.json` and `save.json` implicitly.
   - Note this will still delete the files if the mod is uninstalled.
   - Both files and folders are supported, however it should be noted this **is not a glob pattern**, internally the manager simply checks if each path starts with a path with `pathsToPreserve` as a prefix.
+  - Also of note, the manager refuses to extract any files that are found in pathsToPreserve, so if you have a file in a pathToPreserve pattern, it will not be overwritten. This means the config.json inside the mod's zip will not be extracted if the mod is already installed.
 
 #### Note about certain mods on Linux
 

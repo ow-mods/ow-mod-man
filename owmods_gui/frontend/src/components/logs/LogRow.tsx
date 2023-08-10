@@ -64,8 +64,6 @@ const LogRow = memo(function LogRow(props: LogRowProps) {
         props.virtuosoRef?.current?.autoscrollToBottom?.();
     }, [status, props.virtuosoRef]);
 
-    console.debug(logLine?.amount ?? 1);
-
     return (
         <>
             <TableCell sx={cellStyle}>

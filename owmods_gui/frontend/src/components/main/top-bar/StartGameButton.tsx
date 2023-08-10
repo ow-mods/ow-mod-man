@@ -14,8 +14,8 @@ const StartGameButton = () => {
         const start = () =>
             commands
                 .startLogs()
-                .then(() => setLogsStarting(false))
-                .catch(simpleOnError);
+                .catch(simpleOnError)
+                .finally(() => setLogsStarting(false));
         setLogsStarting(true);
         const task = async () => {
             const hasIssues = await commands.checkDBForIssues();

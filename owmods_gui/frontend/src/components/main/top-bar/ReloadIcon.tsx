@@ -7,11 +7,13 @@ import { AppIcon } from "./AppIcons";
 import { useErrorBoundary } from "react-error-boundary";
 import { listen } from "@events";
 
+type Timeout = ReturnType<typeof setTimeout>;
+
 const ReloadIcon = memo(function ReloadIcon() {
     const getTranslation = useGetTranslation();
 
     const [isRefreshing, setRefreshing] = useState(false);
-    const currentTimeout = useRef<number | null>(null);
+    const currentTimeout = useRef<Timeout | null>(null);
 
     const errorBound = useErrorBoundary();
 

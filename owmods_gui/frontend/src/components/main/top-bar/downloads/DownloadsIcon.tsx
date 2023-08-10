@@ -6,6 +6,8 @@ import { Box, CircularProgress, CircularProgressProps, Typography } from "@mui/m
 import { ProgressBar } from "@types";
 import { listen } from "@events";
 
+type Timeout = ReturnType<typeof setTimeout>;
+
 const DownloadsPopover = lazy(() => import("./DownloadsPopover"));
 
 export const determineProgressVariant = (bar: ProgressBar): CircularProgressProps["variant"] => {
@@ -32,7 +34,7 @@ const DownloadsIcon = memo(function DownloadsIcon() {
     const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>();
     const [recentComplete, setRecentComplete] = useState<RecentComplete>("none");
     const [viewedDownloads, setViewedDownloads] = useState<number>(0);
-    const currentTimeout = useRef<number | null>();
+    const currentTimeout = useRef<Timeout | null>();
     const downloads = hooks.getDownloads("progressUpdate")[1];
 
     const sortedDownloads = Object.values(downloads?.bars ?? {});

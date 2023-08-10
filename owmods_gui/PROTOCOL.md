@@ -30,3 +30,4 @@ Finally they should have the payload for the install
 - In the case of `install-url` the url should be a direct download link, not a page with a download button
 - In the future this might become more advanced and have query params and stuff. If this happens `install-prerelease` will be changed to `install-mod` with a query param, however this will be backwards compatible
 - Note that users have to open the mod manager at least once before this will work, this is because the protocol is registered when the mod manager is opened.
+- All install types except `install-mod` will not automatically install the mod and require further user input for security reasons. `install-mod` pulls from the database which is trusted so it doesn't need to ask the user.

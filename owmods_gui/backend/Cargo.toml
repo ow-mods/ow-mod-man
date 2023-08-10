@@ -1,6 +1,6 @@
 [package]
 name = "owmods_gui"
-version = "0.10.1"
+version = "0.11.0"
 license = "GPL-3.0-or-later"
 edition = "2021"
 
@@ -8,17 +8,31 @@ edition = "2021"
 tauri-build = { version = "1.4.0", features = [] }
 
 [dependencies]
-owmods_core = { version = "0.10.1", path = "../../owmods_core" }
+owmods_core = { version = "0.11.0", path = "../../owmods_core" }
 serde_json = "1.0"
 serde = { version = "1.0", features = ["derive"] }
-tauri = { version = "1.4.1", features = ["app-all", "dialog-ask", "dialog-confirm", "dialog-message", "dialog-open", "dialog-save", "os-all", "shell-open", "updater", "window-set-focus", "window-set-title"] }
+tauri = { version = "1.4.1", features = [
+    "app-all",
+    "dialog-ask",
+    "dialog-confirm",
+    "dialog-message",
+    "dialog-open",
+    "dialog-save",
+    "os-all",
+    "shell-open",
+    "updater",
+    "window-set-focus",
+    "window-set-title",
+] }
 anyhow = "1.0.72"
-tokio = { version = "1.29.1", features = ["sync", "macros"] }
+tokio = { version = "1.30.0", features = ["sync", "macros"] }
 log = { version = "0.4.19", features = ["std", "serde"] }
 typeshare = "1.0.1"
-notify = { version = "6.0.1", default-features = false, features = ["macos_kqueue"] }
-regex = "1.9.1"
-time = { version = "0.3.25", features = ["macros"] }
+notify = { version = "6.0.1", default-features = false, features = [
+    "macos_kqueue",
+] }
+regex = "1.9.3"
+time = { version = "0.3.25", features = ["macros", "local-offset"] }
 tauri-plugin-deep-link = "0.1.1"
 tauri-plugin-window-state = { git = "https://github.com/tauri-apps/plugins-workspace", branch = "dev" }
 opener = "0.6.1"

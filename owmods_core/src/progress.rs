@@ -220,10 +220,12 @@ impl ProgressBar {
     pub fn inc(&mut self, amount: ProgressValue) {
         const THROTTLING_AMOUNT: ProgressValue = 30;
 
-        self.progress = if self.progress + amount >= self.len {
+        let new_progress = self.progress.saturating_add(amount);
+
+        self.progress = if new_progress >= self.len {
             self.len
         } else {
-            self.progress + amount
+            new_progress
         };
 
         if self.progress - self.throttled_progress > self.len / THROTTLING_AMOUNT {

@@ -14,6 +14,7 @@ use owmods_core::{
 };
 use serde::{Deserialize, Serialize};
 use tauri::{api::dialog, AppHandle, Window, WindowBuilder};
+use time::{macros::format_description, OffsetDateTime};
 use typeshare::typeshare;
 
 use crate::LogPort;
@@ -24,14 +25,21 @@ pub struct GameMessage {
     pub port: LogPort,
     pub message: SocketMessage,
     pub amount: u32,
+    pub timestamp: String,
 }
 
 impl GameMessage {
     pub fn new(port: LogPort, message: SocketMessage) -> Self {
+        let now = OffsetDateTime::now_local().unwrap_or(OffsetDateTime::now_utc());
         Self {
             port,
             message,
             amount: 1,
+            timestamp: now
+                .format(format_description!(
+                    "[hour repr:12]:[minute]:[second] [period] (UTC[offset_hour sign:mandatory])"
+                ))
+                .unwrap_or("Unknown".to_string()),
         }
     }
 }

@@ -209,6 +209,7 @@ export interface GameMessage {
     port: LogPort;
     message: SocketMessage;
     amount: number;
+    timestamp: string;
 }
 
 export enum Language {

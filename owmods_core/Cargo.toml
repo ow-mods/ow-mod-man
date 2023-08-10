@@ -2,7 +2,7 @@
 name = "owmods_core"
 authors = ["Bwc9876 <bwc9876@outerwildsmods.com>"]
 description = "The core library for the Outer Wilds Mod Manager"
-version = "0.10.1"
+version = "0.11.0"
 edition = "2021"
 readme = "./README.md"
 license = "GPL-3.0-or-later"
@@ -15,19 +15,26 @@ serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
 opener = "0.6.1"
 directories = "5.0.1"
-reqwest = { version = "0.11.18", default-features = false, features = ["blocking", "json", "rustls-tls"] }
+reqwest = { version = "0.11.18", default-features = false, features = [
+    "blocking",
+    "json",
+    "rustls-tls",
+] }
 glob = "0.3.1"
 version-compare = "0.1.1"
 anyhow = "1.0.72"
-zip = { version = "0.6.6", default-features = false, features = ["deflate", "zstd"] }
+zip = { version = "0.6.6", default-features = false, features = [
+    "deflate",
+    "zstd",
+] }
 futures = "0.3.28"
 log = "0.4.19"
-tokio = { version = "1.29.1", features = ["net", "time", "process", "macros"] }
+tokio = { version = "1.30.0", features = ["net", "time", "process", "macros"] }
 serde_repr = "0.1.16"
 uuid = { version = "1.4.1", features = ["v4", "fast-rng"] }
 typeshare = "1.0.1"
 lazy_static = "1.4.0"
-tempfile = "3.7.0"
+tempfile = "3.7.1"
 unicode-normalization = "0.1.22"
 
 [dev-dependencies]

@@ -16,7 +16,7 @@ const RemoteModRow = memo(function RemoteModRow(props: RemoteModRowProps) {
     const [status, remote] = hooks.getRemoteMod("remoteRefresh", { uniqueName: props.uniqueName });
     const busy = hooks.getModBusy("modBusy", { uniqueName: props.uniqueName })[1];
 
-    const hasPrerelease = useMemo(() => remote?.prerelease !== undefined, [remote?.prerelease]);
+    const hasPrerelease = remote?.prerelease !== undefined && remote?.prerelease !== null;
 
     const prereleaseLabel = hasPrerelease
         ? getTranslation("USE_PRERELEASE", {

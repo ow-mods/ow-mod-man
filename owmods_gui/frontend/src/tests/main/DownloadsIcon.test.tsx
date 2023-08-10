@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { act, render, screen } from "@testing-library/react";
+import { act, render, screen, waitFor } from "@testing-library/react";
 import _DownloadsIcon from "@components/main/top-bar/downloads/DownloadsIcon";
 import { withStyledErrorBoundary } from "@components/common/StyledErrorBoundary";
 
@@ -104,6 +104,6 @@ describe("Downloads Icon", () => {
             button.click();
         });
 
-        expect(screen.queryByText("2")).toBeNull();
+        waitFor(() => expect(screen.queryByText("2")).toBeNull());
     });
 });

@@ -41,7 +41,7 @@ dependencies:
 
 devDependencies:
   '@testing-library/react':
-    specifier: ^14.0.0
+    specifier: 14.0.0
     version: 14.0.0(react-dom@18.2.0)(react@18.2.0)
   '@types/react':
     specifier: 18.2.20
@@ -68,7 +68,7 @@ devDependencies:
     specifier: 4.6.0
     version: 4.6.0(eslint@8.46.0)
   jsdom:
-    specifier: ^22.1.0
+    specifier: 22.1.0
     version: 22.1.0
   prettier:
     specifier: 3.0.1
@@ -86,7 +86,7 @@ devDependencies:
     specifier: 3.2.0
     version: 3.2.0(vite@4.4.9)
   vitest:
-    specifier: ^0.34.1
+    specifier: 0.34.1
     version: 0.34.1(jsdom@22.1.0)
 
 packages:

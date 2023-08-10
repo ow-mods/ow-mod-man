@@ -17,7 +17,7 @@ clap = { version = "4.3.21", features = ["derive"] }
 colored = "2.0.4"
 anyhow = "1.0.72"
 indicatif = { version = "0.17.6", features = ["improved_unicode"] }
-tokio = { version = "1.29.1", features = ["macros"] }
+tokio = { version = "1.30.0", features = ["macros"] }
 log = { version = "0.4.19", features = ["std"] }
 clap_complete = "4.3.2"
 

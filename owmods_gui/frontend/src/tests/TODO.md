@@ -5,7 +5,7 @@
   - [x] FileDrop
   - [x] OwmlModal
   - [x] FileInput
-  - [ ] ReloadIcon
+  - [x] ReloadIcon
   - [ ] DownloadsIcon
   - [ ] DownloadsRow
   - [ ] DownloadsPopover

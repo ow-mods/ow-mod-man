@@ -6,9 +6,8 @@
   - [x] OwmlModal
   - [x] FileInput
   - [x] ReloadIcon
-  - [ ] DownloadsIcon
+  - [x] DownloadsIcon
   - [ ] DownloadsRow
-  - [ ] DownloadsPopover
   - [ ] SettingsForm
   - [ ] SettingsModal
   - [ ] ModsTagChips

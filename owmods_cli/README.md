@@ -38,6 +38,7 @@ Some command shortcuts exist for convenience
 - `uninstall` -> `rm`
 - `readme` -> `man`
 - `github` -> `repo`
+- `protocol` -> `proto`
 
 ### Autocomplete
 

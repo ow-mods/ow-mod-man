@@ -27,6 +27,11 @@
     - [Analytics Behavior](#analytics-behavior)
     - [Progress Bar Behavior](#progress-bar-behavior)
       - [Throttling](#throttling)
+  - [Protocol Behavior](#protocol-behavior)
+    - [General Structure](#general-structure)
+    - [Install Types](#install-types)
+    - [Examples](#examples)
+    - [Notes](#notes)
   - [GUI Package](#gui-package)
     - [State Management](#state-management)
     - [GUI OWML Setup Behavior](#gui-owml-setup-behavior)
@@ -38,8 +43,8 @@
     - [Theme Behavior](#theme-behavior)
     - [Logging Behavior](#logging-behavior)
     - [Error Handling](#error-handling)
+    - [GUI Protocol Behavior](#gui-protocol-behavior)
     - [File Drop Behavior](#file-drop-behavior)
-    - [Protocol Behavior](#protocol-behavior)
   - [CLI Package](#cli-package)
     - [CLI OWML Setup Behavior](#cli-owml-setup-behavior)
     - [CLI Recursion](#cli-recursion)
@@ -234,7 +239,7 @@ This is a weird way to do this and will probably be changed in the future.
 
 ### Alert Behavior
 
-- The mod can fetch alerts from the remote database.
+- The mod manager can fetch alerts from the remote database.
 - These alerts serve as ways to notify users of important information such as breaking changes or new features.
 - By default alerts use [the one in the mod database repo](https://github.com/ow-mods/ow-mod-db/raw/source/alert-v2.json).
 - The `-v2` is for the new mod manager, the old one uses no suffix.
@@ -277,6 +282,41 @@ This is a weird way to do this and will probably be changed in the future.
 The manager will throttle progress bars on-increment. Essentially it keeps two values in mind, the *actual* value of the bar and the value that was last reported to logs. If the difference between the two is larger than the total length of the bar divided by 30, an increment will be sent to logs. This tries to strike a balance between not updating the UI too much and not making the progress bar feel like it's stuck.
 
 So if I had a progress bar that was a length of 90, and I increment by 1 every 1 second, the manager would only send an increment to logs every 3 seconds.
+
+## Protocol Behavior
+
+- The mod manager can install mods from a URL or a URI.
+- The manager uses the `owmods://` protocol to install mods.
+
+### General Structure
+
+`owmods://install-type/payload`
+
+All URLs should start with owmods://  
+Then they should follow with the install type they want like `install-mod` or `install-url`  
+Finally they should have the payload for the install  
+
+### Install Types
+
+- `install-mod` - Installs a mod from the mods database, the payload should be the mod unique name
+- `install-url` - Installs a mod from a url, the payload should be the url to install from, **Not URI encoded**
+- `install-zip` - Installs a mod from a zip file, the payload should be the path to the zip file, note you shouldn't really need to use this because every user's computer is different, this is just used internally for drag and drop
+- `install-prerelease` - Installs a mod from a prerelease (in the mods database), the payload should be the mod unique name
+
+### Examples
+
+- owmods://install-mod/Bwc9876.TimeSaver
+- owmods://install-url/<https://example.com/Mod.zip>
+- owmods://install-zip//home/user/Downloads/Mod.zip
+- owmods://install-prerelease/Raicuparta.NomaiVR
+
+### Notes
+
+- The payload should **NOT** be URI encoded, it should be just the raw payload
+- In the case of `install-url` the url should be a direct download link, not a page with a download button
+- In the future this might become more advanced and have query params and stuff. If this happens `install-prerelease` will be changed to `install-mod` with a query param, however this will be backwards compatible
+- Note that users have to open the mod manager at least once before this will work, this is because the protocol is registered when the mod manager is opened.
+- All install types except `install-mod` will not automatically install the mod and require further user input for security reasons. `install-mod` pulls from the database which is trusted so it doesn't need to ask the user.
 
 ## GUI Package
 
@@ -362,14 +402,17 @@ The GUI has a lot of behavior specific to it as the CLI doesn't really need much
 - All commands that can fail return a Result, and the GUI will handle the error and show a dialog to the user, or be thrown to the nearest error bound
 - Should an error occur in the frontend, it will be sent to the backend by the nearest error boundary and the backend will log it with the preface "Received error from frontend:"
 
+### GUI Protocol Behavior
+
+- The GUI uses the tauri-plugin-deep-link crate to handle the owmods protocol.
+- The GUI will open the mod manager if it's not already open, and then install the mod.
+- The GUI will prompt the user to confirm the install if the mod is from an unsafe source such as a URL or ZIP file
+- The manager needs to be opened once before the protocol will work, this is because the protocol is registered when the manager is opened.
+
 ### File Drop Behavior
 
 - The GUI can accept file drops from the OS.
 - The GUI will check if the file is a zip, and if it is it will open the Install From Zip dialog.
-
-### Protocol Behavior
-
-- See [PROTOCOL.md](owmods_gui/PROTOCOL.md).
 
 ## CLI Package
 

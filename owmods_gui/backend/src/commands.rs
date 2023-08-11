@@ -9,6 +9,7 @@ use anyhow::anyhow;
 use log::error;
 use owmods_core::analytics::{send_analytics_event, AnalyticsEventName};
 use owmods_core::mods::local::LocalMod;
+use owmods_core::protocol::{ProtocolInstallType, ProtocolPayload};
 use owmods_core::{
     alerts::{fetch_alert, Alert},
     config::Config,
@@ -39,7 +40,6 @@ use crate::events::{
     LogLineCountUpdatePayload,
 };
 use crate::progress::ProgressBar;
-use crate::protocol::{ProtocolInstallType, ProtocolPayload};
 use crate::{
     game::{get_logs_indices, make_log_window, show_warnings, write_log, GameMessage},
     gui_config::GuiConfig,

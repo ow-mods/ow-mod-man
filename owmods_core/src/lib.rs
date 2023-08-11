@@ -61,6 +61,9 @@ pub mod validate;
 /// Generalized searching
 pub mod search;
 
+/// Utility for parsing the owmods:// protocol.
+pub mod protocol;
+
 #[cfg(test)]
 mod test_utils {
     use std::path::{Path, PathBuf};

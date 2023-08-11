@@ -23,8 +23,8 @@ use owmods_core::{
     file::get_app_path,
 };
 
+use owmods_core::protocol::{ProtocolInstallType, ProtocolPayload};
 use progress::ProgressBars;
-use protocol::{ProtocolInstallType, ProtocolPayload};
 use time::macros::format_description;
 use tokio::sync::RwLock as TokioLock;
 
@@ -37,7 +37,6 @@ mod game;
 mod gui_config;
 mod logging;
 mod progress;
-mod protocol;
 
 type StatePart<T> = Arc<TokioLock<T>>;
 type LogPort = u16;

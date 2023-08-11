@@ -216,6 +216,11 @@ pub enum Commands {
         )]
         shell: Shell,
     },
+    #[command(about = "Use the owmods:// protocol to install a mod", alias = "proto")]
+    Protocol {
+        #[arg(help = "The owmods:// protocol link to use (include the owmods:// part)", value_hint = ValueHint::Other)]
+        uri: String,
+    },
 }
 
 #[derive(Subcommand)]

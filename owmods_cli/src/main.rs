@@ -1,4 +1,4 @@
-use std::process;
+use std::{path::PathBuf, process};
 
 use anyhow::{anyhow, Result};
 use clap::{CommandFactory, Parser};
@@ -18,6 +18,7 @@ use owmods_core::{
         remote::RemoteMod,
     },
     open::{open_github, open_readme, open_shortcut},
+    protocol::{ProtocolInstallType, ProtocolPayload},
     remove::{remove_failed_mod, remove_mod},
     toggle::toggle_mod,
     updates::update_all,
@@ -462,6 +463,52 @@ async fn run_from_cli(cli: BaseCli) -> Result<()> {
             let mut cmd = BaseCli::command();
             let name = cmd.get_name().to_string();
             clap_complete::generate(*shell, &mut cmd, name, &mut std::io::stdout());
+        }
+        Commands::Protocol { uri } => {
+            info!("Installing from {}", uri);
+            let remote_db = RemoteDatabase::fetch(&config.database_url).await?;
+            let local_db = LocalDatabase::fetch(&config.owml_path)?;
+            let payload = ProtocolPayload::parse(uri);
+            match payload.install_type {
+                ProtocolInstallType::InstallMod | ProtocolInstallType::InstallPreRelease => {
+                    install_mod_from_db(
+                        &payload.payload,
+                        &config,
+                        &remote_db,
+                        &local_db,
+                        r,
+                        matches!(payload.install_type, ProtocolInstallType::InstallPreRelease),
+                    )
+                    .await?;
+                }
+                ProtocolInstallType::InstallURL | ProtocolInstallType::InstallZip => {
+                    warn!("WARNING: This will install a mod from a potentially untrusted source, continue? (yes/no)");
+                    let mut answer = String::new();
+                    std::io::stdin().read_line(&mut answer)?;
+                    if answer.trim() == "yes" {
+                        info!("Installing from {}", payload.payload);
+                        match payload.install_type {
+                            ProtocolInstallType::InstallURL => {
+                                install_mod_from_url(&payload.payload, None, &config, &local_db)
+                                    .await?;
+                            }
+                            ProtocolInstallType::InstallZip => {
+                                install_mod_from_zip(
+                                    &PathBuf::from(&payload.payload),
+                                    &config,
+                                    &local_db,
+                                )?;
+                            }
+                            _ => unreachable!(),
+                        }
+                    } else {
+                        warn!("Aborting");
+                    }
+                }
+                ProtocolInstallType::Unknown => {
+                    error!("Unknown install type, ignoring");
+                }
+            }
         }
     }
     Ok(())

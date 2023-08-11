@@ -40,7 +40,7 @@ pub mod owml;
 /// Open shortcuts and mod readmes.
 pub mod open;
 
-/// Types for consuming progress payloads.
+/// Utilities for managing and parsing progress bars.
 pub mod progress;
 
 /// Uninstall mods

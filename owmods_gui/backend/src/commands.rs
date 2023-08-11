@@ -7,11 +7,9 @@ use std::{
 
 use anyhow::anyhow;
 use log::error;
-use owmods_core::analytics::{send_analytics_event, AnalyticsEventName};
-use owmods_core::mods::local::LocalMod;
-use owmods_core::protocol::{ProtocolInstallType, ProtocolPayload};
 use owmods_core::{
     alerts::{fetch_alert, Alert},
+    analytics::{send_analytics_event, AnalyticsEventName},
     config::Config,
     constants::OWML_UNIQUE_NAME,
     db::{LocalDatabase, RemoteDatabase},
@@ -21,9 +19,14 @@ use owmods_core::{
     },
     file::{create_all_parents, get_app_path},
     game::launch_game,
-    mods::{local::UnsafeLocalMod, remote::RemoteMod},
+    mods::{
+        local::{LocalMod, UnsafeLocalMod},
+        remote::RemoteMod,
+    },
     open::{open_github, open_readme, open_shortcut},
     owml::OWMLConfig,
+    progress::bars::{ProgressBar, ProgressBars},
+    protocol::{ProtocolInstallType, ProtocolPayload},
     remove::{remove_failed_mod, remove_mod},
     socket::{LogServer, SocketMessageType},
     updates::check_mod_needs_update,
@@ -39,11 +42,9 @@ use crate::events::{
     CustomEventEmitter, CustomEventEmitterAll, CustomEventTriggerGlobal, Event,
     LogLineCountUpdatePayload,
 };
-use crate::progress::ProgressBar;
 use crate::{
     game::{get_logs_indices, make_log_window, show_warnings, write_log, GameMessage},
     gui_config::GuiConfig,
-    progress::ProgressBars,
     LogPort, State,
 };
 

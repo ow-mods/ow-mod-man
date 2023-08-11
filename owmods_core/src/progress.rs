@@ -320,19 +320,18 @@ pub mod bars {
     ///
     /// Note that this still needs to be setup in your logger implementation
     ///
-    /// ```
-    /// # use owmods_core::progress::bars::ProgressBars;
-    /// # use std::sync::{Arc, Mutex};
+    /// ```no_run
+    /// use owmods_core::progress::bars::ProgressBars;
+    /// use std::sync::{Arc, Mutex};
+    ///
     /// struct Logger {
     ///     progress_bars: Arc<Mutex<ProgressBars>>,
     /// };
     ///
     /// impl log::Log for Logger {
-    ///
     /// #  fn enabled(&self, metadata: &log::Metadata) -> bool {
     /// #        true
     /// #  }
-    ///
     /// #  fn flush(&self) {}
     ///
     ///    fn log(&self, record: &log::Record) {
@@ -364,11 +363,39 @@ pub mod bars {
         }
 
         /// Get a progress bar by its ID
+        ///
+        /// ## Examples
+        ///
+        /// ```no_run
+        /// use owmods_core::progress::bars::ProgressBars;
+        ///
+        /// let mut bars = ProgressBars::new();
+        /// bars.process("Start|test|Test.test|50|Definite|Download|Test Download");
+        /// let bar = bars.by_id("test").unwrap();
+        ///
+        /// assert_eq!(bar.id, "test");
+        /// assert_eq!(bar.len, 50);
+        /// assert_eq!(bar.unique_name.as_ref().unwrap(), "Test.test");
+        /// ```
+        ///
         pub fn by_id(&self, id: &str) -> Option<&ProgressBar> {
             self.bars.get(id)
         }
 
         /// Get a progress bar by the mod associated with it
+        ///
+        /// ## Examples
+        ///
+        /// ```no_run
+        /// use owmods_core::progress::bars::ProgressBars;
+        ///
+        /// let mut bars = ProgressBars::new();
+        /// bars.process("Start|test|Test.test|50|Definite|Download|Test Download");
+        /// let bar = bars.by_unique_name("Test.test").unwrap();
+        ///
+        /// assert_eq!(bar.id, "test");
+        /// ```
+        ///
         pub fn by_unique_name(&self, unique_name: &str) -> Option<&ProgressBar> {
             self.bars
                 .values()
@@ -382,6 +409,42 @@ pub mod bars {
         /// Process a progress payload
         /// This will update the progress bar associated with the payload accordingly
         /// If the payload is a [ProgressPayload::Finish] payload and all progress bars are finished, this will return whether any of the progress bars failed
+        ///
+        /// ## Examples
+        ///
+        /// ```no_run
+        /// use owmods_core::progress::bars::ProgressBars;
+        ///
+        /// let mut bars = ProgressBars::new();
+        /// bars.process("Start|test|Test.test|50|Definite|Download|Test Download");
+        /// bars.process("Increment|test|30");
+        ///
+        /// let bar = bars.by_id("test").unwrap();
+        ///
+        /// assert_eq!(bar.progress, 30);
+        ///
+        /// bars.process("Finish|test|true|Finished");
+        ///
+        /// let bar = bars.by_id("test").unwrap();
+        ///
+        /// assert_eq!(bar.progress, 50);
+        /// ```
+        ///
+        /// ```no_run
+        /// use owmods_core::progress::bars::ProgressBars;
+        ///
+        /// let mut bars = ProgressBars::new();
+        /// bars.process("Start|test|Test.test|50|Definite|Download|Test Download");
+        /// bars.process("Increment|test|30");
+        /// let any_failed = bars.process("Finish|test|true|Finished");
+        ///
+        /// assert!(any_failed.is_none());
+        ///
+        /// let any_failed = bars.process("Finish|test2|false|Failed");
+        ///
+        /// assert!(any_failed.unwrap());
+        /// ```
+        ///
         pub fn process(&mut self, payload: &str) -> Option<bool> {
             let payload = ProgressPayload::parse(payload);
             match payload {

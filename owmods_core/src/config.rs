@@ -38,6 +38,24 @@ impl Config {
     ///
     /// Only error that could be thrown is if we can't get the local app data directory of the user, if a custom path is specified this error will not happen.
     ///
+    /// ## Examples
+    ///
+    /// ```no_run
+    /// use owmods_core::config::Config;
+    ///
+    /// let mut config = Config::default(None).unwrap();
+    /// config.database_url = "https://example.com".to_string();
+    /// config.save().unwrap();
+    /// ```
+    ///
+    /// ```no_run
+    /// use owmods_core::config::Config;
+    ///
+    /// let mut config = Config::default(Some("/home/user/settings.json".into())).unwrap();
+    /// config.alert_url = "https://example.com".to_string();
+    /// config.save().unwrap();
+    /// ```
+    ///
     pub fn default(path: Option<PathBuf>) -> Result<Self> {
         let path = path.unwrap_or(Self::default_path()?);
         let owml_path = get_default_owml_path()?;
@@ -73,6 +91,16 @@ impl Config {
     ///
     /// If we can't save the config file
     ///
+    /// ## Examples
+    ///
+    /// ```no_run
+    /// use owmods_core::config::Config;
+    ///
+    /// let mut config = Config::default(None).unwrap();
+    /// config.database_url = "https://example.com".to_string();
+    /// config.save().unwrap();
+    /// ```
+    ///
     pub fn save(&self) -> Result<()> {
         debug!("Writing Config To {}", self.path.to_str().unwrap());
         serialize_to_json(self, &self.path, true)?;
@@ -81,6 +109,18 @@ impl Config {
 
     /// Set that a specific mod's warning was shown.
     /// (Doesn't save the config, you have to do that yourself)
+    ///
+    /// ## Examples
+    ///
+    /// ```no_run
+    /// use owmods_core::config::Config;
+    ///
+    /// let mut config = Config::default(None).unwrap();
+    /// println!("Time Saver Warning!");
+    /// config.set_warning_shown("Bwc9876.TimeSaver");
+    /// config.save().unwrap();
+    /// ```
+    ///
     pub fn set_warning_shown(&mut self, unique_name: &str) {
         self.viewed_alerts.push(unique_name.to_string());
     }
@@ -110,6 +150,23 @@ impl Config {
     ///
     /// If we can't read the current config or create a new one.
     ///
+    /// ## Examples
+    ///
+    /// ```no_run
+    /// use owmods_core::config::Config;
+    ///
+    /// let config = Config::get(None).unwrap();
+    /// println!("OWML Path: {}", config.owml_path);
+    /// ```
+    ///
+    /// ```no_run
+    /// use owmods_core::config::Config;
+    ///
+    /// let config = Config::get(Some("/non/existent/path".into())).unwrap();
+    /// println!("OWML Path: {}", config.owml_path);
+    /// assert_eq!(config.database_url, owmods_core::constants::DEFAULT_DB_URL);
+    /// ```
+    ///
     pub fn get(path: Option<PathBuf>) -> Result<Self> {
         let path = path.unwrap_or(Self::default_path()?);
         if path.is_file() {
@@ -127,6 +184,20 @@ impl Config {
     ///
     /// If the given folder contains the files needed by the manager to use OWML.
     /// Other files that make OWML work are not checked, only the ones the manager needs.
+    ///
+    /// ## Examples
+    ///
+    /// ```no_run
+    /// use owmods_core::config::Config;
+    ///
+    /// let config = Config::get(None).unwrap();
+    /// if config.check_owml() {
+    ///     println!("OWML Path is valid!");
+    /// } else {
+    ///     println!("OWML Path is invalid! Please Install");
+    ///     // Installation Code...
+    /// }
+    /// ```
     ///
     pub fn check_owml(&self) -> bool {
         if self.owml_path.trim().is_empty() {

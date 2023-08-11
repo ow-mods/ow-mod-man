@@ -32,9 +32,24 @@ pub struct Alert {
 ///
 /// Any errors that can happen when fetching json (Networking errors, Deserialization errors).  
 ///
-///
 /// It should be noted this will **NOT** error if we get a 404 or other HTTP error code,
 /// and instead will return a disabled alert.
+///
+/// ## Examples
+///
+/// ```no_run
+/// use owmods_core::alerts::fetch_alert;
+/// use owmods_core::config::Config;
+///
+/// # tokio_test::block_on(async {
+/// let config = Config::get(None).unwrap();
+/// let alert = fetch_alert(&config.alert_url).await.unwrap();
+///
+/// if alert.enabled {
+///    println!("Alert: {}", alert.message.unwrap());
+/// }
+/// # });
+/// ```
 ///
 pub async fn fetch_alert(url: &str) -> Result<Alert> {
     debug!("Fetching Alert At: {}", url);
@@ -61,6 +76,36 @@ pub async fn fetch_alert(url: &str) -> Result<Alert> {
 /// A vector of tuples
 /// - The first item in the tuple is the unique name of the mod that has the warning
 /// - The second item is the warning itself.
+///
+/// ## Examples
+///
+/// ```no_run
+/// use owmods_core::alerts::get_warnings;
+/// use owmods_core::db::LocalDatabase;
+/// use owmods_core::config::Config;
+///
+/// let config = Config::get(None).unwrap();
+/// let local_db = LocalDatabase::default();
+///
+/// let warnings = get_warnings(local_db.valid().collect(), vec![]);
+///
+/// for (unique_name, warning) in warnings {
+///    println!("Warning for {}: {}", unique_name, warning.title);
+/// }
+/// ```
+///
+/// ```no_run
+/// use owmods_core::alerts::get_warnings;
+/// use owmods_core::db::LocalDatabase;
+/// use owmods_core::config::Config;
+///
+/// let config = Config::get(None).unwrap();
+/// let local_db = LocalDatabase::default();
+///
+/// let warnings = get_warnings(local_db.valid().collect(), vec!["Bwc9876.TimeSaver"]);
+///
+/// assert!(!warnings.iter().any(|(unique_name, _)| unique_name == &"Bwc9876.TimeSaver"));
+/// ```  
 ///
 pub fn get_warnings<'a>(
     mods: Vec<&'a LocalMod>,

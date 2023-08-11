@@ -35,6 +35,16 @@ impl LocalDatabase {
     ///
     /// If we can't read the `Mods` directory in `owml_path` (NOT due to it not existing).
     ///
+    /// ## Examples
+    ///
+    /// ```no_run
+    /// use owmods_core::db::LocalDatabase;
+    /// use owmods_core::config::Config;
+    ///
+    /// let config = Config::get(None).unwrap();
+    /// let db = LocalDatabase::fetch(&config.owml_path).unwrap();
+    /// ```
+    ///
     pub fn fetch(owml_path: &str) -> Result<Self> {
         debug!("Begin construction of local db at {}", owml_path);
         let mods_path = PathBuf::from(owml_path).join("Mods");
@@ -55,6 +65,20 @@ impl LocalDatabase {
     ///
     /// An option of the mod found, set to `None` if the mod isn't there
     ///
+    /// ## Examples
+    ///
+    /// ```no_run
+    /// use owmods_core::db::LocalDatabase;
+    /// use owmods_core::config::Config;
+    ///
+    /// let config = Config::get(None).unwrap();
+    /// let db = LocalDatabase::fetch(&config.owml_path).unwrap();
+    /// let time_saver = db.get_mod("Bwc9876.TimeSaver").unwrap();
+    ///
+    /// assert_eq!(time_saver.manifest.name, "TimeSaver");
+    /// assert_eq!(time_saver.manifest.version, "1.1.1");
+    /// ```
+    ///
     pub fn get_mod(&self, unique_name: &str) -> Option<&LocalMod> {
         let local_mod = self.mods.get(unique_name);
         if let Some(UnsafeLocalMod::Valid(local_mod)) = local_mod {
@@ -70,11 +94,30 @@ impl LocalDatabase {
     ///
     /// An [UnsafeLocalMod] that may or may not have loaded successfully
     ///
+    /// ## Examples
+    ///
+    /// ```no_run
+    /// use owmods_core::db::LocalDatabase;
+    /// use owmods_core::mods::local::UnsafeLocalMod;
+    /// use owmods_core::config::Config;
+    ///
+    /// let config = Config::get(None).unwrap();
+    /// let mut db = LocalDatabase::fetch(&config.owml_path).unwrap();
+    ///  
+    /// let bad_mod = db.get_mod_unsafe("/bad/mod/path").unwrap();
+    /// assert!(matches!(bad_mod, UnsafeLocalMod::Invalid(_)));
+    ///
+    /// let good_mod = db.get_mod_unsafe("Bwc9876.TimeSaver").unwrap();
+    /// assert!(matches!(good_mod, UnsafeLocalMod::Valid(_)));
+    /// ```
+    ///
+    ///
     pub fn get_mod_unsafe(&self, unique_name: &str) -> Option<&UnsafeLocalMod> {
         self.mods.get(unique_name)
     }
 
-    fn get_mod_mut(&mut self, unique_name: &str) -> Option<&mut LocalMod> {
+    /// Get a mutable reference to a **valid** mod from the local database.
+    pub fn get_mod_mut(&mut self, unique_name: &str) -> Option<&mut LocalMod> {
         let local_mod = self.mods.get_mut(unique_name);
         if let Some(UnsafeLocalMod::Valid(local_mod)) = local_mod {
             Some(local_mod)
@@ -88,6 +131,26 @@ impl LocalDatabase {
     /// ## Returns
     ///
     /// OWML as a LocalMod, if it's installed
+    ///
+    /// ## Examples
+    ///
+    /// ```no_run
+    /// use owmods_core::db::LocalDatabase;
+    /// use owmods_core::config::Config;
+    ///
+    /// let config = Config::get(None).unwrap();
+    /// let owml = LocalDatabase::get_owml(&config.owml_path);
+    ///
+    /// assert!(owml.is_some());
+    /// assert_eq!(owml.unwrap().manifest.name, "OWML");
+    /// ```
+    ///
+    /// ```no_run
+    /// use owmods_core::db::LocalDatabase;
+    ///
+    /// let owml = LocalDatabase::get_owml("/bad/path");
+    /// assert!(owml.is_none());
+    /// ```
     ///
     pub fn get_owml(owml_path: &str) -> Option<LocalMod> {
         let manifest_path = PathBuf::from(owml_path).join("OWML.Manifest.json");
@@ -111,6 +174,23 @@ impl LocalDatabase {
     /// ## Errors
     ///
     /// If we can't read the mod manifest, config, or folder.
+    ///
+    /// ## Examples
+    ///
+    /// ```no_run
+    /// use owmods_core::db::LocalDatabase;
+    /// use owmods_core::config::Config;
+    /// use std::path::PathBuf;
+    ///
+    /// let config = Config::get(None).unwrap();
+    /// let mod_path = PathBuf::from(&config.owml_path).join("Mods").join("Bwc9876.TimeSaver");
+    /// let manifest_path = mod_path.join("manifest.json");
+    ///
+    /// let local_mod = LocalDatabase::read_local_mod(&manifest_path).unwrap();
+    ///
+    /// assert_eq!(local_mod.manifest.name, "TimeSaver");
+    /// assert_eq!(local_mod.manifest.version, "1.1.1");
+    /// ```
     ///
     pub fn read_local_mod(manifest_path: &Path) -> Result<LocalMod> {
         debug!(
@@ -202,6 +282,27 @@ impl LocalDatabase {
     ///
     /// A Vec of [UnsafeLocalMod]s that exactly or closely match the search query
     ///
+    /// ## Examples
+    ///
+    /// ```no_run
+    /// use owmods_core::db::LocalDatabase;
+    /// use owmods_core::config::Config;
+    ///
+    /// let config = Config::get(None).unwrap();
+    /// let db = LocalDatabase::fetch(&config.owml_path).unwrap();
+    ///
+    /// let results = db.search("TimeSaver");
+    /// assert!(results.first().is_some());
+    ///
+    /// assert_eq!(results.first().unwrap().get_name(), "TimeSaver");
+    ///
+    /// let results = db.search("Saver");
+    /// assert!(results.first().is_some());
+    ///
+    /// let results = db.search("Bwc9876");
+    /// assert!(results.first().is_some());
+    /// ```
+    ///
     pub fn search(&self, search: &str) -> Vec<&UnsafeLocalMod> {
         let mods: Vec<&UnsafeLocalMod> = self.all().collect();
         search_list(mods, search)
@@ -222,6 +323,26 @@ impl LocalDatabase {
     }
 
     /// Validates the local database against the remote, checking versions and marking mods as outdated
+    ///
+    /// ## Examples
+    ///
+    /// ```no_run
+    /// use owmods_core::db::{RemoteDatabase, LocalDatabase};
+    /// use owmods_core::config::Config;
+    ///
+    /// let config = Config::get(None).unwrap();
+    /// let mut db = LocalDatabase::fetch(&config.owml_path).unwrap();
+    /// db.get_mod_mut("Bwc9876.TimeSaver").unwrap().manifest.version = "0.0.0".to_string();
+    ///
+    /// // Blocking version is used for simplicity
+    /// let remote_db = RemoteDatabase::fetch_blocking(&config.database_url).unwrap();
+    ///
+    /// db.validate_updates(&remote_db);
+    ///
+    /// let time_saver = db.get_mod("Bwc9876.TimeSaver").unwrap();
+    /// assert!(time_saver.errors.iter().any(|e| matches!(e, owmods_core::validate::ModValidationError::Outdated(_))));
+    /// ```
+    ///
     pub fn validate_updates(&mut self, db: &RemoteDatabase) {
         for local_mod in self.mods.iter_mut().filter_map(|m| {
             if let UnsafeLocalMod::Valid(m) = m.1 {

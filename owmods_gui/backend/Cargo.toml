@@ -25,7 +25,7 @@ tauri = { version = "1.4.1", features = [
     "window-set-title",
 ] }
 anyhow = "1.0.72"
-tokio = { version = "1.30.0", features = ["sync", "macros"] }
+tokio = { version = "1.31.0", features = ["sync", "macros"] }
 log = { version = "0.4.20", features = ["std", "serde"] }
 typeshare = "1.0.1"
 notify = { version = "6.0.1", default-features = false, features = [

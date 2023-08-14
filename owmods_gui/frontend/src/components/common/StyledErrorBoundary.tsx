@@ -4,9 +4,9 @@ import { Box, Button, Paper, Typography, useTheme } from "@mui/material";
 import { ComponentType, ReactNode, useEffect, useMemo } from "react";
 import { ErrorBoundary, withErrorBoundary } from "react-error-boundary";
 import { TranslationKey } from "./TranslationContext";
-import { commands } from "@commands";
 import { Event } from "@types";
 import { listen } from "@events";
+import { onError } from "../../errorHandling";
 
 export interface StyledErrorBoundaryProps {
     children: ReactNode;
@@ -17,18 +17,6 @@ export interface StyledErrorBoundaryProps {
     onFix?: () => void;
     fixButtonKey?: TranslationKey;
 }
-
-export const simpleOnError = (err: string) => {
-    commands.logError({
-        err: err.toString()
-    });
-};
-
-export const onError = (err: unknown, info: { componentStack: string }) => {
-    commands.logError({
-        err: `${err?.toString() ?? "null"}\nAt: ${info.componentStack}`
-    });
-};
 
 const fallback = (options: Omit<StyledErrorBoundaryProps, "children">) =>
     function Fallback({
@@ -126,11 +114,5 @@ export const withStyledErrorBoundary = <Props extends object>(
         FallbackComponent: fallback(...settings),
         onError
     });
-
-export const basicFallbackRender = ({ error }: { error: unknown }) => (
-    <p
-        style={{ color: "rgb(255, 83, 83)", margin: "50vh 10vw", textAlign: "center" }}
-    >{`Fatal Error: ${error}`}</p>
-);
 
 export default StyledErrorBoundary;

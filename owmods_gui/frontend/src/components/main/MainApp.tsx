@@ -10,7 +10,8 @@ import { getCurrent } from "@tauri-apps/api/window";
 import AppAlert from "./AppAlert";
 import BaseApp from "@components/common/BaseApp";
 import OwmlModal from "./OwmlModal";
-import StyledErrorBoundary, { simpleOnError } from "@components/common/StyledErrorBoundary";
+import StyledErrorBoundary from "@components/common/StyledErrorBoundary";
+import { simpleOnError } from "../../errorHandling";
 import { useErrorBoundary } from "react-error-boundary";
 import FileDrop from "./FileDrop";
 import { Event } from "@types";
@@ -37,41 +38,18 @@ const Pane = memo(function Pane(props: {
     );
 });
 
-const MainApp = () => {
+const InnerMainApp = memo(function InnerMainApp() {
     const [selectedTab, setSelectedTab] = useState<ModsTab>("local");
-    const [status, guiConfig] = hooks.getGuiConfig("guiConfigReload");
-
-    const errorBound = useErrorBoundary();
 
     const [filter, setFilter] = useState("");
     const [tags, setTags] = useState<string[]>([]);
-
-    useEffect(() => {
-        commands.initialSetup({}, false).catch((e) => errorBound.showBoundary(e));
-    }, [errorBound]);
-
-    useEffect(() => {
-        if (guiConfig?.language !== null) {
-            getCurrent()
-                .setTitle(
-                    TranslationMap[guiConfig?.language ?? "English"]["APP_TITLE"] ??
-                        "Outer Wilds Mod Manager (*)"
-                )
-                .catch(simpleOnError);
-        }
-    }, [guiConfig?.language]);
 
     const onTabChange = useCallback((newVal: string) => {
         setSelectedTab(newVal as ModsTab);
     }, []);
 
     return (
-        <BaseApp
-            language={guiConfig?.language}
-            theme={guiConfig?.theme}
-            usesRainbow={guiConfig?.rainbow}
-            isLoading={status === "Loading" && guiConfig === null}
-        >
+        <>
             <OwmlModal />
             <FileDrop />
             <TabContext value={selectedTab}>
@@ -108,6 +86,38 @@ const MainApp = () => {
                     </Pane>
                 </Box>
             </TabContext>
+        </>
+    );
+});
+
+const MainApp = () => {
+    const [status, guiConfig] = hooks.getGuiConfig("guiConfigReload");
+
+    const errorBound = useErrorBoundary();
+
+    useEffect(() => {
+        if (guiConfig?.language !== null) {
+            getCurrent()
+                .setTitle(
+                    TranslationMap[guiConfig?.language ?? "English"]["APP_TITLE"] ??
+                        "Outer Wilds Mod Manager (*)"
+                )
+                .catch(simpleOnError);
+        }
+    }, [guiConfig?.language]);
+
+    useEffect(() => {
+        commands.initialSetup({}, false).catch((e) => errorBound.showBoundary(e));
+    }, [errorBound]);
+
+    return (
+        <BaseApp
+            language={guiConfig?.language}
+            theme={guiConfig?.theme}
+            usesRainbow={guiConfig?.rainbow}
+            isLoading={status === "Loading" && guiConfig === null}
+        >
+            <InnerMainApp />
         </BaseApp>
     );
 };

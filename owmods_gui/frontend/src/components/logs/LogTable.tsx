@@ -1,6 +1,6 @@
 import { TableCell, useTheme } from "@mui/material";
 import { TableContainer, Paper, Table, TableBody, TableHead, TableRow } from "@mui/material";
-import { forwardRef, memo, useRef } from "react";
+import { forwardRef, memo, useMemo, useRef } from "react";
 import { TableProps, TableVirtuoso, VirtuosoHandle } from "react-virtuoso";
 import { LogLines } from "./LogApp";
 import { useGetTranslation } from "@hooks";
@@ -45,6 +45,21 @@ const LogTable = memo(function LogTable(props: LogTableProps) {
 
     const virtuoso = useRef<VirtuosoHandle>(null);
 
+    const grey = theme.palette.grey[900];
+
+    const header = useMemo(
+        () =>
+            function HeaderRow() {
+                return (
+                    <TableRow sx={{ background: grey }}>
+                        <TableCell width="150px">{getTranslation("SENDER")}</TableCell>
+                        <TableCell>{getTranslation("LOG_MESSAGE")}</TableCell>
+                    </TableRow>
+                );
+            },
+        [getTranslation, grey]
+    );
+
     return (
         <TableVirtuoso
             ref={virtuoso}
@@ -53,12 +68,7 @@ const LogTable = memo(function LogTable(props: LogTableProps) {
             increaseViewportBy={500}
             atBottomThreshold={1000}
             data={props.logLines}
-            fixedHeaderContent={() => (
-                <TableRow sx={{ background: theme.palette.grey[900] }}>
-                    <TableCell width="150px">{getTranslation("SENDER")}</TableCell>
-                    <TableCell>{getTranslation("LOG_MESSAGE")}</TableCell>
-                </TableRow>
-            )}
+            fixedHeaderContent={header}
             itemContent={(_, data) => (
                 <LogRow port={props.port} index={data} virtuosoRef={virtuoso} />
             )}

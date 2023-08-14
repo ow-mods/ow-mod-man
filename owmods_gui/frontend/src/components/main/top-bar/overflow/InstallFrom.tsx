@@ -26,7 +26,7 @@ import { commands } from "@commands";
 import { getCurrent } from "@tauri-apps/api/window";
 import { OpenFileInput } from "@components/common/FileInput";
 import { listen } from "@events";
-import { simpleOnError } from "@components/common/StyledErrorBoundary";
+import { simpleOnError } from "../../../../errorHandling";
 
 type SourceType = "UNIQUE_NAME" | "URL" | "ZIP";
 

@@ -4,7 +4,7 @@ import { commands, hooks } from "@commands";
 import { useGetTranslation } from "@hooks";
 import { dialog } from "@tauri-apps/api";
 import RemoteModActions from "./RemoteModActions";
-import { simpleOnError } from "@components/common/StyledErrorBoundary";
+import { simpleOnError } from "../../../../errorHandling";
 
 export interface RemoteModRowProps {
     uniqueName: string;

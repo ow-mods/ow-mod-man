@@ -141,7 +141,7 @@ impl LogServer {
     // Handles all messages from the client
     // Returns true if the client sent a quit message
     async fn client_loop(mut stream: TcpStream, tx: &LogServerSender) -> bool {
-        let mut reader = BufReader::new(&mut stream);
+        let mut reader = BufReader::with_capacity(16000, &mut stream);
         let mut body = String::new();
         let mut flag = false;
         while let Ok(bytes_read) = reader.read_line(&mut body).await {

@@ -12,7 +12,7 @@ pub fn log_client() -> Result<()> {
             break;
         }
         let message = format!(
-            "{{\"type\": 0, \"message\": \"{}\", \"senderName\": \"xtask\", \"senderType\": \"log_client\"}}\n",
+            "{{\"type\": 6, \"message\": \"{}\", \"senderName\": \"xtask\", \"senderType\": \"log_client\"}}\n",
             input.trim()
         );
         stream.write_all(message.as_bytes())?;

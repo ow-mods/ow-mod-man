@@ -3,17 +3,11 @@
     windows_subsystem = "windows"
 )]
 
-use std::{
-    collections::HashMap,
-    error::Error,
-    fs::File,
-    io::{BufWriter, Write},
-    sync::Arc,
-};
+use std::{collections::HashMap, error::Error, fs::File, io::Write, sync::Arc};
 
 use commands::*;
 use fs_watch::setup_fs_watch;
-use game::GameMessage;
+use game::LogData;
 use gui_config::GuiConfig;
 use log::{debug, error, set_boxed_logger, set_max_level, warn};
 use logging::Logger;
@@ -39,7 +33,7 @@ mod logging;
 
 type StatePart<T> = Arc<TokioLock<T>>;
 type LogPort = u16;
-type LogMessages = HashMap<LogPort, (Vec<GameMessage>, BufWriter<File>)>;
+type LogMessages = HashMap<LogPort, LogData>;
 
 fn manage<T>(obj: T) -> StatePart<T> {
     Arc::new(TokioLock::new(obj))

@@ -17,7 +17,6 @@ use owmods_core::{
         download_and_install_owml, install_mod_from_db, install_mod_from_url, install_mod_from_zip,
         install_mods_parallel,
     },
-    file::{create_all_parents, get_app_path},
     game::launch_game,
     mods::{
         local::{LocalMod, UnsafeLocalMod},
@@ -35,15 +34,12 @@ use owmods_core::{
 use serde::Serialize;
 use tauri::FileDropEvent;
 use tauri::{api::dialog, async_runtime, AppHandle, Manager, WindowEvent};
-use time::{macros::format_description, OffsetDateTime};
 use tokio::{sync::mpsc, try_join};
 
-use crate::events::{
-    CustomEventEmitter, CustomEventEmitterAll, CustomEventTriggerGlobal, Event,
-    LogLineCountUpdatePayload,
-};
+use crate::events::{CustomEventEmitter, CustomEventEmitterAll, CustomEventTriggerGlobal, Event};
+use crate::game::LogData;
 use crate::{
-    game::{get_logs_indices, make_log_window, show_warnings, write_log, GameMessage},
+    game::{make_log_window, show_warnings, GameMessage},
     gui_config::GuiConfig,
     LogPort, State,
 };
@@ -686,49 +682,11 @@ pub async fn run_game(
 
     let log_server = LogServer::new(0).await?;
     let port = log_server.port;
-    let now = OffsetDateTime::now_utc();
-    let logs_path = get_app_path()?
-        .join("game_logs")
-        .join(
-            now.format(format_description!("[year]-[month]-[day]"))
-                .unwrap(),
-        )
-        .join(format!(
-            "{}_{port}.log",
-            now.format(format_description!("[hour]-[minute]-[second]"))
-                .unwrap()
-        ));
-    create_all_parents(&logs_path)?;
-    let file = File::options()
-        .read(true)
-        .append(true)
-        .create(true)
-        .open(&logs_path)
-        .map_err(|e| anyhow!("Couldn't create log file: {:?}", e))?;
+
     {
         let mut game_log = state.game_log.write().await;
-        let writer = BufWriter::new(file);
-        game_log.insert(port, (vec![], writer));
+        game_log.insert(port, LogData::new(port, &handle)?);
     }
-
-    let close_handle = window.app_handle();
-
-    window.on_window_event(move |e| {
-        if let WindowEvent::CloseRequested { .. } = e {
-            let handle = close_handle.clone();
-            async_runtime::spawn(async move {
-                let state = handle.state::<State>();
-                let mut logs = state.game_log.write().await;
-                if let Some((_, ref mut writer)) = logs.get_mut(&port) {
-                    let res = writer.flush();
-                    if let Err(why) = res {
-                        error!("Couldn't Flush Log Buffer: {:?}", why);
-                    }
-                }
-                logs.remove(&port);
-            });
-        }
-    });
 
     window.typed_emit(&Event::GameStart(port)).ok();
 
@@ -736,44 +694,9 @@ pub async fn run_game(
 
     let log_handler = async {
         while let Some(msg) = rx.recv().await {
-            let window_handle = window.app_handle();
             let mut game_log = state.game_log.write().await;
-            if let Some((lines, writer)) = game_log.get_mut(&port) {
-                if let Some(last_message) = lines.last_mut() {
-                    if msg == last_message.message {
-                        last_message.amount = last_message.amount.saturating_add(1);
-                        let res = window_handle.typed_emit_all(&Event::LogLineCountUpdate(
-                            LogLineCountUpdatePayload {
-                                port,
-                                line: (lines.len() - 1).try_into().unwrap_or(u32::MAX),
-                            },
-                        ));
-                        if let Err(why) = res {
-                            error!("Couldn't Emit Game Log: {}", why)
-                        }
-                        let res = window_handle.typed_emit_all(&Event::LogUpdate(port));
-                        if let Err(why) = res {
-                            error!("Couldn't Emit Game Log: {}", why)
-                        }
-                        continue;
-                    }
-                }
-                let res = write_log(writer, &msg);
-                if let Err(why) = res {
-                    error!("Couldn't Write Game Log: {}", why);
-                }
-                let msg = GameMessage::new(port, msg);
-                if matches!(msg.message.message_type, SocketMessageType::Fatal) {
-                    let res = window_handle.typed_emit_all(&Event::LogFatal(msg.clone()));
-                    if let Err(why) = res {
-                        error!("Couldn't Emit Game Log: {}", why)
-                    }
-                }
-                lines.push(msg);
-                let res = window_handle.typed_emit_all(&Event::LogUpdate(port));
-                if let Err(why) = res {
-                    error!("Couldn't Emit Game Log: {}", why)
-                }
+            if let Some(log_data) = game_log.get_mut(&port) {
+                log_data.take_message(msg);
             }
         }
         Ok(())
@@ -789,17 +712,10 @@ pub async fn run_game(
 }
 
 #[tauri::command]
-pub async fn clear_logs(
-    port: LogPort,
-    handle: tauri::AppHandle,
-    state: tauri::State<'_, State>,
-) -> Result {
+pub async fn clear_logs(port: LogPort, state: tauri::State<'_, State>) -> Result {
     let mut data = state.game_log.write().await;
-    if let Some((lines, _)) = data.get_mut(&port) {
-        lines.clear();
-        handle
-            .typed_emit_all(&Event::LogUpdate(port))
-            .map_err(|e| anyhow!("Can't Send Event: {:?}", e))?;
+    if let Some(log_data) = data.get_mut(&port) {
+        log_data.clear();
     }
     Ok(())
 }
@@ -811,10 +727,10 @@ pub async fn get_log_lines(
     search: &str,
     state: tauri::State<'_, State>,
 ) -> Result<(Vec<usize>, u32)> {
-    let logs = state.game_log.read().await;
-    if let Some((lines, _)) = logs.get(&port) {
-        let sum = lines.iter().map(|l| l.amount).sum();
-        let lines = get_logs_indices(lines, filter_type, search)?;
+    let mut logs = state.game_log.write().await;
+    if let Some(&mut ref mut log_data) = logs.get_mut(&port) {
+        let sum = log_data.get_count();
+        let lines = log_data.get_lines(filter_type, search);
         Ok((lines, sum))
     } else {
         Err(Error(anyhow!("Log Server Not Running")))
@@ -828,11 +744,12 @@ pub async fn get_game_message(
     state: tauri::State<'_, State>,
 ) -> Result<GameMessage> {
     let logs = state.game_log.read().await;
-    if let Some((lines, _)) = logs.get(&port) {
-        let msg = lines
-            .get(line)
-            .ok_or_else(|| anyhow!("Invalid Log Line {line}"))?;
-        Ok(msg.clone())
+    if let Some(log_data) = logs.get(&port) {
+        if let Some(msg) = log_data.get_message(line) {
+            Ok(msg.clone())
+        } else {
+            Err(Error(anyhow!("Log Line {line} Not Found")))
+        }
     } else {
         Err(Error(anyhow!("Log Server Not Running")))
     }

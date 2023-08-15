@@ -33,7 +33,7 @@ notify = { version = "6.0.1", default-features = false, features = [
 ] }
 regex = "1.9.3"
 time = { version = "0.3.25", features = ["macros", "local-offset"] }
-tauri-plugin-deep-link = "0.1.1"
+tauri-plugin-deep-link = "0.1.2"
 tauri-plugin-window-state = { git = "https://github.com/tauri-apps/plugins-workspace", branch = "dev" }
 opener = "0.6.1"
 

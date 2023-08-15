@@ -35,6 +35,7 @@
   - [GUI Package](#gui-package)
     - [State Management](#state-management)
     - [GUI OWML Setup Behavior](#gui-owml-setup-behavior)
+    - [GUI Mod List Behavior](#gui-mod-list-behavior)
     - [GUI Progress Bar Behavior](#gui-progress-bar-behavior)
     - [Busy Mod Behavior](#busy-mod-behavior)
     - [File System Behavior](#file-system-behavior)
@@ -44,6 +45,7 @@
     - [Logging Behavior](#logging-behavior)
     - [Error Handling](#error-handling)
     - [GUI Protocol Behavior](#gui-protocol-behavior)
+    - [GUI Game Log Behavior](#gui-game-log-behavior)
     - [File Drop Behavior](#file-drop-behavior)
   - [CLI Package](#cli-package)
     - [CLI OWML Setup Behavior](#cli-owml-setup-behavior)
@@ -197,9 +199,9 @@ Note that the manager uses the `pathsToPreserve` field **on the installed mod** 
 - Each field is weighted by 1 if it contains the query, and by 2 if it's an exact match.
 - Each field the manager checks for search is weighted by its position in that list, so matches in the name take precedence over matches in the author for example.
 - The score of each field is then added together to get the final score of the mod.
-- All fields are normalized to increase the chances of matching
+- All fields are normalized to increase the chances of matching, as well as the search query.
   - The field is lowercased
-  - The field gets NFC normalized
+  - The field gets NFD normalized
   - The field gets all whitespace and control characters removed
   - The field gets any combining diacritical marks (`\u{0300}`-`\u{036f}`) removed
 - The exact formula for determining the score is below
@@ -336,6 +338,16 @@ The GUI has a lot of behavior specific to it as the CLI doesn't really need much
 - The user can also choose to locate an existing OWML install or use a prerelease of OWML.
 - The user can also change the OWML install location in the settings or install/change it by clicking "Edit OWML Install" in the overflow menu
 
+### GUI Mod List Behavior
+
+- The GUI displays three lists of mods, the installed mods, the mods in the database, and outdated mods.
+- The installed mods list shows all installed mods, and allows the user to enable/disable, update, and uninstall mods.
+- The mods in the database list shows all mods in the database, and allows the user to install mods or their prereleases.
+- The outdated mods list shows all installed mods that have an update available, and allows the user to update them all at once or one at a time.
+- The updates tab will display a badge with the number of updates available.
+- All lists are virtualized to prevent excessive DOM nodes from being created.
+- It should be notes that switching tabs **does not unmount them** to prevent costly commits to the DOM. the reasoning behind this is because the lists are all virtualized they'll all have a height of 0 when not visible, so they won't render any rows, meaning little to no performance impact.
+
 ### GUI Progress Bar Behavior
 
 - The GUI uses a progress bar to show progress when installing mods.
@@ -408,6 +420,19 @@ The GUI has a lot of behavior specific to it as the CLI doesn't really need much
 - The GUI will open the mod manager if it's not already open, and then install the mod.
 - The GUI will prompt the user to confirm the install if the mod is from an unsafe source such as a URL or ZIP file
 - The manager needs to be opened once before the protocol will work, this is because the protocol is registered when the manager is opened.
+
+### GUI Game Log Behavior
+
+- The GUI can collect logs from the game.
+- The GUI will start a log server and listen for logs from the game.
+- The GUI also timestamps the logs and displays sender type and timestamp in a tooltip when hovering over the sender name.
+- The GUI can also search logs, it will search the sender name, sender type, and message.
+- Logs are rendered in a separate window
+- If the user chooses they can make each instance of the game open a new window, or they can have all instances of the game log to the same window.
+- Internally the GUI throttles logs to prevent excessive UI updates, if >100 logs are received in a second the GUI will enqueue the logs and render them later.
+- The frontend will display if logs are being throttled in the log window by turning the count amber and showing a warning icon.
+- The GUI will never drop logs, however, the core library may drop logs if the mpsc channel is full.
+- The GUI will virtualize the log list to prevent excessive DOM nodes from being created.
 
 ### File Drop Behavior
 

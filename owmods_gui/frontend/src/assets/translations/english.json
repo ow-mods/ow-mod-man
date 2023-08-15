@@ -70,6 +70,7 @@
     "LOCATE_OWML": "Locate An Existing OWML Instance",
     "LOGS": "Logs",
     "LOGS_TITLE": "Game Logs (Port $port$)",
+    "LOG_BEHIND": "A large influx of logs has been received, updates may be delayed.",
     "LOG_COUNT": "$count$ Log(s)",
     "LOG_MESSAGE": "Message",
     "LOG_MULTI_WINDOW": "Use Multiple Windows For Logs",

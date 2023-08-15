@@ -688,6 +688,19 @@ pub async fn run_game(
         game_log.insert(port, LogData::new(port, &handle)?);
     }
 
+    let close_handle = handle.clone();
+
+    window.on_window_event(move |e| {
+        if let WindowEvent::CloseRequested { .. } = e {
+            let handle = close_handle.clone();
+            async_runtime::spawn(async move {
+                let state = handle.state::<State>();
+                let mut logs = state.game_log.write().await;
+                logs.remove(&port);
+            });
+        }
+    });
+
     window.typed_emit(&Event::GameStart(port)).ok();
 
     let (tx, mut rx) = mpsc::channel(32);
@@ -753,6 +766,15 @@ pub async fn get_game_message(
     } else {
         Err(Error(anyhow!("Log Server Not Running")))
     }
+}
+
+#[tauri::command]
+pub async fn force_log_update(port: LogPort, state: tauri::State<'_, State>) -> Result {
+    let mut logs = state.game_log.write().await;
+    if let Some(log_data) = logs.get_mut(&port) {
+        log_data.process_emit_queue();
+    }
+    Ok(())
 }
 
 #[tauri::command]

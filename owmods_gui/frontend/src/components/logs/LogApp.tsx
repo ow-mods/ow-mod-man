@@ -5,7 +5,7 @@ import { useGetTranslation } from "@hooks";
 import { dialog } from "@tauri-apps/api";
 import { getCurrent } from "@tauri-apps/api/window";
 import { SocketMessageType } from "@types";
-import { useState, useCallback, useEffect, memo } from "react";
+import { useState, useCallback, useEffect, memo, useRef } from "react";
 import LogHeader from "./LogHeader";
 import { Container, useTheme } from "@mui/material";
 import LogTable from "./LogTable";
@@ -28,8 +28,10 @@ const getFilterToPass = (activeFilter: LogFilter) => {
 const InnerLogApp = memo(function InnerLogApp({ port }: { port: number }) {
     const [activeFilter, setActiveFilter] = useState<LogFilter>("Any");
     const [activeSearch, setActiveSearch] = useState<string>("");
+    const [logsBehind, setLogsBehind] = useState<boolean>(false);
     const [logLines, setLogLines] = useState<LogLines>([]);
     const [logTotal, setLogTotal] = useState<number>(0);
+    const forceLogUpdateTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
     const getTranslation = useGetTranslation();
     const theme = useTheme();
 
@@ -63,6 +65,31 @@ const InnerLogApp = memo(function InnerLogApp({ port }: { port: number }) {
         return unsubscribe;
     }, [fetchLogLines, getTranslation, port]);
 
+    // In the event that logs are behind, enqueue a log update in 1 second if no other log update has been enqueued
+    useEffect(() => {
+        const unsubscribe = listen("logsBehind", (payload) => {
+            if (payload.port !== port) return;
+            setLogsBehind(payload.behind);
+            if (forceLogUpdateTimeout.current !== null) {
+                clearTimeout(forceLogUpdateTimeout.current);
+                forceLogUpdateTimeout.current = null;
+            }
+            if (!payload.behind) return;
+            forceLogUpdateTimeout.current = setTimeout(() => {
+                if (forceLogUpdateTimeout.current !== null) {
+                    commands
+                        .forceLogUpdate({ port })
+                        .catch(simpleOnError)
+                        .then(() => {
+                            forceLogUpdateTimeout.current = null;
+                            setLogsBehind(false);
+                        });
+                }
+            }, 1000);
+        });
+        return unsubscribe;
+    }, [port]);
+
     useEffect(() => {
         fetchLogLines();
     }, [activeFilter, activeSearch, fetchLogLines]);
@@ -85,6 +112,7 @@ const InnerLogApp = memo(function InnerLogApp({ port }: { port: number }) {
                 activeSearch={activeSearch}
                 setActiveSearch={setActiveSearch}
                 activeFilter={activeFilter}
+                isBehind={logsBehind}
                 setActiveFilter={setActiveFilter}
             />
             <LogTable logLines={logLines} port={port} />

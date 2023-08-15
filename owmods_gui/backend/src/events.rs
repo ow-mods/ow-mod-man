@@ -25,6 +25,13 @@ pub struct LogLineCountUpdatePayload {
 
 #[typeshare]
 #[derive(Deserialize, Serialize, Clone)]
+pub struct LogsBehindPayload {
+    pub port: LogPort,
+    pub behind: bool,
+}
+
+#[typeshare]
+#[derive(Deserialize, Serialize, Clone)]
 #[serde(tag = "name", content = "params", rename_all = "camelCase")]
 pub enum Event {
     LocalRefresh(EmptyParams),
@@ -37,6 +44,7 @@ pub enum Event {
     LogUpdate(LogPort),
     LogLineCountUpdate(LogLineCountUpdatePayload),
     LogFatal(GameMessage),
+    LogsBehind(LogsBehindPayload),
     ProtocolInvoke(ProtocolPayload),
     ProgressUpdate(EmptyParams),
     ProgressBatchFinish(bool),

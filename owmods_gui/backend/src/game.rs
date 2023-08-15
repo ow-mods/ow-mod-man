@@ -1,7 +1,7 @@
 use std::{
     fs::File,
     io::{BufWriter, Write},
-    time::{SystemTime, UNIX_EPOCH},
+    time::{Instant, SystemTime, UNIX_EPOCH},
 };
 
 use anyhow::{anyhow, Result};
@@ -20,7 +20,7 @@ use time::{macros::format_description, OffsetDateTime};
 use typeshare::typeshare;
 
 use crate::{
-    events::{CustomEventEmitterAll, Event, LogLineCountUpdatePayload},
+    events::{CustomEventEmitterAll, Event, LogLineCountUpdatePayload, LogsBehindPayload},
     LogPort,
 };
 
@@ -34,17 +34,20 @@ pub struct GameMessage {
 }
 
 impl GameMessage {
-    pub fn new(port: LogPort, message: SocketMessage) -> Self {
+    fn get_timestamp() -> String {
         let now = OffsetDateTime::now_local().unwrap_or(OffsetDateTime::now_utc());
+        now.format(format_description!(
+            "[hour repr:12]:[minute]:[second] [period] (UTC[offset_hour sign:mandatory])"
+        ))
+        .unwrap_or("Unknown".to_string())
+    }
+
+    pub fn new(port: LogPort, message: SocketMessage) -> Self {
         Self {
             port,
             message,
             amount: 1,
-            timestamp: now
-                .format(format_description!(
-                    "[hour repr:12]:[minute]:[second] [period] (UTC[offset_hour sign:mandatory])"
-                ))
-                .unwrap_or("Unknown".to_string()),
+            timestamp: Self::get_timestamp(),
         }
     }
 }
@@ -57,9 +60,17 @@ pub struct LogData {
     active_filter: Option<SocketMessageType>,
     active_search: String,
     app_handle: AppHandle,
+    message_tracker: (u32, Instant),
+    // If the usize is None, it's a regular update
+    // If it's Some, it's a count update
+    // Fatal emits always happen instantly
+    queued_emits: Vec<Option<u32>>,
 }
 
 impl LogData {
+    const LOG_LIMIT_PER_SECOND: u32 = 100;
+    const LOG_TIME_UNTIL_FORCED_EMIT_SEC: u64 = 1;
+
     pub fn new(port: LogPort, handle: &AppHandle) -> Result<Self> {
         let now = OffsetDateTime::now_utc();
         let logs_path = get_app_path()?
@@ -90,6 +101,8 @@ impl LogData {
             active_filter: None,
             active_search: String::new(),
             app_handle: handle.clone(),
+            message_tracker: (0, Instant::now()),
+            queued_emits: vec![],
         })
     }
 
@@ -100,15 +113,15 @@ impl LogData {
         }
     }
 
-    fn emit_count_update(&self) {
+    fn emit_count_update(&self, line: u32) {
         let res =
             self.app_handle
                 .typed_emit_all(&Event::LogLineCountUpdate(LogLineCountUpdatePayload {
                     port: self.port,
-                    line: (self.messages.len() - 1).try_into().unwrap_or(u32::MAX),
+                    line,
                 }));
         if let Err(why) = res {
-            error!("Couldn't Emit Game Log: {}", why)
+            error!("Couldn't Emit Game Log Count: {}", why)
         }
     }
 
@@ -119,6 +132,36 @@ impl LogData {
         if let Err(why) = res {
             error!("Couldn't Emit Fatal Alert: {}", why)
         }
+    }
+
+    fn emit_behind(&self, behind: bool) {
+        let res = self
+            .app_handle
+            .typed_emit_all(&Event::LogsBehind(LogsBehindPayload {
+                port: self.port,
+                behind,
+            }));
+        if let Err(why) = res {
+            error!("Couldn't Emit Logs Behind: {}", why)
+        }
+    }
+
+    pub fn process_emit_queue(&mut self) {
+        if self.queued_emits.is_empty() {
+            return;
+        }
+        let mut queue = self.queued_emits.clone();
+        queue.sort_unstable();
+        queue.dedup();
+        for emit in queue.drain(..) {
+            if let Some(line) = emit {
+                self.emit_count_update(line);
+            } else {
+                self.emit_update();
+            }
+        }
+        self.queued_emits.clear();
+        self.emit_behind(false);
     }
 
     pub fn get_lines(
@@ -172,11 +215,25 @@ impl LogData {
         if let Err(why) = write_log(&mut self.writer, &msg.message) {
             error!("Couldn't write to log file: {}", why);
         }
+        // Reset the message tracker every second
+        if self.message_tracker.1.elapsed().as_secs_f32() > 1.0 {
+            self.message_tracker = (0, Instant::now());
+        }
+        self.message_tracker.0 = self.message_tracker.0.saturating_add(1);
         if let Some(last) = self.messages.last_mut() {
             if last.message == msg.message {
                 last.amount = last.amount.saturating_add(1);
-                self.emit_count_update();
-                self.emit_update();
+                // If we're getting logs too fast, queue up an emit so the UI isn't sent a bazillion updates
+                if self.message_tracker.0 >= Self::LOG_LIMIT_PER_SECOND {
+                    if self.queued_emits.is_empty() {
+                        self.emit_behind(true);
+                    }
+                    self.queued_emits.push(Some(self.get_count()));
+                    self.queued_emits.push(None);
+                } else {
+                    self.emit_count_update(self.get_count());
+                    self.emit_update();
+                }
                 return;
             }
         }
@@ -191,7 +248,19 @@ impl LogData {
             self.indices.push(self.messages.len());
         }
         self.messages.push(msg);
-        self.emit_update();
+        // If we're getting logs too fast, queue up an emit so the UI isn't sent a bazillion updates
+        if self.message_tracker.0 >= Self::LOG_LIMIT_PER_SECOND {
+            if self.queued_emits.is_empty() {
+                self.emit_behind(true);
+            }
+            self.queued_emits.push(None);
+        } else {
+            self.emit_update();
+        }
+        // Process the emit queue semi-regularly
+        if self.message_tracker.1.elapsed().as_secs() >= Self::LOG_TIME_UNTIL_FORCED_EMIT_SEC {
+            self.process_emit_queue();
+        }
     }
 
     pub fn clear(&mut self) {

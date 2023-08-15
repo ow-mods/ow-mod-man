@@ -89,7 +89,8 @@ const commandInfo = {
     hasDisabledDeps: $<ModCommand<boolean>>("has_disabled_deps"),
     registerDropHandler: $<EmptyCommand>("register_drop_handler"),
     getDbTags: $<GetCommand<string[]>>("get_db_tags"),
-    logError: $<ActionCommand<{ err: string }>>("log_error")
+    logError: $<ActionCommand<{ err: string }>>("log_error"),
+    forceLogUpdate: $<ActionCommand<{ port: number }>>("force_log_update")
 };
 
 type Command = keyof typeof commandInfo;

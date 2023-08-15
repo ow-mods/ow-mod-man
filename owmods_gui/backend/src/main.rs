@@ -182,7 +182,8 @@ fn main() -> Result<(), Box<dyn Error>> {
             get_bar_by_unique_name,
             register_drop_handler,
             get_db_tags,
-            open_mod_github
+            open_mod_github,
+            force_log_update
         ])
         .plugin(tauri_plugin_window_state::Builder::default().build())
         .run(tauri::generate_context!());

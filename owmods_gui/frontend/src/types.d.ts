@@ -169,6 +169,105 @@ export interface OWMLConfig {
     socketPort: number;
 }
 
+/** Represents a progress bar */
+export interface ProgressBar {
+    /** The ID of the progress bar */
+    id: string;
+    /** The unique name of the mod this progress bar is for, sometimes this will be None if the progress bar doesn't know what mod it's for */
+    uniqueName?: string;
+    /** The message of the progress bar */
+    message: string;
+    /** The current progress of the progress bar */
+    progress: ProgressValue;
+    /** The type of progress bar */
+    progressType: ProgressType;
+    /** The action this progress bar is reporting */
+    progressAction: ProgressAction;
+    /** The length of the progress bar */
+    len: ProgressValue;
+    /** Whether the progress bar succeeded or failed, and None if it hasn't finished */
+    success?: boolean;
+    /** The position of the progress bar, the higher the position the higher it is in the list */
+    position: number;
+}
+
+/**
+ * Represents a collection of progress bars
+ * This is used as a generalized way to keep track of all the progress bars and their positions
+ * This is also used to process progress payloads
+ *
+ * Note that this still needs to be setup in your logger implementation
+ *
+ * ```no_run
+ * use owmods_core::progress::bars::ProgressBars;
+ * use std::sync::{Arc, Mutex};
+ *
+ * struct Logger {
+ * progress_bars: Arc<Mutex<ProgressBars>>,
+ * };
+ *
+ * impl log::Log for Logger {
+ * #  fn enabled(&self, metadata: &log::Metadata) -> bool {
+ * #        true
+ * #  }
+ * #  fn flush(&self) {}
+ *
+ * fn log(&self, record: &log::Record) {
+ * if record.target() == "progress" {
+ * // Get ProgressBars from your state somehow...
+ * let mut progress_bars = self.progress_bars.lock().expect("Lock is tainted");
+ * let any_failed = progress_bars.process(&format!("{}", record.args()));
+ * // Then emit some sort of event to update your UI
+ * // Also do stuff with any_failed, etc
+ * }
+ * }
+ * }
+ * ```
+ */
+export interface ProgressBars {
+    /** A map of progress bars by their ID */
+    bars: Record<string, ProgressBar>;
+    counter: number;
+}
+
+/**
+ * Represents the type of install that should be done when a protocol link is clicked
+ * This is used to determine what to do with the payload
+ */
+export enum ProtocolInstallType {
+    /** Install a mod from the mod database */
+    InstallMod = "installMod",
+    /** Install a mod from a URL */
+    InstallURL = "installURL",
+    /** Install a mod's prerelease from the database */
+    InstallPreRelease = "installPreRelease",
+    /** Install a mod from a zip file */
+    InstallZip = "installZip",
+    /** Unknown install type, means the protocol link was invalid and therefore should be ignored */
+    Unknown = "unknown"
+}
+
+/**
+ * Represents a payload receive by a protocol handler (link from the website)
+ * All URLs should start with owmods://
+ * Then they should follow with the install type they want like `install-mod` or `install-url`
+ * Finally they should have the payload for the install
+ *
+ * If an invalid install type is given the [ProtocolInstallType] will be set to [ProtocolInstallType::Unknown]
+ *
+ * Some examples of valid URIs are:
+ * - owmods://install-mod/Bwc9876.TimeSaver
+ * - owmods://install-url/https://example.com/Mod.zip
+ * - owmods://install-zip//home/user/Downloads/Mod.zip
+ * - owmods://install-prerelease/Raicuparta.NomaiVR
+ */
+export interface ProtocolPayload {
+    /** The type of install that should be done */
+    installType: ProtocolInstallType;
+    /** The payload for the install */
+    payload: string;
+}
+
 /**
  * Represents the type of message sent from the game
  *
@@ -203,6 +302,11 @@ export interface SocketMessage {
 export interface LogLineCountUpdatePayload {
     port: LogPort;
     line: number;
+}
+
+export interface LogsBehindPayload {
+    port: LogPort;
+    behind: boolean;
 }
 
 export interface GameMessage {
@@ -248,50 +352,6 @@ export interface LogPayload {
     message: string;
 }
 
-export interface ProgressBar {
-    id: string;
-    uniqueName?: string;
-    message: string;
-    progress: ProgressValue;
-    progressType: ProgressType;
-    progressAction: ProgressAction;
-    len: ProgressValue;
-    success?: boolean;
-    position: number;
-}
-
-export interface ProgressBars {
-    bars: Record<string, ProgressBar>;
-    counter: number;
-}
-
-export enum ProtocolInstallType {
-    InstallMod = "installMod",
-    InstallURL = "installURL",
-    InstallPreRelease = "installPreRelease",
-    InstallZip = "installZip",
-    Unknown = "unknown"
-}
-
-/**
- * Represents a payload receive by a protocol handler (link from the website)
- * All URLs should start with owmods://
- * Then they should follow with the install type they want like `install-mod` or `install-url`
- * Finally they should have the payload for the install
- *
- * If an invalid install type is given the [ProtocolInstallType] will be set to [ProtocolInstallType::Unknown]
- *
- * Some examples of valid URIs are:
- * - owmods://install-mod/Bwc9876.TimeSaver
- * - owmods://install-url/https://example.com/Mod.zip
- * - owmods://install-zip//home/user/Downloads/Mod.zip
- * - owmods://install-prerelease/Raicuparta.NomaiVR
- */
-export interface ProtocolPayload {
-    installType: ProtocolInstallType;
-    payload: string;
-}
-
 /** Represents a `LocalMod` that we aren't sure loaded successfully */
 export type UnsafeLocalMod =
     /** A mod was loaded successfully */
@@ -310,6 +370,7 @@ export type Event =
     | { name: "logUpdate"; params: LogPort }
     | { name: "logLineCountUpdate"; params: LogLineCountUpdatePayload }
     | { name: "logFatal"; params: GameMessage }
+    | { name: "logsBehind"; params: LogsBehindPayload }
     | { name: "protocolInvoke"; params: ProtocolPayload }
     | { name: "progressUpdate"; params: EmptyParams }
     | { name: "progressBatchFinish"; params: boolean }

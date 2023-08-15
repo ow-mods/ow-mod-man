@@ -2,10 +2,9 @@
 
 ## Supported Versions
 
-| Version | Supported          |
-| ------- | ------------------ |
-| >=1     | :white_check_mark: |
-| <1      | :x:                |
+Any version of the manager we officially distribute (see [Publishing](https://github.com/ow-mods/ow-mod-man/blob/main/ARCHITECTURE.md#publishing)) is supported. We scan for outdated dependencies and dependabot alerts to circumvent upstream threats. As well as scan our own code with CodeQL.
+
+Versions with the auto-updater (Windows (msi and nsis), AppImage) are signed with a cryptographic key that makes all versions of the manager refuse to install an update from an untrusted source.
 
 ## Reporting a Vulnerability
 

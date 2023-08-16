@@ -264,8 +264,11 @@ impl LogData {
     }
 
     pub fn clear(&mut self) {
-        self.messages.clear();
+        // First make the UI not render any rows to avoid errors
         self.indices.clear();
+        self.emit_update();
+        // Then actually clear our internal list
+        self.messages.clear();
         self.emit_update();
     }
 }

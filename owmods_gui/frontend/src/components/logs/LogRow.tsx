@@ -1,5 +1,6 @@
 import { hooks } from "@commands";
 import ODTooltip from "@components/common/ODTooltip";
+import StyledErrorBoundary from "@components/common/StyledErrorBoundary";
 import { Box, Chip, Palette, Skeleton, TableCell, Typography, useTheme } from "@mui/material";
 import { LogLineCountUpdatePayload, SocketMessageType } from "@types";
 import { Fragment, MutableRefObject, memo, useLayoutEffect, useMemo } from "react";
@@ -29,7 +30,7 @@ const getColor = (palette: Palette, messageType: SocketMessageType) => {
     }
 };
 
-const LogRow = memo(function LogRow(props: LogRowProps) {
+const InnerLogRow = memo(function LogRow(props: LogRowProps) {
     const theme = useTheme();
 
     const [status, logLine] = hooks.getLogLine(
@@ -117,6 +118,14 @@ const LogRow = memo(function LogRow(props: LogRowProps) {
                 </Box>
             </TableCell>
         </>
+    );
+});
+
+const LogRow = memo(function LogRow(props: LogRowProps) {
+    return (
+        <StyledErrorBoundary justHide>
+            <InnerLogRow {...props} />
+        </StyledErrorBoundary>
     );
 });
 

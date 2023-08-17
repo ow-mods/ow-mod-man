@@ -33,7 +33,8 @@ use owmods_core::{
 };
 use serde::Serialize;
 use tauri::FileDropEvent;
-use tauri::{api::dialog, async_runtime, AppHandle, Manager, WindowEvent};
+use tauri::{async_runtime, AppHandle, Manager, WindowEvent};
+use tauri_plugin_dialog::{DialogExt, MessageDialogKind};
 use tokio::{sync::mpsc, try_join};
 
 use crate::events::{CustomEventEmitter, CustomEventEmitterAll, CustomEventTriggerGlobal, Event};
@@ -303,14 +304,17 @@ pub async fn install_mod(
     let conf = state.config.read().await.clone();
     let mut should_install = true;
     if let Some(current_mod) = local_db.get_mod(unique_name) {
-        should_install = dialog::blocking::confirm(
-            Some(&window),
-            "Reinstall?",
-            format!(
+        should_install = window
+            .dialog()
+            .message(format!(
                 "{} is already installed, reinstall it?",
                 current_mod.manifest.name
-            ),
-        );
+            ))
+            .kind(MessageDialogKind::Info)
+            .ok_button_label("Yes")
+            .cancel_button_label("No")
+            .title("Reinstall?")
+            .blocking_show();
     }
     let res = if should_install {
         install_mod_from_db(
@@ -925,7 +929,7 @@ pub async fn has_disabled_deps(unique_name: &str, state: tauri::State<'_, State>
 
 #[tauri::command]
 pub async fn register_drop_handler(window: tauri::Window) -> Result {
-    let handle = window.app_handle();
+    let handle = window.app_handle().clone();
     window.on_window_event(move |e| {
         if let WindowEvent::FileDrop(e) = e {
             match e {

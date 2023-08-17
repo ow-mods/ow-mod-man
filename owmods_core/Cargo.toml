@@ -22,14 +22,14 @@ reqwest = { version = "0.11.18", default-features = false, features = [
 ] }
 glob = "0.3.1"
 version-compare = "0.1.1"
-anyhow = "1.0.74"
+anyhow = "1.0.75"
 zip = { version = "0.6.6", default-features = false, features = [
     "deflate",
     "zstd",
 ] }
 futures = "0.3.28"
 log = "0.4.20"
-tokio = { version = "1.31.0", features = ["net", "time", "process", "macros"] }
+tokio = { version = "1.32.0", features = ["net", "time", "process", "macros"] }
 serde_repr = "0.1.16"
 uuid = { version = "1.4.1", features = ["v4", "fast-rng"] }
 typeshare = "1.0.1"

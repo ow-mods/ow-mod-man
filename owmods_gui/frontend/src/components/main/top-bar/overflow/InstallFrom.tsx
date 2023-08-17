@@ -23,7 +23,7 @@ import {
 } from "@mui/material";
 import { ProtocolInstallType } from "@types";
 import { commands } from "@commands";
-import { getCurrent } from "@tauri-apps/api/window";
+import { getCurrent } from "@tauri-apps/plugin-window";
 import { OpenFileInput } from "@components/common/FileInput";
 import { listen } from "@events";
 import { simpleOnError } from "../../../../errorHandling";
@@ -169,9 +169,7 @@ const InstallFrom = memo(function InstallFrom({ onClick }: ModalProps) {
                                             name: lblMap[source],
                                             extensions: ["zip"]
                                         }
-                                    ],
-                                    directory: false,
-                                    multiple: false
+                                    ]
                                 }}
                             />
                         ) : (

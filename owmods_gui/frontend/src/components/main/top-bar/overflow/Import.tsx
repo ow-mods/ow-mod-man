@@ -71,9 +71,7 @@ const Import = memo(function Import({ onClick }: ModalProps) {
                                     name: getTranslation("JSON_FILE"),
                                     extensions: ["json"]
                                 }
-                            ],
-                            directory: false,
-                            multiple: false
+                            ]
                         }}
                     />
                     <FormControlLabel

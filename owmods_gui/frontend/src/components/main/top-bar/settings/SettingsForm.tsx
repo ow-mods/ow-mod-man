@@ -10,7 +10,7 @@ import { Config, GuiConfig, Language, OWMLConfig, Theme } from "@types";
 import { useGetTranslation } from "@hooks";
 import { commands } from "@commands";
 import { TranslationNameMap } from "@components/common/TranslationContext";
-import { os } from "@tauri-apps/api";
+import * as os from "@tauri-apps/plugin-os";
 import { Box, useTheme } from "@mui/material";
 import SettingsFolder from "./SettingsFolder";
 import SettingsSelect from "./SettingsSelect";
@@ -44,7 +44,7 @@ let defaultShowLogServerOption = false;
 
 // Moved to out here due to #98
 // Should work 99% of the time but the state is there just in case
-os.platform().then((p) => (defaultShowLogServerOption = p === "win32"));
+os.platform().then((p) => (defaultShowLogServerOption = p === "windows"));
 
 const SettingsForm = forwardRef(function SettingsForm(props: SettingsFormProps, ref) {
     const [config, setConfig] = useState<Config>(props.initialConfig);
@@ -56,7 +56,7 @@ const SettingsForm = forwardRef(function SettingsForm(props: SettingsFormProps, 
     const [showLogServerOption, setShowLogServerOption] = useState(defaultShowLogServerOption);
 
     useEffect(() => {
-        os.platform().then((p) => setShowLogServerOption(p === "win32"));
+        os.platform().then((p) => setShowLogServerOption(p === "windows"));
     }, []);
 
     useImperativeHandle(

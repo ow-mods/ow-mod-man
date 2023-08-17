@@ -5,7 +5,7 @@ import RemoteModRow from "./RemoteModRow";
 import { Button } from "@mui/material";
 import { useGetTranslation } from "@hooks";
 import { PublicRounded } from "@mui/icons-material";
-import { shell } from "@tauri-apps/api";
+import * as shell from "@tauri-apps/plugin-shell";
 import { useErrorBoundary } from "react-error-boundary";
 
 export interface RemoteModsPageProps {

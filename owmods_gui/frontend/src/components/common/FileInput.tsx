@@ -1,5 +1,5 @@
 import { useGetTranslation } from "@hooks";
-import { dialog } from "@tauri-apps/api";
+import * as dialog from "@tauri-apps/plugin-dialog";
 import { FolderRounded } from "@mui/icons-material";
 import { Box, TextField, Button, useTheme } from "@mui/material";
 

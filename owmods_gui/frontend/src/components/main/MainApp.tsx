@@ -6,7 +6,7 @@ import AppTabs, { ModsTab } from "./top-bar/AppTabs";
 import LocalModsPage from "./mods/local/LocalModsPage";
 import { TranslationKey, TranslationMap } from "@components/common/TranslationContext";
 import { commands, hooks } from "@commands";
-import { getCurrent } from "@tauri-apps/api/window";
+import { getCurrent } from "@tauri-apps/plugin-window";
 import AppAlert from "./AppAlert";
 import BaseApp from "@components/common/BaseApp";
 import OwmlModal from "./OwmlModal";

@@ -3,7 +3,7 @@ import { PlayArrow as PlayIcon } from "@mui/icons-material";
 import { useCallback, useState } from "react";
 import { commands } from "@commands";
 import { useGetTranslation } from "@hooks";
-import { dialog } from "@tauri-apps/api";
+import * as dialog from "@tauri-apps/plugin-dialog";
 import { simpleOnError } from "../../../errorHandling";
 
 const StartGameButton = () => {

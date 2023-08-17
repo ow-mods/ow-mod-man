@@ -13,7 +13,7 @@ import {
     TextField,
     useTheme
 } from "@mui/material";
-import { dialog } from "@tauri-apps/api";
+import * as dialog from "@tauri-apps/plugin-dialog";
 import { memo, useCallback, useEffect, useState } from "react";
 import { listen } from "@events";
 
@@ -132,7 +132,6 @@ const OwmlModal = memo(function OwmlModal() {
                             onChange={setOwmlPath}
                             dialogOptions={{
                                 directory: true,
-                                multiple: false,
                                 title: getTranslation("LOCATE_OWML")
                             }}
                         />

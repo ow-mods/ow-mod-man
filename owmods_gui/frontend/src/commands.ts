@@ -1,5 +1,6 @@
 import { LoadState, useTauri } from "@hooks";
-import { dialog, invoke } from "@tauri-apps/api";
+import { invoke } from "@tauri-apps/api";
+import * as dialog from "@tauri-apps/plugin-dialog";
 import {
     Config,
     GuiConfig,

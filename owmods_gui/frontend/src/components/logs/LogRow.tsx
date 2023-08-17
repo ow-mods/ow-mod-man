@@ -3,13 +3,12 @@ import ODTooltip from "@components/common/ODTooltip";
 import StyledErrorBoundary from "@components/common/StyledErrorBoundary";
 import { Box, Chip, Palette, Skeleton, TableCell, Typography, useTheme } from "@mui/material";
 import { LogLineCountUpdatePayload, SocketMessageType } from "@types";
-import { Fragment, MutableRefObject, memo, useLayoutEffect, useMemo } from "react";
-import { VirtuosoHandle } from "react-virtuoso";
+import { Fragment, memo, useLayoutEffect, useMemo } from "react";
 
 export interface LogRowProps {
     port: number;
     index: number;
-    virtuosoRef?: MutableRefObject<VirtuosoHandle | null>;
+    onLoad: () => void;
 }
 
 const getColor = (palette: Palette, messageType: SocketMessageType) => {
@@ -61,9 +60,11 @@ const InnerLogRow = memo(function LogRow(props: LogRowProps) {
         [logLine?.message.message]
     );
 
+    const onLoad = props.onLoad;
+
     useLayoutEffect(() => {
-        props.virtuosoRef?.current?.autoscrollToBottom?.();
-    }, [status, props.virtuosoRef]);
+        onLoad();
+    }, [status, onLoad]);
 
     return (
         <>

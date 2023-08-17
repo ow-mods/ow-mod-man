@@ -1,6 +1,6 @@
 import { TableCell, useTheme } from "@mui/material";
 import { TableContainer, Paper, Table, TableBody, TableHead, TableRow } from "@mui/material";
-import { forwardRef, memo, useMemo, useRef } from "react";
+import { forwardRef, memo, useCallback, useMemo, useRef } from "react";
 import { TableProps, TableVirtuoso, VirtuosoHandle } from "react-virtuoso";
 import { LogLines } from "./LogApp";
 import { useGetTranslation } from "@hooks";
@@ -60,6 +60,12 @@ const LogTable = memo(function LogTable(props: LogTableProps) {
         [getTranslation, grey]
     );
 
+    const onRowLoaded = useCallback(() => {
+        if (virtuoso.current) {
+            virtuoso.current.autoscrollToBottom?.();
+        }
+    }, []);
+
     return (
         <TableVirtuoso
             ref={virtuoso}
@@ -70,7 +76,7 @@ const LogTable = memo(function LogTable(props: LogTableProps) {
             data={props.logLines}
             fixedHeaderContent={header}
             itemContent={(_, data) => (
-                <LogRow port={props.port} index={data} virtuosoRef={virtuoso} />
+                <LogRow port={props.port} index={data} onLoad={onRowLoaded} />
             )}
             followOutput
             alignToBottom

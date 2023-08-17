@@ -81,7 +81,7 @@ Builds are located in `target/` at the root of the repo.
 On debian you need to install some dependencies with apt:
 
 ```sh
-sudo apt-get install -y libgtk-3-dev libwebkit2gtk-4.0-dev libayatana-appindicator3-dev librsvg2-dev
+sudo apt-get install -y libgtk-3-dev libwebkit2gtk-4.1-dev librsvg2-dev
 ```
 
 ### build.rs Error in `backend/`

@@ -80,8 +80,8 @@ devDependencies:
     specifier: 4.4.9
     version: 4.4.9(@types/node@20.5.0)
   vite-imagetools:
-    specifier: 5.0.7
-    version: 5.0.7
+    specifier: 5.0.8
+    version: 5.0.8
   vite-plugin-html:
     specifier: 3.2.0
     version: 3.2.0(vite@4.4.9)
@@ -3996,8 +3996,8 @@ packages:
     resolution: {integrity: sha512-EPD5q1uXyFxJpCrLnCc1nHnq3gOa6DZBocAIiI2TaSCA7VCJ1UJDMagCzIkXNsUYfD1daK//LTEQ8xiIbrHtcw==}
     dev: true
 
-  /vite-imagetools@5.0.7:
-    resolution: {integrity: sha512-8g7RU+liA4uWuujSe3hdMTCNWimMJsdLIU5uB+/SUBQ+j0TcaMKnQZ6n4LCBF2w30ml1X8WNFGOcTblquWrgGQ==}
+  /vite-imagetools@5.0.8:
+    resolution: {integrity: sha512-oFNfc58iLz1lHFsIKQy+wp0RNcZjiaDeHYTexYowpf4RYx9tZ97eWEcw8lQ1jDT8AnOso6XZi5iGjLNAeTR9Tw==}
     engines: {node: '>=12.0.0'}
     dependencies:
       '@rollup/pluginutils': 5.0.3

@@ -39,6 +39,8 @@ The manager can be installed on Steam Deck in Desktop Mode in the Discover app.
 
 Note that you won't be able to launch the game from the manager when in steam deck's game mode. But so long as you've *pressed* "Launch Game" at least once, you can launch the game directly and it will still be modded.
 
+**You'll also need to change your controller layout to the "Mouse Only" template.**
+
 ## How do I uninstall it?
 
 You can uninstall the Mod Manager by searching for "Add or remove programs" in the start menu (or in the control panel) and then finding "Outer Wilds Mod Manager" in the list. However, this won't uninstall your mods.

@@ -37,7 +37,7 @@ Using the manager on Linux should be easy **proton and wine are not required**. 
 
 The manager can be installed on Steam Deck in Desktop Mode in the Discover app.
 
-Please note that the manager itself can only be launched in desktop mode, but mods will persist if you switch to game mode and launch the game. And that in order for OWML to be injected into the game you need to press "Launch Game" in the manager once.
+Note that you won't be able to launch the game from the manager when in steam deck's game mode. But so long as you've *pressed* "Launch Game" at least once, you can launch the game directly and it will still be modded.
 
 ## How do I uninstall it?
 
@@ -57,6 +57,8 @@ The manager will automatically check for updates when you launch it. If an updat
 Please ensure you have [Mono](https://www.mono-project.com/) installed and available on your PATH.
 
 To debug issues with mono set the `MONO_LOG_LEVEL` variable to `debug`. and look at the logs.
+
+On steam deck, keep in mind the game won't launch if you click Launch Game from the manager while in game mode. You need to launch the game directly from the steam deck's game mode.
 
 ### On Flatpak
 
@@ -78,6 +80,8 @@ Depending on which package you want to contribute to, please refer to the follow
 - [The CONTRIBUTING for the Core package](https://github.com/ow-mods/ow-mod-man/blob/main/owmods_core/CONTRIBUTING.md)
 - [The CONTRIBUTING for the GUI](https://github.com/ow-mods/ow-mod-man/blob/main/owmods_gui/CONTRIBUTING.md)
 - [The CONTRIBUTING for the CLI](https://github.com/ow-mods/ow-mod-man/blob/main/owmods_cli/CONTRIBUTING.md)
+
+You can also take a look at [The Architecture Doc](https://github.com/ow-mods/ow-mod-man/blob/main/ARCHITECTURE.md) for more info above the manager's behavior.
 
 ## My issue isn't listed here
 

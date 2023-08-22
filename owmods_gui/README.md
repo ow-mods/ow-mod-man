@@ -30,10 +30,6 @@ Check out the [mods website](https://outerwildsmods.com/mod-manager/) for instru
 
 Go into the Discover app in desktop mode and search "Outer Wilds" and the manager should appear.
 
-#### Note For Deck
-
-The manager itself can only be launched in desktop mode, but mods will persist if you switch to game mode and launch the game. Note that in order for OWML to be injected into the game you need to press "Launch Game" in the manager once.
-
 ## Building
 
 Prerequisites:

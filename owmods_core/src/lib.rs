@@ -40,7 +40,7 @@ pub mod owml;
 /// Open shortcuts and mod readmes.
 pub mod open;
 
-/// Types for consuming progress payloads.
+/// Utilities for managing and parsing progress bars.
 pub mod progress;
 
 /// Uninstall mods
@@ -61,8 +61,12 @@ pub mod validate;
 /// Generalized searching
 pub mod search;
 
+/// Utility for parsing the owmods:// protocol.
+pub mod protocol;
+
+/// Utilities for testing the library.
 #[cfg(test)]
-mod test_utils {
+pub(crate) mod test_utils {
     use std::path::{Path, PathBuf};
 
     use tempfile::TempDir;
@@ -74,18 +78,26 @@ mod test_utils {
         mods::local::{LocalMod, UnsafeLocalMod},
     };
 
+    /// A test context for testing the library.
     pub struct TestContext {
+        /// The temporary directory
         pub temp_dir: TempDir,
+        /// The OWML directory
         pub owml_dir: PathBuf,
+        /// The config
         pub config: Config,
+        /// The local database
         pub local_db: LocalDatabase,
+        /// The remote database
         pub remote_db: RemoteDatabase,
     }
 
+    /// Create a temporary directory for testing.
     pub fn make_test_dir() -> TempDir {
         TempDir::new().unwrap()
     }
 
+    /// Get a test file from the test_files directory.
     pub fn get_test_file(path: &str) -> PathBuf {
         Path::new(env!("CARGO_MANIFEST_DIR"))
             .join("test_files")
@@ -93,6 +105,12 @@ mod test_utils {
     }
 
     impl TestContext {
+        /// Create a new test context. This creates:
+        /// - A temporary directory
+        /// - An OWML directory inside the temporary directory
+        /// - A config with the OWML directory as the OWML path, and the settings.json file inside the temporary directory
+        /// - A local database pointed to the OWML directory
+        /// - A remote database pointed to the default database URL
         pub fn new() -> Self {
             let temp_dir = make_test_dir();
             let owml_dir = temp_dir.path().join("OWML");
@@ -109,10 +127,12 @@ mod test_utils {
             }
         }
 
+        /// Join the temporary mods folder to a path
         pub fn join_mods_folder(&self, path: &str) -> PathBuf {
             self.owml_dir.join("Mods").join(path)
         }
 
+        /// Get the path to a test mod, if the mod isn't in the database the unique name is simply joined to the mods folder
         pub fn get_test_path(&self, unique_name: &str) -> PathBuf {
             if let Some(local_mod) = self.local_db.get_mod(unique_name) {
                 PathBuf::from(&local_mod.mod_path)
@@ -121,16 +141,19 @@ mod test_utils {
             }
         }
 
+        /// Refresh the local database
         pub fn fetch_local_db(&mut self) {
             self.local_db = LocalDatabase::fetch(&self.config.owml_path).unwrap();
         }
 
+        /// Refresh the remote database
         pub async fn fetch_remote_db(&mut self) {
             self.remote_db = RemoteDatabase::fetch(&self.config.database_url)
                 .await
                 .unwrap();
         }
 
+        /// Insert a test mod into the local database
         pub fn insert_test_mod(&mut self, local_mod: &LocalMod) {
             self.local_db.mods.insert(
                 local_mod.manifest.unique_name.clone(),
@@ -138,6 +161,7 @@ mod test_utils {
             );
         }
 
+        /// Install a test mod from a zip file in test_files
         pub fn install_test_zip(&mut self, zip_name: &str, refresh: bool) -> LocalMod {
             let zip_path = get_test_file(zip_name);
             let local_mod = install_mod_from_zip(&zip_path, &self.config, &self.local_db).unwrap();

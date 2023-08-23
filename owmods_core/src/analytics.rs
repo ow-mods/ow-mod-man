@@ -74,6 +74,19 @@ impl AnalyticsPayload {
 /// Send an analytics event with the given [AnalyticsEventName] for the given mod's `unique_name`
 ///
 /// **Please note that unless an `ANALYTICS_API_KEY` env variable is specified at build time this function does nothing.**
+///
+/// ## Examples
+///
+/// ```no_run
+/// use owmods_core::analytics::{send_analytics_event, AnalyticsEventName};
+///
+/// # tokio_test::block_on(async {
+/// // Time saver is the best mod!
+/// loop {
+///     send_analytics_event(AnalyticsEventName::ModInstall, "Bwc9876.TimeSaver").await;
+/// }
+/// # });
+///
 pub async fn send_analytics_event(event_name: AnalyticsEventName, unique_name: &str) {
     if let Some(api_key) = API_KEY {
         let url = format!("https://www.google-analytics.com/mp/collect?measurement_id={MEASUREMENT_ID}&api_secret={api_key}");

@@ -26,7 +26,7 @@ Translations also have a special syntax for variables, `$name$`. **the words in 
 
 The manager will insert variables during runtime, you just need to tell it where.
 
-For example the `VERSION` key has one variable name `version` that the manager inserts:
+For example the `VERSION` key has one variable named `version` that the manager inserts:
 
 ```json
 {
@@ -34,11 +34,11 @@ For example the `VERSION` key has one variable name `version` that the manager i
 }
 ```
 
-At runtime `$version$` will be replaced with `1.2.3` or whatever the current version is. To get an idea for what variables a key can have see `english.json`.
+At runtime, `$version$` will be replaced with `1.2.3` or whatever the current version is. To get an idea for what variables a key can have see `english.json`.
 
 ### The _ Key
 
-The `_` key is a bit special, this key is used in the event that a translation cannot be found. It will be passed the variable `$fallback$` which will have the english translation as a fallback. It will also have `$key$`, which will be the key we were trying to translate, useful for debugging. Try to put some sort of message in this key so the user knows to report it in the event a key is missing. For example in english:
+The `_` key is a bit special, this key is used in the event that a translation for a given key cannot be found. It will be passed the variable `$fallback$` which will have the English translation as a fallback. It will also have `$key$`, which will be the key we were trying to translate, useful for debugging. Try to put some sort of message in this key so the user knows to report it in the event a key is missing. For example in English:
 
 ```json
 {

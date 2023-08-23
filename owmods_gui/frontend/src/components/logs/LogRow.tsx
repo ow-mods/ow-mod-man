@@ -1,14 +1,14 @@
 import { hooks } from "@commands";
 import ODTooltip from "@components/common/ODTooltip";
+import StyledErrorBoundary from "@components/common/StyledErrorBoundary";
 import { Box, Chip, Palette, Skeleton, TableCell, Typography, useTheme } from "@mui/material";
 import { LogLineCountUpdatePayload, SocketMessageType } from "@types";
-import { Fragment, MutableRefObject, memo, useLayoutEffect, useMemo } from "react";
-import { VirtuosoHandle } from "react-virtuoso";
+import { Fragment, memo, useLayoutEffect, useMemo } from "react";
 
 export interface LogRowProps {
     port: number;
     index: number;
-    virtuosoRef?: MutableRefObject<VirtuosoHandle | null>;
+    onLoad: () => void;
 }
 
 const getColor = (palette: Palette, messageType: SocketMessageType) => {
@@ -29,7 +29,7 @@ const getColor = (palette: Palette, messageType: SocketMessageType) => {
     }
 };
 
-const LogRow = memo(function LogRow(props: LogRowProps) {
+const InnerLogRow = memo(function LogRow(props: LogRowProps) {
     const theme = useTheme();
 
     const [status, logLine] = hooks.getLogLine(
@@ -60,11 +60,11 @@ const LogRow = memo(function LogRow(props: LogRowProps) {
         [logLine?.message.message]
     );
 
-    useLayoutEffect(() => {
-        props.virtuosoRef?.current?.autoscrollToBottom?.();
-    }, [status, props.virtuosoRef]);
+    const onLoad = props.onLoad;
 
-    console.debug(logLine?.amount ?? 1);
+    useLayoutEffect(() => {
+        onLoad();
+    }, [status, onLoad]);
 
     return (
         <>
@@ -119,6 +119,14 @@ const LogRow = memo(function LogRow(props: LogRowProps) {
                 </Box>
             </TableCell>
         </>
+    );
+});
+
+const LogRow = memo(function LogRow(props: LogRowProps) {
+    return (
+        <StyledErrorBoundary justHide>
+            <InnerLogRow {...props} />
+        </StyledErrorBoundary>
     );
 });
 

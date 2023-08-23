@@ -213,6 +213,40 @@ fn extract_mod_zip(
 ///
 /// If we can't download or extract the OWML zip for any reason.
 ///
+/// ## Examples
+///
+/// ```no_run
+/// use owmods_core::config::Config;
+/// use owmods_core::download::download_and_install_owml;
+/// use owmods_core::db::RemoteDatabase;
+///
+/// # tokio_test::block_on(async {
+/// let config = Config::get(None).unwrap();
+/// let remote_db = RemoteDatabase::fetch(&config.database_url).await.unwrap();
+/// let owml = remote_db.get_owml().unwrap();
+///
+/// download_and_install_owml(&config, &owml, false).await.unwrap();
+///
+/// println!("Installed OWML!");
+/// # });
+/// ```
+///
+/// ```no_run
+/// use owmods_core::config::Config;
+/// use owmods_core::download::download_and_install_owml;
+/// use owmods_core::db::RemoteDatabase;
+///
+/// # tokio_test::block_on(async {
+/// let config = Config::get(None).unwrap();
+/// let remote_db = RemoteDatabase::fetch(&config.database_url).await.unwrap();
+/// let owml = remote_db.get_owml().unwrap();
+///
+/// download_and_install_owml(&config, &owml, true).await.unwrap();
+///
+/// println!("Installed OWML Prerelease!");
+/// # });
+/// ```
+///
 pub async fn download_and_install_owml(
     config: &Config,
     owml: &RemoteMod,
@@ -255,6 +289,21 @@ pub async fn download_and_install_owml(
 ///
 /// - If we can't find a `manifest.json` file within the archive
 /// - If we can't extract the zip file
+///
+/// ## Examples
+///
+/// ```no_run
+/// use owmods_core::db::LocalDatabase;
+/// use owmods_core::config::Config;
+/// use owmods_core::download::install_mod_from_zip;
+///
+/// let config = Config::get(None).unwrap();
+/// let local_db = LocalDatabase::fetch(&config.owml_path).unwrap();
+///
+/// let new_mod = install_mod_from_zip(&"/home/user/Downloads/Mod.zip".into(), &config, &local_db).unwrap();
+///
+/// println!("Installed {}", new_mod.manifest.name);
+/// ```
 ///
 pub fn install_mod_from_zip(
     zip_path: &PathBuf,
@@ -328,6 +377,23 @@ pub fn install_mod_from_zip(
 /// - We can't extract the ZIP file
 /// - There is no `manifest.json` present in the archive / it's not readable
 ///
+/// ## Examples
+///
+/// ```no_run
+/// use owmods_core::db::LocalDatabase;
+/// use owmods_core::config::Config;
+/// use owmods_core::download::install_mod_from_url;
+///
+/// # tokio_test::block_on(async {
+/// let config = Config::get(None).unwrap();
+/// let local_db = LocalDatabase::fetch(&config.owml_path).unwrap();
+///
+/// let new_mod = install_mod_from_url("https://example.com/Mod.zip", None, &config, &local_db).await.unwrap();
+///
+/// println!("Installed {}", new_mod.manifest.name);
+/// # });
+/// ```
+///
 pub async fn install_mod_from_url(
     url: &str,
     unique_name: Option<&str>,
@@ -358,6 +424,28 @@ pub async fn install_mod_from_url(
 /// ## Errors
 ///
 /// If **any** mod fails to install from the list
+///
+/// ## Examples
+///
+/// ```no_run
+/// use owmods_core::db::{LocalDatabase, RemoteDatabase};
+/// use owmods_core::config::Config;
+/// use owmods_core::download::install_mods_parallel;
+/// use owmods_core::analytics::{send_analytics_event, AnalyticsEventName};
+///
+/// # tokio_test::block_on(async {
+/// let config = Config::get(None).unwrap();
+/// let local_db = LocalDatabase::fetch(&config.owml_path).unwrap();
+/// let remote_db = RemoteDatabase::fetch(&config.database_url).await.unwrap();
+///
+/// let installed = install_mods_parallel(vec!["Bwc9876.TimeSaver".into(), "Raicuparta.NomaiVR".into()], &config, &remote_db, &local_db).await.unwrap();
+///
+/// for installed_mod in installed {
+///     println!("Installed {}", installed_mod.manifest.name);
+///     send_analytics_event(AnalyticsEventName::ModInstall, &installed_mod.manifest.unique_name).await;
+/// }
+/// # });
+/// ```
 ///
 pub async fn install_mods_parallel(
     unique_names: Vec<String>,
@@ -397,6 +485,56 @@ pub async fn install_mods_parallel(
 /// - If you requested a prerelease and the mod doesn't have one.
 /// - If we can't install the target mod for any reason.
 /// - If we can't install **any** dependencies for any reason.
+///
+/// ## Examples
+///
+/// ```no_run
+/// use owmods_core::db::{LocalDatabase, RemoteDatabase};
+/// use owmods_core::config::Config;
+/// use owmods_core::download::install_mod_from_db;
+///
+/// # tokio_test::block_on(async {
+/// let config = Config::get(None).unwrap();
+/// let local_db = LocalDatabase::fetch(&config.owml_path).unwrap();
+/// let remote_db = RemoteDatabase::fetch(&config.database_url).await.unwrap();
+///
+/// install_mod_from_db(&"Bwc9876.TimeSaver".to_string(), &config, &remote_db, &local_db, false, false).await.unwrap();
+///
+/// println!("Installed Bwc9876.TimeSaver!");
+/// # });
+/// ```
+///
+/// ```no_run
+/// use owmods_core::db::{LocalDatabase, RemoteDatabase};
+/// use owmods_core::config::Config;
+/// use owmods_core::download::install_mod_from_db;
+///
+/// # tokio_test::block_on(async {
+/// let config = Config::get(None).unwrap();
+/// let local_db = LocalDatabase::fetch(&config.owml_path).unwrap();
+/// let remote_db = RemoteDatabase::fetch(&config.database_url).await.unwrap();
+///
+/// install_mod_from_db(&"Bwc9876.TimeSaver".to_string(), &config, &remote_db, &local_db, false, true).await.unwrap();
+///
+/// println!("Installed Bwc9876.TimeSaver Prerelease!");
+/// # });
+/// ```
+///
+/// ```no_run
+/// use owmods_core::db::{LocalDatabase, RemoteDatabase};
+/// use owmods_core::config::Config;
+/// use owmods_core::download::install_mod_from_db;
+///
+/// # tokio_test::block_on(async {
+/// let config = Config::get(None).unwrap();
+/// let local_db = LocalDatabase::fetch(&config.owml_path).unwrap();
+/// let remote_db = RemoteDatabase::fetch(&config.database_url).await.unwrap();
+///
+/// install_mod_from_db(&"xen.NewHorizons".to_string(), &config, &remote_db, &local_db, true, false).await.unwrap();
+///
+/// println!("Installed xen.NewHorizons and all dependencies!");
+/// # });
+/// ```
 ///
 pub async fn install_mod_from_db(
     unique_name: &String,

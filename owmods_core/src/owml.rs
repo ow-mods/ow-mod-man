@@ -129,6 +129,29 @@ impl OWMLConfig {
     ///
     /// If we can't read the current config or copy the default one.
     ///
+    /// ## Examples
+    ///
+    /// ```no_run
+    /// use owmods_core::config::Config;
+    /// use owmods_core::owml::OWMLConfig;
+    ///
+    /// let config = Config::get(None).unwrap();
+    /// let owml_config = OWMLConfig::get(&config).unwrap();
+    /// println!("Game Path: {}", owml_config.game_path);
+    /// ```
+    ///
+    /// ```no_run
+    /// use owmods_core::config::Config;
+    /// use owmods_core::owml::OWMLConfig;
+    ///
+    /// let config = Config::get(None).unwrap();
+    /// std::fs::remove_file(&config.owml_path).unwrap();
+    ///
+    /// let owml_config = OWMLConfig::get(&config).unwrap();
+    /// println!("Game Path: {}", owml_config.game_path);
+    /// assert!(std::path::Path::new(&config.owml_path).is_file());
+    /// ```
+    ///
     pub fn get(config: &Config) -> Result<OWMLConfig> {
         if Self::path(config).is_file() {
             Self::read(config)
@@ -144,6 +167,19 @@ impl OWMLConfig {
     /// ## Errors
     ///
     /// If we can't save the file or serialize the object.
+    ///
+    /// ## Examples
+    ///
+    /// ```no_run
+    /// use owmods_core::config::Config;
+    /// use owmods_core::owml::OWMLConfig;
+    ///
+    /// let config = Config::get(None).unwrap();
+    /// let mut owml_config = OWMLConfig::get(&config).unwrap();
+    ///
+    /// owml_config.force_exe = true;
+    /// owml_config.save(&config).unwrap();
+    /// ```
     ///
     pub fn save(&self, config: &Config) -> Result<()> {
         Self::write(self, config)

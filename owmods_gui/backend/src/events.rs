@@ -1,9 +1,10 @@
 use anyhow::{anyhow, Result};
+use owmods_core::protocol::ProtocolPayload;
 use serde::{Deserialize, Serialize};
 use tauri::{AppHandle, Manager, Window};
 use typeshare::typeshare;
 
-use crate::{game::GameMessage, protocol::ProtocolPayload, LogPort};
+use crate::{game::GameMessage, LogPort};
 
 const INVOKE_URI: &str = "owmods://events/invoke";
 
@@ -24,6 +25,13 @@ pub struct LogLineCountUpdatePayload {
 
 #[typeshare]
 #[derive(Deserialize, Serialize, Clone)]
+pub struct LogsBehindPayload {
+    pub port: LogPort,
+    pub behind: bool,
+}
+
+#[typeshare]
+#[derive(Deserialize, Serialize, Clone)]
 #[serde(tag = "name", content = "params", rename_all = "camelCase")]
 pub enum Event {
     LocalRefresh(EmptyParams),
@@ -36,6 +44,7 @@ pub enum Event {
     LogUpdate(LogPort),
     LogLineCountUpdate(LogLineCountUpdatePayload),
     LogFatal(GameMessage),
+    LogsBehind(LogsBehindPayload),
     ProtocolInvoke(ProtocolPayload),
     ProgressUpdate(EmptyParams),
     ProgressBatchFinish(bool),

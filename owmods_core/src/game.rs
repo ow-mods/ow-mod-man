@@ -15,6 +15,28 @@ use crate::{config::Config, constants::OWML_EXE_NAME, owml::OWMLConfig};
 ///
 /// If we can't launch the game/OWML, if we can't start a log server, or if we can't read the config.
 ///
+/// ## Examples
+///
+/// ```no_run
+/// use owmods_core::game::launch_game;
+///
+/// # tokio_test::block_on(async {
+/// let config = owmods_core::config::Config::get(None).unwrap();
+/// launch_game(&config, true, None).await.unwrap();
+/// # });
+/// ```
+///
+/// ```no_run
+/// use owmods_core::game::launch_game;
+///
+/// # tokio_test::block_on(async {
+/// let config = owmods_core::config::Config::get(None).unwrap();
+/// launch_game(&config, false, Some(&12345)).await.unwrap();
+/// # });
+/// ```
+///
+/// See LogServer for an example of how use with the log server and the game.
+///
 pub async fn launch_game(
     config: &Config,
     open_in_new_window: bool,

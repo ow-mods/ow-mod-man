@@ -1,6 +1,6 @@
 [package]
 name = "owmods_gui"
-version = "0.11.0"
+version = "0.11.1"
 license = "GPL-3.0-or-later"
 edition = "2021"
 
@@ -8,7 +8,7 @@ edition = "2021"
 tauri-build = { version = "1.4.0", features = [] }
 
 [dependencies]
-owmods_core = { version = "0.11.0", path = "../../owmods_core" }
+owmods_core = { version = "0.11.1", path = "../../owmods_core" }
 serde_json = "1.0"
 serde = { version = "1.0", features = ["derive"] }
 tauri = { version = "1.4.1", features = [
@@ -24,16 +24,16 @@ tauri = { version = "1.4.1", features = [
     "window-set-focus",
     "window-set-title",
 ] }
-anyhow = "1.0.72"
-tokio = { version = "1.29.1", features = ["sync", "macros"] }
-log = { version = "0.4.19", features = ["std", "serde"] }
+anyhow = "1.0.75"
+tokio = { version = "1.32.0", features = ["sync", "macros"] }
+log = { version = "0.4.20", features = ["std", "serde"] }
 typeshare = "1.0.1"
-notify = { version = "6.0.1", default-features = false, features = [
+notify = { version = "6.1.1", default-features = false, features = [
     "macos_kqueue",
 ] }
 regex = "1.9.3"
-time = { version = "0.3.25", features = ["macros", "local-offset"] }
-tauri-plugin-deep-link = "0.1.1"
+time = { version = "0.3.27", features = ["macros", "local-offset"] }
+tauri-plugin-deep-link = "0.1.2"
 tauri-plugin-window-state = { git = "https://github.com/tauri-apps/plugins-workspace", branch = "dev" }
 opener = "0.6.1"
 

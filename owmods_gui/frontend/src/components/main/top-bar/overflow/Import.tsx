@@ -18,7 +18,7 @@ import {
 } from "@mui/material";
 import { OpenFileInput } from "@components/common/FileInput";
 import { commands } from "@commands";
-import { simpleOnError } from "@components/common/StyledErrorBoundary";
+import { simpleOnError } from "../../../../errorHandling";
 
 const Import = memo(function Import({ onClick }: ModalProps) {
     const getTranslation = useGetTranslation();

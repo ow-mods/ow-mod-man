@@ -17,7 +17,7 @@ import SettingsSelect from "./SettingsSelect";
 import SettingsText from "./SettingsText";
 import SettingsCheck from "./SettingsCheck";
 import SettingsHeader from "./SettingsHeader";
-import { simpleOnError } from "@components/common/StyledErrorBoundary";
+import { simpleOnError } from "../../../../errorHandling";
 
 const LanguageArr = Object.values(Language);
 const ThemeArr = Object.values(Theme);

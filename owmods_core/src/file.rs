@@ -20,6 +20,31 @@ use crate::constants::OLD_MANAGER_FOLDER_NAME;
 ///
 /// If we can't read the file or parse the json or it doesn't conform to `T`.
 ///
+/// ## Examples
+///
+/// ```no_run
+/// use owmods_core::file::deserialize_from_json;
+/// use owmods_core::config::Config;
+/// use std::path::PathBuf;
+///
+/// let config: Config = deserialize_from_json(&PathBuf::from("settings.json")).unwrap();
+/// println!("OWML Path: {}", config.owml_path);
+/// ```
+///
+/// ```no_run
+/// use owmods_core::file::deserialize_from_json;
+/// use serde::Deserialize;
+/// use std::path::PathBuf;
+///
+/// #[derive(Deserialize)]
+/// struct TestStruct {
+///    prop: bool,
+/// }
+///
+/// let test_struct: TestStruct = deserialize_from_json(&PathBuf::from("test.json")).unwrap();
+/// println!("Prop: {}", test_struct.prop);
+/// ```
+///
 pub fn deserialize_from_json<T>(file_path: &Path) -> Result<T>
 where
     for<'a> T: Deserialize<'a>,
@@ -35,6 +60,35 @@ where
 /// ## Errors
 ///
 /// If we can't open the file for writing.
+///
+/// ## Examples
+///
+/// ```no_run
+/// use owmods_core::file::serialize_to_json;
+/// use owmods_core::config::Config;
+/// use std::path::PathBuf;
+///
+/// let config = Config::default(None).unwrap();
+/// serialize_to_json(&config, &PathBuf::from("settings.json"), true).unwrap();
+///
+/// assert!(PathBuf::from("settings.json").is_file());
+/// ```
+///
+/// ```no_run
+/// use owmods_core::file::serialize_to_json;
+/// use serde::Serialize;
+/// use std::path::PathBuf;
+///
+/// #[derive(Serialize)]
+/// struct TestStruct {
+///     prop: bool,
+/// }
+///
+/// let test_struct = TestStruct { prop: true };
+/// serialize_to_json(&test_struct, &PathBuf::from("test.json"), true).unwrap();
+///
+/// assert!(PathBuf::from("test.json").is_file());
+/// ```
 ///
 pub fn serialize_to_json<T>(obj: &T, out_path: &Path, create_parents: bool) -> Result<()>
 where
@@ -56,11 +110,21 @@ where
 ///
 /// ## Returns
 ///
-/// The path that resolves to about `%APPDATA%/owmods/`.
+/// The path that resolves to about `~.local/share/ow-mod-man/`.
 ///
 /// ## Errors
 ///
 /// If we can't get the user's app data directory.
+///
+/// ## Examples
+///
+/// ```no_run
+/// use owmods_core::file::get_app_path;
+/// use std::path::PathBuf;
+///
+/// let app_path = get_app_path().unwrap();
+/// println!("App Path: {}", app_path.to_str().unwrap());
+/// ```
 ///
 pub fn get_app_path() -> Result<PathBuf> {
     let app_data_path = ProjectDirs::from("com", "ow-mods", "ow-mod-man");
@@ -79,7 +143,7 @@ pub fn get_app_path() -> Result<PathBuf> {
 ///
 /// ## Errors
 ///
-/// If we can't get the user's app data dir (or equivalent on Linux)
+/// If we can't get the user's app data dir (or equivalent on Linux.
 ///
 pub fn get_default_owml_path() -> Result<PathBuf> {
     let base_dirs = BaseDirs::new().ok_or_else(|| anyhow!("Couldn't Get User App Data"))?;

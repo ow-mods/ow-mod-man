@@ -74,7 +74,6 @@ I tried to automate this process in a way that makes sense but it still needs so
    2. `owmods_cli/Cargo.toml` - **also update the reference to owmods_core if it was updated**
    3. `owmods_gui/backend/Cargo.toml`  - **also update the reference to owmods_core if it was updated**
    4. `xtask/Cargo.toml` - not the end of the world, if you don't update this, determines the version shown in man files for the CLI
-   5. `owmods_gui/backend/tauri.conf.json` - **PLEASE UPDATE THIS ALONG WITH THE GUI, IT'S WHAT MAKES THE UPDATER WORK!**
 2. Merge `dev` to `main` (assuming you have a PR going)
 3. Run the "Create Core Release" action
 4. After the action completes go to Releases and fill out the draft release with the core's changelog, **do not set this as the latest release**, then publish

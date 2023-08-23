@@ -1,13 +1,16 @@
-import React from "react";
+import React, { Suspense } from "react";
 import ReactDOM from "react-dom/client";
-import App from "@components/main/MainApp";
 import { ErrorBoundary } from "react-error-boundary";
-import { basicFallbackRender, onError } from "@components/common/StyledErrorBoundary";
+import { basicFallbackRender, onError } from "./errorHandling";
+
+const App = React.lazy(() => import("@components/main/MainApp"));
 
 ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
     <React.StrictMode>
         <ErrorBoundary fallbackRender={basicFallbackRender} onError={onError}>
-            <App />
+            <Suspense>
+                <App />
+            </Suspense>
         </ErrorBoundary>
     </React.StrictMode>
 );

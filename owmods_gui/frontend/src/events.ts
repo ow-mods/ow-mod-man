@@ -1,4 +1,4 @@
-import { simpleOnError } from "@components/common/StyledErrorBoundary";
+import { simpleOnError } from "./errorHandling";
 import { listen as tauriListen, emit as tauriEmit } from "@tauri-apps/api/event";
 import { Event } from "@types";
 

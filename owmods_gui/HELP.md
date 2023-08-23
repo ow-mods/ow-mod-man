@@ -31,7 +31,7 @@ This file contains common questions for the manager.
 
 ## How do I use this on Linux?
 
-Using the manager on Linux should be easy **proton and wine are not required**. What is required is [Mono](https://www.mono-project.com/). If you're using the Flatpak, AUR, or Nix versions, Mono will be installed automatically.
+Using the manager on Linux should be easy **proton and wine are not required**. The manager requires [Mono](https://www.mono-project.com) 6 to be installed and available on the PATH. If you're using the Flatpak, AUR, or Nix versions, Mono will be installed and set up automatically.
 
 ### What About Steam Deck?
 

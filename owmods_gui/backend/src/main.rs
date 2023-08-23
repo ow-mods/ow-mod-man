@@ -3,17 +3,11 @@
     windows_subsystem = "windows"
 )]
 
-use std::{
-    collections::HashMap,
-    error::Error,
-    fs::File,
-    io::{BufWriter, Write},
-    sync::Arc,
-};
+use std::{collections::HashMap, error::Error, fs::File, io::Write, sync::Arc};
 
 use commands::*;
 use fs_watch::setup_fs_watch;
-use game::GameMessage;
+use game::LogData;
 use gui_config::GuiConfig;
 use log::{debug, error, set_boxed_logger, set_max_level, warn};
 use logging::Logger;
@@ -21,10 +15,10 @@ use owmods_core::{
     config::Config,
     db::{LocalDatabase, RemoteDatabase},
     file::get_app_path,
+    progress::bars::ProgressBars,
+    protocol::{ProtocolInstallType, ProtocolPayload},
 };
 
-use progress::ProgressBars;
-use protocol::{ProtocolInstallType, ProtocolPayload};
 use time::macros::format_description;
 use tokio::sync::RwLock as TokioLock;
 
@@ -36,12 +30,10 @@ mod fs_watch;
 mod game;
 mod gui_config;
 mod logging;
-mod progress;
-mod protocol;
 
 type StatePart<T> = Arc<TokioLock<T>>;
 type LogPort = u16;
-type LogMessages = HashMap<LogPort, (Vec<GameMessage>, BufWriter<File>)>;
+type LogMessages = HashMap<LogPort, LogData>;
 
 fn manage<T>(obj: T) -> StatePart<T> {
     Arc::new(TokioLock::new(obj))
@@ -190,7 +182,8 @@ fn main() -> Result<(), Box<dyn Error>> {
             get_bar_by_unique_name,
             register_drop_handler,
             get_db_tags,
-            open_mod_github
+            open_mod_github,
+            force_log_update
         ])
         .plugin(tauri_plugin_window_state::Builder::default().build())
         .run(tauri::generate_context!());

@@ -4,7 +4,7 @@ import { commands, hooks } from "@commands";
 import { useGetTranslation } from "@hooks";
 import { dialog } from "@tauri-apps/api";
 import RemoteModActions from "./RemoteModActions";
-import { simpleOnError } from "@components/common/StyledErrorBoundary";
+import { simpleOnError } from "../../../../errorHandling";
 
 export interface RemoteModRowProps {
     uniqueName: string;
@@ -16,7 +16,7 @@ const RemoteModRow = memo(function RemoteModRow(props: RemoteModRowProps) {
     const [status, remote] = hooks.getRemoteMod("remoteRefresh", { uniqueName: props.uniqueName });
     const busy = hooks.getModBusy("modBusy", { uniqueName: props.uniqueName })[1];
 
-    const hasPrerelease = useMemo(() => remote?.prerelease !== undefined, [remote?.prerelease]);
+    const hasPrerelease = remote?.prerelease !== undefined && remote?.prerelease !== null;
 
     const prereleaseLabel = hasPrerelease
         ? getTranslation("USE_PRERELEASE", {

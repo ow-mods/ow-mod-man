@@ -21,6 +21,20 @@ use crate::{
 ///
 /// If we can't serialize to JSON
 ///
+/// ## Examples
+///
+/// ```no_run
+/// use owmods_core::io::export_mods;
+/// use owmods_core::db::LocalDatabase;
+/// use owmods_core::config::Config;
+///
+/// let config = Config::get(None).unwrap();
+/// let local_db = LocalDatabase::fetch(&config.owml_path).unwrap();
+/// let result = export_mods(&local_db).unwrap();
+///
+/// println!("Enabled Mods: {}", result);
+/// ```
+///
 pub fn export_mods(db: &LocalDatabase) -> Result<String> {
     let enabled_mods: Vec<&String> = db.active().map(|m| &m.manifest.unique_name).collect();
     let result = serde_json::to_string_pretty(&enabled_mods)?;
@@ -34,6 +48,66 @@ pub fn export_mods(db: &LocalDatabase) -> Result<String> {
 /// ## Errors
 ///
 /// If we can't install any mods (that are in the remote database) for whatever reason.
+///
+/// ## Examples
+///
+/// ```no_run
+/// use owmods_core::io::{import_mods, export_mods};
+/// use owmods_core::db::{LocalDatabase, RemoteDatabase};
+/// use owmods_core::toggle::toggle_mod;
+/// use owmods_core::config::Config;
+/// use std::path::PathBuf;
+///
+/// # tokio_test::block_on(async {
+/// let config = Config::get(None).unwrap();
+/// let remote_db = RemoteDatabase::fetch(&config.database_url).await.unwrap();
+///
+/// let local_db = LocalDatabase::fetch(&config.owml_path).unwrap();
+/// let exported_list = export_mods(&local_db).unwrap();
+///
+/// std::fs::write("exported_list.json", exported_list).unwrap();
+///
+/// for local_mod in local_db.valid() {
+///     if local_mod.enabled {
+///         toggle_mod(&local_mod.manifest.unique_name, &local_db, false, false).unwrap();
+///     }
+/// }
+///
+/// import_mods(&config, &local_db, &remote_db, &PathBuf::from("exported_list.json"), false).await.unwrap();
+/// # });
+/// ```
+///
+/// ```no_run
+/// use owmods_core::io::{import_mods, export_mods};
+/// use owmods_core::db::{LocalDatabase, RemoteDatabase};
+/// use owmods_core::toggle::toggle_mod;
+/// use owmods_core::config::Config;
+/// use std::path::PathBuf;
+///
+/// # tokio_test::block_on(async {
+/// let config = Config::get(None).unwrap();
+/// let remote_db = RemoteDatabase::fetch(&config.database_url).await.unwrap();
+///
+/// let local_db = LocalDatabase::fetch(&config.owml_path).unwrap();
+/// toggle_mod("Bwc9876.TimeSaver", &local_db, false, false).unwrap();
+/// let exported_list = export_mods(&local_db).unwrap();
+///
+/// std::fs::write("exported_list.json", exported_list).unwrap();
+///
+/// for local_mod in local_db.valid() {
+///    if local_mod.enabled {
+///       toggle_mod(&local_mod.manifest.unique_name, &local_db, false, false).unwrap();
+///    }
+/// }
+///
+/// toggle_mod("Bwc9876.TimeSaver", &local_db, true, false).unwrap();
+///
+/// import_mods(&config, &local_db, &remote_db, &PathBuf::from("exported_list.json"), true).await.unwrap();
+///
+/// assert!(!local_db.get_mod("Bwc9876.TimeSaver").unwrap().enabled);
+/// # });
+/// ```
+///
 ///
 pub async fn import_mods(
     config: &Config,

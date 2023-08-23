@@ -52,6 +52,23 @@ impl RemoteDatabase {
     ///
     /// If we can't fetch the JSON file for whatever reason.
     ///
+    /// ## Examples
+    ///
+    /// ```no_run
+    /// use owmods_core::db::RemoteDatabase;
+    /// use owmods_core::config::Config;
+    ///
+    /// # tokio_test::block_on(async {
+    /// let config = Config::get(None).unwrap();
+    /// let db = RemoteDatabase::fetch(&config.database_url).await.unwrap();
+    ///
+    /// let time_saver = db.get_mod("Bwc9876.TimeSaver").unwrap();
+    ///
+    /// assert_eq!(time_saver.unique_name, "Bwc9876.TimeSaver");
+    /// assert_eq!(time_saver.name, "Time Saver");
+    /// # });
+    /// ```
+    ///
     pub async fn fetch(url: &str) -> Result<RemoteDatabase> {
         debug!("Fetching Remote DB At {}", url);
         let resp = reqwest::get(url).await?;
@@ -70,8 +87,22 @@ impl RemoteDatabase {
     ///
     /// If we can't fetch the JSON file for whatever reason.
     ///
+    /// ## Examples
+    ///
+    /// ```no_run
+    /// use owmods_core::db::RemoteDatabase;
+    /// use owmods_core::config::Config;
+    ///
+    /// let config = Config::get(None).unwrap();
+    /// let db = RemoteDatabase::fetch_blocking(&config.database_url).unwrap();
+    ///
+    /// let time_saver = db.get_mod("Bwc9876.TimeSaver").unwrap();
+    ///
+    /// assert_eq!(time_saver.unique_name, "Bwc9876.TimeSaver");
+    /// ```
+    ///
     pub fn fetch_blocking(url: &str) -> Result<RemoteDatabase> {
-        debug!("Fetching Remote DB At {}", url);
+        debug!("Fetching Remote DB At {} (Blocking)", url);
         let resp = reqwest::blocking::get(url)?;
         let raw_db: RawRemoteDatabase = resp.json()?;
         debug!("Success, Constructing Remote Mod Map");
@@ -83,6 +114,23 @@ impl RemoteDatabase {
     /// ## Returns
     ///
     /// A reference to the requested mod in the database, or `None` if it doesn't exist.
+    ///
+    /// ## Examples
+    ///
+    /// ```no_run
+    /// use owmods_core::db::RemoteDatabase;
+    /// use owmods_core::config::Config;
+    /// use owmods_core::constants::OWML_UNIQUE_NAME;
+    ///
+    /// let config = Config::get(None).unwrap();
+    /// let db = RemoteDatabase::fetch_blocking(&config.database_url).unwrap();
+    ///
+    /// let time_saver = db.get_mod("Bwc9876.TimeSaver").unwrap();
+    ///
+    /// let owml = db.get_mod(OWML_UNIQUE_NAME);
+    ///
+    /// assert!(owml.is_none());
+    /// ```
     ///
     pub fn get_mod(&self, unique_name: &str) -> Option<&RemoteMod> {
         if unique_name == OWML_UNIQUE_NAME {
@@ -97,6 +145,21 @@ impl RemoteDatabase {
     ///
     /// A reference to OWML if it's in the database
     ///
+    /// ## Examples
+    ///
+    /// ```no_run
+    /// use owmods_core::db::RemoteDatabase;
+    /// use owmods_core::config::Config;
+    /// use owmods_core::constants::OWML_UNIQUE_NAME;
+    ///
+    /// let config = Config::get(None).unwrap();
+    /// let db = RemoteDatabase::fetch_blocking(&config.database_url).unwrap();
+    ///
+    /// let owml = db.get_owml().unwrap();
+    ///
+    /// assert_eq!(owml.unique_name, OWML_UNIQUE_NAME);
+    /// ```
+    ///
     pub fn get_owml(&self) -> Option<&RemoteMod> {
         self.mods.get(OWML_UNIQUE_NAME)
     }
@@ -106,6 +169,36 @@ impl RemoteDatabase {
     /// ## Returns
     ///
     /// A Vec of [RemoteMod]s that exactly or closely match the search query
+    ///
+    /// ## Examples
+    ///
+    /// ```no_run
+    /// use owmods_core::db::RemoteDatabase;
+    /// use owmods_core::config::Config;
+    ///
+    /// let config = Config::get(None).unwrap();
+    /// let db = RemoteDatabase::fetch_blocking(&config.database_url).unwrap();
+    ///
+    /// let mods = db.search("time saver");
+    ///
+    /// assert_eq!(mods.first().unwrap().unique_name, "Bwc9876.TimeSaver");
+    ///
+    /// let mods = db.search("time");
+    ///
+    /// assert_eq!(mods.first().unwrap().unique_name, "Bwc9876.TimeSaver");
+    ///
+    /// let mods = db.search("saver");
+    ///
+    /// assert_eq!(mods.first().unwrap().unique_name, "Bwc9876.TimeSaver");
+    ///
+    /// let mods = db.search("Bwc9876");
+    ///
+    /// assert_eq!(mods.first().unwrap().unique_name, "Bwc9876.TimeSaver");
+    ///
+    /// let mods = db.search("A mod that skips various");
+    ///
+    /// assert_eq!(mods.first().unwrap().unique_name, "Bwc9876.TimeSaver");
+    /// ```
     ///
     pub fn search(&self, search: &str) -> Vec<&RemoteMod> {
         let mods: Vec<&RemoteMod> = self.mods.values().collect();
@@ -117,6 +210,19 @@ impl RemoteDatabase {
     /// ## Returns
     ///
     /// A `Vec<String>` of tags sorted by the amount of times they appear in the database (highest -> lowest)
+    ///
+    /// ## Examples
+    ///
+    /// ```no_run
+    /// use owmods_core::db::RemoteDatabase;
+    /// use owmods_core::config::Config;
+    ///
+    /// let config = Config::get(None).unwrap();
+    /// let db = RemoteDatabase::fetch_blocking(&config.database_url).unwrap();
+    ///
+    /// let tags = db.get_tags();
+    /// assert_eq!(tags[0], "content");
+    /// ```
     ///
     pub fn get_tags(&self) -> Vec<String> {
         let mut tags: Vec<String> = self
@@ -151,6 +257,27 @@ impl RemoteDatabase {
     }
 
     /// Filter a list of mods by a list of tags
+    ///
+    /// * Note this performs an OR on the tags, meaning if it matches one of them it passes (reflects website logic)
+    ///
+    /// ## Returns
+    ///
+    /// An iterator over the mods that match the given list of tags
+    ///
+    /// ## Examples
+    ///
+    /// ```no_run
+    /// use owmods_core::db::RemoteDatabase;
+    /// use owmods_core::config::Config;
+    ///
+    /// let config = Config::get(None).unwrap();
+    /// let db = RemoteDatabase::fetch_blocking(&config.database_url).unwrap();
+    ///
+    /// let mut mods = RemoteDatabase::filter_by_tags(db.mods.values(), vec!["tool".to_string(), "tweaks".to_string()]);
+    ///
+    /// assert!(mods.any(|m| m.unique_name == "Bwc9876.TimeSaver"));
+    /// ```
+    ///
     pub fn filter_by_tags<'a>(
         mods: impl Iterator<Item = &'a RemoteMod>,
         tags: Vec<String>,
@@ -170,6 +297,20 @@ impl RemoteDatabase {
     /// ## Returns
     ///
     /// An iterator over the mods that match the given list of tags
+    ///
+    /// ## Examples
+    ///
+    /// ```no_run
+    /// use owmods_core::db::RemoteDatabase;
+    /// use owmods_core::config::Config;
+    ///
+    /// let config = Config::get(None).unwrap();
+    /// let db = RemoteDatabase::fetch_blocking(&config.database_url).unwrap();
+    ///
+    /// let mut mods = db.matches_tags(vec!["tool".to_string(), "tweaks".to_string()]);
+    ///
+    /// assert!(mods.any(|m| m.unique_name == "Bwc9876.TimeSaver"));
+    /// ```
     ///
     pub fn matches_tags(&self, tags: Vec<String>) -> impl Iterator<Item = &RemoteMod> {
         Self::filter_by_tags(self.mods.values(), tags)

@@ -86,8 +86,8 @@ fn check_mod_conflicts(local_mod: &LocalMod, db: &LocalDatabase) -> Vec<ModValid
 ///
 pub fn check_mod(local_mod: &LocalMod, db: &LocalDatabase) -> Vec<ModValidationError> {
     let mut errors: Vec<ModValidationError> = vec![];
-    errors.extend(check_mod_deps(local_mod, db).into_iter());
-    errors.extend(check_mod_conflicts(local_mod, db).into_iter());
+    errors.extend(check_mod_deps(local_mod, db));
+    errors.extend(check_mod_conflicts(local_mod, db));
     if let Some(dll_error) = check_mod_dll(local_mod) {
         errors.push(dll_error);
     }

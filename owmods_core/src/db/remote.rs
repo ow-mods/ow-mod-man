@@ -20,6 +20,8 @@ struct RawRemoteDatabase {
 pub struct RemoteDatabase {
     /// A hashmap of unique names to mods
     pub mods: HashMap<String, RemoteMod>,
+    /// OWML, if it exists
+    pub owml: Option<RemoteMod>,
 }
 
 impl From<RawRemoteDatabase> for RemoteDatabase {
@@ -37,7 +39,8 @@ impl From<RawRemoteDatabase> for RemoteDatabase {
         for remote_mod in mods.values_mut() {
             remote_mod.version = fix_version(&remote_mod.version).to_string();
         }
-        Self { mods }
+        let owml = mods.remove(OWML_UNIQUE_NAME);
+        Self { mods, owml }
     }
 }
 
@@ -133,9 +136,6 @@ impl RemoteDatabase {
     /// ```
     ///
     pub fn get_mod(&self, unique_name: &str) -> Option<&RemoteMod> {
-        if unique_name == OWML_UNIQUE_NAME {
-            return None;
-        }
         self.mods.get(unique_name)
     }
 
@@ -161,7 +161,7 @@ impl RemoteDatabase {
     /// ```
     ///
     pub fn get_owml(&self) -> Option<&RemoteMod> {
-        self.mods.get(OWML_UNIQUE_NAME)
+        self.owml.as_ref()
     }
 
     /// Search the database with the given query, pulls from various fields of the mod

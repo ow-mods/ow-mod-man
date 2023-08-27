@@ -161,6 +161,7 @@ impl LogData {
             }
         }
         self.queued_emits.clear();
+        self.eval_indices();
         self.emit_behind(false);
     }
 
@@ -255,6 +256,7 @@ impl LogData {
             }
             self.queued_emits.push(None);
         } else {
+            self.eval_indices();
             self.emit_update();
         }
         // Process the emit queue semi-regularly

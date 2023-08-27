@@ -7,6 +7,7 @@ use log::{error, info, warn, LevelFilter};
 use owmods_core::{
     alerts::fetch_alert,
     config::Config,
+    constants::OWML_UNIQUE_NAME,
     db::{LocalDatabase, RemoteDatabase},
     download::{
         download_and_install_owml, install_mod_from_db, install_mod_from_url, install_mod_from_zip,
@@ -268,7 +269,11 @@ async fn run_from_cli(cli: BaseCli) -> Result<()> {
             let local_mod = local_db.get_mod(unique_name);
             let mut flag = true;
 
-            if *overwrite && local_mod.is_some() {
+            if unique_name == OWML_UNIQUE_NAME {
+                warn!("OWML is already installed, use `owmods update` to update it");
+                warn!("Or use `owmods setup` to reinstall it");
+                flag = false;
+            } else if *overwrite && local_mod.is_some() {
                 warn!("Overriding {}", unique_name);
             } else if let Some(local_mod) = local_db.get_mod(unique_name) {
                 error!(

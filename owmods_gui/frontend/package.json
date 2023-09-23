@@ -22,31 +22,31 @@
         "@emotion/react": "11.11.1",
         "@emotion/styled": "11.11.0",
         "@fontsource/roboto": "5.0.8",
-        "@mui/icons-material": "5.14.6",
-        "@mui/lab": "5.0.0-alpha.141",
-        "@mui/material": "5.14.6",
+        "@mui/icons-material": "5.14.9",
+        "@mui/lab": "5.0.0-alpha.145",
+        "@mui/material": "5.14.10",
         "@tauri-apps/api": "1.4.0",
         "react": "18.2.0",
         "react-dom": "18.2.0",
         "react-error-boundary": "4.0.11",
-        "react-virtuoso": "4.5.0"
+        "react-virtuoso": "4.6.0"
     },
     "devDependencies": {
         "@testing-library/react": "14.0.0",
-        "@types/react": "18.2.21",
+        "@types/react": "18.2.22",
         "@types/react-dom": "18.2.7",
-        "@typescript-eslint/eslint-plugin": "6.4.1",
-        "@typescript-eslint/parser": "6.4.1",
+        "@typescript-eslint/eslint-plugin": "6.7.2",
+        "@typescript-eslint/parser": "6.7.2",
         "@vitejs/plugin-react": "4.0.4",
-        "eslint": "8.48.0",
+        "eslint": "8.50.0",
         "eslint-plugin-react": "7.33.2",
         "eslint-plugin-react-hooks": "4.6.0",
         "jsdom": "22.1.0",
-        "prettier": "3.0.2",
+        "prettier": "3.0.3",
         "typescript": "5.2.2",
         "vite": "4.4.9",
         "vite-imagetools": "5.0.8",
         "vite-plugin-html": "3.2.0",
-        "vitest": "0.34.3"
+        "vitest": "0.34.5"
     }
 }

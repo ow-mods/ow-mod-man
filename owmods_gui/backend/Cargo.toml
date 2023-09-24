@@ -32,7 +32,7 @@ notify = { version = "6.1.1", default-features = false, features = [
     "macos_kqueue",
 ] }
 regex = "1.9.5"
-time = { version = "0.3.28", features = ["macros", "local-offset"] }
+time = { version = "0.3.29", features = ["macros", "local-offset"] }
 tauri-plugin-deep-link = "0.1.2"
 tauri-plugin-window-state = { git = "https://github.com/tauri-apps/plugins-workspace", branch = "dev" }
 opener = "0.6.1"

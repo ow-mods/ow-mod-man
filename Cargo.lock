@@ -2292,7 +2292,7 @@ checksum = "b15813163c1d831bf4a13c3610c05c0d03b39feb07f7e09fa234dac9b15aaf39"
 
 [[package]]
 name = "owmods_cli"
-version = "0.11.2"
+version = "0.11.3"
 dependencies = [
  "anyhow",
  "clap",
@@ -2307,7 +2307,7 @@ dependencies = [
 
 [[package]]
 name = "owmods_core"
-version = "0.11.2"
+version = "0.11.3"
 dependencies = [
  "anyhow",
  "directories",
@@ -2333,7 +2333,7 @@ dependencies = [
 
 [[package]]
 name = "owmods_gui"
-version = "0.11.2"
+version = "0.11.3"
 dependencies = [
  "anyhow",
  "log",

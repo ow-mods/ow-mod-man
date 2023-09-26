@@ -317,6 +317,7 @@ export interface GameMessage {
 }
 
 export enum Language {
+    Chinese = "Chinese",
     Wario = "Wario",
     English = "English"
 }

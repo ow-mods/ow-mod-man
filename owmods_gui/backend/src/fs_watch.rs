@@ -96,11 +96,18 @@ pub fn setup_fs_watch(handle: AppHandle) -> Result<()> {
                             let config = state.config.read().await;
 
                             let mods_path = PathBuf::from(&config.owml_path).join("Mods");
+                            let manifest_path =
+                                PathBuf::from(&config.owml_path).join("OWML.Manifest.json");
 
                             let mut local_db_watcher = mods_watcher_ref.lock().unwrap();
 
                             let res = local_db_watcher.watch(&mods_path, RecursiveMode::Recursive);
+                            let res2 =
+                                local_db_watcher.watch(&manifest_path, RecursiveMode::NonRecursive);
                             if let Err(why) = res {
+                                error!("Error starting Mods watcher: {:?}", why);
+                            }
+                            if let Err(why) = res2 {
                                 error!("Error starting Mods watcher: {:?}", why);
                             }
                         });
@@ -124,11 +131,17 @@ pub fn setup_fs_watch(handle: AppHandle) -> Result<()> {
                             let config = state.config.read().await;
 
                             let mods_path = PathBuf::from(&config.owml_path).join("Mods");
+                            let manifest_path =
+                                PathBuf::from(&config.owml_path).join("OWML.Manifest.json");
 
                             let mut local_db_watcher = mods_watcher_ref.lock().unwrap();
 
                             let res = local_db_watcher.unwatch(&mods_path);
+                            let res2 = local_db_watcher.unwatch(&manifest_path);
                             if let Err(why) = res {
+                                error!("Error stopping Mods watcher: {:?}", why);
+                            }
+                            if let Err(why) = res2 {
                                 error!("Error stopping Mods watcher: {:?}", why);
                             }
                         });

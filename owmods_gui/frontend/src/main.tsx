@@ -6,7 +6,7 @@ import { basicFallbackRender, onError } from "./errorHandling";
 // Prevent ctrl+p from opening the print dialog
 document.addEventListener("keydown", (e) => {
     if (e.ctrlKey && e.key === "p") {
-	    e.preventDefault();
+        e.preventDefault();
     }
 });
 

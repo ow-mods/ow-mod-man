@@ -1,4 +1,4 @@
-import React, { ReactNode, Suspense } from "react";
+import React, { ReactNode } from "react";
 import { ErrorBoundary } from "react-error-boundary";
 import { basicFallbackRender, onError } from "src/errorHandling";
 
@@ -12,7 +12,7 @@ document.addEventListener("keydown", (e) => {
 const AppWrapper = (props: { children: ReactNode }) => (
     <React.StrictMode>
         <ErrorBoundary fallbackRender={basicFallbackRender} onError={onError}>
-            <Suspense>{props.children}</Suspense>
+            {props.children}
         </ErrorBoundary>
     </React.StrictMode>
 );

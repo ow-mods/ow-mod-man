@@ -5,7 +5,7 @@ license = "GPL-3.0-or-later"
 edition = "2021"
 
 [build-dependencies]
-tauri-build = { version = "1.4.1", features = [] }
+tauri-build = { version = "1.5.0", features = [] }
 
 [dependencies]
 owmods_core = { version = "0.11.3", path = "../../owmods_core" }

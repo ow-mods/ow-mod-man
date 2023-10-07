@@ -34,18 +34,18 @@
     "devDependencies": {
         "@testing-library/react": "14.0.0",
         "@types/react": "18.2.25",
-        "@types/react-dom": "18.2.10",
+        "@types/react-dom": "18.2.11",
         "@typescript-eslint/eslint-plugin": "6.7.4",
         "@typescript-eslint/parser": "6.7.4",
         "@vitejs/plugin-react": "4.1.0",
-        "eslint": "8.50.0",
+        "eslint": "8.51.0",
         "eslint-plugin-react": "7.33.2",
         "eslint-plugin-react-hooks": "4.6.0",
         "jsdom": "22.1.0",
         "prettier": "3.0.3",
         "typescript": "5.2.2",
         "vite": "4.4.11",
-        "vite-imagetools": "5.0.8",
+        "vite-imagetools": "5.0.9",
         "vite-plugin-html": "3.2.0",
         "vitest": "0.34.6"
     }

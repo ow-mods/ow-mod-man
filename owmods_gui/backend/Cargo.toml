@@ -25,13 +25,13 @@ tauri = { version = "1.5.1", features = [
     "window-set-title",
 ] }
 anyhow = "1.0.75"
-tokio = { version = "1.32.0", features = ["sync", "macros"] }
+tokio = { version = "1.33.0", features = ["sync", "macros"] }
 log = { version = "0.4.20", features = ["std", "serde"] }
 typeshare = "1.0.1"
 notify = { version = "6.1.1", default-features = false, features = [
     "macos_kqueue",
 ] }
-regex = "1.9.6"
+regex = "1.10.0"
 time = { version = "0.3.29", features = ["macros", "local-offset"] }
 tauri-plugin-deep-link = "0.1.2"
 tauri-plugin-window-state = { git = "https://github.com/tauri-apps/plugins-workspace", branch = "dev" }

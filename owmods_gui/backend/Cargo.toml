@@ -31,7 +31,7 @@ typeshare = "1.0.1"
 notify = { version = "6.1.1", default-features = false, features = [
     "macos_kqueue",
 ] }
-regex = "1.10.0"
+regex = "1.10.1"
 time = { version = "0.3.30", features = ["macros", "local-offset"] }
 tauri-plugin-deep-link = "0.1.2"
 tauri-plugin-window-state = { git = "https://github.com/tauri-apps/plugins-workspace", branch = "dev" }

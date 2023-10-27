@@ -33,7 +33,7 @@
     },
     "devDependencies": {
         "@testing-library/react": "14.0.0",
-        "@types/react": "18.2.31",
+        "@types/react": "18.2.33",
         "@types/react-dom": "18.2.14",
         "@typescript-eslint/eslint-plugin": "6.9.0",
         "@typescript-eslint/parser": "6.9.0",
@@ -44,7 +44,7 @@
         "prettier": "3.0.3",
         "typescript": "5.2.2",
         "vite": "4.5.0",
-        "vite-imagetools": "5.1.2",
+        "vite-imagetools": "6.1.0",
         "vite-plugin-html": "3.2.0"
     }
 }

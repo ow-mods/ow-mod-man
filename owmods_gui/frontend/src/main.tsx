@@ -1,6 +1,6 @@
 import React, { Suspense } from "react";
 import ReactDOM from "react-dom/client";
-import AppWrapper from "src/AppWrapper";
+import AppWrapper from "@components/AppWrapper";
 
 const App = React.lazy(() => import("@components/main/MainApp"));
 

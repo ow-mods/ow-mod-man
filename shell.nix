@@ -11,6 +11,7 @@ pkgs.mkShell {
         pkgs.nodePackages.pnpm
         pkgs.gcc
         pkgs.webkitgtk
+        pkgs.pkg-config
         pkgs.libnotify
         pkgs.gtk3
         pkgs.openssl_1_1

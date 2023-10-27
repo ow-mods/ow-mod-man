@@ -1,7 +1,7 @@
 { pkgs ? import <nixpkgs> {} }:
 
 pkgs.mkShell {
-    name = "owmods_gui-shell";
+    name = "owmods-shell";
     buildInputs = [
         pkgs.rustc
         pkgs.cargo
@@ -14,7 +14,6 @@ pkgs.mkShell {
         pkgs.pkg-config
         pkgs.libnotify
         pkgs.gtk3
-        pkgs.openssl_1_1
         pkgs.libsoup
     ];
 }

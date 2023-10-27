@@ -27,14 +27,14 @@ zip = { version = "0.6.6", default-features = false, features = [
     "deflate",
     "zstd",
 ] }
-futures = "0.3.28"
+futures = "0.3.29"
 log = "0.4.20"
 tokio = { version = "1.33.0", features = ["net", "time", "process", "macros"] }
 serde_repr = "0.1.16"
 uuid = { version = "1.5.0", features = ["v4", "fast-rng"] }
 typeshare = "1.0.1"
 lazy_static = "1.4.0"
-tempfile = "3.8.0"
+tempfile = "3.8.1"
 unicode-normalization = "0.1.22"
 regex = "1.10.2"
 

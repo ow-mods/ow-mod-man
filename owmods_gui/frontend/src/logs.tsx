@@ -3,7 +3,7 @@ import { commands } from "@commands";
 import { simpleOnError } from "./errorHandling";
 import { listen } from "@events";
 import React from "react";
-import AppWrapper from "src/AppWrapper";
+import AppWrapper from "@components/AppWrapper";
 
 let port = 0;
 

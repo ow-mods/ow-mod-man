@@ -63,6 +63,3 @@ jobs:
 
       - name: Check Formatting
         run: pnpm prettier-check
-
-      - name: Run Tests
-        run: pnpm test

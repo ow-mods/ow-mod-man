@@ -1,4 +1,5 @@
 import { commands } from "@commands";
+import { ErrorInfo } from "react";
 
 export const simpleOnError = (err: string) => {
     commands.logError({
@@ -6,7 +7,7 @@ export const simpleOnError = (err: string) => {
     });
 };
 
-export const onError = (err: unknown, info: { componentStack: string }) => {
+export const onError = (err: Error, info: ErrorInfo) => {
     commands.logError({
         err: `${err?.toString() ?? "null"}\nAt: ${info.componentStack}`
     });

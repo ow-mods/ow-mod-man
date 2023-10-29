@@ -30,4 +30,9 @@
 	nixosModules.owmods = import ./nix/modules/nixos.nix;
 	homeManagerModules.owmods = import ./nix/modules/hm.nix;
     };
+  
+  nixConfig = {
+    extra-substituters = [ "https://ow-mods.cachix.org" ];
+    extra-trusted-public-keys = [ "ow-mods.cachix.org-1:0MHS+kc4aVTfKuMQ6hx2+JvHZEDukCscE8tYBou2+Ns=" ];
+  };
 }

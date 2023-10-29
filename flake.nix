@@ -33,6 +33,6 @@
   
   nixConfig = {
     extra-substituters = [ "https://ow-mods.cachix.org" ];
-    extra-trusted-public-keys = [ "ow-mods.cachix.org-1:0MHS+kc4aVTfKuMQ6hx2+JvHZEDukCscE8tYBou2+Ns=" ];
+    extra-trusted-public-keys = [ "ow-mods.cachix.org-1:6RTOd1dSRibA2W0MpZHxzT0tw1RzyhKObTPKQJpcrZo=" ];
   };
 }

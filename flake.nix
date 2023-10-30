@@ -3,10 +3,11 @@
 
   inputs = {
     flake-utils.url = "github:numtide/flake-utils";
+    flake-compat.url = "https://flakehub.com/f/edolstra/flake-compat/1.tar.gz";
     nixpkgs.url = "github:NixOS/nixpkgs/master";
   };
 
-  outputs = { self, flake-utils, nixpkgs }:
+  outputs = { self, flake-utils, flake-compat, nixpkgs }:
     flake-utils.lib.eachDefaultSystem (system:
       let
         pkgs = (import nixpkgs) {

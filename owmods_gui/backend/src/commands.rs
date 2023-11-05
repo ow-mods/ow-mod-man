@@ -852,9 +852,9 @@ pub async fn db_has_issues(state: tauri::State<'_, State>, window: tauri::Window
                 .blocking_show();
             if answer {
                 let handle = window.app_handle();
-                mark_mod_busy(OWML_UNIQUE_NAME, true, true, &state, &handle).await;
+                mark_mod_busy(OWML_UNIQUE_NAME, true, true, &state, handle).await;
                 download_and_install_owml(&config, remote_owml.unwrap(), false).await?;
-                mark_mod_busy(OWML_UNIQUE_NAME, false, true, &state, &handle).await;
+                mark_mod_busy(OWML_UNIQUE_NAME, false, true, &state, handle).await;
                 let event = Event::RequestReload("LOCAL".to_string());
                 handle.typed_emit_all(&event).unwrap();
             } else {

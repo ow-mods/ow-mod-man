@@ -13,6 +13,11 @@
       "open": "(^https://github.com/)|(^https://discord.gg/wusTQYbYTc$)|(^https://outerwildsmods.com/)"
     },
     "updater": {
+        "active": true,
+        "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IDkzRURBNzdENEVCREU1NDYKUldSRzViMU9mYWZ0azRoODZIdmVGWUZxVTNQRUVXU2hOTllqcGM4N2RRNjFEN2N3cnhXbW45V0sK",
+        "windows": {
+          "installMode": "basicUi"
+        },
       "endpoints": [
         "https://github.com/Bwc9876/ow-mod-man/releases/latest/download/latest.json",
         "https://github.com/ow-mods/ow-mod-man/releases/latest/download/latest.json"
@@ -24,11 +29,6 @@
       "active": true,
       "category": "Game",
       "copyright": "",
-      "deb": {
-        "depends": [
-          "libssl1.1"
-        ]
-      },
       "externalBin": [],
       "icon": [
         "icons/32x32.png",
@@ -49,13 +49,6 @@
       "resources": [],
       "shortDescription": "",
       "targets": "all",
-      "updater": {
-        "active": true,
-        "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IDkzRURBNzdENEVCREU1NDYKUldSRzViMU9mYWZ0azRoODZIdmVGWUZxVTNQRUVXU2hOTllqcGM4N2RRNjFEN2N3cnhXbW45V0sK",
-        "windows": {
-          "installMode": "basicUi"
-        }
-      },
       "windows": {
         "certificateThumbprint": null,
         "digestAlgorithm": "sha256",

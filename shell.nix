@@ -10,10 +10,10 @@ pkgs.mkShell {
         pkgs.nodejs
         pkgs.nodePackages.pnpm
         pkgs.gcc
-        pkgs.webkitgtk
+        pkgs.webkitgtk_4_1
         pkgs.pkg-config
         pkgs.libnotify
         pkgs.gtk3
-        pkgs.libsoup
+        pkgs.libsoup_3
     ];
 }

@@ -1,9 +1,9 @@
 import ReactDOM from "react-dom/client";
 import { commands } from "@commands";
-import { ErrorBoundary } from "react-error-boundary";
-import { basicFallbackRender, onError, simpleOnError } from "./errorHandling";
+import { simpleOnError } from "./errorHandling";
 import { listen } from "@events";
 import React from "react";
+import AppWrapper from "@components/AppWrapper";
 
 let port = 0;
 
@@ -15,11 +15,9 @@ listen("gameStart", (inPort) => {
     port = inPort;
 
     ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
-        <React.StrictMode>
-            <ErrorBoundary fallbackRender={basicFallbackRender} onError={onError}>
-                <LogApp port={port} />
-            </ErrorBoundary>
-        </React.StrictMode>
+        <AppWrapper>
+            <LogApp port={port} />
+        </AppWrapper>
     );
 });
 

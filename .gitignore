@@ -1,6 +1,7 @@
 # Build Output
 target
 dist/
+result
 scripts/
 owmods.tar.zst
 owmods_gui/frontend/stats.html

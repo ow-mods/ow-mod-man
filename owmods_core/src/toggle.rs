@@ -106,7 +106,7 @@ pub fn toggle_mod(
             local_mod.manifest.dependencies.clone().unwrap_or_default();
         let mut toggled_mods: Vec<String> = vec![unique_name.to_string()];
         while !to_toggle.is_empty() {
-            for dep in to_toggle.drain(..).collect::<Vec<String>>() {
+            for dep in std::mem::take(&mut to_toggle) {
                 if toggled_mods.contains(&dep) {
                     continue;
                 }

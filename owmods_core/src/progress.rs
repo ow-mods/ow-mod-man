@@ -399,7 +399,7 @@ pub mod bars {
         pub fn by_unique_name(&self, unique_name: &str) -> Option<&ProgressBar> {
             self.bars
                 .values()
-                .filter(|b| matches!(b.success, None))
+                .filter(|b| b.success.is_none())
                 .find(|b| match &b.unique_name {
                     Some(bar_name) => bar_name == unique_name,
                     _ => false,
@@ -472,8 +472,7 @@ pub mod bars {
                         bar.success = Some(payload.success);
                     }
                     if self.bars.values().all(|b| {
-                        matches!(b.success, Some(_))
-                            && matches!(b.progress_action, ProgressAction::Extract)
+                        b.success.is_some() && matches!(b.progress_action, ProgressAction::Extract)
                     }) {
                         return Some(self.bars.iter().any(|b| !b.1.success.unwrap_or(true)));
                     }

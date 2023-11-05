@@ -41,7 +41,7 @@ const UpdateModRow = memo(function UpdateModRow(props: UpdateModRowProps) {
             name={name}
             author={author}
             version={version}
-            isOutdated={outdated}
+            isOutdated={outdated || props.uniqueName === "Alek.OWML"}
             isLoading={status1 === "Loading" && local === null}
             remoteIsLoading={status2 === "Loading" && remote === null}
             description={description}

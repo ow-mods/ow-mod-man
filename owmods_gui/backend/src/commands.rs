@@ -32,12 +32,11 @@ use owmods_core::{
     validate::fix_deps,
 };
 use serde::Serialize;
-use tauri::FileDropEvent;
-use tauri::{async_runtime, AppHandle, Manager, WindowEvent};
+use tauri::{async_runtime, AppHandle, FileDropEvent, Manager, WindowEvent};
 use tauri_plugin_dialog::{DialogExt, MessageDialogKind};
 use tokio::{sync::mpsc, try_join};
 
-use crate::events::{CustomEventEmitter, CustomEventEmitterAll, CustomEventTriggerGlobal, Event};
+use crate::events::{CustomEventEmitter, CustomEventEmitterAll, Event};
 use crate::game::LogData;
 use crate::{
     game::{make_log_window, show_warnings, GameMessage},
@@ -104,7 +103,7 @@ pub async fn initial_setup(handle: tauri::AppHandle, state: tauri::State<'_, Sta
     })?;
     let event = Event::GuiConfigReload(gui_config.watch_fs);
     handle.typed_emit_all(&event).ok();
-    handle.typed_trigger_global(&event).ok();
+    // handle.typed_trigger_global(&event).ok();
     handle.typed_emit_all(&Event::ConfigReload(())).ok();
 
     Ok(())
@@ -445,7 +444,7 @@ pub async fn save_gui_config(
     }
     let event = Event::GuiConfigReload(watch_fs);
     handle.typed_emit_all(&event).ok();
-    handle.typed_trigger_global(&event).ok();
+    // handle.typed_trigger_global(&event).ok();
     Ok(())
 }
 
@@ -840,14 +839,17 @@ pub async fn db_has_issues(state: tauri::State<'_, State>, window: tauri::Window
     if let Some(owml) = owml {
         let (needs_update, remote_owml) = check_mod_needs_update(&owml, &remote_db);
         if needs_update {
-            let answer = dialog::blocking::ask(
-                Some(&window),
-                "Update OWML",
-                format!(
+            let answer = window
+                .dialog()
+                .message(format!(
                     "OWML is out of date, update it? (You have {} installed)",
                     owml.manifest.version
-                ),
-            );
+                ))
+                .kind(MessageDialogKind::Info)
+                .ok_button_label("Yes")
+                .cancel_button_label("No")
+                .title("Update OWML?")
+                .blocking_show();
             if answer {
                 let handle = window.app_handle();
                 mark_mod_busy(OWML_UNIQUE_NAME, true, true, &state, &handle).await;
@@ -960,8 +962,8 @@ pub async fn register_drop_handler(window: tauri::Window) -> Result {
     window.on_window_event(move |e| {
         if let WindowEvent::FileDrop(e) = e {
             match e {
-                FileDropEvent::Dropped(f) => {
-                    if let Some(f) = f.first() {
+                FileDropEvent::Dropped { paths, position: _ } => {
+                    if let Some(f) = paths.first() {
                         if f.extension().map(|e| e == "zip").unwrap_or(false) {
                             handle.typed_emit_all(&Event::DragLeave(())).ok();
                             handle
@@ -973,8 +975,8 @@ pub async fn register_drop_handler(window: tauri::Window) -> Result {
                         }
                     }
                 }
-                FileDropEvent::Hovered(f) => {
-                    if let Some(f) = f.first() {
+                FileDropEvent::Hovered { paths, position: _ } => {
+                    if let Some(f) = paths.first() {
                         if f.extension().map(|e| e == "zip").unwrap_or(false) {
                             handle.typed_emit_all(&Event::DragEnter(())).ok();
                         }

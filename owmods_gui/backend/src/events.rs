@@ -73,16 +73,16 @@ pub trait CustomEventEmitterAll {
 
 impl CustomEventEmitterAll for AppHandle {
     fn typed_emit_all(&self, event: &Event) -> Result<()> {
-        self.emit_all(INVOKE_URI, event).map_err(map_emit_err)
+        self.emit(INVOKE_URI, event).map_err(map_emit_err)
     }
 }
 
-impl CustomEventTriggerGlobal for AppHandle {
-    fn typed_trigger_global(&self, event: &Event) -> Result<()> {
-        self.trigger_global(INVOKE_URI, Some(serde_json::to_string(event).unwrap()));
-        Ok(())
-    }
-}
+// impl CustomEventTriggerGlobal for AppHandle {
+//     fn typed_trigger_global(&self, event: &Event) -> Result<()> {
+//         self.trigger(INVOKE_URI, Some(serde_json::to_string(event).unwrap()));
+//         Ok(())
+//     }
+// }
 
 impl CustomEventEmitter for Window {
     fn typed_emit(&self, event: &Event) -> Result<()> {
@@ -92,6 +92,6 @@ impl CustomEventEmitter for Window {
 
 impl CustomEventEmitterAll for Window {
     fn typed_emit_all(&self, event: &Event) -> Result<()> {
-        self.emit_all(INVOKE_URI, event).map_err(map_emit_err)
+        self.emit(INVOKE_URI, event).map_err(map_emit_err)
     }
 }

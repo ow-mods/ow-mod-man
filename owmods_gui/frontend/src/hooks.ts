@@ -104,6 +104,7 @@ export function useDebounce<TValue>(value: TValue, delayMs: number): TValue {
 
 export interface UnifiedMod {
     name: string;
+    slug?: string;
     author: string;
     description: string | undefined;
     version: string;
@@ -140,12 +141,15 @@ export function useUnifiedMod(local: UnsafeLocalMod | null, remote: RemoteMod | 
 
     const enabled = safeOrNull(local)?.enabled ?? false;
 
+    const slug = remote?.slug;
+
     const outdated = useMemo(
         () => safeOrNull(local)?.errors.find((e) => e.errorType === "Outdated") ?? false,
         [local]
     );
     return {
         name,
+        slug,
         author,
         description,
         version,

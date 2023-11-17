@@ -157,6 +157,13 @@ const SettingsForm = forwardRef(function SettingsForm(props: SettingsFormProps, 
             />
             <SettingsCheck
                 onChange={handleGui}
+                value={guiConfig.hideModThumbnails}
+                label={getTranslation("HIDE_MOD_THUMBNAILS")}
+                id="hideModThumbnails"
+                tooltip={getTranslation("TOOLTIP_HIDE_MOD_THUMBNAILS")}
+            />
+            <SettingsCheck
+                onChange={handleGui}
                 value={guiConfig.noWarning}
                 label={getTranslation("DISABLE_WARNING")}
                 id="noWarning"

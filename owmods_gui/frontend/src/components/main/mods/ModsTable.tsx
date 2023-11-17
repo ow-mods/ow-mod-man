@@ -1,3 +1,4 @@
+import { hooks } from "@commands";
 import { useGetTranslation } from "@hooks";
 import {
     Paper,
@@ -43,6 +44,7 @@ const ModsTable = forwardRef<TableVirtuosoHandle, ModsTableProps>(function ModsT
     ref
 ) {
     const getTranslation = useGetTranslation();
+    const guiConfig = hooks.getGuiConfig("guiConfigReload")[1];
     const theme = useTheme();
 
     return (
@@ -54,6 +56,7 @@ const ModsTable = forwardRef<TableVirtuosoHandle, ModsTableProps>(function ModsT
             data={props.uniqueNames}
             fixedHeaderContent={() => (
                 <TableRow sx={{ background: theme.palette.grey[900] }}>
+                    {guiConfig?.hideModThumbnails || <TableCell width="250px">&nbsp;</TableCell>}
                     <TableCell>{getTranslation("NAME")}</TableCell>
                     <TableCell width="100px">{getTranslation("DOWNLOADS")}</TableCell>
                     <TableCell width="110px" align="center">

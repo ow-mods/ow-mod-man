@@ -37,6 +37,18 @@ body {
     --flash-color: rgb(246, 104, 94);
 }
 
+.mod-thumb {
+    height: 50%;
+    width: auto;
+    object-fit: cover;
+    object-position: center;
+    border-radius: 4px;
+}
+
+.mod-thumb.disabled {
+    filter: grayscale(100%) !important;
+}
+
 .scroll-shadows {
     --glow-color: 256, 256, 256;
     --glow-intensity: 0.3;

@@ -48,6 +48,14 @@ impl RemoteMod {
         self.author_display.as_ref().unwrap_or(&self.author)
     }
 
+    /// Get the URL pointing to the mod's thumbnail image
+    pub fn get_thumbnail_url(&self) -> String {
+        format!(
+            "https://ow-mods.github.io/ow-mod-db/thumbnails/{}.webp",
+            self.slug
+        )
+    }
+
     #[cfg(test)]
     pub fn get_test(num: u8) -> Self {
         serde_json::from_str(

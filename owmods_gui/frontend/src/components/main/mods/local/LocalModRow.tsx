@@ -75,7 +75,10 @@ const LocalModRow = memo(function LocalModRow(props: LocalModRowProps) {
     const autoEnableDeps = hooks.getGuiConfig("guiConfigReload")[1]?.autoEnableDeps ?? false;
 
     // Transform data
-    const { name, author, description, version, outdated, enabled } = useUnifiedMod(local, remote);
+    const { name, slug, author, description, version, outdated, enabled } = useUnifiedMod(
+        local,
+        remote
+    );
     const errorLevel = useMemo(() => getErrorLevel(local ?? undefined), [local]);
     const isErr = errorLevel === "err";
     const canFixWarn = useMemo(() => canFix(local ?? undefined), [local]);
@@ -189,6 +192,8 @@ const LocalModRow = memo(function LocalModRow(props: LocalModRowProps) {
         <ModRow
             uniqueName={props.uniqueName}
             name={name}
+            slug={slug}
+            thumbnailClasses={enabled ? "" : "disabled"}
             author={author}
             version={version}
             isOutdated={outdated}

@@ -1,6 +1,9 @@
 import { useGetTranslation } from "@hooks";
 import { Box, Chip, Skeleton, TableCell, Theme, Typography, useTheme } from "@mui/material";
-import { ReactNode, memo, useMemo } from "react";
+import { ReactNode, memo, useMemo, useState } from "react";
+import fallBack from "@assets/images/fallback.webp";
+import ModFallbackThumbnail from "./ModFallbackThumbnail";
+import { hooks } from "@commands";
 
 // Stolen from mods website, Rai will never catch me!
 const magnitudeMap = [
@@ -51,6 +54,8 @@ export interface ModRowProps {
     author: string;
     downloads: number;
     version: string;
+    slug?: string;
+    thumbnailClasses?: string;
     description?: string;
     remoteIsLoading?: boolean;
     children?: ReactNode;
@@ -60,7 +65,10 @@ export interface ModRowProps {
 
 const ModRow = memo(function GenericModRow(props: ModRowProps) {
     const getTranslation = useGetTranslation();
+    const guiConfig = hooks.getGuiConfig("guiConfigReload")[1];
     const theme = useTheme();
+
+    const [imageIsError, setImageIserror] = useState(false);
 
     const bgColor = useMemo(
         () => getBgColorFromErrorLevel(theme, props.errorLevel),
@@ -88,8 +96,38 @@ const ModRow = memo(function GenericModRow(props: ModRowProps) {
         }
     }, [props.errorLevel, props.description]);
 
+    const thumbnailUrl = useMemo(
+        () =>
+            props.slug
+                ? `https://ow-mods.github.io/ow-mod-db/thumbnails/${props.slug}.webp`
+                : fallBack,
+        [props.slug]
+    );
+
     return (
         <>
+            {guiConfig?.hideModThumbnails || (
+                <TableCell sx={cellStyle}>
+                    {props.isLoading || props.slug === null ? (
+                        <Skeleton />
+                    ) : imageIsError ? (
+                        <ModFallbackThumbnail
+                            className={props.thumbnailClasses}
+                            modName={props.name}
+                            fallbackUrl={fallBack}
+                        />
+                    ) : (
+                        <img
+                            onError={() => setImageIserror(true)}
+                            alt={props.name}
+                            className={`mod-thumb ${props.thumbnailClasses ?? ""}`}
+                            width="450"
+                            height="150"
+                            src={thumbnailUrl}
+                        />
+                    )}
+                </TableCell>
+            )}
             <TableCell sx={cellStyle}>
                 <Typography variant="subtitle1" noWrap>
                     <Box display="inline-block" mr={1}>

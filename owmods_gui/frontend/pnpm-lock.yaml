@@ -41,8 +41,8 @@ dependencies:
 
 devDependencies:
   '@testing-library/react':
-    specifier: 14.1.0
-    version: 14.1.0(react-dom@18.2.0)(react@18.2.0)
+    specifier: 14.1.2
+    version: 14.1.2(react-dom@18.2.0)(react@18.2.0)
   '@types/react':
     specifier: 18.2.37
     version: 18.2.37
@@ -1048,8 +1048,8 @@ packages:
       pretty-format: 27.5.1
     dev: true
 
-  /@testing-library/react@14.1.0(react-dom@18.2.0)(react@18.2.0):
-    resolution: {integrity: sha512-hcvfZEEyO0xQoZeHmUbuMs7APJCGELpilL7bY+BaJaMP57aWc6q1etFwScnoZDheYjk4ESdlzPdQ33IbsKAK/A==}
+  /@testing-library/react@14.1.2(react-dom@18.2.0)(react@18.2.0):
+    resolution: {integrity: sha512-z4p7DVBTPjKM5qDZ0t5ZjzkpSNb+fZy1u6bzO7kk8oeGagpPCAtgh4cx1syrfp7a+QWkM021jGqjJaxJJnXAZg==}
     engines: {node: '>=14'}
     peerDependencies:
       react: ^18.0.0

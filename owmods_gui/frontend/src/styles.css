@@ -45,6 +45,10 @@ body {
     border-radius: 4px;
 }
 
+.mod-thumb {
+    display: block;
+}
+
 .mod-thumb.disabled {
     filter: grayscale(100%) !important;
 }

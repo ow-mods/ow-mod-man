@@ -118,7 +118,10 @@ const ModRow = memo(function GenericModRow(props: ModRowProps) {
                         />
                     ) : (
                         <img
-                            onError={() => setImageIserror(true)}
+                            onError={(e) => {
+                                e.preventDefault();
+                                setImageIserror(true);
+                            }}
                             alt={props.name}
                             className={`mod-thumb ${props.thumbnailClasses ?? ""}`}
                             width="450"

@@ -1,4 +1,4 @@
-import { Typography } from "@mui/material";
+import { Box } from "@mui/material";
 import { memo } from "react";
 
 export type ModFallbackThumbnailProps = {
@@ -30,8 +30,8 @@ const getHueFromText = (text: string): string => `hue-rotate(${stringToNumber(te
 
 const ModFallbackThumbnail = memo(function ModFallbackThumbnail(props: ModFallbackThumbnailProps) {
     return (
-        <span style={{ width: "100%", position: "relative" }}>
-            <Typography
+        <div style={{ height: "100%", width: "100%", position: "relative" }}>
+            <Box
                 height="100%"
                 width="100%"
                 zIndex={1}
@@ -40,19 +40,20 @@ const ModFallbackThumbnail = memo(function ModFallbackThumbnail(props: ModFallba
                 justifyContent="center"
                 position="absolute"
                 right={0}
+                left={0}
                 fontWeight="bold"
                 textAlign="center"
             >
-                {props.modName}
-            </Typography>
+                <p>{props.modName}</p>
+            </Box>
             <img
                 width="450"
                 height="150"
-                style={{ filter: getHueFromText(props.modName) }}
+                style={{ width: "100%", filter: getHueFromText(props.modName) }}
                 src={props.fallbackUrl}
                 className={`mod-thumb fallback ${props.className ?? ""}`}
             />
-        </span>
+        </div>
     );
 });
 

@@ -17,7 +17,7 @@ const UpdateModRow = memo(function UpdateModRow(props: UpdateModRowProps) {
     const [status2, remote] = hooks.getRemoteMod("remoteRefresh", { ...props });
 
     // Transform data
-    const { name, author, description, version, outdated } = useUnifiedMod(local, remote);
+    const { name, author, description, version, outdated, slug } = useUnifiedMod(local, remote);
 
     const onUpdate = useCallback(() => {
         commands.updateMod({ uniqueName: props.uniqueName }).then(() => commands.refreshLocalDb());
@@ -39,6 +39,7 @@ const UpdateModRow = memo(function UpdateModRow(props: UpdateModRowProps) {
         <ModRow
             uniqueName={props.uniqueName}
             name={name}
+            slug={slug}
             author={author}
             version={version}
             isOutdated={outdated || props.uniqueName === "Alek.OWML"}

@@ -16,7 +16,7 @@ use owmods_core::{
     db::{LocalDatabase, RemoteDatabase},
     file::get_app_path,
     progress::bars::ProgressBars,
-    protocol::{ProtocolInstallType, ProtocolPayload},
+    protocol::{ProtocolPayload, ProtocolVerb},
 };
 
 use time::macros::format_description;
@@ -52,6 +52,8 @@ pub struct State {
     game_log: StatePart<LogMessages>,
     /// The protocol url used to invoke the program, if any. This is should only be gotten once and removed after
     protocol_url: StatePart<Option<ProtocolPayload>>,
+    /// How many protocol listeners are currently active
+    protocol_listeners: StatePart<Vec<String>>,
     /// The progress bars of installs/updates/downloads/etc.
     progress_bars: StatePart<ProgressBars>,
     /// A list of unique names of mods that currently have an operation being performed on them
@@ -76,6 +78,7 @@ fn main() -> Result<(), Box<dyn Error>> {
             gui_config: manage(gui_config),
             game_log: manage(HashMap::new()),
             protocol_url: manage(url),
+            protocol_listeners: manage(vec![]),
             progress_bars: manage(ProgressBars::new()),
             mods_in_progress: manage(vec![]),
         })
@@ -100,12 +103,12 @@ fn main() -> Result<(), Box<dyn Error>> {
 
             let res = tauri_plugin_deep_link::register("owmods", move |request| {
                 let protocol_payload = ProtocolPayload::parse(&request);
-                match protocol_payload.install_type {
-                    ProtocolInstallType::Unknown => {}
+                match protocol_payload.verb {
+                    ProtocolVerb::Unknown => {}
                     _ => {
                         debug!(
                             "Invoking {:?} with {} from protocol",
-                            protocol_payload.install_type, protocol_payload.payload
+                            protocol_payload.verb, protocol_payload.payload
                         );
                         handle
                             .typed_emit_all(&Event::ProtocolInvoke(protocol_payload))

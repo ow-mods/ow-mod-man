@@ -29,7 +29,7 @@
       - [Throttling](#throttling)
   - [Protocol Behavior](#protocol-behavior)
     - [General Structure](#general-structure)
-    - [Install Types](#install-types)
+    - [Verbs](#verbs)
     - [Examples](#examples)
     - [Notes](#notes)
   - [GUI Package](#gui-package)
@@ -288,22 +288,24 @@ So if I had a progress bar that was a length of 90, and I increment by 1 every 1
 ## Protocol Behavior
 
 - The mod manager can install mods from a URL or a URI.
-- The manager uses the `owmods://` protocol to install mods.
+- The mod manager can also run the game from a URI.
+- The manager uses the `owmods://` protocol.
 
 ### General Structure
 
-`owmods://install-type/payload`
+`owmods://verb/payload`
 
 All URLs should start with owmods://  
-Then they should follow with the install type they want like `install-mod` or `install-url`  
-Finally they should have the payload for the install  
+Then they should follow with the verb they want like `install-mod` or `install-url`  
+Finally they should have the payload for the action  
 
-### Install Types
+### Verbs
 
 - `install-mod` - Installs a mod from the mods database, the payload should be the mod unique name
 - `install-url` - Installs a mod from a url, the payload should be the url to install from, **Not URI encoded**
 - `install-zip` - Installs a mod from a zip file, the payload should be the path to the zip file, note you shouldn't really need to use this because every user's computer is different, this is just used internally for drag and drop
 - `install-prerelease` - Installs a mod from a prerelease (in the mods database), the payload should be the mod unique name
+- `run-game` - Runs the game, the payload should be a unique name for the mod to enable before running the game
 
 ### Examples
 
@@ -311,6 +313,7 @@ Finally they should have the payload for the install
 - owmods://install-url/<https://example.com/Mod.zip>
 - owmods://install-zip//home/user/Downloads/Mod.zip
 - owmods://install-prerelease/Raicuparta.NomaiVR
+- owmods://run-game/Bwc9876.TimeSaver
 
 ### Notes
 

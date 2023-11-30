@@ -234,7 +234,7 @@ export interface ProgressBars {
  * Represents the type of install that should be done when a protocol link is clicked
  * This is used to determine what to do with the payload
  */
-export enum ProtocolInstallType {
+export enum ProtocolVerb {
     /** Install a mod from the mod database */
     InstallMod = "installMod",
     /** Install a mod from a URL */
@@ -243,6 +243,8 @@ export enum ProtocolInstallType {
     InstallPreRelease = "installPreRelease",
     /** Install a mod from a zip file */
     InstallZip = "installZip",
+    /** Run the game while making sure the given mod is enabled */
+    RunGame = "runGame",
     /** Unknown install type, means the protocol link was invalid and therefore should be ignored */
     Unknown = "unknown"
 }
@@ -253,7 +255,7 @@ export enum ProtocolInstallType {
  * Then they should follow with the install type they want like `install-mod` or `install-url`
  * Finally they should have the payload for the install
  *
- * If an invalid install type is given the [ProtocolInstallType] will be set to [ProtocolInstallType::Unknown]
+ * If an invalid install type is given the [ProtocolVerb] will be set to [ProtocolVerb::Unknown]
  *
  * Some examples of valid URIs are:
  * - owmods://install-mod/Bwc9876.TimeSaver
@@ -263,7 +265,7 @@ export enum ProtocolInstallType {
  */
 export interface ProtocolPayload {
     /** The type of install that should be done */
-    installType: ProtocolInstallType;
+    verb: ProtocolVerb;
     /** The payload for the install */
     payload: string;
 }

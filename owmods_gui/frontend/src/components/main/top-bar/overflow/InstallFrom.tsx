@@ -21,7 +21,7 @@ import {
     Checkbox,
     DialogContentText
 } from "@mui/material";
-import { ProtocolInstallType } from "@types";
+import { ProtocolVerb } from "@types";
 import { commands } from "@commands";
 import { getCurrent } from "@tauri-apps/api/window";
 import { OpenFileInput } from "@components/common/FileInput";
@@ -30,8 +30,8 @@ import { simpleOnError } from "../../../../errorHandling";
 
 type SourceType = "UNIQUE_NAME" | "URL" | "ZIP";
 
-const getSourceTypeFromProtocol = (installType: ProtocolInstallType): SourceType | null => {
-    switch (installType) {
+const getSourceTypeFromProtocol = (verb: ProtocolVerb): SourceType | null => {
+    switch (verb) {
         case "installMod":
             return "UNIQUE_NAME";
         case "installURL":
@@ -67,7 +67,7 @@ const InstallFrom = memo(function InstallFrom({ onClick }: ModalProps) {
         const unsubscribe = listen("protocolInvoke", (protocolPayload) => {
             commands.checkOWML().then((valid) => {
                 if (valid) {
-                    const sourceType = getSourceTypeFromProtocol(protocolPayload.installType);
+                    const sourceType = getSourceTypeFromProtocol(protocolPayload.verb);
                     if (sourceType !== null) {
                         if (sourceType === "UNIQUE_NAME") {
                             commands.installMod({ uniqueName: protocolPayload.payload });
@@ -75,10 +75,10 @@ const InstallFrom = memo(function InstallFrom({ onClick }: ModalProps) {
                             setSource(sourceType);
                             setTarget(protocolPayload.payload);
                             if (
-                                protocolPayload.installType === "installPreRelease" ||
-                                protocolPayload.installType === "installMod"
+                                protocolPayload.verb === "installPreRelease" ||
+                                protocolPayload.verb === "installMod"
                             ) {
-                                setPrerelease(protocolPayload.installType === "installPreRelease");
+                                setPrerelease(protocolPayload.verb === "installPreRelease");
                             }
                             setOpen(true);
                         }
@@ -87,7 +87,7 @@ const InstallFrom = memo(function InstallFrom({ onClick }: ModalProps) {
                 }
             });
         });
-        commands.popProtocolURL();
+        commands.popProtocolURL({ id: "install" });
         return unsubscribe;
     }, []);
 

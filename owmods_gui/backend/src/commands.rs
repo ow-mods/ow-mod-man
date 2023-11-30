@@ -25,7 +25,7 @@ use owmods_core::{
     open::{open_github, open_readme, open_shortcut},
     owml::OWMLConfig,
     progress::bars::{ProgressBar, ProgressBars},
-    protocol::{ProtocolInstallType, ProtocolPayload},
+    protocol::{ProtocolPayload, ProtocolVerb},
     remove::{remove_failed_mod, remove_mod},
     socket::{LogServer, SocketMessageType},
     updates::check_mod_needs_update,
@@ -868,14 +868,32 @@ pub async fn get_alert(state: tauri::State<'_, State>) -> Result<Alert> {
 }
 
 #[tauri::command]
-pub async fn pop_protocol_url(state: tauri::State<'_, State>, handle: tauri::AppHandle) -> Result {
-    let mut protocol_url = state.protocol_url.write().await;
-    if let Some(url) = protocol_url.as_ref() {
-        handle
-            .typed_emit_all(&Event::ProtocolInvoke(url.clone()))
-            .ok();
+pub async fn pop_protocol_url(
+    state: tauri::State<'_, State>,
+    handle: tauri::AppHandle,
+    id: &str,
+) -> Result {
+    /// Amount of listeners that need to be active before we can emit the event
+    const PROTOCOL_LISTENER_AMOUNT: usize = 2;
+
+    let id = id.to_string();
+
+    let mut protocol_listeners = state.protocol_listeners.write().await;
+    if protocol_listeners.contains(&id) {
+        return Ok(());
     }
-    *protocol_url = None;
+    protocol_listeners.push(id.clone());
+
+    if protocol_listeners.len() >= PROTOCOL_LISTENER_AMOUNT {
+        let mut protocol_url = state.protocol_url.write().await;
+        if let Some(url) = protocol_url.as_ref() {
+            handle
+                .typed_emit_all(&Event::ProtocolInvoke(url.clone()))
+                .ok();
+        }
+        *protocol_url = None;
+    }
+
     Ok(())
 }
 
@@ -963,7 +981,7 @@ pub async fn register_drop_handler(window: tauri::Window) -> Result {
                             handle.typed_emit_all(&Event::DragLeave(())).ok();
                             handle
                                 .typed_emit_all(&Event::ProtocolInvoke(ProtocolPayload {
-                                    install_type: ProtocolInstallType::InstallZip,
+                                    verb: ProtocolVerb::InstallZip,
                                     payload: f.to_str().unwrap().to_string(),
                                 }))
                                 .ok();

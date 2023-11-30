@@ -60,6 +60,8 @@ pub struct GuiConfig {
     #[serde(default = "_default_false")]
     pub hide_installed_in_remote: bool,
     #[serde(default = "_default_false")]
+    hide_mod_thumbnails: bool,
+    #[serde(default = "_default_false")]
     rainbow: bool,
 }
 
@@ -68,6 +70,7 @@ impl Default for GuiConfig {
         Self {
             theme: Theme::default(),
             rainbow: false,
+            hide_mod_thumbnails: false,
             language: Language::default(),
             watch_fs: true,
             no_warning: false,

@@ -88,6 +88,7 @@ const RemoteModRow = memo(function RemoteModRow(props: RemoteModRowProps) {
             uniqueName={props.uniqueName}
             isLoading={status === "Loading" && remote === null}
             name={remote?.name ?? props.uniqueName}
+            slug={remote?.slug}
             description={remote?.description}
             author={remote?.authorDisplay ?? remote?.author ?? ""}
             downloads={remote?.downloadCount ?? -1}

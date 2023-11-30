@@ -75,7 +75,7 @@
       }
     },
     "security": {
-      "csp": "default-src 'self'; style-src 'self' 'unsafe-inline'; font-src 'self' data:",
+      "csp": "default-src 'self'; img-src https://ow-mods.github.io/ow-mod-db/thumbnails/*; style-src 'self' 'unsafe-inline'; font-src 'self' data:",
       "dangerousDisableAssetCspModification": ["style-src", "font-src"]
     },
     "updater": {

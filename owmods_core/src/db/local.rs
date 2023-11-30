@@ -15,6 +15,7 @@ use crate::{
     validate::{check_mod, ModValidationError},
 };
 
+use super::combined_search::LocalModWithRemoteName;
 use super::{fix_version, RemoteDatabase};
 
 /// Represents the local (on the local PC) database of mods.
@@ -306,6 +307,48 @@ impl LocalDatabase {
     pub fn search(&self, search: &str) -> Vec<&UnsafeLocalMod> {
         let mods: Vec<&UnsafeLocalMod> = self.all().collect();
         search_list(mods, search)
+    }
+
+    /// Search the database with the given query, pulls from various fields of the mods and the mod's name in the remote DB
+    ///
+    /// ## Returns
+    ///
+    /// A Vec of [UnsafeLocalMod]s that exactly or closely match the search query
+    ///
+    /// ## Examples
+    ///
+    /// ```no_run
+    /// use owmods_core::db::{RemoteDatabase, LocalDatabase};
+    /// use owmods_core::config::Config;
+    ///
+    /// let config = Config::get(None).unwrap();
+    /// let db = LocalDatabase::fetch(&config.owml_path).unwrap();
+    /// let remote_db = RemoteDatabase::fetch_blocking(&config.database_url).unwrap();
+    ///
+    /// let results = db.search_with_remote("TimeSaver", &remote_db);
+    /// assert!(results.first().is_some());
+    /// ```
+    ///
+    pub fn search_with_remote(
+        &self,
+        search: &str,
+        remote_db: &RemoteDatabase,
+    ) -> Vec<&UnsafeLocalMod> {
+        let mods: Vec<&UnsafeLocalMod> = self.all().collect();
+        let mods: Vec<LocalModWithRemoteName> = mods
+            .into_iter()
+            .map(|m| {
+                let remote_name = remote_db
+                    .get_mod(m.get_unique_name())
+                    .map(|m| m.name.clone());
+                LocalModWithRemoteName::new(m, remote_name)
+            })
+            .collect();
+        let mods = mods.iter().collect();
+        search_list(mods, search)
+            .into_iter()
+            .map(|m| m.local_mod)
+            .collect()
     }
 
     /// Validates deps, conflicts, etc for all mods in the DB and places errors in each mods' errors Vec

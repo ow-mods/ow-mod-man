@@ -11,6 +11,39 @@ fn fix_version(version: &str) -> &str {
     version.trim().trim_start_matches('v')
 }
 
+mod combined_search {
+    use crate::mods::local::UnsafeLocalMod;
+    use crate::search::Searchable;
+
+    pub struct LocalModWithRemoteName<'a> {
+        pub local_mod: &'a UnsafeLocalMod,
+        remote_name: Option<String>,
+    }
+
+    impl<'a> LocalModWithRemoteName<'a> {
+        pub fn new(local_mod: &'a UnsafeLocalMod, remote_name: Option<String>) -> Self {
+            Self {
+                local_mod,
+                remote_name,
+            }
+        }
+    }
+
+    impl Searchable for LocalModWithRemoteName<'_> {
+        fn get_values(&self) -> Vec<String> {
+            if let Some(name) = &self.remote_name {
+                self.local_mod
+                    .get_values()
+                    .into_iter()
+                    .chain(vec![name.clone()])
+                    .collect()
+            } else {
+                self.local_mod.get_values()
+            }
+        }
+    }
+}
+
 #[cfg(test)]
 mod tests {
 

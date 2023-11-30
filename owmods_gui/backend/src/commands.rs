@@ -151,7 +151,8 @@ pub async fn get_local_mods(
             errors_ord.then(enabled_ord.then(name_ord))
         });
     } else {
-        mods = db.search(filter);
+        let remote_db = state.remote_db.read().await.clone();
+        mods = db.search_with_remote(filter, &remote_db);
     }
     if !tags.is_empty() {
         let remote_db = state.remote_db.read().await;

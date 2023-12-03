@@ -14,7 +14,7 @@ rustPlatform.buildRustPackage rec {
 
   cargoLock = {
     lockFile = ../Cargo.lock;
-    outputHashes = { "tauri-plugin-window-state-0.1.0" = "sha256-M6uGcf4UWAU+494wAK/r2ta1c3IZ07iaURLwJJR9F3U=";};
+    outputHashes = { "tauri-plugin-window-state-0.1.0" = "sha256-wAlwiC8a21R0jyfIkOfmdjm82VHaS07eCq30L7jGVis=";};
   };
 
   nativeBuildInputs = [

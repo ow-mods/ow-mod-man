@@ -31,7 +31,7 @@ rustPlatform.buildRustPackage rec {
 
   postInstall = ''
     cargo xtask dist_cli
-    installManPage man/man*/*
+    installManPage dist/cli/man/*
     installShellCompletion --cmd owmods \
     dist/cli/completions/owmods.{bash,fish,zsh}
   '';

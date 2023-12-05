@@ -4,9 +4,9 @@
 , fetchurl
 , autoPatchelfHook
 , glib-networking
-, openssl_1_1
 , webkitgtk
 , wrapGAppsHook
+, makeDesktopItem
 }:
 
 stdenv.mkDerivation rec {
@@ -31,7 +31,20 @@ stdenv.mkDerivation rec {
 
   unpackCmd = "dpkg-deb -x $curSrc source";
 
-  installPhase = "mv usr $out";
+  installPhase = let deskEntry = makeDesktopItem {
+    name = "outer-wilds-mod-manager";
+    categories = [ "Game" ];
+    desktopName = "Outer Wilds Mod Manager";
+    exec = "outer-wilds-mod-manager %u";
+    mimeTypes = [ "x-scheme-handler/owmods" ];
+  }; in ''
+    mkdir -p $out/bin
+    mkdir -p $out/share/icons
+    mkdir -p $out/share/applications
+    cp -r usr/bin/outer-wilds-mod-manager $out/bin
+    cp -r usr/share/icons $out/share/icons
+    ln -s ${deskEntry}/share/applications/outer-wilds-mod-manager.desktop $out/share/applications/outer-wilds-mod-manager.desktop
+  '';
   meta = with lib; {
     description = "GUI version of the mod manager for Outer Wilds Mod Loader";
     homepage = "https://github.com/ow-mods/ow-mod-man/tree/main/owmods_gui";

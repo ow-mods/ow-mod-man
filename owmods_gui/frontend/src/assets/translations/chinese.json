@@ -25,6 +25,7 @@
     "DISABLE_WARNING": "不在游戏启动时显示错误",
     "DISCORD": "Discord",
     "DISMISS": "关闭",
+    "DONATE": "贡献",
     "DOWNLOADS": "下载",
     "Debug": "Debug",
     "DisabledDep": "依赖项 $payload$ 已安装，但已禁用",

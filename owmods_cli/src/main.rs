@@ -236,6 +236,9 @@ async fn run_from_cli(cli: BaseCli) -> Result<()> {
                     if let Some(conflicts) = &local_mod.manifest.conflicts {
                         info!("Conflicts: {}", conflicts.join(", "));
                     }
+                    if let Some(donate_link) = &local_mod.manifest.donate_link {
+                        info!("Donate Link: {}", donate_link);
+                    }
                 }
                 info!("In Database: {}", yes_no(has_remote));
                 if has_remote {

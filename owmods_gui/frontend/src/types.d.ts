@@ -79,6 +79,8 @@ export interface ModManifest {
     warning?: ModWarning;
     /** An exe that runs before the game starts, a prepatcher. This is used for mods that need to patch the game before it starts */
     patcher?: string;
+    /** A link to donate to the mod. May only be for Patreon or PayPal */
+    donateLink?: string;
 }
 
 /** Represents an installed (and valid) mod */
@@ -200,6 +202,7 @@ export interface ProgressBar {
  *
  * ```no_run
  * use owmods_core::progress::bars::ProgressBars;
+ * use owmods_core::progress::ProgressPayload;
  * use std::sync::{Arc, Mutex};
  *
  * struct Logger {
@@ -216,7 +219,8 @@ export interface ProgressBar {
  * if record.target() == "progress" {
  * // Get ProgressBars from your state somehow...
  * let mut progress_bars = self.progress_bars.lock().expect("Lock is tainted");
- * let any_failed = progress_bars.process(&format!("{}", record.args()));
+ * let payload = ProgressPayload::parse(&format!("{}", record.args())).unwrap();
+ * let any_failed = progress_bars.process(payload);
  * // Then emit some sort of event to update your UI
  * // Also do stuff with any_failed, etc
  * }
@@ -252,16 +256,17 @@ export enum ProtocolVerb {
 /**
  * Represents a payload receive by a protocol handler (link from the website)
  * All URLs should start with owmods://
- * Then they should follow with the install type they want like `install-mod` or `install-url`
+ * Then they should follow with the verb they want like `install-mod` or `install-url`
  * Finally they should have the payload for the install
  *
- * If an invalid install type is given the [ProtocolVerb] will be set to [ProtocolVerb::Unknown]
+ * If an invalid verb is given the [ProtocolVerb] will be set to [ProtocolVerb::Unknown]
  *
  * Some examples of valid URIs are:
  * - owmods://install-mod/Bwc9876.TimeSaver
  * - owmods://install-url/https://example.com/Mod.zip
  * - owmods://install-zip//home/user/Downloads/Mod.zip
  * - owmods://install-prerelease/Raicuparta.NomaiVR
+ * - owmods://run-game/Bwc9876.TimeSaver
  */
 export interface ProtocolPayload {
     /** The type of install that should be done */

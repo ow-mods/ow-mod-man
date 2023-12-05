@@ -2,7 +2,7 @@ import { commands, hooks } from "@commands";
 import ModRow from "../ModRow";
 import { memo, useCallback, useMemo } from "react";
 import { useGetTranslation, useUnifiedMod } from "@hooks";
-import { dialog } from "@tauri-apps/api";
+import { dialog, shell } from "@tauri-apps/api";
 import LocalModActions from "./LocalModActions";
 import { LocalMod, UnsafeLocalMod } from "@types";
 
@@ -157,6 +157,12 @@ const LocalModRow = memo(function LocalModRow(props: LocalModRowProps) {
         task();
     }, [outdated, props.uniqueName]);
 
+    const donate = (local?.mod as LocalMod)?.manifest?.donateLink;
+
+    const onDonate = useCallback(() => {
+        shell.open(donate ?? "");
+    }, [donate]);
+
     const modsToolbar = useMemo(
         () => (
             <LocalModActions
@@ -164,6 +170,7 @@ const LocalModRow = memo(function LocalModRow(props: LocalModRowProps) {
                 enabled={enabled}
                 isErr={isErr}
                 hasRemote={hasRemote}
+                hasDonate={donate !== undefined}
                 canFix={canFixWarn}
                 onToggle={onToggle}
                 onReadme={onReadme}
@@ -171,6 +178,7 @@ const LocalModRow = memo(function LocalModRow(props: LocalModRowProps) {
                 onFolder={onFolder}
                 onUninstall={onUninstall}
                 onGithub={onGithub}
+                onDonate={onDonate}
             />
         ),
         [
@@ -178,13 +186,15 @@ const LocalModRow = memo(function LocalModRow(props: LocalModRowProps) {
             enabled,
             isErr,
             hasRemote,
+            donate,
             canFixWarn,
             onToggle,
             onReadme,
             onFix,
             onFolder,
             onUninstall,
-            onGithub
+            onGithub,
+            onDonate
         ]
     );
 

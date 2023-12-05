@@ -25,6 +25,7 @@
     "DISABLE_WARNING": "Don't Show Errors On Game Start",
     "DISCORD": "Discord",
     "DISMISS": "Dismiss",
+    "DONATE": "Donate",
     "DOWNLOADS": "Downloads",
     "Debug": "Debug",
     "DisabledDep": "Dependency $payload$ is installed, but it's disabled",

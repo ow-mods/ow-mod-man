@@ -27,7 +27,6 @@ This is the monorepo for the new <a href="https://www.mobiusdigitalgames.com/out
 ## Related Repos
 
 - [Flatpak Repo](https://github.com/flathub/com.outerwildsmods.owmods_gui)
-- [Nix Flake Repo](https://github.com/loco-choco/ow-mod-man-flake)
 
 ## Credits
 

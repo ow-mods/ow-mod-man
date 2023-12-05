@@ -11,7 +11,7 @@
 
 stdenv.mkDerivation rec {
   pname = "owmods-gui";
-  version = "0.11.3";
+  version = "0.12.0";
 
   src = fetchurl {
     url = "https://github.com/ow-mods/ow-mod-man/releases/download/gui_v${version}/outer-wilds-mod-manager_${version}_amd64.deb";
@@ -25,7 +25,6 @@ stdenv.mkDerivation rec {
 
   buildInputs = [
     glib-networking
-    openssl_1_1
     webkitgtk
     wrapGAppsHook
   ];

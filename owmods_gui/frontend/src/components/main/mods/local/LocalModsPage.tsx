@@ -13,55 +13,65 @@ export interface LocalModsPageProps {
     onTagsChanged: (newVal: string[]) => void;
 }
 
-const LocalModsPage = memo(function LocalModsPage(props: LocalModsPageProps) {
-    useEffect(() => {
-        commands.refreshLocalDb();
-    }, []);
+const LocalModsPage = memo(
+    function LocalModsPage(props: LocalModsPageProps) {
+        useEffect(() => {
+            commands.refreshLocalDb();
+        }, []);
 
-    const getTranslation = useGetTranslation();
+        const getTranslation = useGetTranslation();
 
-    const [status, localMods] = hooks.getLocalMods("localRefresh", {
-        filter: props.filter,
-        tags: props.tags
-    });
+        const [status, localMods] = hooks.getLocalMods("localRefresh", {
+            filter: props.filter,
+            tags: props.tags
+        });
 
-    const onToggleAll = useCallback((newVal: boolean) => {
-        commands.toggleAll({ enabled: newVal }).then(() => commands.refreshLocalDb());
-    }, []);
+        const onToggleAll = useCallback((newVal: boolean) => {
+            commands.toggleAll({ enabled: newVal }).then(() => commands.refreshLocalDb());
+        }, []);
 
-    const renderRow = useCallback(
-        (uniqueName: string) => {
-            return uniqueName === "~~SEPARATOR~~" ? (
-                <TableCell colSpan={4}>
-                    <Typography>{getTranslation("DISABLED_MODS")}</Typography>
-                </TableCell>
-            ) : (
-                <LocalModRow uniqueName={uniqueName} />
-            );
-        },
-        [getTranslation]
-    );
+        const renderRow = useCallback(
+            (uniqueName: string) => {
+                return uniqueName === "~~SEPARATOR~~" ? (
+                    <TableCell colSpan={4}>
+                        <Typography>{getTranslation("DISABLED_MODS")}</Typography>
+                    </TableCell>
+                ) : (
+                    <LocalModRow uniqueName={uniqueName} />
+                );
+            },
+            [getTranslation]
+        );
 
-    const toggleButtons = useMemo(
-        () => <LocalModsToggleButtons onToggle={onToggleAll} />,
-        [onToggleAll]
-    );
+        const toggleButtons = useMemo(
+            () => <LocalModsToggleButtons onToggle={onToggleAll} />,
+            [onToggleAll]
+        );
 
-    return (
-        <ModsPage
-            isLoading={status === "Loading" && localMods === null}
-            actionsSize={130}
-            noModsText={getTranslation("NO_MODS")}
-            filter={props.filter}
-            onFilterChange={props.onFilterChanged}
-            uniqueNames={localMods ?? []}
-            renderRow={renderRow}
-            selectedTags={props.tags}
-            onSelectedTagsChanged={props.onTagsChanged}
-        >
-            {toggleButtons}
-        </ModsPage>
-    );
-});
+        return (
+            <ModsPage
+                isLoading={status === "Loading" && localMods === null}
+                actionsSize={130}
+                noModsText={getTranslation("NO_MODS")}
+                filter={props.filter}
+                onFilterChange={props.onFilterChanged}
+                uniqueNames={localMods ?? []}
+                renderRow={renderRow}
+                selectedTags={props.tags}
+                onSelectedTagsChanged={props.onTagsChanged}
+            >
+                {toggleButtons}
+            </ModsPage>
+        );
+    },
+    (prev, next) => {
+        return (
+            prev.filter === next.filter &&
+            prev.tags.length === next.tags.length &&
+            prev.onFilterChanged === next.onFilterChanged &&
+            prev.onTagsChanged === next.onTagsChanged
+        );
+    }
+);
 
 export default LocalModsPage;

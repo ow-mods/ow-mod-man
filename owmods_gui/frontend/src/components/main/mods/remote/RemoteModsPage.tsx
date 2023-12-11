@@ -15,52 +15,62 @@ export interface RemoteModsPageProps {
     onTagsChanged: (newVal: string[]) => void;
 }
 
-const RemoteModsPage = memo(function RemoteModsPage(props: RemoteModsPageProps) {
-    const getTranslation = useGetTranslation();
+const RemoteModsPage = memo(
+    function RemoteModsPage(props: RemoteModsPageProps) {
+        const getTranslation = useGetTranslation();
 
-    const errorBound = useErrorBoundary();
+        const errorBound = useErrorBoundary();
 
-    useEffect(() => {
-        commands.refreshRemoteDb({}, false).catch((e) => {
-            errorBound.showBoundary(e?.toString() ?? getTranslation("UNKNOWN_ERROR"));
-        });
-    }, [errorBound, getTranslation]);
+        useEffect(() => {
+            commands.refreshRemoteDb({}, false).catch((e) => {
+                errorBound.showBoundary(e?.toString() ?? getTranslation("UNKNOWN_ERROR"));
+            });
+        }, [errorBound, getTranslation]);
 
-    const [status, remoteMods] = hooks.getRemoteMods(
-        ["remoteRefresh", "localRefresh", "guiConfigReload"],
-        {
-            filter: props.filter,
-            tags: props.tags
-        }
-    );
+        const [status, remoteMods] = hooks.getRemoteMods(
+            ["remoteRefresh", "localRefresh", "guiConfigReload"],
+            {
+                filter: props.filter,
+                tags: props.tags
+            }
+        );
 
-    const modsWebsiteButton = useMemo(
-        () => (
-            <Button
-                onClick={() => shell.open("https://outerwildsmods.com/mods")}
-                startIcon={<PublicRounded />}
+        const modsWebsiteButton = useMemo(
+            () => (
+                <Button
+                    onClick={() => shell.open("https://outerwildsmods.com/mods")}
+                    startIcon={<PublicRounded />}
+                >
+                    {getTranslation("OPEN_WEBSITE")}
+                </Button>
+            ),
+            [getTranslation]
+        );
+
+        return (
+            <ModsPage
+                actionsSize={100}
+                noModsText={getTranslation("NO_REMOTE_MODS")}
+                isLoading={status === "Loading" && remoteMods === null}
+                filter={props.filter}
+                onFilterChange={props.onFilterChanged}
+                uniqueNames={remoteMods ?? []}
+                renderRow={(uniqueName) => <RemoteModRow uniqueName={uniqueName} />}
+                selectedTags={props.tags}
+                onSelectedTagsChanged={props.onTagsChanged}
             >
-                {getTranslation("OPEN_WEBSITE")}
-            </Button>
-        ),
-        [getTranslation]
-    );
-
-    return (
-        <ModsPage
-            actionsSize={100}
-            noModsText={getTranslation("NO_REMOTE_MODS")}
-            isLoading={status === "Loading" && remoteMods === null}
-            filter={props.filter}
-            onFilterChange={props.onFilterChanged}
-            uniqueNames={remoteMods ?? []}
-            renderRow={(uniqueName) => <RemoteModRow uniqueName={uniqueName} />}
-            selectedTags={props.tags}
-            onSelectedTagsChanged={props.onTagsChanged}
-        >
-            {modsWebsiteButton}
-        </ModsPage>
-    );
-});
+                {modsWebsiteButton}
+            </ModsPage>
+        );
+    },
+    (prev, next) => {
+        return (
+            prev.filter === next.filter &&
+            prev.tags.length === next.tags.length &&
+            prev.onFilterChanged === next.onFilterChanged &&
+            prev.onTagsChanged === next.onTagsChanged
+        );
+    }
+);
 
 export default RemoteModsPage;

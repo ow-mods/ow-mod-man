@@ -1,9 +1,19 @@
 import { useGetTranslation } from "@hooks";
-import { Box, Chip, Skeleton, TableCell, Theme, Typography, useTheme } from "@mui/material";
+import {
+    Box,
+    Chip,
+    Skeleton,
+    TableCell,
+    Theme,
+    Tooltip,
+    Typography,
+    useTheme
+} from "@mui/material";
 import { ReactNode, memo, useMemo, useState } from "react";
 import fallBack from "@assets/images/fallback.webp";
 import ModFallbackThumbnail from "./ModFallbackThumbnail";
 import { hooks } from "@commands";
+import { ExtensionRounded } from "@mui/icons-material";
 
 // Stolen from mods website, Rai will never catch me!
 const magnitudeMap = [
@@ -59,6 +69,7 @@ export interface ModRowProps {
     description?: string;
     remoteIsLoading?: boolean;
     children?: ReactNode;
+    requiresDlc?: boolean;
     isOutdated?: boolean;
     errorLevel?: "warn" | "err";
 }
@@ -134,7 +145,16 @@ const ModRow = memo(function GenericModRow(props: ModRowProps) {
             <TableCell sx={cellStyle}>
                 <Typography variant="subtitle1" noWrap>
                     <Box display="inline-block" mr={1}>
-                        <Typography fontWeight={theme.typography.fontWeightBold}>
+                        <Typography
+                            display="flex"
+                            gap={0.5}
+                            fontWeight={theme.typography.fontWeightBold}
+                        >
+                            {props.requiresDlc && (
+                                <Tooltip title={getTranslation("REQUIRES_DLC")}>
+                                    <ExtensionRounded fontSize="small" />
+                                </Tooltip>
+                            )}
                             {props.isLoading ? <Skeleton width={300} /> : props.name}
                         </Typography>
                     </Box>

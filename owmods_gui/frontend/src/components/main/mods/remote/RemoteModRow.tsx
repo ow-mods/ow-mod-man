@@ -90,6 +90,7 @@ const RemoteModRow = memo(function RemoteModRow(props: RemoteModRowProps) {
             name={remote?.name ?? props.uniqueName}
             slug={remote?.slug}
             description={remote?.description}
+            requiresDlc={remote?.tags?.includes("requires-dlc") ?? false}
             author={remote?.authorDisplay ?? remote?.author ?? ""}
             downloads={remote?.downloadCount ?? -1}
             version={remote?.version ?? "0.0.0"}

@@ -15,7 +15,7 @@ depends = "libssl1.1"
 owmods_core = { version = "0.12.0", path = "../owmods_core" }
 clap = { version = "4.4.11", features = ["derive"] }
 colored = "2.1.0"
-anyhow = "1.0.75"
+anyhow = "1.0.76"
 indicatif = { version = "0.17.7", features = ["improved_unicode"] }
 tokio = { version = "1.35.1", features = ["macros"] }
 log = { version = "0.4.20", features = ["std"] }

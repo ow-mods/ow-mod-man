@@ -143,18 +143,18 @@ const ModRow = memo(function GenericModRow(props: ModRowProps) {
                 </TableCell>
             )}
             <TableCell sx={cellStyle}>
-                <Typography variant="subtitle1" noWrap>
+                <Typography display="flex" alignItems="center" variant="subtitle1" noWrap>
+                    {props.requiresDlc && (
+                        <Box display="inline-block" mr={0.5}>
+                            <Tooltip title={getTranslation("REQUIRES_DLC")}>
+                                <Typography>
+                                    <ExtensionRounded sx={{ fontSize: "1.2rem" }} />
+                                </Typography>
+                            </Tooltip>
+                        </Box>
+                    )}
                     <Box display="inline-block" mr={1}>
-                        <Typography
-                            display="flex"
-                            gap={0.5}
-                            fontWeight={theme.typography.fontWeightBold}
-                        >
-                            {props.requiresDlc && (
-                                <Tooltip title={getTranslation("REQUIRES_DLC")}>
-                                    <ExtensionRounded fontSize="small" />
-                                </Tooltip>
-                            )}
+                        <Typography fontWeight={theme.typography.fontWeightBold}>
                             {props.isLoading ? <Skeleton width={300} /> : props.name}
                         </Typography>
                     </Box>

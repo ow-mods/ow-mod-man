@@ -45,12 +45,11 @@ rustPlatform.buildRustPackage rec {
   buildAndTestSubdir = "owmods_gui/backend";
 
   postPatch = let
-    frontend-drv = mkPnpmPackage rec {
+    frontend = mkPnpmPackage rec {
       src = ../owmods_gui/frontend;
       installInPlace = true;
       distDir = "../dist";
     };
-    frontend = frontend-drv; # assert lib.assertMsg (owmods-gui-frontend.version == version) "Frontend (${owmods-gui-frontend.version}) and backend (${version}) Version Mismatch"; owmods-gui-frontend;
   in ''
     substituteInPlace owmods_gui/backend/tauri.conf.json \
     --replace '"distDir": "../dist"' '"distDir": "${frontend}"'

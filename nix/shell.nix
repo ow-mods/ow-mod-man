@@ -1,6 +1,4 @@
-{ pkgs ? import <nixpkgs> {} }:
-
-pkgs.mkShell {
+{pkg}: pkgs.mkShell {
     name = "owmods-shell";
     buildInputs = with pkgs; [
         rustc
@@ -22,4 +20,4 @@ pkgs.mkShell {
     shellHook = ''
         export GIO_MODULE_DIR=${pkgs.glib-networking}/lib/gio/modules/
     '';
-}
+};

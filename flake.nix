@@ -28,13 +28,11 @@
           owmods-gui = pkgs.owmods-gui;
           default = pkgs.owmods-cli;
         };
-        # For `nix develop`:
-        #devShell = pkgs.mkShell {
-        #  nativeBuildInputs = with pkgs; [ rustc cargo openssl libsoup ];
-        #};
       }
     )
     // {
+      formatter."x86_64-linux" = nixpkgs.legacyPackages."x86_64-linux".alejandra;
+      devShell = import ./nix/shell.nix;
       overlay.owmods = import ./nix/overlay.nix;
       nixosModules.owmods = import ./nix/modules/nixos.nix;
       homeManagerModules.owmods = import ./nix/modules/hm.nix;

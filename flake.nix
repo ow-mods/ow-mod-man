@@ -32,7 +32,7 @@
     )
     // {
       formatter."x86_64-linux" = nixpkgs.legacyPackages."x86_64-linux".alejandra;
-      devShell = import ./nix/shell.nix;
+      devShell."x86_64-linux" = (import ./nix/shell.nix) {inherit nixpkgs;};
       overlay.owmods = import ./nix/overlay.nix;
       nixosModules.owmods = import ./nix/modules/nixos.nix;
       homeManagerModules.owmods = import ./nix/modules/hm.nix;

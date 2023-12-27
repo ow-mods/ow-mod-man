@@ -25,7 +25,7 @@ tauri = { version = "1.5.4", features = [
     "window-set-title",
     "reqwest-native-tls-vendored"
 ] }
-anyhow = "1.0.76"
+anyhow = "1.0.77"
 tokio = { version = "1.35.1", features = ["sync", "macros"] }
 log = { version = "0.4.20", features = ["std", "serde"] }
 typeshare = "1.0.1"

@@ -1,7 +1,7 @@
 {
-    "name": "owmods_gui",
+    "name": "owmods-gui-frontend",
     "private": true,
-    "version": "0.0.0",
+    "version": "0.12.0",
     "type": "module",
     "scripts": {
         "dev": "vite",
@@ -15,8 +15,7 @@
         "prettify": "prettier --write . --ignore-unknown",
         "format": "pnpm prettify",
         "prettier-check": "prettier --check . --ignore-unknown",
-        "preinstall": "npx only-allow pnpm",
-        "test": "vitest"
+        "preinstall": "npx only-allow pnpm"
     },
     "dependencies": {
         "@emotion/react": "11.11.3",

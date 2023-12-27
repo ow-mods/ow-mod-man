@@ -1,6 +1,10 @@
-{ lib, pkgs, config, ... }:
-with lib;                      
-let
+{
+  lib,
+  pkgs,
+  config,
+  ...
+}:
+with lib; let
   cli-cfg = config.programs.owmods-cli;
   gui-cfg = config.programs.owmods-gui;
 in {
@@ -14,13 +18,14 @@ in {
   };
 
   config = mkIf (cli-cfg.enable || gui-cfg.enable) (
-  	mkMerge [{
-          home.packages = [
-            (mkIf cli-cfg.enable (pkgs.owmods-cli))
-            (mkIf gui-cfg.enable (pkgs.owmods-gui))
-	    pkgs.mono
-          ];
-	}]
+    mkMerge [
+      {
+        home.packages = [
+          (mkIf cli-cfg.enable (pkgs.owmods-cli))
+          (mkIf gui-cfg.enable (pkgs.owmods-gui))
+          pkgs.mono
+        ];
+      }
+    ]
   );
 }
-

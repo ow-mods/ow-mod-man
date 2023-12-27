@@ -8,6 +8,7 @@ pkgs.mkShell {
         clippy
         rustfmt
         nodejs
+        openssl
         nodePackages.pnpm
         gcc
         webkitgtk

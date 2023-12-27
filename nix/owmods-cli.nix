@@ -1,11 +1,12 @@
-{ lib
-, pkg-config
-, openssl
-, libsoup
-, fetchFromGitHub
-, installShellFiles
-, rustPlatform }:
-
+{
+  lib,
+  pkg-config,
+  openssl,
+  libsoup,
+  fetchFromGitHub,
+  installShellFiles,
+  rustPlatform,
+}:
 rustPlatform.buildRustPackage rec {
   pname = "owmods-cli";
   version = "0.12.0";
@@ -14,7 +15,7 @@ rustPlatform.buildRustPackage rec {
 
   cargoLock = {
     lockFile = ../Cargo.lock;
-    outputHashes = { "tauri-plugin-window-state-0.1.0" = "sha256-3lFd3Wx+xglRX/Xy3zW8yBOwX7pYlFEwVxvPqYA9ewI=";};
+    outputHashes = {"tauri-plugin-window-state-0.1.0" = "sha256-3lFd3Wx+xglRX/Xy3zW8yBOwX7pYlFEwVxvPqYA9ewI=";};
   };
 
   nativeBuildInputs = [
@@ -43,6 +44,6 @@ rustPlatform.buildRustPackage rec {
     changelog = "https://github.com/ow-mods/ow-mod-man/releases/tag/cli_v${version}";
     mainProgram = "owmods";
     license = licenses.gpl3;
-    maintainers = with maintainers; [ locochoco ];
+    maintainers = with maintainers; [locochoco];
   };
 }

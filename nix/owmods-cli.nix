@@ -33,10 +33,12 @@ rustPlatform.buildRustPackage rec {
     lockFile = ../Cargo.lock;
   };
 
-  nativeBuildInputs = [
-    pkg-config
-    installShellFiles
-  ] ++ lib.optional wrapWithMono makeWrapper;
+  nativeBuildInputs =
+    [
+      pkg-config
+      installShellFiles
+    ]
+    ++ lib.optional wrapWithMono makeWrapper;
 
   buildInputs = [
     openssl
@@ -60,6 +62,6 @@ rustPlatform.buildRustPackage rec {
     changelog = "https://github.com/ow-mods/ow-mod-man/releases/tag/cli_v${version}";
     mainProgram = "owmods";
     license = licenses.gpl3;
-    maintainers = with maintainers; [locochoco];
+    maintainers = with maintainers; [bwc9876 locochoco];
   };
 }

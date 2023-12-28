@@ -44,6 +44,7 @@ This is the monorepo for the new <a href="https://www.mobiusdigitalgames.com/out
   - [JohnCorby](https://github.com/JohnCorby)
   - [BUNN1E5](https://github.com/BUNN1E5)
   - [ShoosGun](https://github.com/ShoosGun)
+  - [JSpoonBaker](https://github.com/Spoonbaker)
 - Translations:
   - Chinese: [SmallGarfield](https://github.com/xiaojiafei520)
 

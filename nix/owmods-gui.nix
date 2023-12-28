@@ -100,6 +100,6 @@ rustPlatform.buildRustPackage rec {
     mainProgram = "outer-wilds-mod-manager";
     platforms = platforms.linux;
     license = licenses.gpl3;
-    maintainers = with maintainers; [locochoco];
+    maintainers = with maintainers; [bwc9876 locochoco];
   };
 }

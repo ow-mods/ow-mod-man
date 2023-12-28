@@ -10,7 +10,7 @@ import {
     useTheme
 } from "@mui/material";
 import { ReactNode, memo, useMemo, useState } from "react";
-import fallBack from "@assets/images/fallback.webp";
+import fallBack from "@assets/images/fallback.webp?format=webp&imagetools";
 import ModFallbackThumbnail from "./ModFallbackThumbnail";
 import { hooks } from "@commands";
 import { ExtensionRounded } from "@mui/icons-material";

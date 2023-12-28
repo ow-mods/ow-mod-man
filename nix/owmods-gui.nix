@@ -16,12 +16,27 @@
   copyDesktopItems,
   rustPlatform,
   mkPnpmPackage,
+  mono,
+  wrapWithMono ? true,
 }:
 rustPlatform.buildRustPackage rec {
   pname = "owmods-gui";
   version = "0.12.0";
 
-  src = ../.;
+  # Prevent unneeded rebuilds
+  src = with lib.fileset;
+    toSource {
+      root = ../.;
+      fileset = unions [
+        ../.cargo
+        ../owmods_gui
+        ../owmods_cli
+        ../owmods_core
+        ../xtask
+        ../Cargo.toml
+        ../Cargo.lock
+      ];
+    };
 
   cargoLock = {
     lockFile = ../Cargo.lock;
@@ -44,8 +59,10 @@ rustPlatform.buildRustPackage rec {
 
   buildAndTestSubdir = "owmods_gui/backend";
 
+  postFixup = lib.optionalString wrapWithMono "gappsWrapperArgs+=(--prefix PATH : '${mono}/bin')";
+
   postPatch = let
-    frontend = mkPnpmPackage rec {
+    frontend = mkPnpmPackage {
       src = ../owmods_gui/frontend;
       installInPlace = true;
       distDir = "../dist";
@@ -81,7 +98,6 @@ rustPlatform.buildRustPackage rec {
     downloadPage = "https://github.com/ow-mods/ow-mod-man/releases/tag/gui_v${version}";
     changelog = "https://github.com/ow-mods/ow-mod-man/releases/tag/gui_v${version}";
     mainProgram = "outer-wilds-mod-manager";
-    sourceProvenance = with sourceTypes; [binaryNativeCode];
     platforms = platforms.linux;
     license = licenses.gpl3;
     maintainers = with maintainers; [locochoco];

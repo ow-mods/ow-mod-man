@@ -1,7 +1,7 @@
 use serde::{Deserialize, Serialize};
 use typeshare::typeshare;
 
-use crate::search::Searchable;
+use crate::{constants::REQUIRES_DLC_TAG, search::Searchable};
 
 /// Represents a mod in the remote database
 #[typeshare]
@@ -46,6 +46,14 @@ impl RemoteMod {
     /// Get the author of a mod, first checking `author_display`, then falling back to `author`.
     pub fn get_author(&self) -> &String {
         self.author_display.as_ref().unwrap_or(&self.author)
+    }
+
+    /// Whether this mod requires the DLC to be installed
+    pub fn requires_dlc(&self) -> bool {
+        self.tags
+            .as_ref()
+            .map(|tags| tags.contains(&REQUIRES_DLC_TAG.to_string()))
+            .unwrap_or(false)
     }
 
     /// Get the URL pointing to the mod's thumbnail image

@@ -1,97 +1,34 @@
-# NixOS Installation
+# Usage with Nix
 
-You can either install using the package in [nixpkgs](https://search.nixos.org/packages?channel=unstable&show=owmods-cli&from=0&size=50&sort=relevance&type=packages&query=owmods) or by getting it from the flake.
-## Without Flakes
+Currently, `owmods-cli` is in nixpkgs. ([Nixpkgs status](https://search.nixos.org/packages?channel=unstable&type=packages&query=owmod))
 
-This flake comes with [flake-compat](https://github.com/edolstra/flake-compat), which makes it usable in systems that use flakes, or not.
+Alternatively, you can get the latest version from this repo.
 
-To install it, edit you NixOS/Home Manager configuration with:
+## Flakes
+
+The flake provides an overlay and the packages `owmods-cli` and `owmods-gui`.
 ```nix
-{ pkgs, lib, ... }:
+ow-mod-man = {
+  url = "github:ow-mods/ow-mod-man/dev";
+  inputs.nixpkgs.follows = "nixpkgs";
+};
+```
+You can then reference `ow-mod-man.packages.<system>.owmods-<gui/cli>`, or use the overlay, for example:
+```nix
+nixpkgs.overlays = [ inputs.ow-mod-man.overlays.default ]
+```
+
+## Without flakes
+If you can't or don't want to use flakes, you can use [flake-compat](https://github.com/edolstra/flake-compat).
+
+```nix
 let
-  ow-mod-man = import (builtins.fetchGit {
+  flake-compat = import (fetchTarball "https://github.com/edolstra/flake-compat/archive/master.tar.gz");
+   src = fetchGit {
     url = "https://github.com/ow-mods/ow-mod-man.git";
-    # You can choose which version by changing the ref
     ref = "dev";
-  });
-in
-{
-  imports = [
-    # For NixOS
-    ow-mod-man.nixosModules.owmods
-    # For Home Manager
-    ow-mod-man.homeManagerModules.owmods
-  ];
-  
-  # Unsafe dependency of the gui version
-  permittedInsecurePackages = [ "openssl-1.1.1w" ];
-
-  
-  # To enable the cli version
-  programs.owmods-cli.enable = true;
-  # To enable the gui version
-  programs.owmods-gui.enable = true;
-}
-```
-
-## Using Flakes
-
-If you are already using flakes, this is the recommended method, what you need to add is:
-
-- In your flake.nix:
-```nix
-{
-  inputs.ow-mod-man = {
-    url = "github:ow-mods/ow-mod-man/dev";
-    inputs.nixpkgs.follows = "nixpkgs";
   };
-  outputs = { ow-mod-man }:
-  # You need to add the ow-mod-man overlay to your packages
-  let pkgs = import nixpkgs {
-      inherit system;
-      config = {
-        # Needed for the gui version
-        permittedInsecurePackages = [ "openssl-1.1.1w" ];
-      };
-      # Needed to be able to use the packages
-      overlays = [ ow-mod-man.overlay.owmods ];
-  };
-  in {
-      homeConfigurations = {
-      userA = home-manager.lib.homeManagerConfiguration {
-        inherit pkgs;
-        # For your home.nix
-        modules = [ ow-mod-man.homeManagerModules.owmods ];
-      };
-    };
+  ow-mod-man = (flake-compat { inherit src; }).defaultNix;
+in ow-mod-man.packages.<system>.owmods-<gui/cli>
 
-    nixosConfigurations = {
-      systemA = lib.nixosSystem {
-        inherit system;
-        inherit pkgs;
-        # For your configuration.nix
-        modules = [ ow-mod-man.nixosModules.owmods ];
-      };
-  };
-}
-```
-- In your configuration.nix:
-```nix
-{ pkgs, inputs, ... }:
-{
-  # To enable the cli version
-  programs.owmods-cli.enable = true;
-  # To enable the gui version
-  programs.owmods-gui.enable = true;
-}
-```
-- In your home.nix:
-```nix
-{ pkgs, inputs, ... }:
-{
-  # To enable the cli version
-  programs.owmods-cli.enable = true;
-  # To enable the gui version
-  programs.owmods-gui.enable = true;
-}
 ```

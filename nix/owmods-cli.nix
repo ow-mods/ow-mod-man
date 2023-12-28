@@ -6,12 +6,28 @@
   fetchFromGitHub,
   installShellFiles,
   rustPlatform,
+  makeWrapper,
+  mono,
+  wrapWithMono ? true,
 }:
 rustPlatform.buildRustPackage rec {
   pname = "owmods-cli";
   version = "0.12.0";
 
-  src = ../.;
+  # Prevent unneeded rebuilds
+  src = with lib.fileset;
+    toSource {
+      root = ../.;
+      fileset = unions [
+        ../.cargo
+        ../owmods_gui
+        ../owmods_cli
+        ../owmods_core
+        ../xtask
+        ../Cargo.toml
+        ../Cargo.lock
+      ];
+    };
 
   cargoLock = {
     lockFile = ../Cargo.lock;
@@ -20,7 +36,7 @@ rustPlatform.buildRustPackage rec {
   nativeBuildInputs = [
     pkg-config
     installShellFiles
-  ];
+  ] ++ lib.optional wrapWithMono makeWrapper;
 
   buildInputs = [
     openssl
@@ -34,6 +50,7 @@ rustPlatform.buildRustPackage rec {
     installManPage dist/cli/man/*
     installShellCompletion --cmd owmods \
     dist/cli/completions/owmods.{bash,fish,zsh}
+    ${lib.optionalString wrapWithMono "wrapProgram $out/bin/${meta.mainProgram} --prefix PATH : '${mono}/bin'"}
   '';
 
   meta = with lib; {

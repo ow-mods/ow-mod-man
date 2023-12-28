@@ -2,41 +2,31 @@
   description = "Flake for owmods-cli and owmods-gui";
 
   inputs = {
-    flake-utils.url = "github:numtide/flake-utils";
-    flake-compat.url = "https://flakehub.com/f/edolstra/flake-compat/1.tar.gz";
-    pnpm2nix.url = "github:nzbr/pnpm2nix-nzbr";
-    nixpkgs.url = "github:NixOS/nixpkgs/master";
+    nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
+    pnpm2nix = {
+      url = "github:nzbr/pnpm2nix-nzbr";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   outputs = {
     self,
-    flake-utils,
-    flake-compat,
     nixpkgs,
     pnpm2nix,
-  }:
-    flake-utils.lib.eachDefaultSystem (
-      system: let
-        pkgs = (import nixpkgs) {
-          inherit system;
-          overlays = [self.overlay.owmods pnpm2nix.overlays.default];
-        };
-      in rec {
-        # For `nix build` & `nix run`:
-        packages = rec {
-          owmods-cli = pkgs.owmods-cli;
-          owmods-gui = pkgs.owmods-gui;
-          default = pkgs.owmods-cli;
-        };
-      }
-    )
-    // {
-      formatter."x86_64-linux" = nixpkgs.legacyPackages."x86_64-linux".alejandra;
-      devShell."x86_64-linux" = (import ./nix/shell.nix) {inherit nixpkgs;};
-      overlay.owmods = import ./nix/overlay.nix;
-      nixosModules.owmods = import ./nix/modules/nixos.nix;
-      homeManagerModules.owmods = import ./nix/modules/hm.nix;
-    };
+  }: let
+    forAllSystems = nixpkgs.lib.genAttrs nixpkgs.lib.systems.flakeExposed;
+    pkgsFor = system:
+      (import nixpkgs) {
+        inherit system;
+        overlays = [self.overlays.default pnpm2nix.overlays.default];
+      };
+  in {
+    packages = forAllSystems (system: with pkgsFor system; {inherit owmods-cli owmods-gui;});
+    overlays.default = import ./nix/overlay.nix;
+
+    formatter = forAllSystems (system: (pkgsFor system).alejandra);
+    devShells = forAllSystems (system: {default = import ./nix/shell.nix {pkgs = pkgsFor system;};});
+  };
 
   nixConfig = {
     extra-substituters = ["https://ow-mods.cachix.org"];

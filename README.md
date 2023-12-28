@@ -18,11 +18,11 @@ This is the monorepo for the new <a href="https://www.mobiusdigitalgames.com/out
 
 ## Platform Support
 
-| **Platform** |  **Supported**  |
-|:------------:|:---------------:|
-| **Windows**  | ✅              |
-| **Linux**    | ✅              |
-| **Deck**     | ✅              |
+| **Platform** | **Supported** |
+| :----------: | :-----------: |
+| **Windows**  |      ✅       |
+|  **Linux**   |      ✅       |
+|   **Deck**   |      ✅       |
 
 ## Related Repos
 

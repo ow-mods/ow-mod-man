@@ -62,18 +62,20 @@ When performing changes on a specific package, try to prefix the name with the p
 - For all packages: `[ALL] Made changes to everything`
 - For chores such as updating deps: `[CHORE] Update Deps`
 - For meta-related changes such as editing actions or updating READMEs: `[META] Changed CD/CI pipeline`
-
-Also, could you try to tag issues and PRs with the appropriate tags?
+- Anything related to packaging stuff for the AUR, nix, etc can either be `[META]` or the name of the package repo, e.g. `[AUR] Updated PKGBUILD`, `[NIX] Updated nix files`
 
 ## Creating Releases
 
 I tried to automate this process in a way that makes sense but it still needs some manual input
 
-1. **Ensure all versions are up to date** Make sure these are bumped to the versions
+1. **Ensure all versions are up to date** Make sure these are bumped to the proper versions
    1. `owmods_core/Cargo.toml`
    2. `owmods_cli/Cargo.toml` - **also update the reference to owmods_core if it was updated**
-   3. `owmods_gui/backend/Cargo.toml`  - **also update the reference to owmods_core if it was updated**
-   4. `xtask/Cargo.toml` - not the end of the world, if you don't update this, determines the version shown in man files for the CLI
+   3. `owmods_gui/backend/Cargo.toml` - **also update the reference to owmods_core if it was updated**
+   4. `nix/owmods-cli.nix`
+   5. `nix/owmods-gui.nix`
+   6. `owmods_gui/frontend/package.json` - used by `pnpm2nix` to generate a derivation for the frontend
+   7. `xtask/Cargo.toml` - not the end of the world if you don't update this, determines the version shown in man pages for the CLI
 2. Merge `dev` to `main` (assuming you have a PR going)
 3. Run the "Create Core Release" action
 4. After the action completes go to Releases and fill out the draft release with the core's changelog, **do not set this as the latest release**, then publish

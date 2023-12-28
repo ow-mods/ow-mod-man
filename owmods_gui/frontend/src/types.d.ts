@@ -352,6 +352,7 @@ export interface GuiConfig {
     noLogServer: boolean;
     hideInstalledInRemote: boolean;
     hideModThumbnails: boolean;
+    hideDlc: boolean;
     rainbow: boolean;
 }
 

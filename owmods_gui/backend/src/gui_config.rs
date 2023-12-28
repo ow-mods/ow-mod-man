@@ -62,6 +62,8 @@ pub struct GuiConfig {
     #[serde(default = "_default_false")]
     hide_mod_thumbnails: bool,
     #[serde(default = "_default_false")]
+    pub hide_dlc: bool,
+    #[serde(default = "_default_false")]
     rainbow: bool,
 }
 
@@ -78,6 +80,7 @@ impl Default for GuiConfig {
             auto_enable_deps: false,
             hide_installed_in_remote: false,
             no_log_server: false,
+            hide_dlc: false,
         }
     }
 }

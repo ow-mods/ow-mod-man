@@ -18,6 +18,11 @@ export interface RemoteModsPageProps {
 const RemoteModsPage = memo(
     function RemoteModsPage(props: RemoteModsPageProps) {
         const getTranslation = useGetTranslation();
+        const guiConfig = hooks.getGuiConfig("guiConfigReload")[1];
+
+        const tags = useMemo(() => {
+            return props.tags.filter((tag) => !guiConfig?.hideDlc || tag !== "requires-dlc");
+        }, [props.tags, guiConfig?.hideDlc]);
 
         const errorBound = useErrorBoundary();
 
@@ -31,7 +36,7 @@ const RemoteModsPage = memo(
             ["remoteRefresh", "localRefresh", "guiConfigReload"],
             {
                 filter: props.filter,
-                tags: props.tags
+                tags: tags
             }
         );
 
@@ -56,7 +61,8 @@ const RemoteModsPage = memo(
                 onFilterChange={props.onFilterChanged}
                 uniqueNames={remoteMods ?? []}
                 renderRow={(uniqueName) => <RemoteModRow uniqueName={uniqueName} />}
-                selectedTags={props.tags}
+                selectedTags={tags}
+                hideTags={guiConfig?.hideDlc ? ["requires-dlc"] : []}
                 onSelectedTagsChanged={props.onTagsChanged}
             >
                 {modsWebsiteButton}

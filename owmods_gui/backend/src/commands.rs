@@ -222,6 +222,7 @@ pub async fn get_remote_mods(
     state: tauri::State<'_, State>,
 ) -> Result<Vec<String>> {
     let db = state.remote_db.read().await.clone();
+    let gui_config = state.gui_config.read().await.clone();
     let mut mods: Vec<&RemoteMod> = db
         .mods
         .values()
@@ -235,9 +236,12 @@ pub async fn get_remote_mods(
     if !tags.is_empty() {
         mods = RemoteDatabase::filter_by_tags(mods.into_iter(), tags).collect();
     }
-    if state.gui_config.read().await.hide_installed_in_remote {
+    if gui_config.hide_installed_in_remote {
         let local_db = state.local_db.read().await.clone();
         mods.retain(|m| local_db.get_mod(&m.unique_name).is_none());
+    }
+    if gui_config.hide_dlc {
+        mods.retain(|m| !m.requires_dlc());
     }
     Ok(mods.into_iter().map(|m| m.unique_name.clone()).collect())
 }

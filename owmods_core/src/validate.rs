@@ -169,7 +169,7 @@ mod tests {
         let mod_a = db.get_mod("Example.TestMod0").unwrap();
         let errors = check_mod_deps(mod_a, &db);
         assert_eq!(errors.len(), 1);
-        match errors.get(0).unwrap() {
+        match errors.first().unwrap() {
             ModValidationError::MissingDep(unique_name) => {
                 assert_eq!(unique_name, "Missing.Mod");
             }
@@ -197,7 +197,7 @@ mod tests {
         let mod_a = db.get_mod("Example.TestMod0").unwrap();
         let errors = check_mod_deps(mod_a, &db);
         assert_eq!(errors.len(), 1);
-        match errors.get(0).unwrap() {
+        match errors.first().unwrap() {
             ModValidationError::DisabledDep(unique_name) => {
                 assert_eq!(unique_name, "Example.TestMod1");
             }
@@ -258,7 +258,7 @@ mod tests {
         let mod_a = db.get_mod("Example.TestMod0").unwrap();
         let errors = check_mod_conflicts(mod_a, &db);
         assert_eq!(errors.len(), 1);
-        match errors.get(0).unwrap() {
+        match errors.first().unwrap() {
             ModValidationError::ConflictingMod(unique_name) => {
                 assert_eq!(unique_name, "Example.TestMod1");
             }

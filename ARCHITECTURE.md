@@ -36,6 +36,7 @@
     - [State Management](#state-management)
     - [GUI OWML Setup Behavior](#gui-owml-setup-behavior)
     - [GUI Mod List Behavior](#gui-mod-list-behavior)
+    - [DLC Mod Behavior](#dlc-mod-behavior)
     - [GUI Progress Bar Behavior](#gui-progress-bar-behavior)
     - [Busy Mod Behavior](#busy-mod-behavior)
     - [File System Behavior](#file-system-behavior)
@@ -89,7 +90,7 @@ Versions of the manager are published to the following sources
   - .tar.gz
   - .exe
 - [AUR](https://aur.archlinux.org/packages/owmods-cli-bin/)
-- [NixOS flake](https://github.com/loco-choco/ow-mod-man-flake)
+- [NixOS flake](nix/)
 
 ### GUI
 
@@ -100,7 +101,7 @@ Versions of the manager are published to the following sources
   - .msi (Wix)
   - .exe (NSIS)
 - [AUR](https://aur.archlinux.org/packages/owmods-gui-bin/)
-- [NixOS flake](https://github.com/loco-choco/ow-mod-man-flake)
+- [NixOS flake](nix/)
 - [Flathub](https://flathub.org/apps/com.outerwildsmods.owmods_gui)
 
 ## Core Package
@@ -139,7 +140,7 @@ It has a lot of stuff in it, basically, everything that isn't GUI or CLI specifi
 
 #### Note about certain mods on Linux
 
-I don't know why, and I don't know how, but the PowerShell `Compress-Archive` module will use backslashes in zip archives, going [directly against the spec](<https://pkware.cachefly.net/webdocs/casestudies/APPNOTE.TXT>).
+I don't know why, and I don't know how, but the PowerShell `Compress-Archive` module will use backslashes in zip archives, going [directly against the spec](https://pkware.cachefly.net/webdocs/casestudies/APPNOTE.TXT).
 
 > 4.4.17.1 The name of the file, with optional relative path. The path stored MUST NOT contain a drive or device letter, or a leading slash. All slashes MUST be forward slashes / as opposed to backwards slashes \ for compatibility with Amiga and UNIX file systems etc. If input came from standard input, there is no file name field.
 
@@ -194,7 +195,7 @@ Note that the manager uses the `pathsToPreserve` field **on the installed mod** 
 ### Mod Searching Behavior
 
 - The mod manager can search for mods in the local and remote databases.
-- For the local database, it will search the mod's name, unique name, and author.
+- For the local database, it will search the mod's name, name in the remote DB, unique name, and author.
 - For the remote database, it will search the mod's name, unique name, author, and description.
 - Each field is weighted by 1 if it contains the query, and by 2 if it's an exact match.
 - Each field the manager checks for search is weighted by its position in that list, so matches in the name take precedence over matches in the author for example.
@@ -269,9 +270,8 @@ This is a weird way to do this and will probably be changed in the future.
   - Finish
 - Each payload takes the ID for the progress bar and then additional args
 - The ID is derived from the temp dir the mod is being installed to, this means if the mod is being installed to the same temp dir as another mod, the progress bar will be the same, but this is unlikely to happen.
-- Payloads are put into logs as pipe-delimited strings, for example, `Inc|/tmp/someMod|5`
-- It should be noted that the progress module exists to handle this behavior, and you should prefer that to manually implementing the serializing/deserializing for this.
-- When a progress bar is dropped, the manager will send a `Finish` payload with the ID of the progress bar. But this will mean the bar will be marked as failed
+- Payloads are put into logs as JSON with their target set to `progress`.
+- When a progress bar is dropped (as in it's gone out of scope) without having `finish` called on it, the manager will mark it as failed.
 - A progress bar can optionally have a mod's unique name associated with it, this is mainly used in modeless UI (i.e. the GUI) to mark a mod as "busy" and prevent other actions from being performed on it.
 - Progress bars can be marked as indeterminate, this is used when the manager doesn't know how long the operation will take. This is mainly used for downloading mods from a URL where the server doesn't send a content-length header (e.g. GitHub actions artifacts).
 - The length of the progress bar is determined by its type
@@ -281,7 +281,7 @@ This is a weird way to do this and will probably be changed in the future.
 
 #### Throttling
 
-The manager will throttle progress bars on-increment. Essentially it keeps two values in mind, the *actual* value of the bar and the value that was last reported to logs. If the difference between the two is larger than the total length of the bar divided by 30, an increment will be sent to logs. This tries to strike a balance between not updating the UI too much and not making the progress bar feel like it's stuck.
+The manager will throttle progress bars on-increment. Essentially it keeps two values in mind, the _actual_ value of the bar and the value that was last reported to logs. If the difference between the two is larger than the total length of the bar divided by 30, an increment will be sent to logs. This tries to strike a balance between not updating the UI too much and not making the progress bar feel like it's stuck.
 
 So if I had a progress bar that was a length of 90, and I increment by 1 every 1 second, the manager would only send an increment to logs every 3 seconds.
 
@@ -297,7 +297,7 @@ So if I had a progress bar that was a length of 90, and I increment by 1 every 1
 
 All URLs should start with owmods://  
 Then they should follow with the verb they want like `install-mod` or `install-url`  
-Finally they should have the payload for the action  
+Finally they should have the payload for the action
 
 ### Verbs
 
@@ -320,7 +320,8 @@ Finally they should have the payload for the action
 - The payload should **NOT** be URI encoded, it should be just the raw payload
 - In the case of `install-url` the url should be a direct download link, not a page with a download button
 - In the future this might become more advanced and have query params and stuff. If this happens `install-prerelease` will be changed to `install-mod` with a query param, however this will be backwards compatible
-- Note that users have to open the mod manager at least once before this will work, this is because the protocol is registered when the mod manager is opened.
+- In the case of `run-game` The manager will enable (but not install) the mod before running the game. This is to prevent the user from having to enable the mod manually. This is most useful in development of mods as launch scripts can simply call `xdg-open owmods://run-game/My.Mod` to run the game with the mod enabled.
+- Note that on Windows users have to open the mod manager at least once before this will work, this is because the protocol is registered when the mod manager is opened.
 - All install types except `install-mod` will not automatically install the mod and require further user input for security reasons. `install-mod` pulls from the database which is trusted so it doesn't need to ask the user.
 
 ## GUI Package
@@ -346,10 +347,16 @@ The GUI has a lot of behavior specific to it as the CLI doesn't really need much
 - The GUI displays three lists of mods, the installed mods, the mods in the database, and outdated mods.
 - The installed mods list shows all installed mods, and allows the user to enable/disable, update, and uninstall mods.
 - The mods in the database list shows all mods in the database, and allows the user to install mods or their prereleases.
+- Mod thumbnails are displayed in the mod list, and are loaded from the mods database as optimized webp images.
 - The outdated mods list shows all installed mods that have an update available, and allows the user to update them all at once or one at a time.
 - The updates tab will display a badge with the number of updates available.
 - All lists are virtualized to prevent excessive DOM nodes from being created.
 - It should be notes that switching tabs **does not unmount them** to prevent costly commits to the DOM. the reasoning behind this is because the lists are all virtualized they'll all have a height of 0 when not visible, so they won't render any rows, meaning little to no performance impact.
+
+### DLC Mod Behavior
+
+- The GUI will show an icon next to mods that require the DLC to be installed.
+- The GUI also has an option for the user to hide DLC mods on the remote mods tab.s
 
 ### GUI Progress Bar Behavior
 
@@ -368,7 +375,7 @@ The GUI has a lot of behavior specific to it as the CLI doesn't really need much
 
 - When a mod has an action being performed on it, it will be marked as "busy" and the user will not be able to perform any actions on it.
 - Actions include Installing, Updating, Fixing, etc. Essentially anything that deals with the file system
-- Note that *fixing* a mod is special, due to the nature of fixing dependencies we can't guarantee that other mods won't also have actions being performed on them, so we disable fixing all mods when at least one mod is busy.
+- Note that _fixing_ a mod is special, due to the nature of fixing dependencies we can't guarantee that other mods won't also have actions being performed on them, so we disable fixing all mods when at least one mod is busy.
 
 ### File System Behavior
 
@@ -409,7 +416,7 @@ The GUI has a lot of behavior specific to it as the CLI doesn't really need much
 - The GUI uses the log crate to log messages.
 - The manager's logs are saved in `~/.local/share/ow-mod-man/logs`
 - The initialization of the log system happens fairly early in the GUI's startup, so it's possible to miss some logs.
-- Should a catastrophic error occur (the tauri builder fails), the manager will open a txt document with the fatal error, this txt document is saved in the manager's data folder with the date and time as the name, prefixed with "crash_log_".
+- Should a catastrophic error occur (the tauri builder fails), the manager will open a txt document with the fatal error, this txt document is saved in the manager's data folder with the date and time as the name, prefixed with "crash*log*".
 
 ### Error Handling
 
@@ -432,7 +439,7 @@ The GUI has a lot of behavior specific to it as the CLI doesn't really need much
 - The GUI can also search logs, it will search the sender name, sender type, and message.
 - Logs are rendered in a separate window
 - If the user chooses they can make each instance of the game open a new window, or they can have all instances of the game log to the same window.
-- Internally the GUI throttles logs to prevent excessive UI updates, if >100 logs are received in a second the GUI will enqueue the logs and render them later.
+- Internally the GUI throttles logs to prevent excessive UI updates, if >25 logs are received in a second the GUI will enqueue the logs and render them later.
 - The frontend will display if logs are being throttled in the log window by turning the count amber and showing a warning icon.
 - The GUI will never drop logs, however, the core library may drop logs if the mpsc channel is full.
 - The GUI will virtualize the log list to prevent excessive DOM nodes from being created.
@@ -464,13 +471,13 @@ The CLI is pretty simple, it just parses arguments using clap and calls function
 - It prints logs to the terminal but doesn't save them anywhere.
 - Debug logs are disabled by default, but can be enabled with the `--debug` flag. **This means that even if OWML's debug mode is enabled, the CLI will not print debug logs unless the flag is passed.**
 - Logs from the game are formatted to be more readable by padding with spaces, this can help make multiline logs like stack traces more readable
-- The CLI also has strange behavior when starting the game via Steam, as Steam doesn't return an exit code of 0, the CLI has no choice but to say "Potentially failed to launch game" and dump the stdout and stderr of the game to the terminal. This is to prevent the loss of potentially useful information in the event the game actually *does* fail to launch.
+- The CLI also has strange behavior when starting the game via Steam, as Steam doesn't return an exit code of 0, the CLI has no choice but to say "Potentially failed to launch game" and dump the stdout and stderr of the game to the terminal. This is to prevent the loss of potentially useful information in the event the game actually _does_ fail to launch.
 
 #### Padding
 
 ```log
 [Manager::Example][INFO] Game Log!
-Second Line! 
+Second Line!
 ```
 
 Becomes...

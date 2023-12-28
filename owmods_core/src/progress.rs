@@ -184,11 +184,7 @@ impl ProgressBar {
 
         let new_progress = self.progress.saturating_add(amount);
 
-        self.progress = if new_progress >= self.len {
-            self.len
-        } else {
-            new_progress
-        };
+        self.progress = new_progress.min(self.len);
 
         if self.progress - self.throttled_progress > self.len / THROTTLING_AMOUNT {
             self.throttled_progress = self.progress;

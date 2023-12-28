@@ -12,6 +12,13 @@
     "labels": [
         "dependencies"
     ],
+    "github-actions": {
+        "enabled": true,
+        "fileMatch": [
+            "(^|/)(workflow-templates|\\.(?:github|gitea|forgejo)/workflows)/[^/]+\\.ya?ml$",
+            "(^|/)action\\.ya?ml$"
+        ]
+    },
     "cargo": {
         "enabled": true
     },
@@ -28,6 +35,19 @@
         {
             "matchPackagePatterns": "*",
             "enabled": false
+        },
+        {
+            "enabled": true,
+            "paths": [
+                ".github/workflows/**"
+            ],
+            "labels": [
+                "dependencies"
+            ],
+            "matchManagers": [
+                "github-actions"
+            ],
+            "commitMessagePrefix": "[META]"
         },
         {
             "enabled": true,

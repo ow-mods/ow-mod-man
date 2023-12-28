@@ -59,6 +59,8 @@ rustPlatform.buildRustPackage rec {
     install -DT owmods_gui/backend/icons/128x128@2x.png $out/share/icons/hicolor/256x256@2/apps/outer-wilds-mod-manager.png
     install -DT owmods_gui/backend/icons/128x128.png $out/share/icons/hicolor/128x128/apps/outer-wilds-mod-manager.png
     install -DT owmods_gui/backend/icons/32x32.png $out/share/icons/hicolor/32x32/apps/outer-wilds-mod-manager.png
+
+    mv $out/bin/owmods_gui $out/bin/outer-wilds-mod-manager
   '';
 
   desktopItems = [

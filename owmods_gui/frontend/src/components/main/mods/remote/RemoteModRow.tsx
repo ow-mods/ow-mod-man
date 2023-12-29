@@ -9,6 +9,7 @@ import { RemoteMod } from "@types";
 
 export interface RemoteModRowProps {
     uniqueName: string;
+    hideThumbnail: boolean;
 }
 
 const RemoteModRow = memo(function RemoteModRow(props: RemoteModRowProps) {
@@ -102,6 +103,7 @@ const RemoteModRow = memo(function RemoteModRow(props: RemoteModRowProps) {
             author={remote?.authorDisplay ?? remote?.author ?? ""}
             downloads={remote?.downloadCount ?? -1}
             version={remote?.version ?? "0.0.0"}
+            hideThumbnail={props.hideThumbnail}
         >
             {modActions}
         </ModRow>

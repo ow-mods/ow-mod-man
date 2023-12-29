@@ -19,6 +19,8 @@ const LocalModsPage = memo(
             commands.refreshLocalDb();
         }, []);
 
+        const guiConfig = hooks.getGuiConfig("guiConfigReload")[1];
+
         const getTranslation = useGetTranslation();
 
         const [status, localMods] = hooks.getLocalMods("localRefresh", {
@@ -33,14 +35,17 @@ const LocalModsPage = memo(
         const renderRow = useCallback(
             (uniqueName: string) => {
                 return uniqueName === "~~SEPARATOR~~" ? (
-                    <TableCell colSpan={5}>
+                    <TableCell colSpan={guiConfig?.hideModThumbnails ? 4 : 5}>
                         <Typography>{getTranslation("DISABLED_MODS")}</Typography>
                     </TableCell>
                 ) : (
-                    <LocalModRow uniqueName={uniqueName} />
+                    <LocalModRow
+                        hideThumbnail={guiConfig?.hideModThumbnails ?? false}
+                        uniqueName={uniqueName}
+                    />
                 );
             },
-            [getTranslation]
+            [getTranslation, guiConfig?.hideModThumbnails]
         );
 
         const toggleButtons = useMemo(

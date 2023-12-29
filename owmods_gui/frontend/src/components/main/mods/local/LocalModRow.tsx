@@ -63,6 +63,7 @@ const canFix = (mod?: UnsafeLocalMod): boolean => {
 
 export interface LocalModRowProps {
     uniqueName: string;
+    hideThumbnail: boolean;
 }
 
 const LocalModRow = memo(function LocalModRow(props: LocalModRowProps) {
@@ -208,6 +209,7 @@ const LocalModRow = memo(function LocalModRow(props: LocalModRowProps) {
             thumbnailClasses={enabled ? "" : "disabled"}
             author={author}
             version={version}
+            hideThumbnail={props.hideThumbnail}
             requiresDlc={remote?.tags?.includes("requires-dlc") ?? false}
             isOutdated={outdated}
             isLoading={status1 === "Loading" && local === null}

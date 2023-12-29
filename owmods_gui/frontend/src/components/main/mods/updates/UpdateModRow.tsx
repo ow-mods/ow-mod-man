@@ -8,6 +8,7 @@ import { RemoteMod } from "@types";
 
 export interface UpdateModRowProps {
     uniqueName: string;
+    hideThumbnail: boolean;
 }
 
 const UpdateModRow = memo(function UpdateModRow(props: UpdateModRowProps) {
@@ -46,6 +47,7 @@ const UpdateModRow = memo(function UpdateModRow(props: UpdateModRowProps) {
             requiresDlc={remote?.tags?.includes("requires-dlc") ?? false}
             author={author}
             version={version}
+            hideThumbnail={props.hideThumbnail}
             isOutdated={outdated || props.uniqueName === "Alek.OWML"}
             isLoading={status1 === "Loading" && local === null}
             remoteIsLoading={(remoteOpt?.type ?? "loading") === "loading"}

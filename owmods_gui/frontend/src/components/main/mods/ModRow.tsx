@@ -12,7 +12,6 @@ import {
 import { ReactNode, memo, useMemo, useState } from "react";
 import fallBack from "@assets/images/fallback.webp?format=webp&imagetools";
 import ModFallbackThumbnail from "./ModFallbackThumbnail";
-import { hooks } from "@commands";
 import { ExtensionRounded } from "@mui/icons-material";
 
 // Stolen from mods website, Rai will never catch me!
@@ -64,6 +63,7 @@ export interface ModRowProps {
     author: string;
     downloads: number;
     version: string;
+    hideThumbnail: boolean;
     slug?: string;
     thumbnailClasses?: string;
     description?: string;
@@ -76,7 +76,6 @@ export interface ModRowProps {
 
 const ModRow = memo(function GenericModRow(props: ModRowProps) {
     const getTranslation = useGetTranslation();
-    const guiConfig = hooks.getGuiConfig("guiConfigReload")[1];
     const theme = useTheme();
 
     const [imageIsError, setImageIserror] = useState(false);
@@ -115,7 +114,7 @@ const ModRow = memo(function GenericModRow(props: ModRowProps) {
 
     return (
         <>
-            {guiConfig?.hideModThumbnails || (
+            {props.hideThumbnail || (
                 <TableCell sx={cellStyle}>
                     {props.isLoading || props.remoteIsLoading ? (
                         <Skeleton variant="rounded" width={226} height={75} />

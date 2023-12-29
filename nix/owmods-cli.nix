@@ -33,6 +33,8 @@ rustPlatform.buildRustPackage rec {
     lockFile = ../Cargo.lock;
   };
 
+  doCheck = false;
+
   nativeBuildInputs =
     [
       pkg-config

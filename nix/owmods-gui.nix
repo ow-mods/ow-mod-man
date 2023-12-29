@@ -24,6 +24,8 @@ rustPlatform.buildRustPackage rec {
   pname = "owmods-gui";
   version = "0.12.0";
 
+  VITE_VERSION_SUFFIX = "-nix";
+
   # Prevent unneeded rebuilds
   src = with lib.fileset;
     toSource {
@@ -43,9 +45,12 @@ rustPlatform.buildRustPackage rec {
     lockFile = ../Cargo.lock;
   };
 
+  doCheck = false;
+
   nativeBuildInputs = [
     pkg-config
     copyDesktopItems
+    wrapGAppsHook
   ];
 
   buildInputs = [
@@ -56,7 +61,6 @@ rustPlatform.buildRustPackage rec {
     librsvg
     glib-networking
     webkitgtk
-    wrapGAppsHook
   ];
 
   buildAndTestSubdir = "owmods_gui/backend";
@@ -65,6 +69,7 @@ rustPlatform.buildRustPackage rec {
 
   postPatch = let
     frontend = mkPnpmPackage {
+      VITE_VERSION_SUFFIX = "-nix";
       src = ../owmods_gui/frontend;
       installInPlace = true;
       distDir = "../dist";

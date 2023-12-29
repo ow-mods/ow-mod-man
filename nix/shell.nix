@@ -17,6 +17,8 @@ pkgs.mkShell {
     libnotify
     gtk3
     libsoup
+    librsvg
+    cargo-tauri
     typeshare
   ];
   shellHook = ''

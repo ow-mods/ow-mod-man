@@ -8,6 +8,7 @@
   autoPatchelfHook,
   glib,
   glib-networking,
+  librsvg,
   webkitgtk,
   pkg-config,
   openssl,
@@ -52,6 +53,7 @@ rustPlatform.buildRustPackage rec {
     dbus
     libsoup
     glib
+    librsvg
     glib-networking
     webkitgtk
     wrapGAppsHook

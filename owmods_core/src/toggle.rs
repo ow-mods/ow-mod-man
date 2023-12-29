@@ -179,7 +179,7 @@ mod tests {
         *ctx.local_db
             .mods
             .get_mut(&String::from("Bwc9876.TimeSaver"))
-            .unwrap() = UnsafeLocalMod::Valid(new_mod);
+            .unwrap() = UnsafeLocalMod::Valid(Box::new(new_mod));
         toggle_mod("Bwc9876.TimeSaver", &ctx.local_db, false, true).unwrap();
         ctx.fetch_local_db();
         assert!(!ctx.local_db.get_mod("Bwc9876.TimeSaver").unwrap().enabled);
@@ -195,12 +195,12 @@ mod tests {
         *ctx.local_db
             .mods
             .get_mut(&String::from("Bwc9876.TimeSaver"))
-            .unwrap() = UnsafeLocalMod::Valid(new_mod);
+            .unwrap() = UnsafeLocalMod::Valid(Box::new(new_mod));
         new_mod_2.manifest.dependencies = Some(vec!["Bwc9876.TimeSaver".to_string()]);
         *ctx.local_db
             .mods
             .get_mut(&String::from("Bwc9876.SaveEditor"))
-            .unwrap() = UnsafeLocalMod::Valid(new_mod_2);
+            .unwrap() = UnsafeLocalMod::Valid(Box::new(new_mod_2));
         toggle_mod("Bwc9876.TimeSaver", &ctx.local_db, false, true).unwrap();
         ctx.fetch_local_db();
         assert!(!ctx.local_db.get_mod("Bwc9876.TimeSaver").unwrap().enabled);
@@ -216,7 +216,7 @@ mod tests {
         *ctx.local_db
             .mods
             .get_mut(&String::from("Bwc9876.TimeSaver"))
-            .unwrap() = UnsafeLocalMod::Valid(new_mod);
+            .unwrap() = UnsafeLocalMod::Valid(Box::new(new_mod));
         let mut test_mod = LocalMod::get_test(0);
         test_mod.manifest.dependencies = Some(vec![String::from("Bwc9876.SaveEditor")]);
         ctx.insert_test_mod(&test_mod);
@@ -235,7 +235,7 @@ mod tests {
         *ctx.local_db
             .mods
             .get_mut(&String::from("Bwc9876.TimeSaver"))
-            .unwrap() = UnsafeLocalMod::Valid(new_mod);
+            .unwrap() = UnsafeLocalMod::Valid(Box::new(new_mod));
         let mut test_mod = LocalMod::get_test(0);
         test_mod.enabled = false;
         test_mod.manifest.dependencies = Some(vec![String::from("Bwc9876.SaveEditor")]);
@@ -267,7 +267,7 @@ mod tests {
         *ctx.local_db
             .mods
             .get_mut(&String::from("Bwc9876.TimeSaver"))
-            .unwrap() = UnsafeLocalMod::Valid(local_mod);
+            .unwrap() = UnsafeLocalMod::Valid(Box::new(local_mod));
         let show_warnings = toggle_mod("Bwc9876.TimeSaver", &ctx.local_db, false, false).unwrap();
         ctx.fetch_local_db();
         assert_eq!(show_warnings[0], "Bwc9876.TimeSaver");
@@ -284,7 +284,7 @@ mod tests {
         *ctx.local_db
             .mods
             .get_mut(&String::from("Bwc9876.TimeSaver"))
-            .unwrap() = UnsafeLocalMod::Valid(local_mod);
+            .unwrap() = UnsafeLocalMod::Valid(Box::new(local_mod));
         let mut local_mod_2 = ctx.install_test_zip("Bwc9876.SaveEditor.zip", false);
         local_mod_2.manifest.dependencies = Some(vec!["Bwc9876.TimeSaver".to_string()]);
         local_mod_2.manifest.patcher = Some("SomePatcher.dll".to_string());

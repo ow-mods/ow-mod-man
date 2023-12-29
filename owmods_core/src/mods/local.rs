@@ -45,10 +45,9 @@ pub struct FailedMod {
 #[typeshare]
 #[derive(Serialize, Clone)]
 #[serde(tag = "loadState", content = "mod", rename_all = "camelCase")]
-#[allow(clippy::large_enum_variant)]
 pub enum UnsafeLocalMod {
     /// A mod was loaded successfully
-    Valid(LocalMod),
+    Valid(Box<LocalMod>),
     /// A mod failed to load
     Invalid(FailedMod),
 }

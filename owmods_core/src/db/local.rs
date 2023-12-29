@@ -232,7 +232,7 @@ impl LocalDatabase {
     ///
     pub fn valid(&self) -> impl Iterator<Item = &LocalMod> {
         self.all().filter_map(|m| match m {
-            UnsafeLocalMod::Valid(m) => Some(m),
+            UnsafeLocalMod::Valid(m) => Some(m.as_ref()),
             _ => None,
         })
     }
@@ -436,7 +436,7 @@ impl LocalDatabase {
                 } else {
                     mods.insert(
                         local_mod.manifest.unique_name.to_owned(),
-                        UnsafeLocalMod::Valid(local_mod),
+                        UnsafeLocalMod::Valid(Box::new(local_mod)),
                     );
                 }
             } else {

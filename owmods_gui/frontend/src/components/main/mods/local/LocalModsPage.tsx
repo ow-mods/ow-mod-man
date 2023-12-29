@@ -33,7 +33,7 @@ const LocalModsPage = memo(
         const renderRow = useCallback(
             (uniqueName: string) => {
                 return uniqueName === "~~SEPARATOR~~" ? (
-                    <TableCell colSpan={4}>
+                    <TableCell colSpan={5}>
                         <Typography>{getTranslation("DISABLED_MODS")}</Typography>
                     </TableCell>
                 ) : (

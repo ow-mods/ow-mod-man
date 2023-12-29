@@ -109,9 +109,7 @@ const ModRow = memo(function GenericModRow(props: ModRowProps) {
 
     const thumbnailUrl = useMemo(
         () =>
-            props.slug
-                ? `https://ow-mods.github.io/ow-mod-db/thumbnails/${props.slug}.webp`
-                : fallBack,
+            props.slug ? `https://ow-mods.github.io/ow-mod-db/thumbnails/${props.slug}.webp` : null,
         [props.slug]
     );
 
@@ -119,9 +117,9 @@ const ModRow = memo(function GenericModRow(props: ModRowProps) {
         <>
             {guiConfig?.hideModThumbnails || (
                 <TableCell sx={cellStyle}>
-                    {props.isLoading || props.slug === null ? (
-                        <Skeleton />
-                    ) : imageIsError ? (
+                    {props.isLoading || props.remoteIsLoading ? (
+                        <Skeleton variant="rounded" width={226} height={75} />
+                    ) : thumbnailUrl === null || imageIsError ? (
                         <ModFallbackThumbnail
                             className={props.thumbnailClasses}
                             modName={props.name}

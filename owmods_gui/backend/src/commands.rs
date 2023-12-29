@@ -35,9 +35,11 @@ use serde::Serialize;
 use tauri::FileDropEvent;
 use tauri::{api::dialog, async_runtime, AppHandle, Manager, WindowEvent};
 use tokio::{sync::mpsc, try_join};
+use typeshare::typeshare;
 
 use crate::events::{CustomEventEmitter, CustomEventEmitterAll, CustomEventTriggerGlobal, Event};
 use crate::game::LogData;
+use crate::RemoteDatabaseOption;
 use crate::{
     game::{make_log_window, show_warnings, GameMessage},
     gui_config::GuiConfig,
@@ -51,6 +53,24 @@ pub struct Error(anyhow::Error);
 impl From<anyhow::Error> for Error {
     fn from(item: anyhow::Error) -> Self {
         Self(item)
+    }
+}
+
+impl From<&anyhow::Error> for Error {
+    fn from(item: &anyhow::Error) -> Self {
+        Self(anyhow!(item.to_string()))
+    }
+}
+
+impl From<String> for Error {
+    fn from(item: String) -> Self {
+        Self(anyhow!(item))
+    }
+}
+
+impl Clone for Error {
+    fn clone(&self) -> Self {
+        Self(anyhow!(self.0.to_string()))
     }
 }
 
@@ -116,8 +136,10 @@ pub fn sync_remote_and_local(handle: &AppHandle) -> Result {
         let state = handle2.state::<State>();
         let mut local_db = state.local_db.write().await;
         let remote_db = state.remote_db.read().await.clone();
-        local_db.validate_updates(&remote_db);
-        handle2.typed_emit_all(&Event::LocalRefresh(())).ok();
+        if let Some(remote_db) = remote_db.get() {
+            local_db.validate_updates(remote_db);
+            handle2.typed_emit_all(&Event::LocalRefresh(())).ok();
+        }
     });
     Ok(())
 }
@@ -150,12 +172,12 @@ pub async fn get_local_mods(
             let enabled_ord = a.get_enabled().cmp(&b.get_enabled()).reverse();
             errors_ord.then(enabled_ord.then(name_ord))
         });
-    } else {
-        let remote_db = state.remote_db.read().await.clone();
-        mods = db.search_with_remote(filter, &remote_db);
+    } else if let Some(remote_db) = state.remote_db.read().await.get() {
+        mods = db.search_with_remote(filter, remote_db);
     }
     if !tags.is_empty() {
-        let remote_db = state.remote_db.read().await;
+        let db_opt = state.remote_db.read().await;
+        let remote_db = db_opt.get().unwrap();
         let remote_mods_matching: Vec<&str> = remote_db
             .matches_tags(tags)
             .map(|m| m.unique_name.as_str())
@@ -191,7 +213,7 @@ pub async fn get_local_mod(
         let config = state.config.read().await;
         let owml = LocalDatabase::get_owml(&config.owml_path)
             .ok_or_else(|| anyhow!("Couldn't Find OWML at path {}", &config.owml_path))?;
-        Ok(Some(UnsafeLocalMod::Valid(owml)))
+        Ok(Some(UnsafeLocalMod::Valid(Box::new(owml))))
     } else {
         Ok(state
             .local_db
@@ -205,11 +227,19 @@ pub async fn get_local_mod(
 #[tauri::command]
 pub async fn refresh_remote_db(handle: tauri::AppHandle, state: tauri::State<'_, State>) -> Result {
     let conf = state.config.read().await;
+    let new_db = RemoteDatabase::fetch(&conf.database_url).await;
+
     {
-        let mut db = state.remote_db.write().await;
-        let remote_db = RemoteDatabase::fetch(&conf.database_url).await?;
-        *db = remote_db;
+        let mut remote_db = state.remote_db.write().await;
+        *remote_db = match new_db {
+            Ok(db) => RemoteDatabaseOption::Connected(Box::new(db)),
+            Err(err) => {
+                error!("Error Loading Remote Database: {}", err);
+                RemoteDatabaseOption::Error(err.into())
+            }
+        };
     }
+
     handle.typed_emit_all(&Event::RemoteRefresh(())).ok();
     sync_remote_and_local(&handle)?;
     Ok(())
@@ -220,42 +250,67 @@ pub async fn get_remote_mods(
     filter: &str,
     tags: Vec<String>,
     state: tauri::State<'_, State>,
-) -> Result<Vec<String>> {
-    let db = state.remote_db.read().await.clone();
-    let gui_config = state.gui_config.read().await.clone();
-    let mut mods: Vec<&RemoteMod> = db
-        .mods
-        .values()
-        .filter(|m| m.unique_name != OWML_UNIQUE_NAME)
-        .collect();
-    if filter.is_empty() {
-        mods.sort_by(|a, b| b.download_count.cmp(&a.download_count));
-    } else {
-        mods = db.search(filter);
+) -> Result<Option<Vec<String>>> {
+    let db_ref = state.remote_db.read().await.clone();
+    match db_ref {
+        RemoteDatabaseOption::PreInit | RemoteDatabaseOption::Loading => Ok(None),
+        RemoteDatabaseOption::Error(e) => Err(e),
+        RemoteDatabaseOption::Connected(remote_db) => {
+            let gui_config = state.gui_config.read().await.clone();
+            let mut mods: Vec<&RemoteMod> = remote_db
+                .mods
+                .values()
+                .filter(|m| m.unique_name != OWML_UNIQUE_NAME)
+                .collect();
+            if filter.is_empty() {
+                mods.sort_by(|a, b| b.download_count.cmp(&a.download_count));
+            } else {
+                mods = remote_db.search(filter);
+            }
+            if !tags.is_empty() {
+                mods = RemoteDatabase::filter_by_tags(mods.into_iter(), tags).collect();
+            }
+            if gui_config.hide_installed_in_remote {
+                let local_db = state.local_db.read().await.clone();
+                mods.retain(|m| local_db.get_mod(&m.unique_name).is_none());
+            }
+            if gui_config.hide_dlc {
+                mods.retain(|m| !m.requires_dlc());
+            }
+            Ok(Some(
+                mods.into_iter().map(|m| m.unique_name.clone()).collect(),
+            ))
+        }
     }
-    if !tags.is_empty() {
-        mods = RemoteDatabase::filter_by_tags(mods.into_iter(), tags).collect();
-    }
-    if gui_config.hide_installed_in_remote {
-        let local_db = state.local_db.read().await.clone();
-        mods.retain(|m| local_db.get_mod(&m.unique_name).is_none());
-    }
-    if gui_config.hide_dlc {
-        mods.retain(|m| !m.requires_dlc());
-    }
-    Ok(mods.into_iter().map(|m| m.unique_name.clone()).collect())
+}
+
+#[typeshare]
+#[derive(Serialize, Clone)]
+#[serde(tag = "type", content = "data", rename_all = "camelCase")]
+pub enum RemoteModOption {
+    Loading,
+    Connected(Box<Option<RemoteMod>>),
+    Err(Error),
 }
 
 #[tauri::command]
 pub async fn get_remote_mod(
     unique_name: &str,
     state: tauri::State<'_, State>,
-) -> Result<Option<RemoteMod>> {
-    let db = state.remote_db.read().await;
-    if unique_name == OWML_UNIQUE_NAME {
-        Ok(db.get_owml().cloned())
-    } else {
-        Ok(db.get_mod(unique_name).cloned())
+) -> Result<RemoteModOption> {
+    match state.remote_db.read().await.clone() {
+        RemoteDatabaseOption::Connected(db) => {
+            let mod_opt = if unique_name == OWML_UNIQUE_NAME {
+                db.get_owml().cloned()
+            } else {
+                db.get_mod(unique_name).cloned()
+            };
+            Ok(RemoteModOption::Connected(Box::new(mod_opt)))
+        }
+        RemoteDatabaseOption::Loading | RemoteDatabaseOption::PreInit => {
+            Ok(RemoteModOption::Loading)
+        }
+        RemoteDatabaseOption::Error(e) => Ok(RemoteModOption::Err(e)),
     }
 }
 
@@ -305,6 +360,7 @@ pub async fn install_mod(
     mark_mod_busy(unique_name, true, true, &state, &handle).await;
     let local_db = state.local_db.read().await.clone();
     let remote_db = state.remote_db.read().await.clone();
+    let remote_db = remote_db.try_get()?;
     let conf = state.config.read().await.clone();
     let mut should_install = true;
     if let Some(current_mod) = local_db.get_mod(unique_name) {
@@ -321,7 +377,7 @@ pub async fn install_mod(
         install_mod_from_db(
             &unique_name.to_string(),
             &conf,
-            &remote_db,
+            remote_db,
             &local_db,
             true,
             prerelease.unwrap_or(false),
@@ -397,7 +453,8 @@ pub async fn uninstall_broken_mod(mod_path: &str, state: tauri::State<'_, State>
 #[tauri::command]
 pub async fn open_mod_readme(unique_name: &str, state: tauri::State<'_, State>) -> Result {
     let db = state.remote_db.read().await;
-    open_readme(unique_name, &db)?;
+    let db = db.try_get()?;
+    open_readme(unique_name, db)?;
     Ok(())
 }
 
@@ -483,6 +540,7 @@ pub async fn install_owml(
 ) -> Result {
     let config = state.config.read().await;
     let db = state.remote_db.read().await;
+    let db = db.try_get()?;
     let owml = db
         .get_owml()
         .ok_or_else(|| anyhow!("Error Installing OWML"))?;
@@ -518,41 +576,44 @@ pub async fn get_updatable_mods(
 ) -> Result<Vec<String>> {
     let mut updates: Vec<String> = vec![];
     let local_db = state.local_db.read().await;
-    let remote_db = state.remote_db.read().await;
-    let config = state.config.read().await;
+    if let Some(remote_db) = state.remote_db.read().await.get() {
+        let config = state.config.read().await;
 
-    let mut mods: Vec<&LocalMod> = local_db.valid().collect();
+        let mut mods: Vec<&LocalMod> = local_db.valid().collect();
 
-    if filter.is_empty() {
-        mods.sort_by(|a, b| {
-            let name_ord = a.manifest.name.cmp(&b.manifest.name);
-            let enabled_ord = a.enabled.cmp(&b.enabled);
-            enabled_ord.then(name_ord)
-        });
+        if filter.is_empty() {
+            mods.sort_by(|a, b| {
+                let name_ord = a.manifest.name.cmp(&b.manifest.name);
+                let enabled_ord = a.enabled.cmp(&b.enabled);
+                enabled_ord.then(name_ord)
+            });
+        } else {
+            mods = local_db
+                .search(filter)
+                .iter()
+                .filter_map(|m| match m {
+                    UnsafeLocalMod::Invalid(_) => None,
+                    UnsafeLocalMod::Valid(m) => Some(m.as_ref()),
+                })
+                .collect();
+        }
+
+        for local_mod in mods {
+            let (needs_update, _) = check_mod_needs_update(local_mod, remote_db);
+            if needs_update {
+                updates.push(local_mod.manifest.unique_name.clone());
+            }
+        }
+        if let Some(owml) = LocalDatabase::get_owml(&config.owml_path) {
+            let (needs_update, _) = check_mod_needs_update(&owml, remote_db);
+            if needs_update {
+                updates.push(OWML_UNIQUE_NAME.to_string());
+            }
+        }
+        Ok(updates)
     } else {
-        mods = local_db
-            .search(filter)
-            .iter()
-            .filter_map(|m| match m {
-                UnsafeLocalMod::Invalid(_) => None,
-                UnsafeLocalMod::Valid(m) => Some(m),
-            })
-            .collect();
+        Ok(vec![])
     }
-
-    for local_mod in mods {
-        let (needs_update, _) = check_mod_needs_update(local_mod, &remote_db);
-        if needs_update {
-            updates.push(local_mod.manifest.unique_name.clone());
-        }
-    }
-    if let Some(owml) = LocalDatabase::get_owml(&config.owml_path) {
-        let (needs_update, _) = check_mod_needs_update(&owml, &remote_db);
-        if needs_update {
-            updates.push(OWML_UNIQUE_NAME.to_string());
-        }
-    }
-    Ok(updates)
 }
 
 #[tauri::command]
@@ -565,6 +626,7 @@ pub async fn update_mod(
     let config = state.config.read().await.clone();
     let local_db = state.local_db.read().await.clone();
     let remote_db = state.remote_db.read().await.clone();
+    let remote_db = remote_db.try_get()?;
 
     let res = if unique_name == OWML_UNIQUE_NAME {
         download_and_install_owml(
@@ -579,7 +641,7 @@ pub async fn update_mod(
         install_mod_from_db(
             &unique_name.to_string(),
             &config,
-            &remote_db,
+            remote_db,
             &local_db,
             false,
             false,
@@ -600,6 +662,7 @@ pub async fn update_all_mods(
     let config = state.config.read().await.clone();
     let local_db = state.local_db.read().await.clone();
     let remote_db = state.remote_db.read().await.clone();
+    let remote_db = remote_db.try_get()?;
     let mut busy_mods = state.mods_in_progress.write().await;
     let owml_in_list = unique_names.contains(&OWML_UNIQUE_NAME.to_string());
     let unique_names: Vec<String> = unique_names
@@ -614,7 +677,7 @@ pub async fn update_all_mods(
     drop(busy_mods);
     handle.typed_emit_all(&Event::ModBusy(())).ok();
     let updated_mods =
-        install_mods_parallel(unique_names.clone(), &config, &remote_db, &local_db).await?;
+        install_mods_parallel(unique_names.clone(), &config, remote_db, &local_db).await?;
     if owml_in_list {
         download_and_install_owml(
             &config,
@@ -803,9 +866,10 @@ pub async fn import_mods(
 ) -> Result {
     let local_db = state.local_db.read().await;
     let remote_db = state.remote_db.read().await;
+    let remote_db = remote_db.try_get()?;
     let config = state.config.read().await;
     let path = PathBuf::from(path);
-    owmods_core::io::import_mods(&config, &local_db, &remote_db, &path, disable_missing).await?;
+    owmods_core::io::import_mods(&config, &local_db, remote_db, &path, disable_missing).await?;
 
     Ok(())
 }
@@ -819,12 +883,13 @@ pub async fn fix_mod_deps(
     let config = state.config.read().await.clone();
     let local_db = state.local_db.read().await.clone();
     let remote_db = state.remote_db.read().await.clone();
+    let remote_db = remote_db.try_get()?;
     let local_mod = local_db
         .get_mod(unique_name)
         .ok_or_else(|| anyhow!("Can't find mod {}", unique_name))?;
 
     mark_mod_busy(unique_name, true, true, &state, &handle).await;
-    let res = fix_deps(local_mod, &config, &local_db, &remote_db).await;
+    let res = fix_deps(local_mod, &config, &local_db, remote_db).await;
     mark_mod_busy(unique_name, false, true, &state, &handle).await;
     res?;
     Ok(())
@@ -834,12 +899,13 @@ pub async fn fix_mod_deps(
 pub async fn db_has_issues(state: tauri::State<'_, State>, window: tauri::Window) -> Result<bool> {
     let local_db = state.local_db.read().await.clone();
     let remote_db = state.remote_db.read().await.clone();
+    let remote_db = remote_db.try_get()?;
     let config = state.config.read().await.clone();
     let mut has_errors = local_db.active().any(|m| !m.errors.is_empty());
 
     let owml = LocalDatabase::get_owml(&config.owml_path);
     if let Some(owml) = owml {
-        let (needs_update, remote_owml) = check_mod_needs_update(&owml, &remote_db);
+        let (needs_update, remote_owml) = check_mod_needs_update(&owml, remote_db);
         if needs_update {
             let answer = dialog::blocking::ask(
                 Some(&window),
@@ -1012,6 +1078,7 @@ pub async fn register_drop_handler(window: tauri::Window) -> Result {
 #[tauri::command]
 pub async fn get_db_tags(state: tauri::State<'_, State>) -> Result<Vec<String>> {
     let db = state.remote_db.read().await;
+    let db = db.try_get()?;
     Ok(db.get_tags())
 }
 
@@ -1024,6 +1091,7 @@ pub async fn log_error(err: &str) -> Result {
 #[tauri::command]
 pub async fn open_mod_github(unique_name: &str, state: tauri::State<'_, State>) -> Result {
     let db = state.remote_db.read().await;
-    open_github(unique_name, &db)?;
+    let db = db.try_get()?;
+    open_github(unique_name, db)?;
     Ok(())
 }

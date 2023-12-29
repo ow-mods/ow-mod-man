@@ -56,7 +56,9 @@ const RemoteModsPage = memo(
             <ModsPage
                 actionsSize={100}
                 noModsText={getTranslation("NO_REMOTE_MODS")}
-                isLoading={status === "Loading" && remoteMods === null}
+                isLoading={
+                    (status === "Loading" && remoteMods === null) || remoteMods === undefined
+                }
                 filter={props.filter}
                 onFilterChange={props.onFilterChanged}
                 uniqueNames={remoteMods ?? []}

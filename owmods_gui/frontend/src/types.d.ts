@@ -369,6 +369,11 @@ export type UnsafeLocalMod =
     /** A mod failed to load */
     | { loadState: "invalid"; mod: FailedMod };
 
+export type RemoteModOption =
+    | { type: "loading"; data?: undefined }
+    | { type: "connected"; data?: RemoteMod }
+    | { type: "err"; data: Error };
+
 export type Event =
     | { name: "localRefresh"; params: EmptyParams }
     | { name: "remoteRefresh"; params: EmptyParams }

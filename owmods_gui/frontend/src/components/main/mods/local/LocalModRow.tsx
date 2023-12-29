@@ -4,7 +4,7 @@ import { memo, useCallback, useMemo } from "react";
 import { useGetTranslation, useUnifiedMod } from "@hooks";
 import { dialog, shell } from "@tauri-apps/api";
 import LocalModActions from "./LocalModActions";
-import { LocalMod, UnsafeLocalMod } from "@types";
+import { LocalMod, RemoteMod, UnsafeLocalMod } from "@types";
 
 const getErrorLevel = (mod?: UnsafeLocalMod): "err" | "warn" | undefined => {
     if (mod?.loadState === "invalid") {
@@ -71,8 +71,10 @@ const LocalModRow = memo(function LocalModRow(props: LocalModRowProps) {
 
     // Fetch data
     const [status1, local] = hooks.getLocalMod("localRefresh", { ...props });
-    const [status2, remote] = hooks.getRemoteMod("remoteRefresh", { ...props });
+    const remoteOpt = hooks.getRemoteMod("remoteRefresh", { ...props })[1];
     const autoEnableDeps = hooks.getGuiConfig("guiConfigReload")[1]?.autoEnableDeps ?? false;
+
+    const remote = (remoteOpt?.type === "err" ? null : remoteOpt?.data) as RemoteMod | null;
 
     // Transform data
     const { name, slug, author, description, version, outdated, enabled } = useUnifiedMod(
@@ -209,7 +211,7 @@ const LocalModRow = memo(function LocalModRow(props: LocalModRowProps) {
             requiresDlc={remote?.tags?.includes("requires-dlc") ?? false}
             isOutdated={outdated}
             isLoading={status1 === "Loading" && local === null}
-            remoteIsLoading={status2 === "Loading" && remote === null}
+            remoteIsLoading={(remoteOpt?.type ?? "loading") === "loading"}
             description={
                 (local?.loadState === "valid" && !enabled) || displayErrors.length === 0
                     ? description

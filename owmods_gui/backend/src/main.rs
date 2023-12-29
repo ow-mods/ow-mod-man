@@ -19,6 +19,7 @@ use owmods_core::{
     protocol::{ProtocolPayload, ProtocolVerb},
 };
 
+use anyhow::anyhow;
 use time::macros::format_description;
 use tokio::sync::RwLock as TokioLock;
 
@@ -39,11 +40,36 @@ fn manage<T>(obj: T) -> StatePart<T> {
     Arc::new(TokioLock::new(obj))
 }
 
+#[derive(Clone)]
+pub enum RemoteDatabaseOption {
+    PreInit,
+    Loading,
+    Connected(Box<RemoteDatabase>),
+    Error(commands::Error),
+}
+
+impl RemoteDatabaseOption {
+    pub fn get(&self) -> Option<&RemoteDatabase> {
+        match self {
+            RemoteDatabaseOption::Connected(db) => Some(db),
+            _ => None,
+        }
+    }
+
+    pub fn try_get(&self) -> Result<&RemoteDatabase, commands::Error> {
+        match self {
+            RemoteDatabaseOption::Connected(db) => Ok(db),
+            RemoteDatabaseOption::Error(err) => Err(err.clone()),
+            _ => Err(anyhow!("Remote database not loaded yet".to_string()).into()),
+        }
+    }
+}
+
 pub struct State {
     /// The local database
     local_db: StatePart<LocalDatabase>,
     /// The remote database
-    remote_db: StatePart<RemoteDatabase>,
+    remote_db: StatePart<RemoteDatabaseOption>,
     /// The current core configuration
     config: StatePart<Config>,
     /// The current GUI configuration
@@ -64,7 +90,6 @@ fn main() -> Result<(), Box<dyn Error>> {
     let config = Config::get(None).unwrap_or(Config::default(None)?);
     let gui_config = GuiConfig::get().unwrap_or_default();
     let local_db = LocalDatabase::fetch(&config.owml_path).unwrap_or_default();
-    let remote_db = RemoteDatabase::default();
 
     tauri_plugin_deep_link::prepare("com.bwc9876.owmods-gui");
 
@@ -73,7 +98,7 @@ fn main() -> Result<(), Box<dyn Error>> {
     let res = tauri::Builder::default()
         .manage(State {
             local_db: manage(local_db),
-            remote_db: manage(remote_db),
+            remote_db: manage(RemoteDatabaseOption::PreInit),
             config: manage(config),
             gui_config: manage(gui_config),
             game_log: manage(HashMap::new()),

@@ -206,6 +206,7 @@ const LocalModRow = memo(function LocalModRow(props: LocalModRowProps) {
             uniqueName={props.uniqueName}
             name={name}
             slug={slug}
+            thumbnailUrl={remote?.thumbnail?.openGraph ?? remote?.thumbnail.main}
             thumbnailClasses={enabled ? "" : "disabled"}
             author={author}
             version={version}

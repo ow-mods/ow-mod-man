@@ -35,6 +35,7 @@ const ModFallbackThumbnail = memo(function ModFallbackThumbnail(props: ModFallba
                 position="absolute"
                 right={0}
                 left={0}
+                padding={1}
                 fontWeight="bold"
                 textAlign="center"
             >

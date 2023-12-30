@@ -103,6 +103,7 @@ const RemoteModRow = memo(function RemoteModRow(props: RemoteModRowProps) {
             author={remote?.authorDisplay ?? remote?.author ?? ""}
             downloads={remote?.downloadCount ?? -1}
             version={remote?.version ?? "0.0.0"}
+            thumbnailUrl={remote?.thumbnail?.openGraph ?? remote?.thumbnail.main}
             hideThumbnail={props.hideThumbnail}
         >
             {modActions}

@@ -47,6 +47,7 @@ const UpdateModRow = memo(function UpdateModRow(props: UpdateModRowProps) {
             requiresDlc={remote?.tags?.includes("requires-dlc") ?? false}
             author={author}
             version={version}
+            thumbnailUrl={remote?.thumbnail?.openGraph ?? remote?.thumbnail.main}
             hideThumbnail={props.hideThumbnail}
             isOutdated={outdated || props.uniqueName === "Alek.OWML"}
             isLoading={status1 === "Loading" && local === null}

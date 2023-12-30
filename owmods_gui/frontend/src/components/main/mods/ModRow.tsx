@@ -64,6 +64,7 @@ export interface ModRowProps {
     version: string;
     hideThumbnail: boolean;
     slug?: string;
+    thumbnailUrl?: string;
     thumbnailClasses?: string;
     description?: string;
     remoteIsLoading?: boolean;
@@ -112,7 +113,7 @@ const ModRow = memo(function GenericModRow(props: ModRowProps) {
                         remoteIsLoading={props.remoteIsLoading}
                         name={props.name}
                         uniqueName={props.uniqueName}
-                        slug={props.slug}
+                        url={props.thumbnailUrl}
                         className={props.thumbnailClasses}
                     />
                 </TableCell>

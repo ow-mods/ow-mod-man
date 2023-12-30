@@ -121,6 +121,12 @@ export interface ModPrerelease {
     version: string;
 }
 
+/** Contains URL for a mod's thumbnail */
+export interface ModThumbnail {
+    main?: string;
+    openGraph?: string;
+}
+
 /** Represents a mod in the remote database */
 export interface RemoteMod {
     /** The URL to download the mod from, always GitHub */
@@ -151,6 +157,8 @@ export interface RemoteMod {
     parent?: string;
     /** The prerelease for the mod, if it has one */
     prerelease?: ModPrerelease;
+    /** The thumbnail for the mod */
+    thumbnail: ModThumbnail;
     /** Whether the mod is for the alpha version of the game, currently alpha support is not implemented */
     alpha?: boolean;
     /** The tags for the mod, these are manually set in the database */

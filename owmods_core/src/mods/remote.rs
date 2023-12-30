@@ -36,6 +36,8 @@ pub struct RemoteMod {
     pub parent: Option<String>,
     /// The prerelease for the mod, if it has one
     pub prerelease: Option<ModPrerelease>,
+    /// The thumbnail for the mod
+    pub thumbnail: ModThumbnail,
     /// Whether the mod is for the alpha version of the game, currently alpha support is not implemented
     alpha: Option<bool>,
     /// The tags for the mod, these are manually set in the database
@@ -54,14 +56,6 @@ impl RemoteMod {
             .as_ref()
             .map(|tags| tags.contains(&REQUIRES_DLC_TAG.to_string()))
             .unwrap_or(false)
-    }
-
-    /// Get the URL pointing to the mod's thumbnail image
-    pub fn get_thumbnail_url(&self) -> String {
-        format!(
-            "https://ow-mods.github.io/ow-mod-db/thumbnails/{}.webp",
-            self.slug
-        )
     }
 
     #[cfg(test)]
@@ -105,4 +99,60 @@ pub struct ModReadMe {
     pub html_url: String,
     /// The URL to the README for download
     pub download_url: String,
+}
+
+/// Contains URL for a mod's thumbnail
+///
+/// Note this paths are relative to the database website:
+///
+/// `https://ow-mods.github.io/ow-mod-db/thumbails/`
+///
+/// This should be prepended to the URL to get the full URL.
+///
+/// Also note that open_graph is always `None` for mods with a static thumbnail,
+/// so to always get a static thumbnail use `main` and `open_graph` together:
+///
+/// ```
+/// # use owmods_core::mods::remote::ModThumbnail;
+///
+/// let thumb = ModThumbnail {
+///     main: Some("main.gif".to_string()),
+///     open_graph: Some("open_graph.webp".to_string())
+/// };
+///
+/// let animated = thumb.main.unwrap();
+/// let static_thumb = thumb.open_graph.unwrap_or(animated.clone());
+///
+/// assert_eq!(animated, "main.gif");
+/// assert_eq!(static_thumb, "open_graph.webp");
+/// ```
+///
+#[typeshare]
+#[derive(Serialize, Deserialize, Clone)]
+#[serde(rename_all = "camelCase")]
+pub struct ModThumbnail {
+    /// Main thumbnail, this will be animated if the mod has an animated thumbnail
+    pub main: Option<String>,
+    /// Open-graph image, this will always be a static image but will always be `None` on mods with a static thumbnail
+    pub open_graph: Option<String>,
+}
+
+impl ModThumbnail {
+    /// The base URL for thumbnails
+    pub const BASE_URL: &'static str = "https://ow-mods.github.io/ow-mod-db/thumbnails/";
+
+    /// Get the URL for the main thumbnail
+    pub fn get_main_url(&self) -> Option<String> {
+        self.main
+            .as_ref()
+            .map(|main| format!("{}{}", Self::BASE_URL, main))
+    }
+
+    /// Get the URL for an always static thumbnail
+    pub fn get_static_url(&self) -> Option<String> {
+        self.open_graph
+            .as_ref()
+            .or(self.main.as_ref())
+            .map(|open_graph| format!("{}{}", Self::BASE_URL, open_graph))
+    }
 }

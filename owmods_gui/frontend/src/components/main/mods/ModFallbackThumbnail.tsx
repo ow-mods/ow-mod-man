@@ -22,15 +22,9 @@ const stringToNumber = (str: string, seed = 3) => {
 
 const getHueFromText = (text: string): string => `hue-rotate(${stringToNumber(text) % 360}deg)`;
 
-// const firstLetters = (text: string): string =>
-//     text
-//         .split(" ")
-//         .map((word) => word[0])
-//         .join("");
-
 const ModFallbackThumbnail = memo(function ModFallbackThumbnail(props: ModFallbackThumbnailProps) {
     return (
-        <div style={{ height: "100%", width: "100%", position: "relative" }}>
+        <div style={{ margin: 0, padding: 0, position: "relative" }}>
             <Box
                 height="100%"
                 width="100%"
@@ -49,7 +43,7 @@ const ModFallbackThumbnail = memo(function ModFallbackThumbnail(props: ModFallba
             <img
                 width="450"
                 height="150"
-                style={{ width: "103.5%", filter: getHueFromText(props.modName) }}
+                style={{ width: "100%", filter: getHueFromText(props.modName) }}
                 src={props.fallbackUrl}
                 className={`mod-thumb fallback ${props.className ?? ""}`}
             />

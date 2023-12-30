@@ -9,10 +9,9 @@ import {
     Typography,
     useTheme
 } from "@mui/material";
-import { ReactNode, memo, useMemo, useState } from "react";
-import fallBack from "@assets/images/fallback.webp?format=webp&imagetools";
-import ModFallbackThumbnail from "./ModFallbackThumbnail";
+import { ReactNode, memo, useMemo } from "react";
 import { ExtensionRounded } from "@mui/icons-material";
+import ModThumbnail from "./ModThumbnail";
 
 // Stolen from mods website, Rai will never catch me!
 const magnitudeMap = [
@@ -78,8 +77,6 @@ const ModRow = memo(function GenericModRow(props: ModRowProps) {
     const getTranslation = useGetTranslation();
     const theme = useTheme();
 
-    const [imageIsError, setImageIserror] = useState(false);
-
     const bgColor = useMemo(
         () => getBgColorFromErrorLevel(theme, props.errorLevel),
         [theme, props.errorLevel]
@@ -106,37 +103,18 @@ const ModRow = memo(function GenericModRow(props: ModRowProps) {
         }
     }, [props.errorLevel, props.description]);
 
-    const thumbnailUrl = useMemo(
-        () =>
-            props.slug ? `https://ow-mods.github.io/ow-mod-db/thumbnails/${props.slug}.webp` : null,
-        [props.slug]
-    );
-
     return (
         <>
             {props.hideThumbnail || (
-                <TableCell sx={cellStyle}>
-                    {props.isLoading || props.remoteIsLoading ? (
-                        <Skeleton variant="rounded" width={226} height={75} />
-                    ) : thumbnailUrl === null || imageIsError ? (
-                        <ModFallbackThumbnail
-                            className={props.thumbnailClasses}
-                            modName={props.name}
-                            fallbackUrl={fallBack}
-                        />
-                    ) : (
-                        <img
-                            onError={(e) => {
-                                e.preventDefault();
-                                setImageIserror(true);
-                            }}
-                            alt={props.name}
-                            className={`mod-thumb ${props.thumbnailClasses ?? ""}`}
-                            width="450"
-                            height="150"
-                            src={thumbnailUrl}
-                        />
-                    )}
+                <TableCell sx={{ paddingRight: 0, ...cellStyle }}>
+                    <ModThumbnail
+                        isLoading={props.isLoading}
+                        remoteIsLoading={props.remoteIsLoading}
+                        name={props.name}
+                        uniqueName={props.uniqueName}
+                        slug={props.slug}
+                        className={props.thumbnailClasses}
+                    />
                 </TableCell>
             )}
             <TableCell sx={cellStyle}>

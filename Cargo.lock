@@ -2391,6 +2391,7 @@ dependencies = [
  "indicatif",
  "log",
  "owmods_core",
+ "serde_json",
  "tokio",
 ]
 

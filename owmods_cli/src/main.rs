@@ -36,6 +36,7 @@ use logging::{log_mod_validation_errors, show_pre_patcher_warning, Logger};
 
 async fn run_from_cli(cli: BaseCli) -> Result<()> {
     let r = cli.recursive;
+    let assert_setup = cli.assert_setup;
 
     let config = Config::get(None)?;
 
@@ -48,6 +49,10 @@ async fn run_from_cli(cli: BaseCli) -> Result<()> {
     );
 
     if !config.check_owml() && !ran_setup {
+        if assert_setup {
+            process::exit(2);
+        }
+
         info!(
             "Welcome to the Outer Wild Mods CLI! In order to continue you'll need to setup OWML.",
         );
@@ -530,6 +535,41 @@ async fn run_from_cli(cli: BaseCli) -> Result<()> {
                 }
             }
         }
+        Commands::Raw {
+            minify,
+            unique_name,
+        } => match unique_name.as_ref().map(|s| s.as_str()).unwrap_or("remote") {
+            "local" => {
+                let db = LocalDatabase::fetch(&config.owml_path)?;
+                let mods = db.all().collect::<Vec<_>>();
+                let serialized = if *minify {
+                    serde_json::to_string(&mods)?
+                } else {
+                    serde_json::to_string_pretty(&mods)?
+                };
+                println!("{}", serialized);
+            }
+            "remote" => {
+                let db = RemoteDatabase::fetch(&config.database_url).await?;
+                let mods = db.mods.values().collect::<Vec<_>>();
+                let serialized = if *minify {
+                    serde_json::to_string(&mods)?
+                } else {
+                    serde_json::to_string_pretty(&mods)?
+                };
+                println!("{}", serialized);
+            }
+            _ => {
+                let remote_db = RemoteDatabase::fetch(&config.database_url).await?;
+                let remote_mod = remote_db.get_mod(unique_name.as_ref().unwrap());
+                let serialized = if *minify {
+                    serde_json::to_string(&remote_mod)?
+                } else {
+                    serde_json::to_string_pretty(&remote_mod)?
+                };
+                println!("{}", serialized);
+            }
+        },
     }
     Ok(())
 }

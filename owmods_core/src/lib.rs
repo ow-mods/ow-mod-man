@@ -2,7 +2,7 @@
 #![doc(
     html_logo_url = "https://github.com/ow-mods/ow-mod-man/blob/main/.github/assets/logo-core.png?raw=true"
 )]
-#![deny(missing_docs)]
+#![warn(missing_docs)]
 
 /// Fetch database alerts and get mod warnings.
 pub mod alerts;

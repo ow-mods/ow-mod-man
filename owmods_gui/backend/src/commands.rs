@@ -1078,8 +1078,8 @@ pub async fn register_drop_handler(window: tauri::Window) -> Result {
 #[tauri::command]
 pub async fn get_db_tags(state: tauri::State<'_, State>) -> Result<Vec<String>> {
     let db = state.remote_db.read().await;
-    let db = db.try_get()?;
-    Ok(db.get_tags())
+    let db = db.get();
+    Ok(db.map(|db| db.get_tags()).unwrap_or_default())
 }
 
 #[tauri::command]

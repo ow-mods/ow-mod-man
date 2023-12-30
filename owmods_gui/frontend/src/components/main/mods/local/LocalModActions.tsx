@@ -62,7 +62,7 @@ const LocalModActions = memo(function LocalModTools(props: LocalModActionsProps)
                     icon={<DescriptionRounded />}
                 />
             )}
-            <ModActionOverflow id={`local-${props.uniqueName}`} ref={overflowRef}>
+            <ModActionOverflow tabId="local" uniqueName={props.uniqueName} ref={overflowRef}>
                 {props.canFix && (
                     <ModActionOverflowItem
                         label={getTranslation("OPEN_README")}

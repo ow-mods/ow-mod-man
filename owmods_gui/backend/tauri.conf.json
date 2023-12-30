@@ -17,6 +17,9 @@
         "save": true,
         "ask": true
       },
+      "clipboard": {
+        "writeText": true
+      },
       "app": {
         "all": true,
         "hide": false,

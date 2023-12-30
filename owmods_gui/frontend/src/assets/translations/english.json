@@ -16,6 +16,7 @@
     "CLEAR_TAGS": "Clear Tags",
     "CONFIRM": "Confirm",
     "CONTINUE": "Continue",
+    "COPY_UNIQUE_NAME": "Copy Unique Name",
     "ConflictingMod": "This mod conflicts with $payload$",
     "DB_URL": "Database URL",
     "DEBUG_MODE": "Debug Mode",

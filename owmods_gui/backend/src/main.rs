@@ -16,14 +16,12 @@ use owmods_core::{
     db::{LocalDatabase, RemoteDatabase},
     file::get_app_path,
     progress::bars::ProgressBars,
-    protocol::{ProtocolPayload, ProtocolVerb},
+    protocol::ProtocolPayload,
 };
 
 use anyhow::anyhow;
 use time::macros::format_description;
 use tokio::sync::RwLock as TokioLock;
-
-use crate::events::{CustomEventEmitterAll, Event};
 
 mod commands;
 mod events;
@@ -31,6 +29,7 @@ mod fs_watch;
 mod game;
 mod gui_config;
 mod logging;
+mod protocol;
 
 type StatePart<T> = Arc<TokioLock<T>>;
 type LogPort = u16;
@@ -103,9 +102,9 @@ fn main() -> Result<(), Box<dyn Error>> {
             gui_config: manage(gui_config),
             game_log: manage(HashMap::new()),
             protocol_url: manage(url),
-            protocol_listeners: manage(vec![]),
+            protocol_listeners: manage(Vec::with_capacity(2)),
             progress_bars: manage(ProgressBars::new()),
-            mods_in_progress: manage(vec![]),
+            mods_in_progress: manage(Vec::with_capacity(4)),
         })
         .setup(move |app| {
             // Logger Setup
@@ -126,24 +125,12 @@ fn main() -> Result<(), Box<dyn Error>> {
 
             let handle = app.handle();
 
-            let res = tauri_plugin_deep_link::register("owmods", move |request| {
-                let protocol_payload = ProtocolPayload::parse(&request);
-                match protocol_payload.verb {
-                    ProtocolVerb::Unknown => {}
-                    _ => {
-                        debug!(
-                            "Invoking {:?} with {} from protocol",
-                            protocol_payload.verb, protocol_payload.payload
-                        );
-                        handle
-                            .typed_emit_all(&Event::ProtocolInvoke(protocol_payload))
-                            .ok();
-                    }
-                }
-            });
+            let res = protocol::prep_protocol(handle);
 
             if let Err(why) = res {
-                warn!("Failed to register URI handler: {:?}", why);
+                warn!("Failed to setup URI handler: {:?}", why);
+            } else {
+                debug!("Setup URI handler");
             }
 
             // File System Watch Setup

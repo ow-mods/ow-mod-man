@@ -24,6 +24,7 @@ use time::macros::format_description;
 use tokio::sync::RwLock as TokioLock;
 
 mod commands;
+mod error;
 mod events;
 mod fs_watch;
 mod game;
@@ -44,7 +45,7 @@ pub enum RemoteDatabaseOption {
     PreInit,
     Loading,
     Connected(Box<RemoteDatabase>),
-    Error(commands::Error),
+    Error(error::Error),
 }
 
 impl RemoteDatabaseOption {
@@ -55,7 +56,7 @@ impl RemoteDatabaseOption {
         }
     }
 
-    pub fn try_get(&self) -> Result<&RemoteDatabase, commands::Error> {
+    pub fn try_get(&self) -> Result<&RemoteDatabase, error::Error> {
         match self {
             RemoteDatabaseOption::Connected(db) => Ok(db),
             RemoteDatabaseOption::Error(err) => Err(err.clone()),

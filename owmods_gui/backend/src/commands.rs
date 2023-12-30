@@ -1,4 +1,3 @@
-use std::result::Result as StdResult;
 use std::{
     fs::File,
     io::{BufWriter, Write},
@@ -37,6 +36,7 @@ use tauri::{api::dialog, async_runtime, AppHandle, Manager, WindowEvent};
 use tokio::{sync::mpsc, try_join};
 use typeshare::typeshare;
 
+use crate::error::{Error, Result};
 use crate::events::{CustomEventEmitter, CustomEventEmitterAll, CustomEventTriggerGlobal, Event};
 use crate::game::LogData;
 use crate::RemoteDatabaseOption;
@@ -45,43 +45,6 @@ use crate::{
     gui_config::GuiConfig,
     LogPort, State,
 };
-
-type Result<T = ()> = StdResult<T, Error>;
-
-pub struct Error(anyhow::Error);
-
-impl From<anyhow::Error> for Error {
-    fn from(item: anyhow::Error) -> Self {
-        Self(item)
-    }
-}
-
-impl From<&anyhow::Error> for Error {
-    fn from(item: &anyhow::Error) -> Self {
-        Self(anyhow!(item.to_string()))
-    }
-}
-
-impl From<String> for Error {
-    fn from(item: String) -> Self {
-        Self(anyhow!(item))
-    }
-}
-
-impl Clone for Error {
-    fn clone(&self) -> Self {
-        Self(anyhow!(self.0.to_string()))
-    }
-}
-
-impl Serialize for Error {
-    fn serialize<S>(&self, serializer: S) -> StdResult<S::Ok, S::Error>
-    where
-        S: serde::Serializer,
-    {
-        serializer.serialize_str(&self.0.to_string())
-    }
-}
 
 pub async fn mark_mod_busy(
     unique_name: &str,

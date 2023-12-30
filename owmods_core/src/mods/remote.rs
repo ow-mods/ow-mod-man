@@ -103,7 +103,7 @@ pub struct ModReadMe {
 
 /// Contains URL for a mod's thumbnail
 ///
-/// Note this paths are relative to the database website:
+/// Note these paths are relative to the database website:
 ///
 /// `https://ow-mods.github.io/ow-mod-db/thumbails/`
 ///

@@ -13,55 +13,70 @@ export interface LocalModsPageProps {
     onTagsChanged: (newVal: string[]) => void;
 }
 
-const LocalModsPage = memo(function LocalModsPage(props: LocalModsPageProps) {
-    useEffect(() => {
-        commands.refreshLocalDb();
-    }, []);
+const LocalModsPage = memo(
+    function LocalModsPage(props: LocalModsPageProps) {
+        useEffect(() => {
+            commands.refreshLocalDb();
+        }, []);
 
-    const getTranslation = useGetTranslation();
+        const guiConfig = hooks.getGuiConfig("guiConfigReload")[1];
 
-    const [status, localMods] = hooks.getLocalMods("localRefresh", {
-        filter: props.filter,
-        tags: props.tags
-    });
+        const getTranslation = useGetTranslation();
 
-    const onToggleAll = useCallback((newVal: boolean) => {
-        commands.toggleAll({ enabled: newVal }).then(() => commands.refreshLocalDb());
-    }, []);
+        const [status, localMods] = hooks.getLocalMods("localRefresh", {
+            filter: props.filter,
+            tags: props.tags
+        });
 
-    const renderRow = useCallback(
-        (uniqueName: string) => {
-            return uniqueName === "~~SEPARATOR~~" ? (
-                <TableCell colSpan={4}>
-                    <Typography>{getTranslation("DISABLED_MODS")}</Typography>
-                </TableCell>
-            ) : (
-                <LocalModRow uniqueName={uniqueName} />
-            );
-        },
-        [getTranslation]
-    );
+        const onToggleAll = useCallback((newVal: boolean) => {
+            commands.toggleAll({ enabled: newVal }).then(() => commands.refreshLocalDb());
+        }, []);
 
-    const toggleButtons = useMemo(
-        () => <LocalModsToggleButtons onToggle={onToggleAll} />,
-        [onToggleAll]
-    );
+        const renderRow = useCallback(
+            (uniqueName: string) => {
+                return uniqueName === "~~SEPARATOR~~" ? (
+                    <TableCell colSpan={guiConfig?.hideModThumbnails ? 4 : 5}>
+                        <Typography>{getTranslation("DISABLED_MODS")}</Typography>
+                    </TableCell>
+                ) : (
+                    <LocalModRow
+                        hideThumbnail={guiConfig?.hideModThumbnails ?? false}
+                        uniqueName={uniqueName}
+                    />
+                );
+            },
+            [getTranslation, guiConfig?.hideModThumbnails]
+        );
 
-    return (
-        <ModsPage
-            isLoading={status === "Loading" && localMods === null}
-            actionsSize={130}
-            noModsText={getTranslation("NO_MODS")}
-            filter={props.filter}
-            onFilterChange={props.onFilterChanged}
-            uniqueNames={localMods ?? []}
-            renderRow={renderRow}
-            selectedTags={props.tags}
-            onSelectedTagsChanged={props.onTagsChanged}
-        >
-            {toggleButtons}
-        </ModsPage>
-    );
-});
+        const toggleButtons = useMemo(
+            () => <LocalModsToggleButtons onToggle={onToggleAll} />,
+            [onToggleAll]
+        );
+
+        return (
+            <ModsPage
+                isLoading={status === "Loading" && localMods === null}
+                actionsSize={130}
+                noModsText={getTranslation("NO_MODS")}
+                filter={props.filter}
+                onFilterChange={props.onFilterChanged}
+                uniqueNames={localMods ?? []}
+                renderRow={renderRow}
+                selectedTags={props.tags}
+                onSelectedTagsChanged={props.onTagsChanged}
+            >
+                {toggleButtons}
+            </ModsPage>
+        );
+    },
+    (prev, next) => {
+        return (
+            prev.filter === next.filter &&
+            prev.tags.length === next.tags.length &&
+            prev.onFilterChanged === next.onFilterChanged &&
+            prev.onTagsChanged === next.onTagsChanged
+        );
+    }
+);
 
 export default LocalModsPage;

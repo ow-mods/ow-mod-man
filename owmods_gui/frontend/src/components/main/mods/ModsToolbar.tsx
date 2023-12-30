@@ -8,6 +8,7 @@ export interface ModsToolbarProps {
     filter: string;
     onFilterChanged: (newFilter: string) => void;
     selectedTags?: string[];
+    hideTags?: string[];
     onSelectedTagsChanged?: (newVal: string[]) => void;
     children?: ReactNode;
 }
@@ -35,6 +36,7 @@ const ModsToolbar = memo(function GenericModsToolbar(props: ModsToolbarProps) {
             {props.selectedTags && props.onSelectedTagsChanged && (
                 <ModsTagsChips
                     selectedTags={props.selectedTags}
+                    hideTags={props.hideTags}
                     onTagsChanged={props.onSelectedTagsChanged}
                 />
             )}

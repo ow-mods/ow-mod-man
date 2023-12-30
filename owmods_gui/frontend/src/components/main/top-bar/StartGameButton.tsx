@@ -1,10 +1,11 @@
 import { Button } from "@mui/material";
 import { PlayArrow as PlayIcon } from "@mui/icons-material";
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { commands } from "@commands";
 import { useGetTranslation } from "@hooks";
 import * as dialog from "@tauri-apps/plugin-dialog";
 import { simpleOnError } from "../../../errorHandling";
+import { listen } from "@events";
 
 const StartGameButton = () => {
     const getTranslation = useGetTranslation();
@@ -36,6 +37,28 @@ const StartGameButton = () => {
         };
         task();
     }, [getTranslation]);
+
+    useEffect(() => {
+        const unsubscribe = listen("protocolInvoke", (protocolPayload) => {
+            commands.checkOWML().then((valid) => {
+                if (valid && protocolPayload.verb === "runGame") {
+                    commands
+                        .toggleMod(
+                            { uniqueName: protocolPayload.payload, enabled: true, recursive: true },
+                            false
+                        )
+                        .catch(() =>
+                            console.warn(`Mod ${protocolPayload.payload} Not Found, Ignoring...`)
+                        )
+                        .finally(() => {
+                            onPlay();
+                        });
+                }
+            });
+        });
+        commands.popProtocolURL({ id: "run" });
+        return unsubscribe;
+    }, [onPlay]);
 
     return (
         <span>

@@ -1,11 +1,12 @@
-use log::info;
-use serde::Serialize;
+use anyhow::Result;
+use log::{info, warn};
+use serde::{Deserialize, Serialize};
 
 /// Represents a value in a progress bar
 pub type ProgressValue = u32;
 
 /// Type of progress bar
-#[derive(Clone, Serialize, Debug)]
+#[derive(Clone, Serialize, Deserialize, Debug)]
 pub enum ProgressType {
     /// We know an amount that's incrementing (ex: 10/90, 11/90, etc).
     Definite,
@@ -13,17 +14,8 @@ pub enum ProgressType {
     Indefinite,
 }
 
-impl ProgressType {
-    fn parse(input: &str) -> Self {
-        match input {
-            "Definite" => ProgressType::Definite,
-            _ => ProgressType::Indefinite,
-        }
-    }
-}
-
 /// The action this progress bar is reporting
-#[derive(Clone, Serialize, Debug)]
+#[derive(Clone, Serialize, Deserialize, Debug)]
 pub enum ProgressAction {
     /// We're downloading a file
     Download,
@@ -31,20 +23,9 @@ pub enum ProgressAction {
     Extract,
 }
 
-impl ProgressAction {
-    /// Parse a progress action from a string
-    pub fn parse(input: &str) -> Self {
-        match input {
-            "Download" => ProgressAction::Download,
-            "Extract" => ProgressAction::Extract,
-            _ => ProgressAction::Download,
-        }
-    }
-}
-
 /// Payload sent when a progress bar is started
 /// Contains all the information needed to create a progress bar
-#[derive(Clone, Serialize)]
+#[derive(Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct ProgressStartPayload {
     /// The ID of the progress bar
@@ -64,7 +45,7 @@ pub struct ProgressStartPayload {
 /// Payload sent when a progress bar is incremented
 /// Note progress bars internally throttle the amount of times they can be incremented and may not report every increment
 /// This is done to prevent spamming small increments
-#[derive(Clone, Serialize)]
+#[derive(Clone, Serialize, Deserialize)]
 pub struct ProgressIncrementPayload {
     /// The ID of the progress bar
     pub id: String,
@@ -74,7 +55,7 @@ pub struct ProgressIncrementPayload {
 
 /// Payload sent when a progress bar's message is updated
 /// This is usually used to show the current file being extracted
-#[derive(Clone, Serialize)]
+#[derive(Clone, Serialize, Deserialize)]
 pub struct ProgressMessagePayload {
     /// The ID of the progress bar
     pub id: String,
@@ -85,7 +66,7 @@ pub struct ProgressMessagePayload {
 /// Payload sent when a progress bar has finished its task
 /// This is usually used to show the final message of the progress bar
 /// If the progress bar failed, the message will be the failure message
-#[derive(Clone, Serialize)]
+#[derive(Clone, Serialize, Deserialize)]
 pub struct ProgressFinishPayload {
     /// The ID of the progress bar
     pub id: String,
@@ -96,7 +77,8 @@ pub struct ProgressFinishPayload {
 }
 
 /// Payload sent when a progress bar is updated
-#[derive(Clone, Serialize)]
+#[derive(Clone, Serialize, Deserialize)]
+#[serde(tag = "event", content = "payload")]
 pub enum ProgressPayload {
     /// Payload sent when a progress bar is started
     Start(ProgressStartPayload),
@@ -106,8 +88,6 @@ pub enum ProgressPayload {
     Msg(ProgressMessagePayload),
     /// Payload sent when a progress bar has finished its task
     Finish(ProgressFinishPayload),
-    /// An invalid payload
-    Unknown,
 }
 
 impl ProgressPayload {
@@ -121,47 +101,9 @@ impl ProgressPayload {
     ///
     /// If we cannot parse the line, this method should only be used when we know the line is valid
     ///
-    pub fn parse(input: &str) -> Self {
-        let (action, rest) = input.split_once('|').unwrap();
-        let (id, args) = rest.split_once('|').unwrap();
-        match action {
-            "Start" => {
-                let (unique_name, r) = args.split_once('|').unwrap();
-                let unique_name = if unique_name == "None" {
-                    None
-                } else {
-                    Some(unique_name.to_string())
-                };
-                let (len, r) = r.split_once('|').unwrap();
-                let (progress_type, r) = r.split_once('|').unwrap();
-                let (progress_action, msg) = r.split_once('|').unwrap();
-                ProgressPayload::Start(ProgressStartPayload {
-                    id: id.to_string(),
-                    unique_name,
-                    msg: msg.to_string(),
-                    progress_action: ProgressAction::parse(progress_action),
-                    progress_type: ProgressType::parse(progress_type),
-                    len: len.parse::<ProgressValue>().unwrap(),
-                })
-            }
-            "Increment" => ProgressPayload::Increment(ProgressIncrementPayload {
-                id: id.to_string(),
-                progress: args.parse::<ProgressValue>().unwrap(),
-            }),
-            "Msg" => ProgressPayload::Msg(ProgressMessagePayload {
-                id: id.to_string(),
-                msg: args.to_string(),
-            }),
-            "Finish" => {
-                let (success, r) = args.split_once('|').unwrap();
-                ProgressPayload::Finish(ProgressFinishPayload {
-                    id: id.to_string(),
-                    success: success == "true",
-                    msg: r.to_string(),
-                })
-            }
-            _ => ProgressPayload::Unknown,
-        }
+    pub fn parse(input: &str) -> Result<Self> {
+        let payload = serde_json::from_str::<Self>(input)?;
+        Ok(payload)
     }
 }
 
@@ -210,8 +152,28 @@ impl ProgressBar {
             failure_message: failure_message.to_string(),
             complete: false,
         };
-        info!(target: "progress", "Start|{}|{}|{}|{:?}|{:?}|{}", id, unique_name.unwrap_or("None"), len, progress_type, progress_action, msg);
+        let payload = ProgressPayload::Start(ProgressStartPayload {
+            id: id.to_string(),
+            unique_name: unique_name.map(|s| s.to_string()),
+            len,
+            msg: msg.to_string(),
+            progress_type,
+            progress_action,
+        });
+        new.emit_event(payload);
         new
+    }
+
+    fn emit_event(&self, payload: ProgressPayload) {
+        let json = serde_json::to_string(&payload);
+        match json {
+            Ok(json) => {
+                info!(target: "progress", "{}", json);
+            }
+            Err(why) => {
+                warn!(target: "progress", "Failed to serialize progress bar event: {:?}", why);
+            }
+        }
     }
 
     /// Increment the progress bar
@@ -222,21 +184,25 @@ impl ProgressBar {
 
         let new_progress = self.progress.saturating_add(amount);
 
-        self.progress = if new_progress >= self.len {
-            self.len
-        } else {
-            new_progress
-        };
+        self.progress = new_progress.min(self.len);
 
         if self.progress - self.throttled_progress > self.len / THROTTLING_AMOUNT {
             self.throttled_progress = self.progress;
-            info!(target: "progress", "Increment|{}|{}", self.id, self.progress);
+            let payload = ProgressPayload::Increment(ProgressIncrementPayload {
+                id: self.id.clone(),
+                progress: self.progress,
+            });
+            self.emit_event(payload);
         }
     }
 
     /// Set the message of the progress bar
     pub fn set_msg(&self, msg: &str) {
-        info!(target: "progress", "Msg|{}|{}", self.id, msg);
+        let payload = ProgressPayload::Msg(ProgressMessagePayload {
+            id: self.id.clone(),
+            msg: msg.to_string(),
+        });
+        self.emit_event(payload);
     }
 
     /// Finish the progress bar
@@ -252,7 +218,12 @@ impl ProgressBar {
     pub fn finish(&mut self, success: bool, msg: &str) {
         self.complete = true;
         let msg = if success { msg } else { &self.failure_message };
-        info!(target: "progress", "Finish|{}|{}|{}", self.id, success, msg);
+        let payload = ProgressPayload::Finish(ProgressFinishPayload {
+            id: self.id.clone(),
+            success,
+            msg: msg.to_string(),
+        });
+        self.emit_event(payload);
     }
 }
 
@@ -322,6 +293,7 @@ pub mod bars {
     ///
     /// ```no_run
     /// use owmods_core::progress::bars::ProgressBars;
+    /// use owmods_core::progress::ProgressPayload;
     /// use std::sync::{Arc, Mutex};
     ///
     /// struct Logger {
@@ -338,7 +310,8 @@ pub mod bars {
     ///         if record.target() == "progress" {
     ///             // Get ProgressBars from your state somehow...
     ///             let mut progress_bars = self.progress_bars.lock().expect("Lock is tainted");
-    ///             let any_failed = progress_bars.process(&format!("{}", record.args()));
+    ///             let payload = ProgressPayload::parse(&format!("{}", record.args())).unwrap();
+    ///             let any_failed = progress_bars.process(payload);
     ///             // Then emit some sort of event to update your UI
     ///             // Also do stuff with any_failed, etc
     ///         }
@@ -368,9 +341,19 @@ pub mod bars {
         ///
         /// ```no_run
         /// use owmods_core::progress::bars::ProgressBars;
+        /// use owmods_core::progress::{ProgressPayload, ProgressStartPayload, ProgressType, ProgressAction};
         ///
         /// let mut bars = ProgressBars::new();
-        /// bars.process("Start|test|Test.test|50|Definite|Download|Test Download");
+        /// let payload = ProgressPayload::Start(ProgressStartPayload {
+        ///    id: "test".to_string(),
+        ///    unique_name: Some("Test.test".to_string()),
+        ///    len: 50,
+        ///    msg: "Test Download".to_string(),
+        ///    progress_type: ProgressType::Definite,
+        ///    progress_action: ProgressAction::Download,
+        /// });
+        /// bars.process(payload);
+        ///
         /// let bar = bars.by_id("test").unwrap();
         ///
         /// assert_eq!(bar.id, "test");
@@ -388,9 +371,19 @@ pub mod bars {
         ///
         /// ```no_run
         /// use owmods_core::progress::bars::ProgressBars;
+        /// use owmods_core::progress::{ProgressPayload, ProgressStartPayload, ProgressType, ProgressAction};
         ///
         /// let mut bars = ProgressBars::new();
-        /// bars.process("Start|test|Test.test|50|Definite|Download|Test Download");
+        /// let payload = ProgressPayload::Start(ProgressStartPayload {
+        ///    id: "test".to_string(),
+        ///    unique_name: Some("Test.test".to_string()),
+        ///    len: 50,
+        ///    msg: "Test Download".to_string(),
+        ///    progress_type: ProgressType::Definite,
+        ///    progress_action: ProgressAction::Download,
+        /// });
+        /// bars.process(payload);
+        ///
         /// let bar = bars.by_unique_name("Test.test").unwrap();
         ///
         /// assert_eq!(bar.id, "test");
@@ -414,16 +407,34 @@ pub mod bars {
         ///
         /// ```no_run
         /// use owmods_core::progress::bars::ProgressBars;
+        /// use owmods_core::progress::*;
         ///
         /// let mut bars = ProgressBars::new();
-        /// bars.process("Start|test|Test.test|50|Definite|Download|Test Download");
-        /// bars.process("Increment|test|30");
+        /// let payload = ProgressPayload::Start(ProgressStartPayload {
+        ///    id: "test".to_string(),
+        ///    unique_name: Some("Test.test".to_string()),
+        ///    len: 50,
+        ///    msg: "Test Download".to_string(),
+        ///    progress_type: ProgressType::Definite,
+        ///    progress_action: ProgressAction::Download,
+        /// });
+        /// bars.process(payload);
+        /// let payload = ProgressPayload::Increment(ProgressIncrementPayload {
+        ///    id: "test".to_string(),
+        ///    progress: 30,
+        /// });
+        /// bars.process(payload);
         ///
         /// let bar = bars.by_id("test").unwrap();
         ///
         /// assert_eq!(bar.progress, 30);
         ///
-        /// bars.process("Finish|test|true|Finished");
+        /// let payload = ProgressPayload::Finish(ProgressFinishPayload {
+        ///   id: "test".to_string(),
+        ///   success: true,
+        ///   msg: "Finished".to_string(),
+        /// });
+        /// bars.process(payload);
         ///
         /// let bar = bars.by_id("test").unwrap();
         ///
@@ -432,26 +443,48 @@ pub mod bars {
         ///
         /// ```no_run
         /// use owmods_core::progress::bars::ProgressBars;
+        /// use owmods_core::progress::*;
         ///
         /// let mut bars = ProgressBars::new();
-        /// bars.process("Start|test|Test.test|50|Definite|Download|Test Download");
-        /// bars.process("Increment|test|30");
-        /// let any_failed = bars.process("Finish|test|true|Finished");
+        /// let payload = ProgressPayload::Start(ProgressStartPayload {
+        ///    id: "test".to_string(),
+        ///    unique_name: Some("Test.test".to_string()),
+        ///    len: 50,
+        ///    msg: "Test Download".to_string(),
+        ///    progress_type: ProgressType::Definite,
+        ///    progress_action: ProgressAction::Download,
+        /// });
+        /// bars.process(payload);
+        /// let payload = ProgressPayload::Increment(ProgressIncrementPayload {
+        ///    id: "test".to_string(),
+        ///    progress: 30,
+        /// });
+        /// bars.process(payload);
+        /// let payload = ProgressPayload::Finish(ProgressFinishPayload {
+        ///   id: "test".to_string(),
+        ///   success: true,
+        ///   msg: "Finished".to_string(),
+        /// });
+        /// let any_failed = bars.process(payload);
         ///
         /// assert!(any_failed.is_none());
         ///
-        /// let any_failed = bars.process("Finish|test2|false|Failed");
+        /// let payload = ProgressPayload::Finish(ProgressFinishPayload {
+        ///   id: "test2".to_string(),
+        ///   success: false,
+        ///   msg: "Failed".to_string(),
+        /// });
+        /// let any_failed = bars.process(payload);
         ///
         /// assert!(any_failed.unwrap());
         /// ```
         ///
-        pub fn process(&mut self, payload: &str) -> Option<bool> {
-            let payload = ProgressPayload::parse(payload);
+        pub fn process(&mut self, payload: ProgressPayload) -> Option<bool> {
             match payload {
                 ProgressPayload::Start(start_payload) => {
                     self.bars.insert(
                         start_payload.id.clone(),
-                        ProgressBar::from_payload(start_payload, self.counter),
+                        ProgressBar::from_payload(start_payload.clone(), self.counter),
                     );
                     self.counter += 1;
                 }
@@ -477,7 +510,6 @@ pub mod bars {
                         return Some(self.bars.iter().any(|b| !b.1.success.unwrap_or(true)));
                     }
                 }
-                ProgressPayload::Unknown => {}
             }
             None
         }
@@ -495,100 +527,28 @@ mod tests {
 
     use super::*;
 
-    #[test]
-    fn test_progress_start() {
-        let start =
-            ProgressPayload::parse("Start|test|Test.test|50|Definite|Download|Test Download");
-        match start {
-            ProgressPayload::Start(ProgressStartPayload {
-                id,
-                len,
-                unique_name,
-                msg,
-                progress_type,
-                progress_action,
-            }) => {
-                assert_eq!(id, "test");
-                assert_eq!(len, 50);
-                assert_eq!(unique_name.unwrap(), "Test.test");
-                assert!(matches!(progress_type, ProgressType::Definite));
-                assert!(matches!(progress_action, ProgressAction::Download));
-                assert_eq!(msg, "Test Download");
-            }
-            _ => {
-                panic!("Start Payload Not Start!")
-            }
-        }
-    }
-
-    #[test]
-    fn test_progress_inc() {
-        let inc = ProgressPayload::parse("Increment|test|30");
-        match inc {
-            ProgressPayload::Increment(ProgressIncrementPayload { id, progress }) => {
-                assert_eq!(id, "test");
-                assert_eq!(progress, 30);
-            }
-            _ => {
-                panic!("Inc Payload Not Inc!");
-            }
-        }
-    }
-
-    #[test]
-    fn test_progress_msg() {
-        let msg = ProgressPayload::parse("Msg|test|Test Msg");
-        match msg {
-            ProgressPayload::Msg(ProgressMessagePayload { id, msg }) => {
-                assert_eq!(id, "test");
-                assert_eq!(msg, "Test Msg");
-            }
-            _ => {
-                panic!("Msg Payload Not Msg!");
-            }
-        }
-    }
-
-    #[test]
-    fn test_progress_finish() {
-        let finish = ProgressPayload::parse("Finish|test|true|Finished");
-        match finish {
-            ProgressPayload::Finish(ProgressFinishPayload { id, success, msg }) => {
-                assert_eq!(id, "test");
-                assert!(success);
-                assert_eq!(msg, "Finished");
-            }
-            _ => {
-                panic!("Finish Payload Not Finish!");
-            }
-        }
-    }
-
-    #[test]
-    fn test_progress_finish_fail() {
-        let finish = ProgressPayload::parse("Finish|test|false|Failed");
-        match finish {
-            ProgressPayload::Finish(ProgressFinishPayload { id, success, msg }) => {
-                assert_eq!(id, "test");
-                assert!(!success);
-                assert_eq!(msg, "Failed");
-            }
-            _ => {
-                panic!("Finish Payload Not Finish!");
-            }
-        }
-    }
-
     mod bar_tests {
 
         use crate::progress::bars::ProgressBars;
 
         use super::*;
 
+        fn get_start_payload() -> ProgressPayload {
+            ProgressPayload::Start(ProgressStartPayload {
+                id: "test".to_string(),
+                unique_name: Some("Test.test".to_string()),
+                len: 50,
+                msg: "Test Download".to_string(),
+                progress_type: ProgressType::Definite,
+                progress_action: ProgressAction::Download,
+            })
+        }
+
         #[test]
         fn test_bar_start() {
             let mut bars = ProgressBars::new();
-            bars.process("Start|test|Test.test|50|Definite|Download|Test Download");
+            let start_payload = get_start_payload();
+            bars.process(start_payload);
             let bar = bars.by_id("test").unwrap();
             assert_eq!(bar.id, "test");
             assert_eq!(bar.len, 50);
@@ -601,8 +561,13 @@ mod tests {
         #[test]
         fn test_bar_inc() {
             let mut bars = ProgressBars::new();
-            bars.process("Start|test|Test.test|50|Definite|Download|Test Download");
-            bars.process("Increment|test|30");
+            let start_payload = get_start_payload();
+            bars.process(start_payload);
+            let inc_payload = ProgressPayload::Increment(ProgressIncrementPayload {
+                id: "test".to_string(),
+                progress: 30,
+            });
+            bars.process(inc_payload);
             let bar = bars.by_id("test").unwrap();
             assert_eq!(bar.progress, 30);
         }
@@ -610,8 +575,13 @@ mod tests {
         #[test]
         fn test_bar_msg() {
             let mut bars = ProgressBars::new();
-            bars.process("Start|test|Test.test|50|Definite|Download|Test Download");
-            bars.process("Msg|test|Test Msg");
+            let start_payload = get_start_payload();
+            bars.process(start_payload);
+            let msg_payload = ProgressPayload::Msg(ProgressMessagePayload {
+                id: "test".to_string(),
+                msg: "Test Msg".to_string(),
+            });
+            bars.process(msg_payload);
             let bar = bars.by_id("test").unwrap();
             assert_eq!(bar.message, "Test Msg");
         }
@@ -619,8 +589,14 @@ mod tests {
         #[test]
         fn test_bar_finish() {
             let mut bars = ProgressBars::new();
-            bars.process("Start|test|Test.test|50|Definite|Download|Test Download");
-            bars.process("Finish|test|true|Finished");
+            let start_payload = get_start_payload();
+            bars.process(start_payload);
+            let finish_payload = ProgressPayload::Finish(ProgressFinishPayload {
+                id: "test".to_string(),
+                success: true,
+                msg: "Finished".to_string(),
+            });
+            bars.process(finish_payload);
             let bar = bars.by_id("test").unwrap();
             assert_eq!(bar.message, "Finished");
             assert!(bar.success.unwrap());
@@ -629,8 +605,14 @@ mod tests {
         #[test]
         fn test_bar_finish_fail() {
             let mut bars = ProgressBars::new();
-            bars.process("Start|test|Test.test|50|Definite|Download|Test Download");
-            bars.process("Finish|test|false|Failed");
+            let start_payload = get_start_payload();
+            bars.process(start_payload);
+            let finish_payload = ProgressPayload::Finish(ProgressFinishPayload {
+                id: "test".to_string(),
+                success: false,
+                msg: "Failed".to_string(),
+            });
+            bars.process(finish_payload);
             let bar = bars.by_id("test").unwrap();
             assert_eq!(bar.message, "Failed");
             assert!(!bar.success.unwrap());
@@ -639,22 +621,74 @@ mod tests {
         #[test]
         fn test_bar_finish_all() {
             let mut bars = ProgressBars::new();
-            bars.process("Start|test|Test.test|50|Definite|Extract|Test Download");
-            bars.process("Start|test2|Test.test|50|Definite|Extract|Test Download");
-            let all_done = bars.process("Finish|test|true|Finished");
+            let start_payload = ProgressPayload::Start(ProgressStartPayload {
+                id: "test".to_string(),
+                unique_name: Some("Test.test".to_string()),
+                len: 50,
+                msg: "Test Download".to_string(),
+                progress_type: ProgressType::Definite,
+                progress_action: ProgressAction::Extract,
+            });
+            bars.process(start_payload);
+            let start_payload = ProgressPayload::Start(ProgressStartPayload {
+                id: "test2".to_string(),
+                unique_name: Some("Test.test".to_string()),
+                len: 50,
+                msg: "Test Download".to_string(),
+                progress_type: ProgressType::Definite,
+                progress_action: ProgressAction::Extract,
+            });
+            bars.process(start_payload);
+            let finish_payload = ProgressPayload::Finish(ProgressFinishPayload {
+                id: "test".to_string(),
+                success: true,
+                msg: "Finished".to_string(),
+            });
+            let all_done = bars.process(finish_payload);
             assert!(all_done.is_none());
-            let failed = bars.process("Finish|test2|true|Finished");
+            let finish_payload = ProgressPayload::Finish(ProgressFinishPayload {
+                id: "test2".to_string(),
+                success: true,
+                msg: "Finished".to_string(),
+            });
+            let failed = bars.process(finish_payload);
             assert!(!failed.unwrap());
         }
 
         #[test]
         fn test_bar_finish_all_fail() {
             let mut bars = ProgressBars::new();
-            bars.process("Start|test|Test.test|50|Definite|Extract|Test Download");
-            bars.process("Start|test2|Test.test|50|Definite|Extract|Test Download");
-            let all_done = bars.process("Finish|test|true|Finished");
+            let start_payload = ProgressPayload::Start(ProgressStartPayload {
+                id: "test".to_string(),
+                unique_name: Some("Test.test".to_string()),
+                len: 50,
+                msg: "Test Download".to_string(),
+                progress_type: ProgressType::Definite,
+                progress_action: ProgressAction::Extract,
+            });
+            bars.process(start_payload);
+            let start_payload = ProgressPayload::Start(ProgressStartPayload {
+                id: "test2".to_string(),
+                unique_name: Some("Test.test".to_string()),
+                len: 50,
+                msg: "Test Download".to_string(),
+                progress_type: ProgressType::Definite,
+                progress_action: ProgressAction::Extract,
+            });
+            bars.process(start_payload);
+            let finish_payload = ProgressPayload::Finish(ProgressFinishPayload {
+                id: "test".to_string(),
+                success: true,
+                msg: "Finished".to_string(),
+            });
+            let all_done = bars.process(finish_payload);
             assert!(all_done.is_none());
-            let failed = bars.process("Finish|test2|false|Finished");
+            let finish_payload = ProgressPayload::Finish(ProgressFinishPayload {
+                id: "test2".to_string(),
+                success: false,
+                msg: "Failed".to_string(),
+            });
+            let failed = bars.process(finish_payload);
             assert!(failed.unwrap());
         }
     }

@@ -1,26 +1,46 @@
-{ lib
-, pkg-config
-, openssl
-, libsoup
-, fetchFromGitHub
-, installShellFiles
-, rustPlatform }:
-
+{
+  lib,
+  pkg-config,
+  openssl,
+  libsoup,
+  fetchFromGitHub,
+  installShellFiles,
+  rustPlatform,
+  makeWrapper,
+  mono,
+  wrapWithMono ? true,
+}:
 rustPlatform.buildRustPackage rec {
   pname = "owmods-cli";
-  version = "0.11.3";
+  version = "0.12.0";
 
-  src = ../.;
+  # Prevent unneeded rebuilds
+  src = with lib.fileset;
+    toSource {
+      root = ../.;
+      fileset = unions [
+        ../.cargo
+        ../owmods_gui
+        ../owmods_cli
+        ../owmods_core
+        ../xtask
+        ../Cargo.toml
+        ../Cargo.lock
+      ];
+    };
 
   cargoLock = {
     lockFile = ../Cargo.lock;
-    outputHashes = { "tauri-plugin-window-state-0.1.0" = "sha256-M6uGcf4UWAU+494wAK/r2ta1c3IZ07iaURLwJJR9F3U=";};
   };
 
-  nativeBuildInputs = [
-    pkg-config
-    installShellFiles
-  ];
+  doCheck = false;
+
+  nativeBuildInputs =
+    [
+      pkg-config
+      installShellFiles
+    ]
+    ++ lib.optional wrapWithMono makeWrapper;
 
   buildInputs = [
     openssl
@@ -31,9 +51,10 @@ rustPlatform.buildRustPackage rec {
 
   postInstall = ''
     cargo xtask dist_cli
-    installManPage man/man*/*
+    installManPage dist/cli/man/*
     installShellCompletion --cmd owmods \
     dist/cli/completions/owmods.{bash,fish,zsh}
+    ${lib.optionalString wrapWithMono "wrapProgram $out/bin/${meta.mainProgram} --prefix PATH : '${mono}/bin'"}
   '';
 
   meta = with lib; {
@@ -43,6 +64,6 @@ rustPlatform.buildRustPackage rec {
     changelog = "https://github.com/ow-mods/ow-mod-man/releases/tag/cli_v${version}";
     mainProgram = "owmods";
     license = licenses.gpl3;
-    maintainers = with maintainers; [ locochoco ];
+    maintainers = with maintainers; [bwc9876 locochoco];
   };
 }

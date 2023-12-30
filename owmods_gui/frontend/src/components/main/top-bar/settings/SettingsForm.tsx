@@ -150,10 +150,24 @@ const SettingsForm = forwardRef(function SettingsForm(props: SettingsFormProps, 
             />
             <SettingsCheck
                 onChange={handleGui}
+                value={guiConfig.hideDlc}
+                label={getTranslation("HIDE_DLC_MODS")}
+                id="hideDlc"
+                tooltip={getTranslation("TOOLTIP_HIDE_DLC_MODS")}
+            />
+            <SettingsCheck
+                onChange={handleGui}
                 value={guiConfig.hideInstalledInRemote}
                 label={getTranslation("HIDE_INSTALLED_MODS_IN_REMOTE")}
                 id="hideInstalledInRemote"
                 tooltip={getTranslation("TOOLTIP_HIDE_INSTALLED_MODS_IN_REMOTE")}
+            />
+            <SettingsCheck
+                onChange={handleGui}
+                value={guiConfig.hideModThumbnails}
+                label={getTranslation("HIDE_MOD_THUMBNAILS")}
+                id="hideModThumbnails"
+                tooltip={getTranslation("TOOLTIP_HIDE_MOD_THUMBNAILS")}
             />
             <SettingsCheck
                 onChange={handleGui}

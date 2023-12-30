@@ -1,7 +1,7 @@
 import { useGetTranslation } from "@hooks";
 import { ErrorRounded } from "@mui/icons-material";
 import { Box, Button, Paper, Typography, useTheme } from "@mui/material";
-import { ComponentType, ReactNode, useEffect, useMemo } from "react";
+import { ComponentType, ReactNode, memo, useEffect, useMemo } from "react";
 import { ErrorBoundary, withErrorBoundary } from "react-error-boundary";
 import { TranslationKey } from "./TranslationContext";
 import { Event } from "@types";
@@ -94,7 +94,7 @@ const fallback = (options: Omit<StyledErrorBoundaryProps, "children">) =>
         );
     };
 
-const StyledErrorBoundary = (props: StyledErrorBoundaryProps) => {
+const StyledErrorBoundary = memo(function StyledErrorBoundaty(props: StyledErrorBoundaryProps) {
     const { children, ...options } = props;
 
     const FallbackComp = useMemo(() => fallback(options), [options]);
@@ -104,7 +104,7 @@ const StyledErrorBoundary = (props: StyledErrorBoundaryProps) => {
             {children}
         </ErrorBoundary>
     );
-};
+});
 
 export const withStyledErrorBoundary = <Props extends object>(
     component: ComponentType<Props>,

@@ -19,7 +19,7 @@ use owmods_core::{
         remote::RemoteMod,
     },
     open::{open_github, open_readme, open_shortcut},
-    protocol::{ProtocolInstallType, ProtocolPayload},
+    protocol::{ProtocolPayload, ProtocolVerb},
     remove::{remove_failed_mod, remove_mod},
     toggle::toggle_mod,
     updates::update_all,
@@ -235,6 +235,9 @@ async fn run_from_cli(cli: BaseCli) -> Result<()> {
                     }
                     if let Some(conflicts) = &local_mod.manifest.conflicts {
                         info!("Conflicts: {}", conflicts.join(", "));
+                    }
+                    if let Some(donate_link) = &local_mod.manifest.donate_link {
+                        info!("Donate Link: {}", donate_link);
                     }
                 }
                 info!("In Database: {}", yes_no(has_remote));
@@ -470,34 +473,35 @@ async fn run_from_cli(cli: BaseCli) -> Result<()> {
             clap_complete::generate(*shell, &mut cmd, name, &mut std::io::stdout());
         }
         Commands::Protocol { uri } => {
-            info!("Installing from {}", uri);
             let remote_db = RemoteDatabase::fetch(&config.database_url).await?;
             let local_db = LocalDatabase::fetch(&config.owml_path)?;
             let payload = ProtocolPayload::parse(uri);
-            match payload.install_type {
-                ProtocolInstallType::InstallMod | ProtocolInstallType::InstallPreRelease => {
+            match payload.verb {
+                ProtocolVerb::InstallMod | ProtocolVerb::InstallPreRelease => {
+                    info!("Installing from {}", payload.payload);
                     install_mod_from_db(
                         &payload.payload,
                         &config,
                         &remote_db,
                         &local_db,
                         r,
-                        matches!(payload.install_type, ProtocolInstallType::InstallPreRelease),
+                        matches!(payload.verb, ProtocolVerb::InstallPreRelease),
                     )
                     .await?;
                 }
-                ProtocolInstallType::InstallURL | ProtocolInstallType::InstallZip => {
+                ProtocolVerb::InstallURL | ProtocolVerb::InstallZip => {
                     warn!("WARNING: This will install a mod from a potentially untrusted source, continue? (yes/no)");
                     let mut answer = String::new();
                     std::io::stdin().read_line(&mut answer)?;
-                    if answer.trim() == "yes" {
+                    answer = answer.trim().to_ascii_lowercase();
+                    if answer == "yes" || answer == "y" {
                         info!("Installing from {}", payload.payload);
-                        match payload.install_type {
-                            ProtocolInstallType::InstallURL => {
+                        match payload.verb {
+                            ProtocolVerb::InstallURL => {
                                 install_mod_from_url(&payload.payload, None, &config, &local_db)
                                     .await?;
                             }
-                            ProtocolInstallType::InstallZip => {
+                            ProtocolVerb::InstallZip => {
                                 install_mod_from_zip(
                                     &PathBuf::from(&payload.payload),
                                     &config,
@@ -510,7 +514,18 @@ async fn run_from_cli(cli: BaseCli) -> Result<()> {
                         warn!("Aborting");
                     }
                 }
-                ProtocolInstallType::Unknown => {
+                ProtocolVerb::RunGame => {
+                    let local_db = LocalDatabase::fetch(&config.owml_path)?;
+                    let target_mod = local_db.get_mod(&payload.payload);
+                    if let Some(target_mod) = target_mod {
+                        info!("Launching game with {}", target_mod.manifest.name);
+                        toggle_mod(&target_mod.manifest.unique_name, &local_db, true, true)?;
+                    } else {
+                        warn!("Mod {} not found, ignoring", payload.payload);
+                    }
+                    start_game(&local_db, &config, None, false).await?;
+                }
+                ProtocolVerb::Unknown => {
                     error!("Unknown install type, ignoring");
                 }
             }

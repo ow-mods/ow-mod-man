@@ -1,6 +1,17 @@
 import { useGetTranslation } from "@hooks";
-import { Box, Chip, Skeleton, TableCell, Theme, Typography, useTheme } from "@mui/material";
+import {
+    Box,
+    Chip,
+    Skeleton,
+    TableCell,
+    Theme,
+    Tooltip,
+    Typography,
+    useTheme
+} from "@mui/material";
 import { ReactNode, memo, useMemo } from "react";
+import { ExtensionRounded } from "@mui/icons-material";
+import ModThumbnail from "./ModThumbnail";
 
 // Stolen from mods website, Rai will never catch me!
 const magnitudeMap = [
@@ -51,9 +62,14 @@ export interface ModRowProps {
     author: string;
     downloads: number;
     version: string;
+    hideThumbnail: boolean;
+    slug?: string;
+    thumbnailUrl?: string;
+    thumbnailClasses?: string;
     description?: string;
     remoteIsLoading?: boolean;
     children?: ReactNode;
+    requiresDlc?: boolean;
     isOutdated?: boolean;
     errorLevel?: "warn" | "err";
 }
@@ -90,8 +106,29 @@ const ModRow = memo(function GenericModRow(props: ModRowProps) {
 
     return (
         <>
+            {props.hideThumbnail || (
+                <TableCell sx={{ paddingRight: 0, ...cellStyle }}>
+                    <ModThumbnail
+                        isLoading={props.isLoading}
+                        remoteIsLoading={props.remoteIsLoading}
+                        name={props.name}
+                        uniqueName={props.uniqueName}
+                        url={props.thumbnailUrl}
+                        className={props.thumbnailClasses}
+                    />
+                </TableCell>
+            )}
             <TableCell sx={cellStyle}>
-                <Typography variant="subtitle1" noWrap>
+                <Typography display="flex" alignItems="center" variant="subtitle1" noWrap>
+                    {props.requiresDlc && (
+                        <Box display="inline-block" mr={0.5}>
+                            <Tooltip title={getTranslation("REQUIRES_DLC")}>
+                                <Typography>
+                                    <ExtensionRounded sx={{ fontSize: "1.2rem" }} />
+                                </Typography>
+                            </Tooltip>
+                        </Box>
+                    )}
                     <Box display="inline-block" mr={1}>
                         <Typography fontWeight={theme.typography.fontWeightBold}>
                             {props.isLoading ? <Skeleton width={300} /> : props.name}

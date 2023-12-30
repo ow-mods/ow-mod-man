@@ -7,6 +7,7 @@ import { memo, useCallback, useEffect, useRef } from "react";
 
 export interface ModsTagsChipsProps {
     selectedTags: string[];
+    hideTags?: string[];
     onTagsChanged: (newVal: string[]) => void;
 }
 
@@ -20,7 +21,7 @@ const ModsTagsChips = memo(function ModsTagsChips(props: ModsTagsChipsProps) {
 
     const getTranslation = useGetTranslation();
 
-    const { selectedTags, onTagsChanged } = props;
+    const { selectedTags, hideTags, onTagsChanged } = props;
 
     const onChipClicked = useCallback(
         (tag: string) => {
@@ -63,8 +64,13 @@ const ModsTagsChips = memo(function ModsTagsChips(props: ModsTagsChipsProps) {
                         key={t}
                         onClick={() => onChipClicked(t)}
                         size="small"
-                        color={tagIsSelected(props.selectedTags, t) ? "primary" : "default"}
-                        variant={tagIsSelected(props.selectedTags, t) ? "filled" : "filled"}
+                        disabled={hideTags?.includes(t)}
+                        sx={{ textDecoration: hideTags?.includes(t) ? "line-through" : "none" }}
+                        color={
+                            !hideTags?.includes(t) && tagIsSelected(props.selectedTags, t)
+                                ? "primary"
+                                : "default"
+                        }
                     />
                 ))}
             </Stack>

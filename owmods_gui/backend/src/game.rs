@@ -69,7 +69,7 @@ pub struct LogData {
 }
 
 impl LogData {
-    const LOG_LIMIT_PER_SECOND: u32 = 100;
+    const LOG_LIMIT_PER_SECOND: u32 = 25;
     const LOG_TIME_UNTIL_FORCED_EMIT_SEC: u64 = 1;
 
     pub fn new(port: LogPort, handle: &AppHandle) -> Result<Self> {

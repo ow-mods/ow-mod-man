@@ -15,52 +15,75 @@ export interface RemoteModsPageProps {
     onTagsChanged: (newVal: string[]) => void;
 }
 
-const RemoteModsPage = memo(function RemoteModsPage(props: RemoteModsPageProps) {
-    const getTranslation = useGetTranslation();
+const RemoteModsPage = memo(
+    function RemoteModsPage(props: RemoteModsPageProps) {
+        const getTranslation = useGetTranslation();
+        const guiConfig = hooks.getGuiConfig("guiConfigReload")[1];
 
-    const errorBound = useErrorBoundary();
+        const tags = useMemo(() => {
+            return props.tags.filter((tag) => !guiConfig?.hideDlc || tag !== "requires-dlc");
+        }, [props.tags, guiConfig?.hideDlc]);
 
-    useEffect(() => {
-        commands.refreshRemoteDb({}, false).catch((e) => {
-            errorBound.showBoundary(e?.toString() ?? getTranslation("UNKNOWN_ERROR"));
-        });
-    }, [errorBound, getTranslation]);
+        const errorBound = useErrorBoundary();
 
-    const [status, remoteMods] = hooks.getRemoteMods(
-        ["remoteRefresh", "localRefresh", "guiConfigReload"],
-        {
-            filter: props.filter,
-            tags: props.tags
-        }
-    );
+        useEffect(() => {
+            commands.refreshRemoteDb({}, false).catch((e) => {
+                errorBound.showBoundary(e?.toString() ?? getTranslation("UNKNOWN_ERROR"));
+            });
+        }, [errorBound, getTranslation]);
 
-    const modsWebsiteButton = useMemo(
-        () => (
-            <Button
-                onClick={() => shell.open("https://outerwildsmods.com/mods")}
-                startIcon={<PublicRounded />}
+        const [status, remoteMods] = hooks.getRemoteMods(
+            ["remoteRefresh", "localRefresh", "guiConfigReload"],
+            {
+                filter: props.filter,
+                tags: tags
+            }
+        );
+
+        const modsWebsiteButton = useMemo(
+            () => (
+                <Button
+                    onClick={() => shell.open("https://outerwildsmods.com/mods")}
+                    startIcon={<PublicRounded />}
+                >
+                    {getTranslation("OPEN_WEBSITE")}
+                </Button>
+            ),
+            [getTranslation]
+        );
+
+        return (
+            <ModsPage
+                actionsSize={100}
+                noModsText={getTranslation("NO_REMOTE_MODS")}
+                isLoading={
+                    (status === "Loading" && remoteMods === null) || remoteMods === undefined
+                }
+                filter={props.filter}
+                onFilterChange={props.onFilterChanged}
+                uniqueNames={remoteMods ?? []}
+                renderRow={(uniqueName) => (
+                    <RemoteModRow
+                        hideThumbnail={guiConfig?.hideModThumbnails ?? false}
+                        uniqueName={uniqueName}
+                    />
+                )}
+                selectedTags={tags}
+                hideTags={guiConfig?.hideDlc ? ["requires-dlc"] : []}
+                onSelectedTagsChanged={props.onTagsChanged}
             >
-                {getTranslation("OPEN_WEBSITE")}
-            </Button>
-        ),
-        [getTranslation]
-    );
-
-    return (
-        <ModsPage
-            actionsSize={100}
-            noModsText={getTranslation("NO_REMOTE_MODS")}
-            isLoading={status === "Loading" && remoteMods === null}
-            filter={props.filter}
-            onFilterChange={props.onFilterChanged}
-            uniqueNames={remoteMods ?? []}
-            renderRow={(uniqueName) => <RemoteModRow uniqueName={uniqueName} />}
-            selectedTags={props.tags}
-            onSelectedTagsChanged={props.onTagsChanged}
-        >
-            {modsWebsiteButton}
-        </ModsPage>
-    );
-});
+                {modsWebsiteButton}
+            </ModsPage>
+        );
+    },
+    (prev, next) => {
+        return (
+            prev.filter === next.filter &&
+            prev.tags.length === next.tags.length &&
+            prev.onFilterChanged === next.onFilterChanged &&
+            prev.onTagsChanged === next.onTagsChanged
+        );
+    }
+);
 
 export default RemoteModsPage;

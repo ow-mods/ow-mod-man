@@ -45,10 +45,9 @@ pub struct FailedMod {
 #[typeshare]
 #[derive(Serialize, Clone)]
 #[serde(tag = "loadState", content = "mod", rename_all = "camelCase")]
-#[allow(clippy::large_enum_variant)]
 pub enum UnsafeLocalMod {
     /// A mod was loaded successfully
-    Valid(LocalMod),
+    Valid(Box<LocalMod>),
     /// A mod failed to load
     Invalid(FailedMod),
 }
@@ -186,6 +185,8 @@ pub struct ModManifest {
     pub warning: Option<ModWarning>,
     /// An exe that runs before the game starts, a prepatcher. This is used for mods that need to patch the game before it starts
     pub patcher: Option<String>,
+    /// A link to donate to the mod. May only be for Patreon or PayPal
+    pub donate_link: Option<String>,
 }
 
 /// Represents a warning a mod wants to show to the user on start

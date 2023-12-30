@@ -1,6 +1,6 @@
 import { Box } from "@mui/material";
 import TopBar from "./top-bar/TopBar";
-import { ReactNode, Suspense, lazy, memo, useCallback, useEffect, useState } from "react";
+import { ReactNode, Suspense, lazy, memo, useCallback, useEffect, useMemo, useState } from "react";
 import { TabContext } from "@mui/lab";
 import AppTabs, { ModsTab } from "./top-bar/AppTabs";
 import LocalModsPage from "./mods/local/LocalModsPage";
@@ -48,6 +48,43 @@ const InnerMainApp = memo(function InnerMainApp() {
         setSelectedTab(newVal as ModsTab);
     }, []);
 
+    const localModsPage = useMemo(
+        () => (
+            <LocalModsPage
+                filter={filter}
+                onFilterChanged={setFilter}
+                tags={tags}
+                onTagsChanged={setTags}
+            />
+        ),
+        [filter, tags, setFilter, setTags]
+    );
+
+    const remoteModsPage = useMemo(
+        () => (
+            <Suspense>
+                {" "}
+                <RemoteModsPage
+                    filter={filter}
+                    onFilterChanged={setFilter}
+                    tags={tags}
+                    onTagsChanged={setTags}
+                />{" "}
+            </Suspense>
+        ),
+        [filter, tags, setFilter, setTags]
+    );
+
+    const updateModsPage = useMemo(
+        () => (
+            <Suspense>
+                {" "}
+                <UpdateModsPage filter={filter} onFilterChange={setFilter} />{" "}
+            </Suspense>
+        ),
+        [filter, setFilter]
+    );
+
     return (
         <>
             <OwmlModal />
@@ -58,32 +95,16 @@ const InnerMainApp = memo(function InnerMainApp() {
                 <AppTabs onChange={onTabChange} />
                 <Box display="flex" flexGrow={1}>
                     <Pane resetEvent="localRefresh" show={selectedTab === "local"}>
-                        <LocalModsPage
-                            filter={filter}
-                            onFilterChanged={setFilter}
-                            tags={tags}
-                            onTagsChanged={setTags}
-                        />
+                        {localModsPage}
                     </Pane>
                     <Pane
                         resetEvent="remoteRefresh"
                         errKey="NO_REMOTE_MODS"
                         show={selectedTab === "remote"}
                     >
-                        <Suspense>
-                            <RemoteModsPage
-                                filter={filter}
-                                onFilterChanged={setFilter}
-                                tags={tags}
-                                onTagsChanged={setTags}
-                            />
-                        </Suspense>
+                        {remoteModsPage}
                     </Pane>
-                    <Pane show={selectedTab === "updates"}>
-                        <Suspense>
-                            <UpdateModsPage filter={filter} onFilterChange={setFilter} />
-                        </Suspense>
-                    </Pane>
+                    <Pane show={selectedTab === "updates"}>{updateModsPage}</Pane>
                 </Box>
             </TabContext>
         </>

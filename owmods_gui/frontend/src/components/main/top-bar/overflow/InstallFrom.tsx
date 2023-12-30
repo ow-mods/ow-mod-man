@@ -23,7 +23,7 @@ import {
 } from "@mui/material";
 import { ProtocolVerb } from "@types";
 import { commands } from "@commands";
-import { getCurrent } from "@tauri-apps/plugin-window";
+import { getCurrent } from "@tauri-apps/api/window";
 import { OpenFileInput } from "@components/common/FileInput";
 import { listen } from "@events";
 import { simpleOnError } from "../../../../errorHandling";

@@ -10,7 +10,7 @@
   },
   "plugins": {
     "shell": {
-      "open": "(^(^https:(www\\.)?//github.com/)|(^https://(www\\.)?discord.gg/wusTQYbYTc$)|(^https://(www\\.)?outerwildsmods.com/)|(^https://(www\\.)?patreon.com/)|(^https://(www\\.)?paypal.me/)"
+      "open": "^(^https:(www\\.)?//github.com/)|(^https://(www\\.)?discord.gg/wusTQYbYTc$)|(^https://(www\\.)?outerwildsmods.com/)|(^https://(www\\.)?patreon.com/)|(^https://(www\\.)?paypal.me/)"
     },
     "updater": {
         "active": true,

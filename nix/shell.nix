@@ -11,7 +11,7 @@ pkgs.mkShell {
     openssl
     nodePackages.pnpm
     gcc
-    webkitgtk
+    webkitgtk_4_1
     glib-networking
     pkg-config
     libnotify

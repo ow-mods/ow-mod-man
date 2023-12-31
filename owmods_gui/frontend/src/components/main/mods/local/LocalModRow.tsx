@@ -173,7 +173,7 @@ const LocalModRow = memo(function LocalModRow(props: LocalModRowProps) {
                 enabled={enabled}
                 isErr={isErr}
                 hasRemote={hasRemote}
-                hasDonate={donate !== undefined}
+                hasDonate={donate !== null}
                 canFix={canFixWarn}
                 onToggle={onToggle}
                 onReadme={onReadme}

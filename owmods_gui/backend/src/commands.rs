@@ -36,10 +36,13 @@ use tauri::{api::dialog, async_runtime, AppHandle, Manager, WindowEvent};
 use tokio::{sync::mpsc, try_join};
 use typeshare::typeshare;
 
-use crate::error::{Error, Result};
 use crate::events::{CustomEventEmitter, CustomEventEmitterAll, CustomEventTriggerGlobal, Event};
 use crate::game::LogData;
 use crate::RemoteDatabaseOption;
+use crate::{
+    error::{Error, Result},
+    events::CustomEventListener,
+};
 use crate::{
     game::{make_log_window, show_warnings, GameMessage},
     gui_config::GuiConfig,
@@ -192,8 +195,9 @@ pub async fn refresh_remote_db(handle: tauri::AppHandle, state: tauri::State<'_,
     let conf = state.config.read().await;
     let new_db = RemoteDatabase::fetch(&conf.database_url).await;
 
-    {
+    let first_load = {
         let mut remote_db = state.remote_db.write().await;
+        let was_unloaded = remote_db.is_pending();
         *remote_db = match new_db {
             Ok(db) => RemoteDatabaseOption::Connected(Box::new(db)),
             Err(err) => {
@@ -201,6 +205,13 @@ pub async fn refresh_remote_db(handle: tauri::AppHandle, state: tauri::State<'_,
                 RemoteDatabaseOption::Error(err.into())
             }
         };
+        was_unloaded
+    };
+
+    if first_load {
+        handle
+            .typed_trigger_global(&Event::RemoteInitialized(()))
+            .ok();
     }
 
     handle.typed_emit_all(&Event::RemoteRefresh(())).ok();
@@ -919,10 +930,15 @@ pub async fn pop_protocol_url(
 
     if protocol_listeners.len() >= PROTOCOL_LISTENER_AMOUNT {
         let mut protocol_url = state.protocol_url.write().await;
-        if let Some(url) = protocol_url.as_ref() {
-            handle
-                .typed_emit_all(&Event::ProtocolInvoke(url.clone()))
-                .ok();
+        if let Some(url) = protocol_url.as_ref().cloned() {
+            let handle_2 = handle.clone();
+            handle.typed_listen(move |e| {
+                if let Event::RemoteInitialized(_) = e {
+                    handle_2
+                        .typed_emit_all(&Event::ProtocolInvoke(url.clone()))
+                        .ok();
+                }
+            });
         }
         *protocol_url = None;
     }

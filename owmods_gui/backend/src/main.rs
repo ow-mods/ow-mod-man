@@ -49,6 +49,13 @@ pub enum RemoteDatabaseOption {
 }
 
 impl RemoteDatabaseOption {
+    pub fn is_pending(&self) -> bool {
+        matches!(
+            self,
+            RemoteDatabaseOption::PreInit | RemoteDatabaseOption::Loading
+        )
+    }
+
     pub fn get(&self) -> Option<&RemoteDatabase> {
         match self {
             RemoteDatabaseOption::Connected(db) => Some(db),

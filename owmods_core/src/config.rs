@@ -15,7 +15,7 @@ use crate::{
 
 /// Represents the core config, contains critical info needed by the core API
 #[typeshare]
-#[derive(Serialize, Deserialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct Config {
     /// The path to the OWML install, defaults to `~/.local/share/OuterWildsModManager/OWML`

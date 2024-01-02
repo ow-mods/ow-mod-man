@@ -7,7 +7,7 @@ use crate::mods::local::{LocalMod, ModWarning};
 
 /// Represents an alert gotten from the database.
 #[typeshare]
-#[derive(Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Alert {
     /// Whether the alert should be shown

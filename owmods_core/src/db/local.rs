@@ -19,7 +19,7 @@ use super::combined_search::LocalModWithRemoteName;
 use super::{fix_version, RemoteDatabase};
 
 /// Represents the local (on the local PC) database of mods.
-#[derive(Default, Clone)]
+#[derive(Debug, Default, Clone)]
 pub struct LocalDatabase {
     /// A hashmap of unique names to mods
     pub mods: HashMap<String, UnsafeLocalMod>,

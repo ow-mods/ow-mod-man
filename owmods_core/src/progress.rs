@@ -25,7 +25,7 @@ pub enum ProgressAction {
 
 /// Payload sent when a progress bar is started
 /// Contains all the information needed to create a progress bar
-#[derive(Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct ProgressStartPayload {
     /// The ID of the progress bar
@@ -45,7 +45,7 @@ pub struct ProgressStartPayload {
 /// Payload sent when a progress bar is incremented
 /// Note progress bars internally throttle the amount of times they can be incremented and may not report every increment
 /// This is done to prevent spamming small increments
-#[derive(Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ProgressIncrementPayload {
     /// The ID of the progress bar
     pub id: String,
@@ -55,7 +55,7 @@ pub struct ProgressIncrementPayload {
 
 /// Payload sent when a progress bar's message is updated
 /// This is usually used to show the current file being extracted
-#[derive(Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ProgressMessagePayload {
     /// The ID of the progress bar
     pub id: String,
@@ -66,7 +66,7 @@ pub struct ProgressMessagePayload {
 /// Payload sent when a progress bar has finished its task
 /// This is usually used to show the final message of the progress bar
 /// If the progress bar failed, the message will be the failure message
-#[derive(Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ProgressFinishPayload {
     /// The ID of the progress bar
     pub id: String,
@@ -77,7 +77,7 @@ pub struct ProgressFinishPayload {
 }
 
 /// Payload sent when a progress bar is updated
-#[derive(Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(tag = "event", content = "payload")]
 pub enum ProgressPayload {
     /// Payload sent when a progress bar is started

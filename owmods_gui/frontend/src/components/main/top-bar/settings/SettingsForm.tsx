@@ -11,7 +11,7 @@ import { useGetTranslation } from "@hooks";
 import { commands } from "@commands";
 import { TranslationNameMap } from "@components/common/TranslationContext";
 import { os } from "@tauri-apps/api";
-import { Box } from "@mui/material";
+import { Box, useTheme } from "@mui/material";
 import SettingsFolder from "./SettingsFolder";
 import SettingsSelect from "./SettingsSelect";
 import SettingsText from "./SettingsText";
@@ -51,6 +51,7 @@ const SettingsForm = forwardRef(function SettingsForm(props: SettingsFormProps, 
     const [owmlConfig, setOwmlConfig] = useState<OWMLConfig>(props.initialOwmlConfig);
     const [guiConfig, setGuiConfig] = useState<GuiConfig>(props.initialGuiConfig);
     const getTranslation = useGetTranslation();
+    const theme = useTheme();
 
     const [showLogServerOption, setShowLogServerOption] = useState(defaultShowLogServerOption);
 
@@ -113,6 +114,8 @@ const SettingsForm = forwardRef(function SettingsForm(props: SettingsFormProps, 
         });
     }, []);
 
+    const colTemplate = `repeat(auto-fit, minmax(${theme.spacing(40)}, 1fr))`;
+
     return (
         <Box display="flex" flexDirection="column" gap={2}>
             <SettingsHeader text={getTranslation("GUI_SETTINGS")} onReset={() => onReset(1)} />
@@ -138,7 +141,7 @@ const SettingsForm = forwardRef(function SettingsForm(props: SettingsFormProps, 
             <Box
                 rowGap={1}
                 columnGap={2}
-                gridTemplateColumns="1fr 1fr"
+                gridTemplateColumns={colTemplate}
                 gridAutoFlow="dense"
                 display="grid"
             >
@@ -219,7 +222,7 @@ const SettingsForm = forwardRef(function SettingsForm(props: SettingsFormProps, 
             <Box
                 rowGap={1}
                 columnGap={2}
-                gridTemplateColumns="1fr 1fr"
+                gridTemplateColumns={colTemplate}
                 gridAutoFlow="dense"
                 display="grid"
             >

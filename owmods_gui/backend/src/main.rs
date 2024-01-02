@@ -206,7 +206,8 @@ fn main() -> Result<(), Box<dyn Error>> {
             register_drop_handler,
             get_db_tags,
             open_mod_github,
-            force_log_update
+            force_log_update,
+            show_log_folder
         ])
         .plugin(tauri_plugin_window_state::Builder::default().build())
         .run(tauri::generate_context!());

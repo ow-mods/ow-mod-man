@@ -16,6 +16,7 @@ use owmods_core::{
         download_and_install_owml, install_mod_from_db, install_mod_from_url, install_mod_from_zip,
         install_mods_parallel,
     },
+    file::get_app_path,
     game::launch_game,
     mods::{
         local::{LocalMod, UnsafeLocalMod},
@@ -1072,5 +1073,12 @@ pub async fn open_mod_github(unique_name: &str, state: tauri::State<'_, State>) 
     let db = state.remote_db.read().await;
     let db = db.try_get()?;
     open_github(unique_name, db)?;
+    Ok(())
+}
+
+#[tauri::command]
+pub async fn show_log_folder() -> Result {
+    let path = get_app_path()?;
+    opener::open(path.join("logs")).ok();
     Ok(())
 }

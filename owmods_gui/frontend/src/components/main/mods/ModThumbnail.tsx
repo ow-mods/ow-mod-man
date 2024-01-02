@@ -22,6 +22,7 @@ const ModThumbnail = memo(function ModThumbnail(props: ModThumbnailProps) {
     busy = busy || (bar !== null && (bar?.success ?? undefined) === undefined);
 
     const [imageIsError, setImageIserror] = useState(false);
+    const [shouldShowBg, setShouldShowBg] = useState(true);
 
     const progress = bar ? bar.progress / bar.len : 0;
 
@@ -56,8 +57,18 @@ const ModThumbnail = memo(function ModThumbnail(props: ModThumbnailProps) {
                         e.preventDefault();
                         setImageIserror(true);
                     }}
+                    onLoad={() => {
+                        setShouldShowBg(false);
+                    }}
                     alt={props.name}
                     className={`mod-thumb ${props.className ?? ""}`}
+                    style={
+                        shouldShowBg
+                            ? {
+                                  backgroundColor: "#3c3c3c"
+                              }
+                            : undefined
+                    }
                     width="450"
                     height="150"
                     src={`${modDbThumbnailUrl}/${props.url}`}

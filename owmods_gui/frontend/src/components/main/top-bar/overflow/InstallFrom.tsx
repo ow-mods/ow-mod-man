@@ -69,6 +69,7 @@ const InstallFrom = memo(function InstallFrom({ onClick }: ModalProps) {
                 if (valid) {
                     const sourceType = getSourceTypeFromProtocol(protocolPayload.verb);
                     if (sourceType !== null) {
+                        getCurrent().setFocus().catch(simpleOnError);
                         if (sourceType === "UNIQUE_NAME") {
                             commands.installMod({ uniqueName: protocolPayload.payload });
                         } else {
@@ -82,7 +83,6 @@ const InstallFrom = memo(function InstallFrom({ onClick }: ModalProps) {
                             }
                             setOpen(true);
                         }
-                        getCurrent().setFocus().catch(simpleOnError);
                     }
                 }
             });

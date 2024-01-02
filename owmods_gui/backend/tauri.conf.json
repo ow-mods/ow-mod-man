@@ -17,6 +17,9 @@
         "save": true,
         "ask": true
       },
+      "clipboard": {
+        "writeText": true
+      },
       "app": {
         "all": true,
         "hide": false,
@@ -26,7 +29,7 @@
         "all": true
       },
       "shell": {
-        "open": "(^https://github.com/)|(^https://discord.gg/wusTQYbYTc$)|(^https://outerwildsmods.com/)"
+        "open": "(^https:(www\\.)?//github.com/)|(^https://(www\\.)?discord.gg/wusTQYbYTc$)|(^https://(www\\.)?outerwildsmods.com/)|(^https://(www\\.)?patreon.com/)|(^https://(www\\.)?paypal.me/)"
       },
       "window": {
         "setTitle": true,
@@ -78,7 +81,7 @@
       }
     },
     "security": {
-      "csp": "default-src 'self'; style-src 'self' 'unsafe-inline'; font-src 'self' data:",
+      "csp": "default-src 'self'; img-src 'self' https://ow-mods.github.io; style-src 'self' 'unsafe-inline'; font-src 'self' data:",
       "dangerousDisableAssetCspModification": ["style-src", "font-src"]
     },
     "updater": {

@@ -2,9 +2,9 @@ import { commands, hooks } from "@commands";
 import ModRow from "../ModRow";
 import { memo, useCallback, useMemo } from "react";
 import { useGetTranslation, useUnifiedMod } from "@hooks";
-import { dialog } from "@tauri-apps/api";
+import { dialog, shell } from "@tauri-apps/api";
 import LocalModActions from "./LocalModActions";
-import { LocalMod, UnsafeLocalMod } from "@types";
+import { LocalMod, RemoteMod, UnsafeLocalMod } from "@types";
 
 const getErrorLevel = (mod?: UnsafeLocalMod): "err" | "warn" | undefined => {
     if (mod?.loadState === "invalid") {
@@ -63,6 +63,7 @@ const canFix = (mod?: UnsafeLocalMod): boolean => {
 
 export interface LocalModRowProps {
     uniqueName: string;
+    hideThumbnail: boolean;
 }
 
 const LocalModRow = memo(function LocalModRow(props: LocalModRowProps) {
@@ -71,11 +72,16 @@ const LocalModRow = memo(function LocalModRow(props: LocalModRowProps) {
 
     // Fetch data
     const [status1, local] = hooks.getLocalMod("localRefresh", { ...props });
-    const [status2, remote] = hooks.getRemoteMod("remoteRefresh", { ...props });
+    const remoteOpt = hooks.getRemoteMod("remoteRefresh", { ...props })[1];
     const autoEnableDeps = hooks.getGuiConfig("guiConfigReload")[1]?.autoEnableDeps ?? false;
 
+    const remote = (remoteOpt?.type === "err" ? null : remoteOpt?.data) as RemoteMod | null;
+
     // Transform data
-    const { name, author, description, version, outdated, enabled } = useUnifiedMod(local, remote);
+    const { name, slug, author, description, version, outdated, enabled } = useUnifiedMod(
+        local,
+        remote
+    );
     const errorLevel = useMemo(() => getErrorLevel(local ?? undefined), [local]);
     const isErr = errorLevel === "err";
     const canFixWarn = useMemo(() => canFix(local ?? undefined), [local]);
@@ -154,6 +160,12 @@ const LocalModRow = memo(function LocalModRow(props: LocalModRowProps) {
         task();
     }, [outdated, props.uniqueName]);
 
+    const donate = (local?.mod as LocalMod)?.manifest?.donateLink;
+
+    const onDonate = useCallback(() => {
+        shell.open(donate ?? "");
+    }, [donate]);
+
     const modsToolbar = useMemo(
         () => (
             <LocalModActions
@@ -161,6 +173,7 @@ const LocalModRow = memo(function LocalModRow(props: LocalModRowProps) {
                 enabled={enabled}
                 isErr={isErr}
                 hasRemote={hasRemote}
+                hasDonate={donate !== null}
                 canFix={canFixWarn}
                 onToggle={onToggle}
                 onReadme={onReadme}
@@ -168,6 +181,7 @@ const LocalModRow = memo(function LocalModRow(props: LocalModRowProps) {
                 onFolder={onFolder}
                 onUninstall={onUninstall}
                 onGithub={onGithub}
+                onDonate={onDonate}
             />
         ),
         [
@@ -175,13 +189,15 @@ const LocalModRow = memo(function LocalModRow(props: LocalModRowProps) {
             enabled,
             isErr,
             hasRemote,
+            donate,
             canFixWarn,
             onToggle,
             onReadme,
             onFix,
             onFolder,
             onUninstall,
-            onGithub
+            onGithub,
+            onDonate
         ]
     );
 
@@ -189,11 +205,16 @@ const LocalModRow = memo(function LocalModRow(props: LocalModRowProps) {
         <ModRow
             uniqueName={props.uniqueName}
             name={name}
+            slug={slug}
+            thumbnailUrl={remote?.thumbnail?.openGraph ?? remote?.thumbnail.main}
+            thumbnailClasses={enabled ? "" : "disabled"}
             author={author}
             version={version}
+            hideThumbnail={props.hideThumbnail}
+            requiresDlc={remote?.tags?.includes("requires-dlc") ?? false}
             isOutdated={outdated}
             isLoading={status1 === "Loading" && local === null}
-            remoteIsLoading={status2 === "Loading" && remote === null}
+            remoteIsLoading={(remoteOpt?.type ?? "loading") === "loading"}
             description={
                 (local?.loadState === "valid" && !enabled) || displayErrors.length === 0
                     ? description

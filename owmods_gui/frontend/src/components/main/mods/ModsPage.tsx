@@ -12,6 +12,7 @@ export interface ModsPageProps {
     noModsText: string;
     onFilterChange: (newVal: string) => void;
     selectedTags?: string[];
+    hideTags?: string[];
     onSelectedTagsChanged?: (newVal: string[]) => void;
     uniqueNames: string[];
     renderRow: (uniqueName: string) => ReactNode;
@@ -47,6 +48,7 @@ const ModsPage = memo(function ModsPage(props: ModsPageProps) {
         >
             <ModsToolbar
                 selectedTags={props.selectedTags}
+                hideTags={props.hideTags}
                 onSelectedTagsChanged={props.onSelectedTagsChanged}
                 filter={props.filter}
                 onFilterChanged={onFilterChange}

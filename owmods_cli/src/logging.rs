@@ -96,12 +96,15 @@ impl log::Log for Logger {
         if record.target() == "progress" {
             let raw = format!("{}", record.args());
             let payload = ProgressPayload::parse(&raw);
+
             match payload {
-                ProgressPayload::Start(payload) => self.start_progress(payload),
-                ProgressPayload::Increment(payload) => self.increment_progress(payload),
-                ProgressPayload::Msg(payload) => self.set_message(payload),
-                ProgressPayload::Finish(payload) => self.finish(payload),
-                ProgressPayload::Unknown => {}
+                Ok(payload) => match payload {
+                    ProgressPayload::Start(payload) => self.start_progress(payload),
+                    ProgressPayload::Increment(payload) => self.increment_progress(payload),
+                    ProgressPayload::Msg(payload) => self.set_message(payload),
+                    ProgressPayload::Finish(payload) => self.finish(payload),
+                },
+                Err(why) => warn!("Failed to parse progress payload: {}", why),
             };
         } else if self.enabled(record.metadata()) && record.target().starts_with("owmods") {
             let args = format!("{}", record.args());

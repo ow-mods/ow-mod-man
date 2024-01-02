@@ -27,7 +27,7 @@ const RemoteModActions = memo(function RemoteModToolbar(props: RemoteModActionsP
                 onClick={props.onInstall}
                 uniqueName={props.uniqueName}
             />
-            <ModActionOverflow id={`remote-${props.uniqueName}`} ref={overflowRef}>
+            <ModActionOverflow tabId="remote" uniqueName={props.uniqueName} ref={overflowRef}>
                 <ModActionOverflowItem
                     label={getTranslation("OPEN_README")}
                     icon={<DescriptionRounded />}

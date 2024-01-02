@@ -1,9 +1,7 @@
-/// <reference types="vitest" />
 /// <reference types="vite/client" />
 
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
-import { createHtmlPlugin } from "vite-plugin-html";
 import { imagetools } from "vite-imagetools";
 
 import path from "path";
@@ -14,8 +12,16 @@ export default defineConfig({
     server: {
         strictPort: true
     },
-    envPrefix: ["VITE_", "TAURI_"],
-    plugins: [react(), imagetools(), createHtmlPlugin({ minify: true })],
+    envPrefix: [
+        "VITE_",
+        "TAURI_PLATFORM",
+        "TAURI_ARCH",
+        "TAURI_FAMILY",
+        "TAURI_PLATFORM_VERSION",
+        "TAURI_PLATFORM_TYPE",
+        "TAURI_DEBUG"
+    ],
+    plugins: [react(), imagetools()],
     build: {
         rollupOptions: {
             input: {
@@ -38,16 +44,5 @@ export default defineConfig({
             { find: "@commands", replacement: path.resolve(__dirname, "./src/commands.ts") },
             { find: "@events", replacement: path.resolve(__dirname, "./src/events.ts") }
         ]
-    },
-    test: {
-        globals: true,
-        environment: "jsdom",
-        watch: false,
-        setupFiles: ["./src/tests/setup.ts"],
-        onConsoleLog: (msg) => {
-            if (msg.includes("window.__TAURI_METADATA__")) {
-                return false;
-            }
-        }
     }
 });

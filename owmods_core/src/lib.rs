@@ -2,7 +2,7 @@
 #![doc(
     html_logo_url = "https://github.com/ow-mods/ow-mod-man/blob/main/.github/assets/logo-core.png?raw=true"
 )]
-#![deny(missing_docs)]
+#![warn(missing_docs)]
 
 /// Fetch database alerts and get mod warnings.
 pub mod alerts;
@@ -157,7 +157,7 @@ pub(crate) mod test_utils {
         pub fn insert_test_mod(&mut self, local_mod: &LocalMod) {
             self.local_db.mods.insert(
                 local_mod.manifest.unique_name.clone(),
-                UnsafeLocalMod::Valid(local_mod.clone()),
+                UnsafeLocalMod::Valid(Box::new(local_mod.clone())),
             );
         }
 

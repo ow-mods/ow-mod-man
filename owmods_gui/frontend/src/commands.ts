@@ -4,13 +4,13 @@ import {
     Config,
     GuiConfig,
     OWMLConfig,
-    RemoteMod,
     GameMessage,
     UnsafeLocalMod,
     Alert,
     ProgressBars,
     ProgressBar,
-    Event
+    Event,
+    RemoteModOption
 } from "@types";
 
 type CommandInfo<P, R> = [P, R];
@@ -34,10 +34,11 @@ const commandInfo = {
     getOwmlConfig: $<GetCommand<OWMLConfig>>("get_owml_config"),
     getDefaultConfigs: $<GetCommand<[Config, GuiConfig, OWMLConfig]>>("get_defaults"),
     getLocalMods: $<CommandInfo<{ filter: string; tags: string[] }, string[]>>("get_local_mods"),
-    getRemoteMods: $<CommandInfo<{ filter: string; tags: string[] }, string[]>>("get_remote_mods"),
+    getRemoteMods:
+        $<CommandInfo<{ filter: string; tags: string[] }, string[] | undefined>>("get_remote_mods"),
     getUpdatableMods: $<CommandInfo<{ filter: string }, string[]>>("get_updatable_mods"),
     getLocalMod: $<ModCommand<UnsafeLocalMod>>("get_local_mod"),
-    getRemoteMod: $<ModCommand<RemoteMod>>("get_remote_mod"),
+    getRemoteMod: $<ModCommand<RemoteModOption>>("get_remote_mod"),
     getLogLine: $<CommandInfo<{ port: number; line: number }, GameMessage>>("get_game_message"),
     toggleMod:
         $<CommandInfo<{ uniqueName: string; enabled: boolean; recursive: boolean }, string[]>>(
@@ -79,7 +80,7 @@ const commandInfo = {
     fixDeps: $<ActionCommand<{ uniqueName: string }>>("fix_mod_deps"),
     checkDBForIssues: $<GetCommand<boolean>>("db_has_issues"),
     getAlert: $<GetCommand<Alert>>("get_alert"),
-    popProtocolURL: $<EmptyCommand>("pop_protocol_url"),
+    popProtocolURL: $<ActionCommand<{ id: string }>>("pop_protocol_url"),
     checkOWML: $<GetCommand<boolean>>("check_owml"),
     getDownloads: $<GetCommand<ProgressBars>>("get_downloads"),
     clearDownloads: $<EmptyCommand>("clear_downloads"),
@@ -90,7 +91,8 @@ const commandInfo = {
     registerDropHandler: $<EmptyCommand>("register_drop_handler"),
     getDbTags: $<GetCommand<string[]>>("get_db_tags"),
     logError: $<ActionCommand<{ err: string }>>("log_error"),
-    forceLogUpdate: $<ActionCommand<{ port: number }>>("force_log_update")
+    forceLogUpdate: $<ActionCommand<{ port: number }>>("force_log_update"),
+    showLogsFolder: $<EmptyCommand>("show_log_folder")
 };
 
 type Command = keyof typeof commandInfo;

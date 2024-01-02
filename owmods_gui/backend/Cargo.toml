@@ -1,17 +1,17 @@
 [package]
 name = "owmods_gui"
-version = "0.11.3"
+version = "0.12.0"
 license = "GPL-3.0-or-later"
 edition = "2021"
 
 [build-dependencies]
-tauri-build = { version = "1.4.0", features = [] }
+tauri-build = { version = "1.5.1", features = [] }
 
 [dependencies]
-owmods_core = { version = "0.11.3", path = "../../owmods_core" }
+owmods_core = { version = "0.12.0", path = "../../owmods_core" }
 serde_json = "1.0"
 serde = { version = "1.0", features = ["derive"] }
-tauri = { version = "1.4.1", features = [
+tauri = { version = "1.5.4", features = [ "clipboard-write-text",
     "app-all",
     "dialog-ask",
     "dialog-confirm",
@@ -23,19 +23,20 @@ tauri = { version = "1.4.1", features = [
     "updater",
     "window-set-focus",
     "window-set-title",
+    # "reqwest-native-tls-vendored"
 ] }
-anyhow = "1.0.75"
-tokio = { version = "1.32.0", features = ["sync", "macros"] }
+anyhow = "1.0.79"
+tokio = { version = "1.35.1", features = ["sync", "macros"] }
 log = { version = "0.4.20", features = ["std", "serde"] }
 typeshare = "1.0.1"
 notify = { version = "6.1.1", default-features = false, features = [
     "macos_kqueue",
 ] }
-regex = "1.9.5"
-time = { version = "0.3.29", features = ["macros", "local-offset"] }
+regex = "1.10.2"
+time = { version = "0.3.31", features = ["macros", "local-offset"] }
 tauri-plugin-deep-link = "0.1.2"
-tauri-plugin-window-state = { git = "https://github.com/tauri-apps/plugins-workspace", branch = "dev" }
 opener = "0.6.1"
+tauri-plugin-window-state = "0.1.0"
 
 [features]
 default = ["custom-protocol"]

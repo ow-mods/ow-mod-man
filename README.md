@@ -18,16 +18,15 @@ This is the monorepo for the new <a href="https://www.mobiusdigitalgames.com/out
 
 ## Platform Support
 
-| **Platform** |  **Supported**  |
-|:------------:|:---------------:|
-| **Windows**  | ✅              |
-| **Linux**    | ✅              |
-| **Deck**     | ✅              |
+| **Platform** | **Supported** |
+| :----------: | :-----------: |
+| **Windows**  |      ✅       |
+|  **Linux**   |      ✅       |
+|   **Deck**   |      ✅       |
 
 ## Related Repos
 
 - [Flatpak Repo](https://github.com/flathub/com.outerwildsmods.owmods_gui)
-- [Nix Flake Repo](https://github.com/loco-choco/ow-mod-man-flake)
 
 ## Credits
 
@@ -39,11 +38,14 @@ This is the monorepo for the new <a href="https://www.mobiusdigitalgames.com/out
   - [dgarroDC](https://github.com/dgarroDC)
   - [MegaPiggy](https://github.com/MegaPiggy)
 - Testing:
-  - [ShoosGun](https://github.com/ShoosGun)
+  - [Locochoco](https://github.com/Locochoco)
   - [JohnCorby](https://github.com/JohnCorby)
 - Help with Linux Support:
   - [JohnCorby](https://github.com/JohnCorby)
   - [BUNN1E5](https://github.com/BUNN1E5)
-  - [ShoosGun](https://github.com/ShoosGun)
+  - [Locochoco](https://github.com/Locochoco)
+  - [JSpoonBaker](https://github.com/Spoonbaker)
+- Translations:
+  - Chinese: [SmallGarfield](https://github.com/xiaojiafei520)
 
 And the support of the [Outer Wilds Modding Discord](https://discord.com/invite/wusTQYbYTc)

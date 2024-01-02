@@ -4,9 +4,11 @@ import { memo, useCallback, useMemo } from "react";
 import ModRow from "../ModRow";
 import { UpdateRounded } from "@mui/icons-material";
 import ModDownloadIcon from "../ModDownloadIcon";
+import { RemoteMod } from "@types";
 
 export interface UpdateModRowProps {
     uniqueName: string;
+    hideThumbnail: boolean;
 }
 
 const UpdateModRow = memo(function UpdateModRow(props: UpdateModRowProps) {
@@ -14,10 +16,12 @@ const UpdateModRow = memo(function UpdateModRow(props: UpdateModRowProps) {
 
     // Fetch data
     const [status1, local] = hooks.getLocalMod("localRefresh", { ...props });
-    const [status2, remote] = hooks.getRemoteMod("remoteRefresh", { ...props });
+    const remoteOpt = hooks.getRemoteMod("remoteRefresh", { ...props })[1];
+
+    const remote = (remoteOpt?.type === "err" ? null : remoteOpt?.data) as RemoteMod | null;
 
     // Transform data
-    const { name, author, description, version, outdated } = useUnifiedMod(local, remote);
+    const { name, author, description, version, outdated, slug } = useUnifiedMod(local, remote);
 
     const onUpdate = useCallback(() => {
         commands.updateMod({ uniqueName: props.uniqueName }).then(() => commands.refreshLocalDb());
@@ -39,11 +43,15 @@ const UpdateModRow = memo(function UpdateModRow(props: UpdateModRowProps) {
         <ModRow
             uniqueName={props.uniqueName}
             name={name}
+            slug={slug}
+            requiresDlc={remote?.tags?.includes("requires-dlc") ?? false}
             author={author}
             version={version}
+            thumbnailUrl={remote?.thumbnail?.openGraph ?? remote?.thumbnail.main}
+            hideThumbnail={props.hideThumbnail}
             isOutdated={outdated || props.uniqueName === "Alek.OWML"}
             isLoading={status1 === "Loading" && local === null}
-            remoteIsLoading={status2 === "Loading" && remote === null}
+            remoteIsLoading={(remoteOpt?.type ?? "loading") === "loading"}
             description={description}
             downloads={remote?.downloadCount ?? -1}
         >

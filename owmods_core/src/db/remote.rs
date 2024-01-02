@@ -16,7 +16,7 @@ struct RawRemoteDatabase {
 }
 
 /// Represents the remote (on the website) database of mods.
-#[derive(Default, Clone)]
+#[derive(Debug, Default, Clone)]
 pub struct RemoteDatabase {
     /// A hashmap of unique names to mods
     pub mods: HashMap<String, RemoteMod>,
@@ -33,12 +33,11 @@ impl From<RawRemoteDatabase> for RemoteDatabase {
         let mut mods = raw
             .releases
             .into_iter()
-            .map(|m| (m.unique_name.to_owned(), m))
+            .map(|mut m| {
+                m.version = fix_version(&m.version).to_string();
+                (m.unique_name.to_owned(), m)
+            })
             .collect::<HashMap<_, _>>();
-
-        for remote_mod in mods.values_mut() {
-            remote_mod.version = fix_version(&remote_mod.version).to_string();
-        }
         let owml = mods.remove(OWML_UNIQUE_NAME);
         Self { mods, owml }
     }

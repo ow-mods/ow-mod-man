@@ -10,6 +10,14 @@ Ex: `cargo add tokio` should become `cargo add clap -p owmods_gui`.
 
 Please follow the [tauri docs](https://tauri.app/v1/guides/getting-started/prerequisites#setting-up-linux) for instructions on installing the necessary system packages.
 
+### On Nix
+
+Run the `shell.nix` file. Allow insecure is needed for OpenSSL 1.1.1 support.
+
+```sh
+NIX_ALLOW_INSECURE=1 nix-shell shell.nix --impure
+```
+
 ## pnpm
 
 The frontend for this package is made with TS so you need to install related dependencies. First cd in to `owmods_gui/frontend`, then run `pnpm i`

@@ -6,7 +6,7 @@ use typeshare::typeshare;
 
 use crate::{game::GameMessage, LogPort};
 
-const INVOKE_URI: &str = "owmods://events/invoke";
+pub const INVOKE_URI: &str = "owmods://events/invoke";
 
 fn map_emit_err(e: tauri::Error) -> anyhow::Error {
     anyhow!("Error Emitting Event: {e:?}")
@@ -36,6 +36,7 @@ pub struct LogsBehindPayload {
 pub enum Event {
     LocalRefresh(EmptyParams),
     RemoteRefresh(EmptyParams),
+    RemoteInitialized(EmptyParams),
     ModBusy(EmptyParams),
     ConfigReload(EmptyParams),
     GuiConfigReload(bool),
@@ -71,6 +72,10 @@ pub trait CustomEventEmitterAll {
     fn typed_emit_all(&self, event: &Event) -> Result<()>;
 }
 
+pub trait CustomEventListener {
+    fn typed_listen<F: Fn(Event) + Send + Sync + 'static>(&self, f: F);
+}
+
 impl CustomEventEmitterAll for AppHandle {
     fn typed_emit_all(&self, event: &Event) -> Result<()> {
         self.emit_all(INVOKE_URI, event).map_err(map_emit_err)
@@ -81,6 +86,20 @@ impl CustomEventTriggerGlobal for AppHandle {
     fn typed_trigger_global(&self, event: &Event) -> Result<()> {
         self.trigger_global(INVOKE_URI, Some(serde_json::to_string(event).unwrap()));
         Ok(())
+    }
+}
+
+impl CustomEventListener for AppHandle {
+    fn typed_listen<F: Fn(Event) + Send + Sync + 'static>(&self, f: F) {
+        self.clone()
+            .listen_global(INVOKE_URI, move |e: tauri::Event| {
+                let event = e
+                    .payload()
+                    .and_then(|s| serde_json::from_str::<Event>(s).ok());
+                if let Some(event) = event {
+                    f(event);
+                }
+            });
     }
 }
 

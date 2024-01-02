@@ -3,7 +3,8 @@ import {
     FolderRounded,
     GitHub,
     DeleteRounded,
-    ConstructionRounded
+    ConstructionRounded,
+    AttachMoneyRounded
 } from "@mui/icons-material";
 import { Checkbox, useTheme } from "@mui/material";
 import { memo, useRef } from "react";
@@ -18,9 +19,11 @@ export interface LocalModActionsProps {
     isErr: boolean;
     hasRemote: boolean;
     canFix: boolean;
+    hasDonate: boolean;
     onToggle: (newVal: boolean) => void;
     onReadme: () => void;
     onFolder: () => void;
+    onDonate: () => void;
     onFix: () => void;
     onGithub: () => void;
     onUninstall: () => void;
@@ -59,7 +62,7 @@ const LocalModActions = memo(function LocalModTools(props: LocalModActionsProps)
                     icon={<DescriptionRounded />}
                 />
             )}
-            <ModActionOverflow id={`local-${props.uniqueName}`} ref={overflowRef}>
+            <ModActionOverflow tabId="local" uniqueName={props.uniqueName} ref={overflowRef}>
                 {props.canFix && (
                     <ModActionOverflowItem
                         label={getTranslation("OPEN_README")}
@@ -80,6 +83,14 @@ const LocalModActions = memo(function LocalModTools(props: LocalModActionsProps)
                         label={getTranslation("OPEN_GITHUB")}
                         icon={<GitHub />}
                         onClick={props.onGithub}
+                        onClose={overflowRef.current?.onClose}
+                    />
+                )}
+                {props.hasDonate && (
+                    <ModActionOverflowItem
+                        label={getTranslation("DONATE")}
+                        icon={<AttachMoneyRounded />}
+                        onClick={props.onDonate}
                         onClose={overflowRef.current?.onClose}
                     />
                 )}

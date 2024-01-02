@@ -21,7 +21,7 @@ const fn _default_false() -> bool {
 
 /// Represents the configuration for OWML
 #[typeshare]
-#[derive(Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 #[allow(non_snake_case)] // Have to allow non_snake_case here because OWML's config uses "incrementalGC", which isn't proper camelCase
 pub struct OWMLConfig {

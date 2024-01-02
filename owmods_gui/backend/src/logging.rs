@@ -5,8 +5,9 @@ use std::{
 };
 
 use anyhow::Result;
-use log::{Level, STATIC_MAX_LEVEL};
+use log::{warn, Level, STATIC_MAX_LEVEL};
 use owmods_core::file::get_app_path;
+use owmods_core::progress::ProgressPayload;
 use serde::Serialize;
 use std::fs::create_dir_all;
 use tauri::{async_runtime, AppHandle, Manager};
@@ -83,12 +84,20 @@ impl log::Log for Logger {
             async_runtime::spawn(async move {
                 let state = handle.state::<State>();
                 let mut bars = state.progress_bars.write().await;
-                let batch_finished = bars.process(&raw);
-                handle.typed_emit_all(&Event::ProgressUpdate(())).ok();
-                if let Some(has_error) = batch_finished {
-                    handle
-                        .typed_emit_all(&Event::ProgressBatchFinish(has_error))
-                        .ok();
+                let payload = ProgressPayload::parse(&raw);
+                match payload {
+                    Ok(payload) => {
+                        let batch_finished = bars.process(payload);
+                        handle.typed_emit_all(&Event::ProgressUpdate(())).ok();
+                        if let Some(has_error) = batch_finished {
+                            handle
+                                .typed_emit_all(&Event::ProgressBatchFinish(has_error))
+                                .ok();
+                        }
+                    }
+                    Err(why) => {
+                        warn!("Failed to parse progress payload: {}", why);
+                    }
                 }
             });
             Ok(())

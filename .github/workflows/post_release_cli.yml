@@ -12,7 +12,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Setup Rust Toolchain
         uses: dtolnay/rust-toolchain@stable
@@ -25,12 +25,9 @@ jobs:
           shared-key: ${{ runner.os }}-rust-cache-${{ hashFiles('Cargo.lock') }}
 
       - name: Publish To Crates.io
-        uses: actions-rs/cargo@v1
+        run: cargo publish -p owmods_cli
         env:
           CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
-        with:
-          command: publish
-          args: -p owmods_cli
 
       - name: Create PKGBUILD
         run: cargo xtask cli_pkg_build

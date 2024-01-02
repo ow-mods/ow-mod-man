@@ -35,3 +35,6 @@ pub const WEBSITE_URL: &str = "https://outerwildsmods.com";
 
 /// The name of the old manager folder, the new manager uses the OWML installation here to make migration easier
 pub const OLD_MANAGER_FOLDER_NAME: &str = "OuterWildsModManager";
+
+/// Name of the tag used to indicate a mod requires DLC
+pub const REQUIRES_DLC_TAG: &str = "requires-dlc";

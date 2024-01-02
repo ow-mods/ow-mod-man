@@ -30,7 +30,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Install Build Dependencies
         run: |
@@ -44,10 +44,7 @@ jobs:
           components: clippy, rustfmt
 
       - name: Check Formatting
-        uses: actions-rs/cargo@v1
-        with:
-          command: fmt
-          args: --check
+        run: cargo fmt --check
 
       - name: Setup Rust Cache
         uses: Swatinem/rust-cache@v2
@@ -58,12 +55,7 @@ jobs:
         run: mkdir owmods_gui/dist
 
       - name: Check Clippy
-        uses: actions-rs/cargo@v1
-        with:
-          command: lint
+        run: cargo lint
 
       - name: Run Tests (Core)
-        uses: actions-rs/cargo@v1
-        with:
-          command: test
-          args: -p owmods_core
+        run: cargo test -p owmods_core

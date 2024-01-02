@@ -1,7 +1,7 @@
 {
-    "name": "owmods_gui",
+    "name": "owmods-gui-frontend",
     "private": true,
-    "version": "0.0.0",
+    "version": "0.12.0",
     "type": "module",
     "scripts": {
         "dev": "vite",
@@ -15,38 +15,34 @@
         "prettify": "prettier --write . --ignore-unknown",
         "format": "pnpm prettify",
         "prettier-check": "prettier --check . --ignore-unknown",
-        "preinstall": "npx only-allow pnpm",
-        "test": "vitest"
+        "preinstall": "npx only-allow pnpm"
     },
     "dependencies": {
-        "@emotion/react": "11.11.1",
+        "@emotion/react": "11.11.3",
         "@emotion/styled": "11.11.0",
         "@fontsource/roboto": "5.0.8",
-        "@mui/icons-material": "5.14.9",
-        "@mui/lab": "5.0.0-alpha.145",
-        "@mui/material": "5.14.10",
-        "@tauri-apps/api": "1.4.0",
+        "@mui/icons-material": "5.15.2",
+        "@mui/lab": "5.0.0-alpha.158",
+        "@mui/material": "5.15.2",
+        "@tauri-apps/api": "1.5.3",
         "react": "18.2.0",
         "react-dom": "18.2.0",
-        "react-error-boundary": "4.0.11",
-        "react-virtuoso": "4.6.0"
+        "react-error-boundary": "4.0.12",
+        "react-virtuoso": "4.6.2"
     },
     "devDependencies": {
-        "@testing-library/react": "14.0.0",
-        "@types/react": "18.2.22",
-        "@types/react-dom": "18.2.7",
-        "@typescript-eslint/eslint-plugin": "6.7.3",
-        "@typescript-eslint/parser": "6.7.3",
-        "@vitejs/plugin-react": "4.1.0",
-        "eslint": "8.50.0",
+        "@testing-library/react": "14.1.2",
+        "@types/react": "18.2.46",
+        "@types/react-dom": "18.2.18",
+        "@typescript-eslint/eslint-plugin": "6.17.0",
+        "@typescript-eslint/parser": "6.17.0",
+        "@vitejs/plugin-react": "4.2.1",
+        "eslint": "8.56.0",
         "eslint-plugin-react": "7.33.2",
         "eslint-plugin-react-hooks": "4.6.0",
-        "jsdom": "22.1.0",
-        "prettier": "3.0.3",
-        "typescript": "5.2.2",
-        "vite": "4.4.9",
-        "vite-imagetools": "5.0.8",
-        "vite-plugin-html": "3.2.0",
-        "vitest": "0.34.5"
+        "prettier": "3.1.1",
+        "typescript": "5.3.3",
+        "vite": "5.0.10",
+        "vite-imagetools": "6.2.8"
     }
 }

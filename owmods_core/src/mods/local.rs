@@ -8,7 +8,7 @@ use crate::{search::Searchable, validate::ModValidationError};
 
 /// Represents an installed (and valid) mod
 #[typeshare]
-#[derive(Clone, Serialize)]
+#[derive(Debug, Clone, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct LocalMod {
     /// Whether the mod is enabled
@@ -30,7 +30,7 @@ impl LocalMod {
 
 /// Represents a mod that completely failed to load
 #[typeshare]
-#[derive(Serialize, Clone)]
+#[derive(Debug, Serialize, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct FailedMod {
     /// The error that caused the mod to fail to load
@@ -43,12 +43,11 @@ pub struct FailedMod {
 
 /// Represents a `LocalMod` that we aren't sure loaded successfully
 #[typeshare]
-#[derive(Serialize, Clone)]
+#[derive(Debug, Serialize, Clone)]
 #[serde(tag = "loadState", content = "mod", rename_all = "camelCase")]
-#[allow(clippy::large_enum_variant)]
 pub enum UnsafeLocalMod {
     /// A mod was loaded successfully
-    Valid(LocalMod),
+    Valid(Box<LocalMod>),
     /// A mod failed to load
     Invalid(FailedMod),
 }
@@ -161,7 +160,7 @@ pub fn get_paths_to_preserve(local_mod: Option<&LocalMod>) -> Vec<PathBuf> {
 
 /// Represents a manifest file for a local mod.
 #[typeshare]
-#[derive(Serialize, Deserialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct ModManifest {
     /// The unique name of the mod
@@ -186,11 +185,13 @@ pub struct ModManifest {
     pub warning: Option<ModWarning>,
     /// An exe that runs before the game starts, a prepatcher. This is used for mods that need to patch the game before it starts
     pub patcher: Option<String>,
+    /// A link to donate to the mod. May only be for Patreon or PayPal
+    pub donate_link: Option<String>,
 }
 
 /// Represents a warning a mod wants to show to the user on start
 #[typeshare]
-#[derive(Serialize, Deserialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct ModWarning {
     /// The title of the warning
@@ -200,7 +201,7 @@ pub struct ModWarning {
 }
 
 /// Represents a configuration file for a mod
-#[derive(Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize)]
 pub struct ModStubConfig {
     /// Whether the mod is enabled
     pub enabled: bool,

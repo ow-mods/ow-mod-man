@@ -5,16 +5,22 @@ import { useGetTranslation } from "@hooks";
 import { dialog } from "@tauri-apps/api";
 import RemoteModActions from "./RemoteModActions";
 import { simpleOnError } from "../../../../errorHandling";
+import { RemoteMod } from "@types";
 
 export interface RemoteModRowProps {
     uniqueName: string;
+    hideThumbnail: boolean;
 }
 
 const RemoteModRow = memo(function RemoteModRow(props: RemoteModRowProps) {
     const getTranslation = useGetTranslation();
 
-    const [status, remote] = hooks.getRemoteMod("remoteRefresh", { uniqueName: props.uniqueName });
+    const [status, remoteOpt] = hooks.getRemoteMod("remoteRefresh", {
+        uniqueName: props.uniqueName
+    });
     const busy = hooks.getModBusy("modBusy", { uniqueName: props.uniqueName })[1];
+
+    const remote = (remoteOpt?.type === "err" ? null : remoteOpt?.data) as RemoteMod | null;
 
     const hasPrerelease = remote?.prerelease !== undefined && remote?.prerelease !== null;
 
@@ -83,15 +89,22 @@ const RemoteModRow = memo(function RemoteModRow(props: RemoteModRowProps) {
         ]
     );
 
+    const isLoading =
+        remoteOpt?.type === "loading" || (status === "Loading" && (remote ?? null) === null);
+
     return (
         <ModRow
             uniqueName={props.uniqueName}
-            isLoading={status === "Loading" && remote === null}
+            isLoading={isLoading}
             name={remote?.name ?? props.uniqueName}
+            slug={remote?.slug}
             description={remote?.description}
+            requiresDlc={remote?.tags?.includes("requires-dlc") ?? false}
             author={remote?.authorDisplay ?? remote?.author ?? ""}
             downloads={remote?.downloadCount ?? -1}
             version={remote?.version ?? "0.0.0"}
+            thumbnailUrl={remote?.thumbnail?.openGraph ?? remote?.thumbnail.main}
+            hideThumbnail={props.hideThumbnail}
         >
             {modActions}
         </ModRow>

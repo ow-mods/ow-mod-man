@@ -10,7 +10,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        platform: [ubuntu-20.04, windows-latest]
+        platform: [ubuntu-22.04, windows-latest]
     runs-on: ${{ matrix.platform }}
 
     steps:
@@ -28,7 +28,7 @@ jobs:
           shared-key: ${{ runner.os }}-rust-cache-${{ hashFiles('Cargo.lock') }}
 
       - name: Install Deb Generator
-        if: matrix.platform == 'ubuntu-20.04'
+        if: matrix.platform == 'ubuntu-22.04'
         run: cargo install cargo-deb
 
       - name: Build CLI
@@ -44,17 +44,17 @@ jobs:
           ANALYTICS_API_KEY: ${{ secrets.ANALYTICS_API_KEY }}
 
       - name: Generate Dist Folder
-        if: matrix.platform == 'ubuntu-20.04'
+        if: matrix.platform == 'ubuntu-22.04'
         run: cargo xtask dist_cli
         env:
           ANALYTICS_API_KEY: ${{ secrets.ANALYTICS_API_KEY }}
 
       - name: Archive Dist Files
-        if: matrix.platform == 'ubuntu-20.04'
+        if: matrix.platform == 'ubuntu-22.04'
         run: tar --zstd -cfowmods.tar.zst -C target/release owmods  -C ../../dist/cli/ man completions
 
       - name: Generate Deb File
-        if: matrix.platform == 'ubuntu-20.04'
+        if: matrix.platform == 'ubuntu-22.04'
         run: cargo deb -p owmods_cli
         env:
           ANALYTICS_API_KEY: ${{ secrets.ANALYTICS_API_KEY }}

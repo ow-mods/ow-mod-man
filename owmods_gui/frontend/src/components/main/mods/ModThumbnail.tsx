@@ -16,8 +16,10 @@ export interface ModThumbnailProps {
 const modDbThumbnailUrl = "https://ow-mods.github.io/ow-mod-db/thumbnails";
 
 const ModThumbnail = memo(function ModThumbnail(props: ModThumbnailProps) {
-    const busy = hooks.getModBusy("modBusy", { uniqueName: props.uniqueName })[1];
+    let busy = hooks.getModBusy("modBusy", { uniqueName: props.uniqueName })[1];
     const bar = hooks.getBarByUniqueName("progressUpdate", { uniqueName: props.uniqueName })[1];
+
+    busy = busy || (bar !== null && (bar?.success ?? undefined) === undefined);
 
     const [imageIsError, setImageIserror] = useState(false);
 
@@ -32,7 +34,7 @@ const ModThumbnail = memo(function ModThumbnail(props: ModThumbnailProps) {
                 <div
                     className="mod-thumb-cover"
                     style={{
-                        width: busy ? `${(1 - progress) * 100}%` : "0",
+                        width: busy && progress !== 0 ? `${(1 - progress) * 100}%` : "0",
                         borderTopLeftRadius: leftBorderRadius,
                         borderBottomLeftRadius: leftBorderRadius,
                         borderTopRightRadius: rightBorderRadius,

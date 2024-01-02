@@ -1,5 +1,6 @@
 import { hooks } from "@commands";
 import { useGetTranslation } from "@hooks";
+import { ImageRounded } from "@mui/icons-material";
 import {
     Paper,
     Table,
@@ -56,7 +57,11 @@ const ModsTable = forwardRef<TableVirtuosoHandle, ModsTableProps>(function ModsT
             data={props.uniqueNames}
             fixedHeaderContent={() => (
                 <TableRow sx={{ background: theme.palette.grey[900] }}>
-                    {guiConfig?.hideModThumbnails || <TableCell width="250px">&nbsp;</TableCell>}
+                    {guiConfig?.hideModThumbnails || (
+                        <TableCell width="220px">
+                            <ImageRounded />
+                        </TableCell>
+                    )}
                     <TableCell>{getTranslation("NAME")}</TableCell>
                     <TableCell width="100px">{getTranslation("DOWNLOADS")}</TableCell>
                     <TableCell width="110px" align="center">

@@ -47,6 +47,7 @@ body {
 
 .mod-thumb {
     display: block;
+    background-color: #3c3c3c;
 }
 
 .mod-thumb.disabled {

@@ -2,6 +2,7 @@ import { commands } from "@commands";
 import { emit } from "@events";
 import { useGetTranslation } from "@hooks";
 import {
+    AttachMoneyRounded,
     BuildRounded,
     FolderOpenRounded,
     HelpRounded,
@@ -42,6 +43,11 @@ const OverflowMenu = () => {
     const onOpenOwml = useCallback(() => {
         commands.openOwml();
     }, []);
+
+    const onDonate = useCallback(() => {
+        shell.open("https://paypal.me/Bwc9876");
+        onClose();
+    }, [onClose]);
 
     return (
         <>
@@ -90,6 +96,12 @@ const OverflowMenu = () => {
                         <HelpRounded fontSize="small" />
                     </ListItemIcon>
                     <ListItemText>{getTranslation("HELP")}</ListItemText>
+                </MenuItem>
+                <MenuItem onClick={onDonate}>
+                    <ListItemIcon>
+                        <AttachMoneyRounded fontSize="small" />
+                    </ListItemIcon>
+                    <ListItemText>{getTranslation("DONATE")}</ListItemText>
                 </MenuItem>
                 <Suspense>
                     <About onClick={onClose} />

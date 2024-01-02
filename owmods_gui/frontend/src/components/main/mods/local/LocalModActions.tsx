@@ -4,7 +4,7 @@ import {
     GitHub,
     DeleteRounded,
     ConstructionRounded,
-    AttachMoney
+    AttachMoneyRounded
 } from "@mui/icons-material";
 import { Checkbox, useTheme } from "@mui/material";
 import { memo, useRef } from "react";
@@ -89,7 +89,7 @@ const LocalModActions = memo(function LocalModTools(props: LocalModActionsProps)
                 {props.hasDonate && (
                     <ModActionOverflowItem
                         label={getTranslation("DONATE")}
-                        icon={<AttachMoney />}
+                        icon={<AttachMoneyRounded />}
                         onClick={props.onDonate}
                         onClose={overflowRef.current?.onClose}
                     />

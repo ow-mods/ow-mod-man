@@ -56,7 +56,7 @@ const LocalModsPage = memo(
         return (
             <ModsPage
                 isLoading={status === "Loading" && localMods === null}
-                actionsSize={130}
+                actionsSize={170}
                 noModsText={getTranslation("NO_MODS")}
                 filter={props.filter}
                 onFilterChange={props.onFilterChanged}

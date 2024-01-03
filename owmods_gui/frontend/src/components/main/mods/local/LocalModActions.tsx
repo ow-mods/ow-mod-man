@@ -31,6 +31,7 @@ export interface LocalModActionsProps {
 const LocalModActions = memo(function LocalModTools(props: LocalModActionsProps) {
     const theme = useTheme();
     const getTranslation = useGetTranslation();
+    const guiConfig = hooks.getGuiConfig("guiConfigReload")[1];
     const overflowRef = useRef<{ onClose: () => void }>();
 
     const isBusy = hooks.getModBusy("modBusy", { uniqueName: props.uniqueName })[1];
@@ -41,7 +42,7 @@ const LocalModActions = memo(function LocalModTools(props: LocalModActionsProps)
 
     return (
         <>
-            {props.donateLinks && props.donateLinks.length !== 0 && (
+            {!guiConfig?.hideDonate && props.donateLinks && props.donateLinks.length !== 0 && (
                 <LocalModDonateIcon uniqueName={props.uniqueName} links={props.donateLinks} />
             )}
             <Checkbox

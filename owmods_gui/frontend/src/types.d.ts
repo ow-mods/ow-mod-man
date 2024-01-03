@@ -397,6 +397,7 @@ export interface GuiConfig {
     hideInstalledInRemote: boolean;
     hideModThumbnails: boolean;
     hideDlc: boolean;
+    hideDonate: boolean;
     rainbow: boolean;
 }
 

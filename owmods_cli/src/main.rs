@@ -1,4 +1,4 @@
-use std::{path::PathBuf, process};
+use std::{fmt::Write, path::PathBuf, process};
 
 use anyhow::{anyhow, Result};
 use clap::{CommandFactory, Parser};
@@ -236,13 +236,13 @@ async fn run_from_cli(cli: BaseCli) -> Result<()> {
                         info!("Expected OWML Version: {}", owml_version);
                     }
                     if let Some(deps) = &local_mod.manifest.dependencies {
-                        info!("Dependencies: {}", deps.join(", "));
+                        info!("Dependencies:{}", format_list(deps));
                     }
                     if let Some(conflicts) = &local_mod.manifest.conflicts {
-                        info!("Conflicts: {}", conflicts.join(", "));
+                        info!("Conflicts:{}", format_list(conflicts));
                     }
-                    if let Some(donate_link) = &local_mod.manifest.donate_link {
-                        info!("Donate Link: {}", donate_link);
+                    if let Some(donate_links) = &local_mod.manifest.donate_links {
+                        info!("Donate Links:{}", format_list(donate_links));
                     }
                 }
                 info!("In Database: {}", yes_no(has_remote));
@@ -255,7 +255,7 @@ async fn run_from_cli(cli: BaseCli) -> Result<()> {
                         info!("Parent Mod: {}", parent);
                     }
                     if let Some(tags) = &remote_mod.tags {
-                        info!("Tags: {}", tags.join(", "));
+                        info!("Tags: {}", format_list(tags));
                     }
                     info!("Remote Version: {}", remote_mod.version);
                     if let Some(prerelease) = &remote_mod.prerelease {
@@ -572,6 +572,13 @@ async fn run_from_cli(cli: BaseCli) -> Result<()> {
         },
     }
     Ok(())
+}
+
+fn format_list(l: &[String]) -> String {
+    l.iter().fold(String::new(), |mut out, line| {
+        let _ = write!(out, "\n  - {line}");
+        out
+    })
 }
 
 fn yes_no(v: bool) -> String {

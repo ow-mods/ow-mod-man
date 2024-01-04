@@ -20,7 +20,7 @@ indicatif = { version = "0.17.7", features = ["improved_unicode"] }
 tokio = { version = "1.35.1", features = ["macros"] }
 log = { version = "0.4.20", features = ["std"] }
 clap_complete = "4.4.6"
-serde_json = "1.0.110"
+serde_json = "1.0.111"
 
 [build-dependencies]
 clap = { version = "4.4.12", features = ["derive"] }

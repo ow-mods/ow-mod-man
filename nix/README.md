@@ -10,7 +10,7 @@ The flake provides an overlay and the packages `owmods-cli` and `owmods-gui`.
 
 ```nix
 ow-mod-man = {
-  url = "github:ow-mods/ow-mod-man/dev";
+  url = "github:ow-mods/ow-mod-man";
   inputs.nixpkgs.follows = "nixpkgs";
 };
 ```
@@ -30,7 +30,7 @@ let
   flake-compat = import (fetchTarball "https://github.com/edolstra/flake-compat/archive/master.tar.gz");
    src = fetchGit {
     url = "https://github.com/ow-mods/ow-mod-man.git";
-    ref = "dev";
+    ref = "main";
   };
   ow-mod-man = (flake-compat { inherit src; }).defaultNix;
 in ow-mod-man.packages.<system>.owmods-<gui/cli>

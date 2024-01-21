@@ -36,7 +36,7 @@ typeshare = "1.0.1"
 lazy_static = "1.4.0"
 tempfile = "3.9.0"
 unicode-normalization = "0.1.22"
-regex = "1.10.2"
+regex = "1.10.3"
 
 [dev-dependencies]
 tokio-test = "0.4.3"

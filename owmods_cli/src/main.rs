@@ -293,7 +293,8 @@ async fn run_from_cli(cli: BaseCli) -> Result<()> {
 
             if flag {
                 install_mod_from_db(unique_name, &config, &remote_db, &local_db, r, *prerelease)
-                    .await?
+                    .await
+                    .map(|_| ())?
             }
         }
         Commands::InstallZip { zip_path } => {

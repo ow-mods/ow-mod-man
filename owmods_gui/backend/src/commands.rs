@@ -28,7 +28,7 @@ use owmods_core::{
     protocol::{ProtocolPayload, ProtocolVerb},
     remove::{remove_failed_mod, remove_mod},
     socket::{LogServer, SocketMessageType},
-    updates::check_mod_needs_update,
+    updates::{check_mod_needs_update, fix_version_post_update},
     validate::fix_deps,
 };
 use serde::Serialize;
@@ -358,6 +358,7 @@ pub async fn install_mod(
             prerelease.unwrap_or(false),
         )
         .await
+        .map(|_| ())
     } else {
         Ok(())
     };
@@ -603,6 +604,10 @@ pub async fn update_mod(
     let remote_db = state.remote_db.read().await.clone();
     let remote_db = remote_db.try_get()?;
 
+    let remote_mod = remote_db
+        .get_mod(unique_name)
+        .ok_or_else(|| anyhow!("Can't find mod {} in remote", unique_name))?;
+
     let res = if unique_name == OWML_UNIQUE_NAME {
         download_and_install_owml(
             &config,
@@ -622,6 +627,7 @@ pub async fn update_mod(
             false,
         )
         .await
+        .and_then(|m| fix_version_post_update(&m, remote_mod))
     };
     mark_mod_busy(unique_name, false, true, &state, &handle).await;
     res?;
@@ -667,6 +673,12 @@ pub async fn update_all_mods(
     busy_mods.retain(|m| !unique_names.contains(m) && (!owml_in_list || m != OWML_UNIQUE_NAME));
     handle.typed_emit_all(&Event::ModBusy(())).ok();
     for updated_mod in updated_mods {
+        fix_version_post_update(
+            &updated_mod,
+            remote_db
+                .get_mod(&updated_mod.manifest.unique_name)
+                .unwrap(),
+        )?; // Unwrap is safe because any mod in this list must have a remote counterpart
         send_analytics_event(
             AnalyticsEventName::ModUpdate,
             &updated_mod.manifest.unique_name,

@@ -41,8 +41,8 @@ dependencies:
 
 devDependencies:
   '@testing-library/react':
-    specifier: 14.1.2
-    version: 14.1.2(react-dom@18.2.0)(react@18.2.0)
+    specifier: 14.2.0
+    version: 14.2.0(react-dom@18.2.0)(react@18.2.0)
   '@types/react':
     specifier: 18.2.48
     version: 18.2.48
@@ -275,6 +275,7 @@ packages:
     engines: {node: '>=6.9.0'}
     dependencies:
       regenerator-runtime: 0.14.1
+    dev: false
 
   /@babel/runtime@7.23.8:
     resolution: {integrity: sha512-Y7KbAP984rn1VGMbGqKmBLio9V7y5Je9GvU4rQPCPinCyNfUcToxIXl06d59URp/F3LwinvODxab5N/G6qggkw==}
@@ -1328,14 +1329,14 @@ packages:
       pretty-format: 27.5.1
     dev: true
 
-  /@testing-library/react@14.1.2(react-dom@18.2.0)(react@18.2.0):
-    resolution: {integrity: sha512-z4p7DVBTPjKM5qDZ0t5ZjzkpSNb+fZy1u6bzO7kk8oeGagpPCAtgh4cx1syrfp7a+QWkM021jGqjJaxJJnXAZg==}
+  /@testing-library/react@14.2.0(react-dom@18.2.0)(react@18.2.0):
+    resolution: {integrity: sha512-7uBnPHyOG6nDGCzv8SLeJbSa33ZoYw7swYpSLIgJvBALdq7l9zPNk33om4USrxy1lKTxXaVfufzLmq83WNfWIw==}
     engines: {node: '>=14'}
     peerDependencies:
       react: ^18.0.0
       react-dom: ^18.0.0
     dependencies:
-      '@babel/runtime': 7.23.7
+      '@babel/runtime': 7.23.8
       '@testing-library/dom': 9.3.3
       '@types/react-dom': 18.2.18
       react: 18.2.0

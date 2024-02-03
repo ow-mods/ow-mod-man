@@ -26,14 +26,14 @@ tauri = { version = "1.5.4", features = [ "clipboard-write-text",
     # "reqwest-native-tls-vendored"
 ] }
 anyhow = "1.0.79"
-tokio = { version = "1.35.1", features = ["sync", "macros"] }
+tokio = { version = "1.36.0", features = ["sync", "macros"] }
 log = { version = "0.4.20", features = ["std", "serde"] }
 typeshare = "1.0.1"
 notify = { version = "6.1.1", default-features = false, features = [
     "macos_kqueue",
 ] }
 regex = "1.10.3"
-time = { version = "0.3.32", features = ["macros", "local-offset"] }
+time = { version = "0.3.33", features = ["macros", "local-offset"] }
 tauri-plugin-deep-link = "0.1.2"
 opener = "0.6.1"
 tauri-plugin-window-state = "0.1.0"

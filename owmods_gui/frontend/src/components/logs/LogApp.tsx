@@ -2,7 +2,7 @@ import { commands, hooks } from "@commands";
 import BaseApp from "@components/common/BaseApp";
 import { TranslationMap } from "@components/common/TranslationContext";
 import { useGetTranslation } from "@hooks";
-import { dialog } from "@tauri-apps/api";
+import * as dialog from "@tauri-apps/plugin-dialog";
 import { getCurrent } from "@tauri-apps/api/window";
 import { SocketMessageType } from "@types";
 import { useState, useCallback, useEffect, memo, useRef } from "react";

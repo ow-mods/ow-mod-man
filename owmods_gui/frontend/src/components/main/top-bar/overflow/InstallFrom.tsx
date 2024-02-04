@@ -169,9 +169,7 @@ const InstallFrom = memo(function InstallFrom({ onClick }: ModalProps) {
                                             name: lblMap[source],
                                             extensions: ["zip"]
                                         }
-                                    ],
-                                    directory: false,
-                                    multiple: false
+                                    ]
                                 }}
                             />
                         ) : (

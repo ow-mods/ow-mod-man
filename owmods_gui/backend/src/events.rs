@@ -78,24 +78,24 @@ pub trait CustomEventListener {
 
 impl CustomEventEmitterAll for AppHandle {
     fn typed_emit_all(&self, event: &Event) -> Result<()> {
-        self.emit_all(INVOKE_URI, event).map_err(map_emit_err)
+        self.emit(INVOKE_URI, event).map_err(map_emit_err)
     }
 }
 
-impl CustomEventTriggerGlobal for AppHandle {
-    fn typed_trigger_global(&self, event: &Event) -> Result<()> {
-        self.trigger_global(INVOKE_URI, Some(serde_json::to_string(event).unwrap()));
-        Ok(())
-    }
-}
+// impl CustomEventTriggerGlobal for AppHandle {
+//     fn typed_trigger_global(&self, event: &Event) -> Result<()> {
+//         self.trigger(INVOKE_URI, Some(serde_json::to_string(event).unwrap()));
+//         Ok(())
+//     }
+// }
 
 impl CustomEventListener for AppHandle {
     fn typed_listen<F: Fn(Event) + Send + Sync + 'static>(&self, f: F) {
         self.clone()
             .listen_global(INVOKE_URI, move |e: tauri::Event| {
                 let event = e
-                    .payload()
-                    .and_then(|s| serde_json::from_str::<Event>(s).ok());
+                    .payload();
+                let event = serde_json::from_str::<Event>(event).ok();
                 if let Some(event) = event {
                     f(event);
                 }
@@ -111,6 +111,6 @@ impl CustomEventEmitter for Window {
 
 impl CustomEventEmitterAll for Window {
     fn typed_emit_all(&self, event: &Event) -> Result<()> {
-        self.emit_all(INVOKE_URI, event).map_err(map_emit_err)
+        self.emit(INVOKE_URI, event).map_err(map_emit_err)
     }
 }

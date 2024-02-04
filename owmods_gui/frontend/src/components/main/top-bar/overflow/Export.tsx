@@ -3,7 +3,7 @@ import { ModalProps } from "./About";
 import { memo, useCallback } from "react";
 import { NorthEastRounded } from "@mui/icons-material";
 import { MenuItem, ListItemIcon, ListItemText } from "@mui/material";
-import { dialog } from "@tauri-apps/api";
+import * as dialog from "@tauri-apps/plugin-dialog";
 import { commands } from "@commands";
 import { simpleOnError } from "../../../../errorHandling";
 

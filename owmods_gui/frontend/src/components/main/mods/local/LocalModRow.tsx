@@ -2,7 +2,8 @@ import { commands, hooks } from "@commands";
 import ModRow from "../ModRow";
 import { memo, useCallback, useMemo } from "react";
 import { useGetTranslation, useUnifiedMod } from "@hooks";
-import { dialog } from "@tauri-apps/api";
+import * as dialog from "@tauri-apps/plugin-dialog";
+import * as shell from "@tauri-apps/plugin-shell";
 import LocalModActions from "./LocalModActions";
 import { LocalMod, RemoteMod, UnsafeLocalMod } from "@types";
 

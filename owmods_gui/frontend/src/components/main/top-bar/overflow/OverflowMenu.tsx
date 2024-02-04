@@ -12,7 +12,7 @@ import {
 import { ListItemIcon, ListItemText, MenuItem, Tooltip } from "@mui/material";
 import IconButton from "@mui/material/IconButton";
 import Menu from "@mui/material/Menu";
-import { shell } from "@tauri-apps/api";
+import * as shell from "@tauri-apps/plugin-shell";
 import { useState, MouseEvent, useCallback, lazy, Suspense } from "react";
 
 const About = lazy(() => import("./About"));

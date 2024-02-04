@@ -63,9 +63,9 @@ pub fn setup_fs_watch(handle: AppHandle) -> Result<()> {
     let e_handle = handle.clone();
 
     handle.listen_global("owmods://events/invoke", move |e| {
-        let payload = e.payload().map(serde_json::from_str);
+        let payload = serde_json::from_str::<CustomEvent>(e.payload());
 
-        if let Some(Ok(payload)) = payload {
+        if let Ok(payload) = payload {
             let payload: CustomEvent = payload;
 
             if let CustomEvent::GuiConfigReload(watch_fs) = payload {

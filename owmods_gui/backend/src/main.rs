@@ -117,7 +117,7 @@ fn main() -> Result<(), Box<dyn Error>> {
         .setup(move |app| {
             // Logger Setup
 
-            let logger = Logger::new(app.handle());
+            let logger = Logger::new(app.handle().clone());
             logger
                 .write_log_to_file(
                     log::Level::Info,
@@ -131,7 +131,7 @@ fn main() -> Result<(), Box<dyn Error>> {
 
             // Protocol Listener Setup
 
-            let handle = app.handle();
+            let handle = app.handle().clone();
 
             let res = protocol::prep_protocol(handle);
 
@@ -145,7 +145,7 @@ fn main() -> Result<(), Box<dyn Error>> {
 
             let handle = app.handle();
 
-            let res = setup_fs_watch(handle);
+            let res = setup_fs_watch(handle.clone());
 
             if let Err(why) = res {
                 error!("Failed to setup file watching: {:?}", why);
@@ -153,6 +153,11 @@ fn main() -> Result<(), Box<dyn Error>> {
 
             Ok(())
         })
+        .plugin(tauri_plugin_app::init())
+        .plugin(tauri_plugin_dialog::init())
+        .plugin(tauri_plugin_os::init())
+        .plugin(tauri_plugin_shell::init())
+        .plugin(tauri_plugin_window::init())
         .invoke_handler(tauri::generate_handler![
             initial_setup,
             refresh_local_db,
@@ -209,7 +214,6 @@ fn main() -> Result<(), Box<dyn Error>> {
             force_log_update,
             show_log_folder
         ])
-        .plugin(tauri_plugin_window_state::Builder::default().build())
         .run(tauri::generate_context!());
 
     if let Err(why) = res {

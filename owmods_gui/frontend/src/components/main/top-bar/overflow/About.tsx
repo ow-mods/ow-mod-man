@@ -13,7 +13,9 @@ import {
     Box,
     IconButton
 } from "@mui/material";
-import { app, os, shell } from "@tauri-apps/api";
+import * as os from "@tauri-apps/plugin-os";
+import * as app from "@tauri-apps/plugin-app";
+import * as shell from "@tauri-apps/plugin-shell";
 import { memo, useCallback, useEffect, useState } from "react";
 import logo from "@assets/images/logo.png?w=256&h=256&format=webp&imagetools";
 import ODTooltip from "@components/common/ODTooltip";

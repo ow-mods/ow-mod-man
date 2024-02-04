@@ -1,4 +1,3 @@
-use std::result::Result as StdResult;
 use std::{
     fs::File,
     io::{BufWriter, Write},
@@ -17,6 +16,7 @@ use owmods_core::{
         download_and_install_owml, install_mod_from_db, install_mod_from_url, install_mod_from_zip,
         install_mods_parallel,
     },
+    file::get_app_path,
     game::launch_game,
     mods::{
         local::{LocalMod, UnsafeLocalMod},
@@ -28,7 +28,7 @@ use owmods_core::{
     protocol::{ProtocolPayload, ProtocolVerb},
     remove::{remove_failed_mod, remove_mod},
     socket::{LogServer, SocketMessageType},
-    updates::check_mod_needs_update,
+    updates::{check_mod_needs_update, fix_version_post_update},
     validate::fix_deps,
 };
 use serde::Serialize;
@@ -41,47 +41,14 @@ use crate::events::{CustomEventEmitter, CustomEventEmitterAll, Event};
 use crate::game::LogData;
 use crate::RemoteDatabaseOption;
 use crate::{
+    error::{Error, Result},
+    events::CustomEventListener,
+};
+use crate::{
     game::{make_log_window, show_warnings, GameMessage},
     gui_config::GuiConfig,
     LogPort, State,
 };
-
-type Result<T = ()> = StdResult<T, Error>;
-
-pub struct Error(anyhow::Error);
-
-impl From<anyhow::Error> for Error {
-    fn from(item: anyhow::Error) -> Self {
-        Self(item)
-    }
-}
-
-impl From<&anyhow::Error> for Error {
-    fn from(item: &anyhow::Error) -> Self {
-        Self(anyhow!(item.to_string()))
-    }
-}
-
-impl From<String> for Error {
-    fn from(item: String) -> Self {
-        Self(anyhow!(item))
-    }
-}
-
-impl Clone for Error {
-    fn clone(&self) -> Self {
-        Self(anyhow!(self.0.to_string()))
-    }
-}
-
-impl Serialize for Error {
-    fn serialize<S>(&self, serializer: S) -> StdResult<S::Ok, S::Error>
-    where
-        S: serde::Serializer,
-    {
-        serializer.serialize_str(&self.0.to_string())
-    }
-}
 
 pub async fn mark_mod_busy(
     unique_name: &str,
@@ -229,8 +196,9 @@ pub async fn refresh_remote_db(handle: tauri::AppHandle, state: tauri::State<'_,
     let conf = state.config.read().await;
     let new_db = RemoteDatabase::fetch(&conf.database_url).await;
 
-    {
+    let first_load = {
         let mut remote_db = state.remote_db.write().await;
+        let was_unloaded = remote_db.is_pending();
         *remote_db = match new_db {
             Ok(db) => RemoteDatabaseOption::Connected(Box::new(db)),
             Err(err) => {
@@ -238,6 +206,13 @@ pub async fn refresh_remote_db(handle: tauri::AppHandle, state: tauri::State<'_,
                 RemoteDatabaseOption::Error(err.into())
             }
         };
+        was_unloaded
+    };
+
+    if first_load {
+        handle
+            .typed_trigger_global(&Event::RemoteInitialized(()))
+            .ok();
     }
 
     handle.typed_emit_all(&Event::RemoteRefresh(())).ok();
@@ -386,6 +361,7 @@ pub async fn install_mod(
             prerelease.unwrap_or(false),
         )
         .await
+        .map(|_| ())
     } else {
         Ok(())
     };
@@ -631,6 +607,10 @@ pub async fn update_mod(
     let remote_db = state.remote_db.read().await.clone();
     let remote_db = remote_db.try_get()?;
 
+    let remote_mod = remote_db
+        .get_mod(unique_name)
+        .ok_or_else(|| anyhow!("Can't find mod {} in remote", unique_name))?;
+
     let res = if unique_name == OWML_UNIQUE_NAME {
         download_and_install_owml(
             &config,
@@ -650,6 +630,7 @@ pub async fn update_mod(
             false,
         )
         .await
+        .and_then(|m| fix_version_post_update(&m, remote_mod))
     };
     mark_mod_busy(unique_name, false, true, &state, &handle).await;
     res?;
@@ -695,6 +676,12 @@ pub async fn update_all_mods(
     busy_mods.retain(|m| !unique_names.contains(m) && (!owml_in_list || m != OWML_UNIQUE_NAME));
     handle.typed_emit_all(&Event::ModBusy(())).ok();
     for updated_mod in updated_mods {
+        fix_version_post_update(
+            &updated_mod,
+            remote_db
+                .get_mod(&updated_mod.manifest.unique_name)
+                .unwrap(),
+        )?; // Unwrap is safe because any mod in this list must have a remote counterpart
         send_analytics_event(
             AnalyticsEventName::ModUpdate,
             &updated_mod.manifest.unique_name,
@@ -901,35 +888,36 @@ pub async fn fix_mod_deps(
 #[tauri::command]
 pub async fn db_has_issues(state: tauri::State<'_, State>, window: tauri::Window) -> Result<bool> {
     let local_db = state.local_db.read().await.clone();
-    let remote_db = state.remote_db.read().await.clone();
-    let remote_db = remote_db.try_get()?;
     let config = state.config.read().await.clone();
     let mut has_errors = local_db.active().any(|m| !m.errors.is_empty());
 
     let owml = LocalDatabase::get_owml(&config.owml_path);
     if let Some(owml) = owml {
-        let (needs_update, remote_owml) = check_mod_needs_update(&owml, remote_db);
-        if needs_update {
-            let answer = window
-                .dialog()
-                .message(format!(
-                    "OWML is out of date, update it? (You have {} installed)",
-                    owml.manifest.version
-                ))
-                .kind(MessageDialogKind::Info)
-                .ok_button_label("Yes")
-                .cancel_button_label("No")
-                .title("Update OWML?")
-                .blocking_show();
-            if answer {
-                let handle = window.app_handle();
-                mark_mod_busy(OWML_UNIQUE_NAME, true, true, &state, handle).await;
-                download_and_install_owml(&config, remote_owml.unwrap(), false).await?;
-                mark_mod_busy(OWML_UNIQUE_NAME, false, true, &state, handle).await;
-                let event = Event::RequestReload("LOCAL".to_string());
-                handle.typed_emit_all(&event).unwrap();
-            } else {
-                has_errors = true;
+        let remote_db = state.remote_db.read().await.clone();
+        if let Some(remote_db) = remote_db.get() {
+            let (needs_update, remote_owml) = check_mod_needs_update(&owml, remote_db);
+            if needs_update {
+                let answer = window
+                    .dialog()
+                    .message(format!(
+                        "OWML is out of date, update it? (You have {} installed)",
+                        owml.manifest.version
+                    ))
+                    .kind(MessageDialogKind::Info)
+                    .ok_button_label("Yes")
+                    .cancel_button_label("No")
+                    .title("Update OWML?")
+                    .blocking_show();
+                if answer {
+                    let handle = window.app_handle();
+                    mark_mod_busy(OWML_UNIQUE_NAME, true, true, &state, &handle).await;
+                    download_and_install_owml(&config, remote_owml.unwrap(), false).await?;
+                    mark_mod_busy(OWML_UNIQUE_NAME, false, true, &state, &handle).await;
+                    let event = Event::RequestReload("LOCAL".to_string());
+                    handle.typed_emit_all(&event).unwrap();
+                } else {
+                    has_errors = true;
+                }
             }
         }
     }
@@ -962,10 +950,15 @@ pub async fn pop_protocol_url(
 
     if protocol_listeners.len() >= PROTOCOL_LISTENER_AMOUNT {
         let mut protocol_url = state.protocol_url.write().await;
-        if let Some(url) = protocol_url.as_ref() {
-            handle
-                .typed_emit_all(&Event::ProtocolInvoke(url.clone()))
-                .ok();
+        if let Some(url) = protocol_url.as_ref().cloned() {
+            let handle_2 = handle.clone();
+            handle.typed_listen(move |e| {
+                if let Event::RemoteInitialized(_) = e {
+                    handle_2
+                        .typed_emit_all(&Event::ProtocolInvoke(url.clone()))
+                        .ok();
+                }
+            });
         }
         *protocol_url = None;
     }
@@ -1099,5 +1092,12 @@ pub async fn open_mod_github(unique_name: &str, state: tauri::State<'_, State>) 
     let db = state.remote_db.read().await;
     let db = db.try_get()?;
     open_github(unique_name, db)?;
+    Ok(())
+}
+
+#[tauri::command]
+pub async fn show_log_folder() -> Result {
+    let path = get_app_path()?;
+    opener::open(path.join("logs")).ok();
     Ok(())
 }

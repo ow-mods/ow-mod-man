@@ -1,5 +1,7 @@
+use std::path::PathBuf;
+
 use anyhow::Result;
-use log::info;
+use log::{info, warn};
 use version_compare::Cmp;
 
 use crate::{
@@ -8,8 +10,33 @@ use crate::{
     constants::OWML_UNIQUE_NAME,
     db::{LocalDatabase, RemoteDatabase},
     download::{download_and_install_owml, install_mods_parallel},
+    file::serialize_to_json,
     mods::{local::LocalMod, remote::RemoteMod},
 };
+
+/// Fix a local mod's version to match the remote version.
+///
+/// You should run this after updating a mod. This is automatically called by [update_all].
+///
+/// ## Errors
+///
+/// If we can't write the manifest.
+///
+pub fn fix_version_post_update(local_mod: &LocalMod, remote_mod: &RemoteMod) -> Result<()> {
+    if remote_mod.version != local_mod.manifest.version {
+        warn!(
+            "New manifest version ({}) isn't equal to the remote version ({}). Fixing...",
+            remote_mod.version, local_mod.manifest.version
+        );
+        let mut manifest = local_mod.manifest.clone();
+        manifest.version = remote_mod.version.clone();
+        let manifest_path = PathBuf::from(local_mod.mod_path.clone()).join("manifest.json");
+        serialize_to_json(&manifest, &manifest_path, false)?;
+        Ok(())
+    } else {
+        Ok(())
+    }
+}
 
 /// Check a given local mod against the remote database to see if there's an update.
 /// Skips if the mod doesn't have a remote counterpart or if the versions can't be parsed.
@@ -93,12 +120,15 @@ pub async fn update_all(
         Ok(owml_updated)
     } else {
         if !dry {
-            let mod_names = needs_update
-                .into_iter()
-                .map(|m| m.unique_name.clone())
-                .collect();
+            let mod_names = needs_update.iter().map(|m| m.unique_name.clone()).collect();
             let updated = install_mods_parallel(mod_names, config, remote_db, local_db).await?;
             for updated_mod in updated {
+                fix_version_post_update(
+                    &updated_mod,
+                    remote_db
+                        .get_mod(&updated_mod.manifest.unique_name)
+                        .unwrap(),
+                )?; // Unwrap is safe because any mod in this list must have a remote counterpart
                 send_analytics_event(
                     AnalyticsEventName::ModUpdate,
                     &updated_mod.manifest.unique_name,
@@ -112,6 +142,12 @@ pub async fn update_all(
 
 #[cfg(test)]
 mod tests {
+
+    use crate::{
+        file::{create_all_parents, deserialize_from_json},
+        mods::local::ModManifest,
+        test_utils::TestContext,
+    };
 
     use super::*;
 
@@ -153,5 +189,28 @@ mod tests {
         let (new_mod, db) = setup("burger", "burger2.0");
         let (needs_update, _) = check_mod_needs_update(&new_mod, &db);
         assert!(needs_update);
+    }
+
+    #[test]
+    fn test_fix_version_post_update() {
+        let mut ctx = TestContext::new();
+        let (mut new_mod, db) = setup("0.1.0", "0.2.0");
+        new_mod.mod_path = ctx
+            .join_mods_folder(&new_mod.manifest.unique_name)
+            .to_str()
+            .unwrap()
+            .to_string();
+        create_all_parents(&PathBuf::from(new_mod.mod_path.clone()).join("manifest.json")).unwrap();
+        ctx.insert_test_mod(&new_mod);
+        let remote_mod = db.get_mod(&new_mod.manifest.unique_name).unwrap();
+        fix_version_post_update(&new_mod, remote_mod).unwrap();
+
+        let new_manifest = deserialize_from_json::<ModManifest>(
+            &ctx.join_mods_folder(&new_mod.manifest.unique_name)
+                .join("manifest.json"),
+        )
+        .unwrap();
+
+        assert_eq!(new_manifest.version, "0.2.0");
     }
 }

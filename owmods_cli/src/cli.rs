@@ -15,6 +15,12 @@ pub struct BaseCli {
         help = "Apply the action recursively (to all dependencies)"
     )]
     pub recursive: bool,
+    #[arg(
+        global = true,
+        long = "assert-setup",
+        help = "Assert that OWML is setup, if not simply exit with code 2 (2 is used to differentiate between a normal exit and an exit due to OWML not being setup)"
+    )]
+    pub assert_setup: bool,
     #[arg(global = true, long = "debug", help = "Enable debug output")]
     pub debug: bool,
 }
@@ -220,6 +226,20 @@ pub enum Commands {
     Protocol {
         #[arg(help = "The owmods:// protocol link to use (include the owmods:// part)", value_hint = ValueHint::Other)]
         uri: String,
+    },
+    #[command(about = "Get the raw JSON of the remote or local database or a specific mod")]
+    Raw {
+        #[arg(
+            short = 'm',
+            long = "minify",
+            help = "Remove all whitespace the JSON output"
+        )]
+        minify: bool,
+        #[arg(
+            help = "`local`, `remote`, or the unique name of a mod",
+            value_hint = ValueHint::Other
+        )]
+        unique_name: Option<String>,
     },
 }
 

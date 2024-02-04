@@ -92,7 +92,8 @@ const commandInfo = {
     registerDropHandler: $<EmptyCommand>("register_drop_handler"),
     getDbTags: $<GetCommand<string[]>>("get_db_tags"),
     logError: $<ActionCommand<{ err: string }>>("log_error"),
-    forceLogUpdate: $<ActionCommand<{ port: number }>>("force_log_update")
+    forceLogUpdate: $<ActionCommand<{ port: number }>>("force_log_update"),
+    showLogsFolder: $<EmptyCommand>("show_log_folder")
 };
 
 type Command = keyof typeof commandInfo;

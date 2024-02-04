@@ -24,6 +24,7 @@ use time::macros::format_description;
 use tokio::sync::RwLock as TokioLock;
 
 mod commands;
+mod error;
 mod events;
 mod fs_watch;
 mod game;
@@ -44,10 +45,17 @@ pub enum RemoteDatabaseOption {
     PreInit,
     Loading,
     Connected(Box<RemoteDatabase>),
-    Error(commands::Error),
+    Error(error::Error),
 }
 
 impl RemoteDatabaseOption {
+    pub fn is_pending(&self) -> bool {
+        matches!(
+            self,
+            RemoteDatabaseOption::PreInit | RemoteDatabaseOption::Loading
+        )
+    }
+
     pub fn get(&self) -> Option<&RemoteDatabase> {
         match self {
             RemoteDatabaseOption::Connected(db) => Some(db),
@@ -55,7 +63,7 @@ impl RemoteDatabaseOption {
         }
     }
 
-    pub fn try_get(&self) -> Result<&RemoteDatabase, commands::Error> {
+    pub fn try_get(&self) -> Result<&RemoteDatabase, error::Error> {
         match self {
             RemoteDatabaseOption::Connected(db) => Ok(db),
             RemoteDatabaseOption::Error(err) => Err(err.clone()),
@@ -203,7 +211,8 @@ fn main() -> Result<(), Box<dyn Error>> {
             register_drop_handler,
             get_db_tags,
             open_mod_github,
-            force_log_update
+            force_log_update,
+            show_log_folder
         ])
         .run(tauri::generate_context!());
 

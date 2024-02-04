@@ -1,4 +1,4 @@
-import { MoreVertRounded } from "@mui/icons-material";
+import { CopyAllRounded, MoreVertRounded } from "@mui/icons-material";
 import { Menu, MenuItem, ListItemIcon } from "@mui/material";
 import {
     ReactNode,
@@ -11,9 +11,11 @@ import {
 } from "react";
 import ModActionIcon from "./ModActionIcon";
 import { useGetTranslation } from "@hooks";
+import { clipboard } from "@tauri-apps/api";
 
 export interface ModActionOverflowProps {
-    id: string;
+    tabId: string;
+    uniqueName: string;
     children: ReactNode;
 }
 
@@ -58,10 +60,17 @@ const ModActionOverflow = forwardRef(function ModActionOverflow(
         setAnchorEl(null);
     }, []);
 
+    const onCopyId = useCallback(() => {
+        clipboard.writeText(props.uniqueName);
+        onClose();
+    }, [props.uniqueName, onClose]);
+
     useImperativeHandle(ref, () => ({ onClose }), [onClose]);
 
-    const overflowId = `${props.id}-actions-overflow`;
-    const overflowButtonId = `${props.id}-actions-overflow-button`;
+    const id = `${props.tabId}-${props.uniqueName}`;
+
+    const overflowId = `${id}-actions-overflow`;
+    const overflowButtonId = `${id}-actions-overflow-button`;
 
     return (
         <>
@@ -84,6 +93,12 @@ const ModActionOverflow = forwardRef(function ModActionOverflow(
                 }}
             >
                 {props.children}
+                <ModActionOverflowItem
+                    label={getTranslation("COPY_UNIQUE_NAME")}
+                    icon={<CopyAllRounded />}
+                    onClick={onCopyId}
+                    onClose={onClose}
+                />
             </Menu>
         </>
     );

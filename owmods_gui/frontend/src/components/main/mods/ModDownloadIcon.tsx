@@ -14,8 +14,10 @@ export interface ModDownloadIconProps {
 const ModDownloadIcon = memo(function ModDownloadIcon(props: ModDownloadIconProps) {
     const theme = useTheme();
 
-    const busy = hooks.getModBusy("modBusy", { uniqueName: props.uniqueName })[1];
+    let busy = hooks.getModBusy("modBusy", { uniqueName: props.uniqueName })[1];
     const bar = hooks.getBarByUniqueName("progressUpdate", { uniqueName: props.uniqueName })[1];
+
+    busy = busy || (bar !== null && (bar?.success ?? undefined) === undefined);
 
     const percent = bar ? (bar.progress / bar.len) * 100 : 0;
 

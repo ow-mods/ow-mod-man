@@ -5,7 +5,7 @@ use crate::{constants::REQUIRES_DLC_TAG, search::Searchable};
 
 /// Represents a mod in the remote database
 #[typeshare]
-#[derive(Serialize, Deserialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct RemoteMod {
     /// The URL to download the mod from, always GitHub
@@ -81,7 +81,7 @@ impl Searchable for RemoteMod {
 
 /// A prerelease for a mod
 #[typeshare]
-#[derive(Serialize, Deserialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct ModPrerelease {
     /// The URL to download the prerelease from, always GitHub
@@ -92,7 +92,7 @@ pub struct ModPrerelease {
 
 /// Contains URLs for a mod's README
 #[typeshare]
-#[derive(Serialize, Deserialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct ModReadMe {
     /// The URL to the README in HTML format
@@ -103,7 +103,7 @@ pub struct ModReadMe {
 
 /// Contains URL for a mod's thumbnail
 ///
-/// Note this paths are relative to the database website:
+/// Note these paths are relative to the database website:
 ///
 /// `https://ow-mods.github.io/ow-mod-db/thumbails/`
 ///
@@ -128,7 +128,7 @@ pub struct ModReadMe {
 /// ```
 ///
 #[typeshare]
-#[derive(Serialize, Deserialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct ModThumbnail {
     /// Main thumbnail, this will be animated if the mod has an animated thumbnail

@@ -3,9 +3,11 @@ import { emit } from "@events";
 import { useGetTranslation } from "@hooks";
 import {
     BuildRounded,
+    FavoriteRounded,
     FolderOpenRounded,
     HelpRounded,
-    MoreHorizRounded
+    MoreHorizRounded,
+    ReceiptRounded
 } from "@mui/icons-material";
 import { ListItemIcon, ListItemText, MenuItem, Tooltip } from "@mui/material";
 import IconButton from "@mui/material/IconButton";
@@ -41,7 +43,18 @@ const OverflowMenu = () => {
 
     const onOpenOwml = useCallback(() => {
         commands.openOwml();
-    }, []);
+        onClose();
+    }, [onClose]);
+
+    const onLogs = useCallback(() => {
+        commands.showLogsFolder();
+        onClose();
+    }, [onClose]);
+
+    const onDonate = useCallback(() => {
+        shell.open("https://paypal.me/Bwc9876");
+        onClose();
+    }, [onClose]);
 
     return (
         <>
@@ -85,11 +98,23 @@ const OverflowMenu = () => {
                     </ListItemIcon>
                     <ListItemText>{getTranslation("EDIT_OWML")}</ListItemText>
                 </MenuItem>
+                <MenuItem onClick={onLogs}>
+                    <ListItemIcon>
+                        <ReceiptRounded fontSize="small" />
+                    </ListItemIcon>
+                    <ListItemText>{getTranslation("LOGS")}</ListItemText>
+                </MenuItem>
                 <MenuItem onClick={onHelp}>
                     <ListItemIcon>
                         <HelpRounded fontSize="small" />
                     </ListItemIcon>
                     <ListItemText>{getTranslation("HELP")}</ListItemText>
+                </MenuItem>
+                <MenuItem onClick={onDonate}>
+                    <ListItemIcon>
+                        <FavoriteRounded fontSize="small" />
+                    </ListItemIcon>
+                    <ListItemText>{getTranslation("DONATE")}</ListItemText>
                 </MenuItem>
                 <Suspense>
                     <About onClick={onClose} />

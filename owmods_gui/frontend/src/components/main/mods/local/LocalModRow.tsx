@@ -161,11 +161,7 @@ const LocalModRow = memo(function LocalModRow(props: LocalModRowProps) {
         task();
     }, [outdated, props.uniqueName]);
 
-    const donate = (local?.mod as LocalMod)?.manifest?.donateLink;
-
-    const onDonate = useCallback(() => {
-        shell.open(donate ?? "");
-    }, [donate]);
+    const donateLinks = (local?.mod as LocalMod)?.manifest?.donateLinks;
 
     const modsToolbar = useMemo(
         () => (
@@ -174,7 +170,7 @@ const LocalModRow = memo(function LocalModRow(props: LocalModRowProps) {
                 enabled={enabled}
                 isErr={isErr}
                 hasRemote={hasRemote}
-                hasDonate={donate !== undefined}
+                donateLinks={donateLinks}
                 canFix={canFixWarn}
                 onToggle={onToggle}
                 onReadme={onReadme}
@@ -182,7 +178,6 @@ const LocalModRow = memo(function LocalModRow(props: LocalModRowProps) {
                 onFolder={onFolder}
                 onUninstall={onUninstall}
                 onGithub={onGithub}
-                onDonate={onDonate}
             />
         ),
         [
@@ -190,15 +185,14 @@ const LocalModRow = memo(function LocalModRow(props: LocalModRowProps) {
             enabled,
             isErr,
             hasRemote,
-            donate,
             canFixWarn,
+            donateLinks,
             onToggle,
             onReadme,
             onFix,
             onFolder,
             onUninstall,
-            onGithub,
-            onDonate
+            onGithub
         ]
     );
 
@@ -207,6 +201,7 @@ const LocalModRow = memo(function LocalModRow(props: LocalModRowProps) {
             uniqueName={props.uniqueName}
             name={name}
             slug={slug}
+            alignActions="end"
             thumbnailUrl={remote?.thumbnail?.openGraph ?? remote?.thumbnail.main}
             thumbnailClasses={enabled ? "" : "disabled"}
             author={author}

@@ -1,4 +1,4 @@
-use std::{path::PathBuf, process};
+use std::{fmt::Write, path::PathBuf, process};
 
 use anyhow::{anyhow, Result};
 use clap::{CommandFactory, Parser};
@@ -36,6 +36,7 @@ use logging::{log_mod_validation_errors, show_pre_patcher_warning, Logger};
 
 async fn run_from_cli(cli: BaseCli) -> Result<()> {
     let r = cli.recursive;
+    let assert_setup = cli.assert_setup;
 
     let config = Config::get(None)?;
 
@@ -48,6 +49,10 @@ async fn run_from_cli(cli: BaseCli) -> Result<()> {
     );
 
     if !config.check_owml() && !ran_setup {
+        if assert_setup {
+            process::exit(2);
+        }
+
         info!(
             "Welcome to the Outer Wild Mods CLI! In order to continue you'll need to setup OWML.",
         );
@@ -231,13 +236,13 @@ async fn run_from_cli(cli: BaseCli) -> Result<()> {
                         info!("Expected OWML Version: {}", owml_version);
                     }
                     if let Some(deps) = &local_mod.manifest.dependencies {
-                        info!("Dependencies: {}", deps.join(", "));
+                        info!("Dependencies:{}", format_list(deps));
                     }
                     if let Some(conflicts) = &local_mod.manifest.conflicts {
-                        info!("Conflicts: {}", conflicts.join(", "));
+                        info!("Conflicts:{}", format_list(conflicts));
                     }
-                    if let Some(donate_link) = &local_mod.manifest.donate_link {
-                        info!("Donate Link: {}", donate_link);
+                    if let Some(donate_links) = &local_mod.manifest.donate_links {
+                        info!("Donate Links:{}", format_list(donate_links));
                     }
                 }
                 info!("In Database: {}", yes_no(has_remote));
@@ -250,7 +255,7 @@ async fn run_from_cli(cli: BaseCli) -> Result<()> {
                         info!("Parent Mod: {}", parent);
                     }
                     if let Some(tags) = &remote_mod.tags {
-                        info!("Tags: {}", tags.join(", "));
+                        info!("Tags: {}", format_list(tags));
                     }
                     info!("Remote Version: {}", remote_mod.version);
                     if let Some(prerelease) = &remote_mod.prerelease {
@@ -288,7 +293,8 @@ async fn run_from_cli(cli: BaseCli) -> Result<()> {
 
             if flag {
                 install_mod_from_db(unique_name, &config, &remote_db, &local_db, r, *prerelease)
-                    .await?
+                    .await
+                    .map(|_| ())?
             }
         }
         Commands::InstallZip { zip_path } => {
@@ -530,8 +536,50 @@ async fn run_from_cli(cli: BaseCli) -> Result<()> {
                 }
             }
         }
+        Commands::Raw {
+            minify,
+            unique_name,
+        } => match unique_name.as_ref().map(|s| s.as_str()).unwrap_or("remote") {
+            "local" => {
+                let db = LocalDatabase::fetch(&config.owml_path)?;
+                let mods = db.all().collect::<Vec<_>>();
+                let serialized = if *minify {
+                    serde_json::to_string(&mods)?
+                } else {
+                    serde_json::to_string_pretty(&mods)?
+                };
+                println!("{}", serialized);
+            }
+            "remote" => {
+                let db = RemoteDatabase::fetch(&config.database_url).await?;
+                let mods = db.mods.values().collect::<Vec<_>>();
+                let serialized = if *minify {
+                    serde_json::to_string(&mods)?
+                } else {
+                    serde_json::to_string_pretty(&mods)?
+                };
+                println!("{}", serialized);
+            }
+            _ => {
+                let remote_db = RemoteDatabase::fetch(&config.database_url).await?;
+                let remote_mod = remote_db.get_mod(unique_name.as_ref().unwrap());
+                let serialized = if *minify {
+                    serde_json::to_string(&remote_mod)?
+                } else {
+                    serde_json::to_string_pretty(&remote_mod)?
+                };
+                println!("{}", serialized);
+            }
+        },
     }
     Ok(())
+}
+
+fn format_list(l: &[String]) -> String {
+    l.iter().fold(String::new(), |mut out, line| {
+        let _ = write!(out, "\n  - {line}");
+        out
+    })
 }
 
 fn yes_no(v: bool) -> String {

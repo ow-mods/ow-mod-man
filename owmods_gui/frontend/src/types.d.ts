@@ -79,8 +79,15 @@ export interface ModManifest {
     warning?: ModWarning;
     /** An exe that runs before the game starts, a prepatcher. This is used for mods that need to patch the game before it starts */
     patcher?: string;
-    /** A link to donate to the mod. May only be for Patreon or PayPal */
+    /**
+     * A link to donate to the mod. May only be for Patreon or PayPal. This is deprecated in favor of `donate_links`
+     *
+     * It's recommended you use [ModManifest::migrate_donation_link] to migrate this to `donate_links`
+     * (this automatically handled if you're using [LocalDatabase])
+     */
     donateLink?: string;
+    /** A list of links to donate to the mod (this replaced `donate_link`) */
+    donateLinks?: string[];
 }
 
 /** Represents an installed (and valid) mod */
@@ -121,9 +128,38 @@ export interface ModPrerelease {
     version: string;
 }
 
-/** Contains URL for a mod's thumbnail */
+/**
+ * Contains URL for a mod's thumbnail
+ *
+ * Note these paths are relative to the database website:
+ *
+ * `https://ow-mods.github.io/ow-mod-db/thumbails/`
+ *
+ * This should be prepended to the URL to get the full URL.
+ *
+ * Also note that open_graph is always `None` for mods with a static thumbnail,
+ * so to always get a static thumbnail use `main` and `open_graph` together:
+ *
+ * ```
+ * # use owmods_core::mods::remote::ModThumbnail;
+ *
+ * let thumb = ModThumbnail {
+ * main: Some("main.gif".to_string()),
+ * open_graph: Some("open_graph.webp".to_string())
+ * };
+ *
+ * let animated = thumb.main.unwrap();
+ * let static_thumb = thumb.open_graph.unwrap_or(animated.clone());
+ *
+ * assert_eq!(animated, "main.gif");
+ * assert_eq!(static_thumb, "open_graph.webp");
+ * ```
+ *
+ */
 export interface ModThumbnail {
+    /** Main thumbnail, this will be animated if the mod has an animated thumbnail */
     main?: string;
+    /** Open-graph image, this will always be a static image but will always be `None` on mods with a static thumbnail */
     openGraph?: string;
 }
 
@@ -361,6 +397,7 @@ export interface GuiConfig {
     hideInstalledInRemote: boolean;
     hideModThumbnails: boolean;
     hideDlc: boolean;
+    hideDonate: boolean;
     rainbow: boolean;
 }
 
@@ -385,6 +422,7 @@ export type RemoteModOption =
 export type Event =
     | { name: "localRefresh"; params: EmptyParams }
     | { name: "remoteRefresh"; params: EmptyParams }
+    | { name: "remoteInitialized"; params: EmptyParams }
     | { name: "modBusy"; params: EmptyParams }
     | { name: "configReload"; params: EmptyParams }
     | { name: "guiConfigReload"; params: boolean }

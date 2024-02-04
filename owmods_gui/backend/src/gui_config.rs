@@ -64,6 +64,8 @@ pub struct GuiConfig {
     #[serde(default = "_default_false")]
     pub hide_dlc: bool,
     #[serde(default = "_default_false")]
+    pub hide_donate: bool,
+    #[serde(default = "_default_false")]
     rainbow: bool,
 }
 
@@ -79,6 +81,7 @@ impl Default for GuiConfig {
             log_multi_window: false,
             auto_enable_deps: false,
             hide_installed_in_remote: false,
+            hide_donate: false,
             no_log_server: false,
             hide_dlc: false,
         }

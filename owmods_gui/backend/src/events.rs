@@ -94,8 +94,8 @@ impl CustomEventListener for AppHandle {
         self.clone()
             .listen_global(INVOKE_URI, move |e: tauri::Event| {
                 let event = e
-                    .payload()
-                    .and_then(|s| serde_json::from_str::<Event>(s).ok());
+                    .payload();
+                let event = serde_json::from_str::<Event>(event).ok();
                 if let Some(event) = event {
                     f(event);
                 }

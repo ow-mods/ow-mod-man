@@ -49,6 +49,7 @@ use crate::{
     gui_config::GuiConfig,
     LogPort, State,
 };
+//use crate::events::CustomEventTriggerGlobal;
 
 pub async fn mark_mod_busy(
     unique_name: &str,
@@ -211,7 +212,7 @@ pub async fn refresh_remote_db(handle: tauri::AppHandle, state: tauri::State<'_,
 
     if first_load {
         handle
-            .typed_trigger_global(&Event::RemoteInitialized(()))
+            .typed_emit_all(&Event::RemoteInitialized(()))
             .ok();
     }
 

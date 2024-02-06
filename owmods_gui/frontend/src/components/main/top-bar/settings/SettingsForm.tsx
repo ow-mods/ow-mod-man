@@ -182,6 +182,13 @@ const SettingsForm = forwardRef(function SettingsForm(props: SettingsFormProps, 
                 />
                 <SettingsCheck
                     onChange={handleGui}
+                    value={guiConfig.hideDonate}
+                    label={getTranslation("HIDE_DONATE_LINKS")}
+                    id="hideDonate"
+                    tooltip={getTranslation("TOOLTIP_HIDE_DONATE_LINKS")}
+                />
+                <SettingsCheck
+                    onChange={handleGui}
                     value={guiConfig.noWarning}
                     label={getTranslation("DISABLE_WARNING")}
                     id="noWarning"

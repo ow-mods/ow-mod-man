@@ -6,6 +6,17 @@ use tokio::process::Command;
 
 use crate::{config::Config, constants::OWML_EXE_NAME, owml::OWMLConfig};
 
+// Converted to lowercase to make it easier to compare
+const OUTER_WORLDS_FOLDER_NAMES: [&str; 3] =
+    ["theouterworlds", "theouterworldsost", "towspacerschoice"];
+
+const OUTER_WORLDS_TEXT: &str = "You appear to be trying to mod The Outer Worlds. This mod manager is for Outer *Wilds*.
+You probably want to uninstall this manager now,
+but while you're here Outer Wilds is a great game and you should get it ::)
+Then you can play all of our cool mods!
+To stop this dialog from displaying please edit your game path in settings to not point to an Outer Worlds install. 
+You can leave it blank to have OWML auto-detect it";
+
 /// Launch the game using the given port for logs.  
 /// If no port is given, the output of OWML.Launcher.exe will be written to stdout.  
 /// You can set `open_in_new_window` to `true` to make the command open in a new cmd window (**Windows Only**).  
@@ -57,6 +68,13 @@ pub async fn launch_game(
             .stderr(Stdio::piped());
         // Sometimes OWML.Launcher.exe doesn't like setting the socket port, just do it ourselves.
         let mut owml_config = OWMLConfig::get(config)?;
+        let lower_path = owml_config.game_path.to_lowercase();
+        if OUTER_WORLDS_FOLDER_NAMES
+            .iter()
+            .any(|name| lower_path.contains(name))
+        {
+            return Err(anyhow!(OUTER_WORLDS_TEXT));
+        }
         owml_config.socket_port = *port;
         owml_config.save(config)?;
     }

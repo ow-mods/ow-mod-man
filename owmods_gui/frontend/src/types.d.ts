@@ -79,8 +79,15 @@ export interface ModManifest {
     warning?: ModWarning;
     /** An exe that runs before the game starts, a prepatcher. This is used for mods that need to patch the game before it starts */
     patcher?: string;
-    /** A link to donate to the mod. May only be for Patreon or PayPal */
+    /**
+     * A link to donate to the mod. May only be for Patreon or PayPal. This is deprecated in favor of `donate_links`
+     *
+     * It's recommended you use [ModManifest::migrate_donation_link] to migrate this to `donate_links`
+     * (this automatically handled if you're using [LocalDatabase])
+     */
     donateLink?: string;
+    /** A list of links to donate to the mod (this replaced `donate_link`) */
+    donateLinks?: string[];
 }
 
 /** Represents an installed (and valid) mod */
@@ -390,6 +397,7 @@ export interface GuiConfig {
     hideInstalledInRemote: boolean;
     hideModThumbnails: boolean;
     hideDlc: boolean;
+    hideDonate: boolean;
     rainbow: boolean;
 }
 
@@ -414,6 +422,7 @@ export type RemoteModOption =
 export type Event =
     | { name: "localRefresh"; params: EmptyParams }
     | { name: "remoteRefresh"; params: EmptyParams }
+    | { name: "remoteInitialized"; params: EmptyParams }
     | { name: "modBusy"; params: EmptyParams }
     | { name: "configReload"; params: EmptyParams }
     | { name: "guiConfigReload"; params: boolean }

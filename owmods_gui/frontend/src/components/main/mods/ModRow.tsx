@@ -64,6 +64,7 @@ export interface ModRowProps {
     version: string;
     hideThumbnail: boolean;
     slug?: string;
+    alignActions?: "center" | "start" | "end";
     thumbnailUrl?: string;
     thumbnailClasses?: string;
     description?: string;
@@ -201,7 +202,7 @@ const ModRow = memo(function GenericModRow(props: ModRowProps) {
                     display="flex"
                     flexDirection="row"
                     alignContent="center"
-                    justifyContent="center"
+                    justifyContent={props.alignActions ?? "center"}
                 >
                     {props.children}
                 </Box>

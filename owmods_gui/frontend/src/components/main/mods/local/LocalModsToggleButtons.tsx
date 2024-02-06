@@ -1,4 +1,5 @@
 import { useGetTranslation } from "@hooks";
+import { DoneAllRounded, RemoveDoneRounded } from "@mui/icons-material";
 import { Button, ButtonGroup } from "@mui/material";
 import { memo } from "react";
 
@@ -11,8 +12,12 @@ const LocalModsToggleButtons = memo(function LocalModsToolbar(props: LocalModsTo
 
     return (
         <ButtonGroup>
-            <Button onClick={() => props.onToggle(true)}>{getTranslation("ENABLE_ALL")}</Button>
-            <Button onClick={() => props.onToggle(false)}>{getTranslation("DISABLE_ALL")}</Button>
+            <Button startIcon={<DoneAllRounded />} onClick={() => props.onToggle(true)}>
+                {getTranslation("ENABLE_ALL")}
+            </Button>
+            <Button startIcon={<RemoveDoneRounded />} onClick={() => props.onToggle(false)}>
+                {getTranslation("DISABLE_ALL")}
+            </Button>
         </ButtonGroup>
     );
 });

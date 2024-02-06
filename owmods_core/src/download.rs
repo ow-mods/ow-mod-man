@@ -543,7 +543,7 @@ pub async fn install_mod_from_db(
     local_db: &LocalDatabase,
     recursive: bool,
     prerelease: bool,
-) -> Result<()> {
+) -> Result<LocalMod> {
     let existing_mod = local_db.get_mod(unique_name);
 
     let already_installed = existing_mod.is_some();
@@ -572,8 +572,8 @@ pub async fn install_mod_from_db(
     let new_mod =
         install_mod_from_url(&target_url, Some(&remote_mod.unique_name), config, local_db).await?;
 
-    if recursive {
-        let mut to_install: Vec<String> = new_mod.manifest.dependencies.unwrap_or_default();
+    if recursive && new_mod.manifest.dependencies.is_some() {
+        let mut to_install = new_mod.manifest.dependencies.as_ref().unwrap().clone();
         let mut installed: Vec<String> = local_db
             .valid()
             .filter_map(|m| {
@@ -585,7 +585,7 @@ pub async fn install_mod_from_db(
             })
             .collect();
 
-        installed.push(new_mod.manifest.unique_name);
+        installed.push(new_mod.manifest.unique_name.clone());
 
         let mut count = 1;
 
@@ -643,7 +643,7 @@ pub async fn install_mod_from_db(
     };
 
     send_analytics_event(mod_event, unique_name).await;
-    Ok(())
+    Ok(new_mod)
 }
 
 #[cfg(test)]

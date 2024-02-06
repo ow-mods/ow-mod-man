@@ -2,8 +2,8 @@ import { commands } from "@commands";
 import { emit } from "@events";
 import { useGetTranslation } from "@hooks";
 import {
-    AttachMoneyRounded,
     BuildRounded,
+    FavoriteRounded,
     FolderOpenRounded,
     HelpRounded,
     MoreHorizRounded,
@@ -112,7 +112,7 @@ const OverflowMenu = () => {
                 </MenuItem>
                 <MenuItem onClick={onDonate}>
                     <ListItemIcon>
-                        <AttachMoneyRounded fontSize="small" />
+                        <FavoriteRounded fontSize="small" />
                     </ListItemIcon>
                     <ListItemText>{getTranslation("DONATE")}</ListItemText>
                 </MenuItem>

@@ -423,7 +423,7 @@ impl LocalDatabase {
                 .unwrap()
                 .to_string();
             let local_mod = Self::read_local_mod(&entry);
-            if let Ok(local_mod) = local_mod {
+            if let Ok(mut local_mod) = local_mod {
                 if let Some(UnsafeLocalMod::Valid(other)) =
                     mods.get(&local_mod.manifest.unique_name)
                 {
@@ -434,6 +434,7 @@ impl LocalDatabase {
                     };
                     mods.insert(path.to_string(), UnsafeLocalMod::Invalid(failed_mod));
                 } else {
+                    local_mod.manifest.migrate_donation_link();
                     mods.insert(
                         local_mod.manifest.unique_name.to_owned(),
                         UnsafeLocalMod::Valid(Box::new(local_mod)),

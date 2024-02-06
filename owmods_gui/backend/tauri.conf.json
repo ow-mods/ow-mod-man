@@ -29,7 +29,7 @@
         "all": true
       },
       "shell": {
-        "open": "(^https:(www\\.)?//github.com/)|(^https://(www\\.)?discord.gg/wusTQYbYTc$)|(^https://(www\\.)?outerwildsmods.com/)|(^https://(www\\.)?patreon.com/)|(^https://(www\\.)?paypal.me/)"
+        "open": "(^https://(www\\.)?(github.com|outerwildsmods.com|paypal.me|patreon.com|buymeacoffee.com|cash.app|ko-fi.com)/)|(^https://(www\\.)?discord.gg/wusTQYbYTc$)"
       },
       "window": {
         "setTitle": true,

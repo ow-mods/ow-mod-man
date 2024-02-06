@@ -185,8 +185,29 @@ pub struct ModManifest {
     pub warning: Option<ModWarning>,
     /// An exe that runs before the game starts, a prepatcher. This is used for mods that need to patch the game before it starts
     pub patcher: Option<String>,
-    /// A link to donate to the mod. May only be for Patreon or PayPal
+    /// A link to donate to the mod. May only be for Patreon or PayPal. This is deprecated in favor of `donate_links`
+    ///
+    /// It's recommended you use [ModManifest::migrate_donation_link] to migrate this to `donate_links`
+    /// (this automatically handled if you're using [LocalDatabase])
+    #[deprecated(since = "0.12.1", note = "please use `donate_links` instead")]
     pub donate_link: Option<String>,
+    /// A list of links to donate to the mod (this replaced `donate_link`)
+    pub donate_links: Option<Vec<String>>,
+}
+
+impl ModManifest {
+    #[allow(deprecated)]
+    /// Migrates the `donate_link` field to `donate_links`
+    /// Simply adds the `donate_link` to the `donate_links` vec (or creates it if it doesn't exist)
+    pub fn migrate_donation_link(&mut self) {
+        if let Some(link) = self.donate_link.to_owned() {
+            if let Some(links) = self.donate_links.as_mut() {
+                links.push(link);
+            } else {
+                self.donate_links = Some(vec![link]);
+            }
+        }
+    }
 }
 
 /// Represents a warning a mod wants to show to the user on start

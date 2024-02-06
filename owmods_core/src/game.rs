@@ -6,7 +6,9 @@ use tokio::process::Command;
 
 use crate::{config::Config, constants::OWML_EXE_NAME, owml::OWMLConfig};
 
-const OUTER_WORLDS_FOLDER_NAMES: [&str; 1] = ["TOWSpacersChoice"];
+// Converted to lowercase to make it easier to compare
+const OUTER_WORLDS_FOLDER_NAMES: [&str; 3] =
+    ["theouterworlds", "theouterworldsost", "towspacerschoice"];
 
 const OUTER_WORLDS_TEXT: &str = "You appear to be trying to mod The Outer Worlds. This mod manager is for Outer *Wilds*.
 You probably want to uninstall this manager now,
@@ -66,9 +68,10 @@ pub async fn launch_game(
             .stderr(Stdio::piped());
         // Sometimes OWML.Launcher.exe doesn't like setting the socket port, just do it ourselves.
         let mut owml_config = OWMLConfig::get(config)?;
+        let lower_path = owml_config.game_path.to_lowercase();
         if OUTER_WORLDS_FOLDER_NAMES
             .iter()
-            .any(|name| owml_config.game_path.contains(name))
+            .any(|name| lower_path.contains(name))
         {
             return Err(anyhow!(OUTER_WORLDS_TEXT));
         }

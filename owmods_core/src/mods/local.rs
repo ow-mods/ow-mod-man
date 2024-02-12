@@ -172,26 +172,35 @@ pub struct ModManifest {
     /// The version of the mod, usually in the format `major.minor.patch`
     pub version: String,
     /// The name of the DLL file to load when starting the mod
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub filename: Option<String>,
     /// The version of OWML this mod was built for
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub owml_version: Option<String>,
     /// The dependencies of the mod
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub dependencies: Option<Vec<String>>,
     /// The mods this mod will conflict with
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub conflicts: Option<Vec<String>>,
     /// The paths to preserve when updating the mod
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub paths_to_preserve: Option<Vec<String>>,
     /// A warning the mod wants to show to the user on start
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub warning: Option<ModWarning>,
     /// An exe that runs before the game starts, a prepatcher. This is used for mods that need to patch the game before it starts
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub patcher: Option<String>,
     /// A link to donate to the mod. May only be for Patreon or PayPal. This is deprecated in favor of `donate_links`
     ///
     /// It's recommended you use [ModManifest::migrate_donation_link] to migrate this to `donate_links`
     /// (this automatically handled if you're using [LocalDatabase])
     #[deprecated(since = "0.12.1", note = "please use `donate_links` instead")]
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub donate_link: Option<String>,
     /// A list of links to donate to the mod (this replaced `donate_link`)
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub donate_links: Option<Vec<String>>,
 }
 

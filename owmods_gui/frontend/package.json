@@ -1,7 +1,7 @@
 {
     "name": "owmods-gui-frontend",
     "private": true,
-    "version": "0.12.1",
+    "version": "0.12.2",
     "type": "module",
     "scripts": {
         "dev": "vite",
@@ -21,9 +21,9 @@
         "@emotion/react": "11.11.3",
         "@emotion/styled": "11.11.0",
         "@fontsource/roboto": "5.0.8",
-        "@mui/icons-material": "5.15.7",
-        "@mui/lab": "5.0.0-alpha.163",
-        "@mui/material": "5.15.7",
+        "@mui/icons-material": "5.15.9",
+        "@mui/lab": "5.0.0-alpha.165",
+        "@mui/material": "5.15.9",
         "@tauri-apps/api": "1.5.3",
         "react": "18.2.0",
         "react-dom": "18.2.0",
@@ -33,7 +33,7 @@
     "devDependencies": {
         "@testing-library/react": "14.2.1",
         "@types/react": "18.2.55",
-        "@types/react-dom": "18.2.18",
+        "@types/react-dom": "18.2.19",
         "@typescript-eslint/eslint-plugin": "6.21.0",
         "@typescript-eslint/parser": "6.21.0",
         "@vitejs/plugin-react": "4.2.1",
@@ -42,7 +42,7 @@
         "eslint-plugin-react-hooks": "4.6.0",
         "prettier": "3.2.5",
         "typescript": "5.3.3",
-        "vite": "5.0.12",
+        "vite": "5.1.1",
         "vite-imagetools": "6.2.9"
     }
 }

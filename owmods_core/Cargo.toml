@@ -34,7 +34,7 @@ serde_repr = "0.1.18"
 uuid = { version = "1.7.0", features = ["v4", "fast-rng"] }
 typeshare = "1.0.1"
 lazy_static = "1.4.0"
-tempfile = "3.10.0"
+tempfile = "3.10.1"
 unicode-normalization = "0.1.23"
 regex = "1.10.3"
 

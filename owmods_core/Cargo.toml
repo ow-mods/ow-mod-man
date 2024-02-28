@@ -32,7 +32,7 @@ log = "0.4.20"
 tokio = { version = "1.36.0", features = ["net", "time", "process", "macros"] }
 serde_repr = "0.1.18"
 uuid = { version = "1.7.0", features = ["v4", "fast-rng"] }
-typeshare = "1.0.1"
+typeshare = "1.0.2"
 lazy_static = "1.4.0"
 tempfile = "3.10.1"
 unicode-normalization = "0.1.23"

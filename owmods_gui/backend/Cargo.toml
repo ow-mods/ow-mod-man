@@ -27,8 +27,8 @@ tauri = { version = "1.6.1", features = [ "clipboard-write-text",
 ] }
 anyhow = "1.0.80"
 tokio = { version = "1.36.0", features = ["sync", "macros"] }
-log = { version = "0.4.20", features = ["std", "serde"] }
-typeshare = "1.0.1"
+log = { version = "0.4.21", features = ["std", "serde"] }
+typeshare = "1.0.2"
 notify = { version = "6.1.1", default-features = false, features = [
     "macos_kqueue",
 ] }

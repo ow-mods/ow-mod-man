@@ -28,7 +28,7 @@ zip = { version = "0.6.6", default-features = false, features = [
     "zstd",
 ] }
 futures = "0.3.30"
-log = "0.4.20"
+log = "0.4.21"
 tokio = { version = "1.36.0", features = ["net", "time", "process", "macros"] }
 serde_repr = "0.1.18"
 uuid = { version = "1.7.0", features = ["v4", "fast-rng"] }

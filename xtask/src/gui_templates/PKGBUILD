@@ -14,6 +14,7 @@ sha256sums=()
 package() {
     tar xpf data.tar.gz -C ${srcdir}
     install -Dm755 usr/bin/${_appname} ${pkgdir}/usr/bin/${_appname}
+    sed -i "s/Exec=outer-wilds-mod-manager/Exec=outer-wilds-mod-manager %u/g" usr/share/applications/${_appname}.desktop
     install -Dm755 usr/share/applications/${_appname}.desktop ${pkgdir}/usr/share/applications/${_appname}.desktop
 
     install -Dm644 "usr/share/icons/hicolor/128x128/apps/${_appname}.png" "$pkgdir/usr/share/icons/hicolor/128x128/apps/${_appname}.png"

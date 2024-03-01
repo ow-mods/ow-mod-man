@@ -14,7 +14,7 @@ import {
     useTheme
 } from "@mui/material";
 import { ReactNode, forwardRef } from "react";
-import { TableVirtuoso, TableVirtuosoHandle } from "react-virtuoso";
+import { ScrollerProps, TableBodyProps, TableComponents, TableVirtuoso, TableVirtuosoHandle } from "react-virtuoso";
 
 export interface ModsTableProps {
     uniqueNames: string[];
@@ -23,13 +23,13 @@ export interface ModsTableProps {
     addToToolbar?: ReactNode;
 }
 
-const ScrollerComp = forwardRef<HTMLDivElement>(function TScroller(props, ref) {
+const ScrollerComp = forwardRef<HTMLDivElement, ScrollerProps>(function TScroller(props, ref) {
     return <TableContainer sx={{ flexGrow: 1 }} component={Paper} {...props} ref={ref} />;
 });
 const TableComp = (props: TableProps) => (
     <Table {...props} style={{ borderCollapse: "separate", tableLayout: "fixed" }} />
 );
-const BodyComp = forwardRef<HTMLTableSectionElement>(function TBody(props, ref) {
+const BodyComp = forwardRef<HTMLTableSectionElement, TableBodyProps>(function TBody(props, ref) {
     return <TableBody {...props} ref={ref} />;
 });
 
@@ -52,7 +52,7 @@ const ModsTable = forwardRef<TableVirtuosoHandle, ModsTableProps>(function ModsT
     return (
         <TableVirtuoso
             ref={ref}
-            components={ModsTableComponents}
+            components={ModsTableComponents as TableComponents<string, unknown>}
             computeItemKey={(index) => `${index}-${props.uniqueNames[index]}`}
             increaseViewportBy={{ top: 200, bottom: 0 }}
             data={props.uniqueNames}

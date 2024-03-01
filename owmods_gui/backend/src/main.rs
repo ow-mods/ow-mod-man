@@ -193,6 +193,7 @@ fn main() -> Result<(), Box<dyn Error>> {
             fix_mod_deps,
             db_has_issues,
             get_alert,
+            dismiss_alert,
             pop_protocol_url,
             check_owml,
             get_defaults,

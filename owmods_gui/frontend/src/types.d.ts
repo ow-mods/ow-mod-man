@@ -28,6 +28,8 @@ export interface Config {
     alertUrl: string;
     /** The mod warnings that have been shown to the user */
     viewedAlerts: string[];
+    /** The last alert that was shown to the user, this is used to track if the user has seen the alert before */
+    lastViewedDbAlert?: string;
 }
 
 /** Represents an error with a [LocalMod] */

@@ -112,7 +112,7 @@ async fn run_from_cli(cli: BaseCli) -> Result<()> {
                     );
                 }
             } else {
-                info!("No alert");
+                info!("No new alerts!");
             };
         }
         Commands::List { mod_type, tag } => match mod_type {

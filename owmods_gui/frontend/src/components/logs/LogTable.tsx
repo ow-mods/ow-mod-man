@@ -1,7 +1,14 @@
 import { TableCell, useTheme } from "@mui/material";
 import { TableContainer, Paper, Table, TableBody, TableHead, TableRow } from "@mui/material";
 import { forwardRef, memo, useCallback, useMemo, useRef } from "react";
-import { ScrollerProps, TableBodyProps, TableComponents, TableProps, TableVirtuoso, VirtuosoHandle } from "react-virtuoso";
+import {
+    ScrollerProps,
+    TableBodyProps,
+    TableComponents,
+    TableProps,
+    TableVirtuoso,
+    VirtuosoHandle
+} from "react-virtuoso";
 import { LogLines } from "./LogApp";
 import { useGetTranslation } from "@hooks";
 import LogRow from "./LogRow";

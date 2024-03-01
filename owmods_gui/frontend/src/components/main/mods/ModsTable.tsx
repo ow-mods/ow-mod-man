@@ -14,7 +14,13 @@ import {
     useTheme
 } from "@mui/material";
 import { ReactNode, forwardRef } from "react";
-import { ScrollerProps, TableBodyProps, TableComponents, TableVirtuoso, TableVirtuosoHandle } from "react-virtuoso";
+import {
+    ScrollerProps,
+    TableBodyProps,
+    TableComponents,
+    TableVirtuoso,
+    TableVirtuosoHandle
+} from "react-virtuoso";
 
 export interface ModsTableProps {
     uniqueNames: string[];

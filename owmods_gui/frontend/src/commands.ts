@@ -80,6 +80,7 @@ const commandInfo = {
     fixDeps: $<ActionCommand<{ uniqueName: string }>>("fix_mod_deps"),
     checkDBForIssues: $<GetCommand<boolean>>("db_has_issues"),
     getAlert: $<GetCommand<Alert>>("get_alert"),
+    dismissAlert: $<ActionCommand<{ alert: Alert }>>("dismiss_alert"),
     popProtocolURL: $<ActionCommand<{ id: string }>>("pop_protocol_url"),
     checkOWML: $<GetCommand<boolean>>("check_owml"),
     getDownloads: $<GetCommand<ProgressBars>>("get_downloads"),

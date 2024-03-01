@@ -109,9 +109,7 @@ const SettingsForm = forwardRef(function SettingsForm(props: SettingsFormProps, 
 
     const onReset = useCallback(
         (i: number) => {
-            console.debug(setConfig, setGuiConfig, setOwmlConfig, i);
             commands.getDefaultConfigs().then((data) => {
-                console.debug(data);
                 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
                 // @ts-ignore
                 [setConfig, setGuiConfig, setOwmlConfig][i](data[i]);

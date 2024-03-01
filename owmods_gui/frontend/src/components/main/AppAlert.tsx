@@ -53,8 +53,6 @@ const AppAlert = memo(function AppAlert() {
         commands.dismissAlert({ alert: alert! });
     }, [alert]);
 
-    console.debug(alert);
-
     if (alert === null || !alert.enabled) {
         return <></>;
     }

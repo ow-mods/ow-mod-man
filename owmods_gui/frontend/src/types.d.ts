@@ -395,6 +395,7 @@ export interface GuiConfig {
     noWarning: boolean;
     logMultiWindow: boolean;
     autoEnableDeps: boolean;
+    autoDisableDeps: boolean;
     noLogServer: boolean;
     hideInstalledInRemote: boolean;
     hideModThumbnails: boolean;

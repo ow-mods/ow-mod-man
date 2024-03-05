@@ -212,6 +212,13 @@ const SettingsForm = forwardRef(function SettingsForm(props: SettingsFormProps, 
                     id="autoEnableDeps"
                     tooltip={getTranslation("TOOLTIP_AUTO_ENABLE_DEPS")}
                 />
+                <SettingsCheck
+                    onChange={handleGui}
+                    value={guiConfig.autoDisableDeps}
+                    label={getTranslation("AUTO_DISABLE_DEPS")}
+                    id="autoDisableDeps"
+                    tooltip={getTranslation("TOOLTIP_AUTO_DISABLE_DEPS")}
+                />
                 {showLogServerOption && (
                     <SettingsCheck
                         onChange={handleGui}

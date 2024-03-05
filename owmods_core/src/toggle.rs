@@ -101,30 +101,41 @@ pub fn toggle_mod(
         show_warnings_for.push(unique_name.to_string());
     }
 
-    if recursive {
-        let mut to_toggle: Vec<String> =
-            local_mod.manifest.dependencies.clone().unwrap_or_default();
+    if recursive
+        && !local_mod
+            .manifest
+            .dependencies
+            .as_ref()
+            .map(|d| d.is_empty())
+            .unwrap_or(true)
+    {
+        let mut to_check: Vec<String> = local_mod.manifest.dependencies.clone().unwrap_or_default();
         let mut toggled_mods: Vec<String> = vec![unique_name.to_string()];
-        while !to_toggle.is_empty() {
-            for dep in std::mem::take(&mut to_toggle) {
+        while !to_check.is_empty() {
+            for dep in std::mem::take(&mut to_check) {
                 if toggled_mods.contains(&dep) {
                     continue;
                 }
                 let dep_mod = local_db.get_mod(&dep);
                 if let Some(dep_mod) = dep_mod {
+                    if dep_mod.enabled == enabled {
+                        continue;
+                    }
                     let show_warning = if enabled {
                         _toggle_mod(dep_mod, enabled)
                     } else {
                         let mut flag = true;
-                        for dependent_mod in local_db.dependent(dep_mod).filter(|m| m.enabled) {
-                            if dependent_mod.manifest.unique_name != local_mod.manifest.unique_name
-                            {
-                                warn!(
-                                    "Not disabling {} as it's also needed by {}",
-                                    dep_mod.manifest.name, dependent_mod.manifest.name
-                                );
-                                flag = false;
-                            }
+                        for dependent_mod in local_db
+                            .dependent(&dep_mod.manifest.unique_name)
+                            .filter(|m| {
+                                m.enabled && !toggled_mods.contains(&m.manifest.unique_name)
+                            })
+                        {
+                            warn!(
+                                "Not disabling {} as it's also needed by {}",
+                                dep_mod.manifest.name, dependent_mod.manifest.name
+                            );
+                            flag = false;
                         }
                         if flag {
                             _toggle_mod(dep_mod, enabled)
@@ -136,7 +147,7 @@ pub fn toggle_mod(
                         show_warnings_for.push(dep_mod.manifest.unique_name.clone());
                     }
                     toggled_mods.push(dep_mod.manifest.unique_name.clone());
-                    to_toggle.extend(dep_mod.manifest.dependencies.clone().unwrap_or_default());
+                    to_check.extend(dep_mod.manifest.dependencies.clone().unwrap_or_default());
                 } else {
                     warn!("Dependency {} Was Not Found, Ignoring.", dep);
                 }

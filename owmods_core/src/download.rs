@@ -274,7 +274,12 @@ pub async fn download_and_install_owml(
 
     temp_dir.close()?;
 
-    send_analytics_event(AnalyticsEventName::ModRequiredInstall, OWML_UNIQUE_NAME).await;
+    send_analytics_event(
+        AnalyticsEventName::ModRequiredInstall,
+        OWML_UNIQUE_NAME,
+        config,
+    )
+    .await;
 
     Ok(())
 }
@@ -442,7 +447,7 @@ pub async fn install_mod_from_url(
 ///
 /// for installed_mod in installed {
 ///     println!("Installed {}", installed_mod.manifest.name);
-///     send_analytics_event(AnalyticsEventName::ModInstall, &installed_mod.manifest.unique_name).await;
+///     send_analytics_event(AnalyticsEventName::ModInstall, &installed_mod.manifest.unique_name, &config).await;
 /// }
 /// # });
 /// ```
@@ -612,6 +617,7 @@ pub async fn install_mod_from_db(
                 send_analytics_event(
                     AnalyticsEventName::ModRequiredInstall,
                     &installed_mod.manifest.unique_name,
+                    config,
                 )
                 .await;
             }
@@ -642,7 +648,7 @@ pub async fn install_mod_from_db(
         AnalyticsEventName::ModInstall
     };
 
-    send_analytics_event(mod_event, unique_name).await;
+    send_analytics_event(mod_event, unique_name, config).await;
     Ok(new_mod)
 }
 

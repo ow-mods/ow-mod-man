@@ -682,6 +682,7 @@ pub async fn update_all_mods(
         send_analytics_event(
             AnalyticsEventName::ModUpdate,
             &updated_mod.manifest.unique_name,
+            &config,
         )
         .await;
     }

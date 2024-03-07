@@ -267,6 +267,13 @@ const SettingsForm = forwardRef(function SettingsForm(props: SettingsFormProps, 
                 />
             </Box>
             <SettingsHeader text={getTranslation("GENERAL_SETTINGS")} onReset={() => onReset(0)} />
+            <SettingsCheck
+                onChange={handleConf}
+                value={config.sendAnalytics}
+                label={getTranslation("ANALYTICS")}
+                id="sendAnalytics"
+                tooltip={getTranslation("TOOLTIP_ANALYTICS")}
+            />
             <SettingsText
                 onChange={handleConf}
                 value={config.databaseUrl}

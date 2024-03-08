@@ -30,7 +30,7 @@ jobs:
         run: cargo package -p owmods_core
 
       - name: Upload Core
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v2
         with:
           name: Outer Wilds Mod Manager Core Version ${{ steps.pkg-version.outputs.version }}
           tag_name: core_v${{ steps.pkg-version.outputs.version }}

@@ -268,12 +268,12 @@ impl LocalDatabase {
     ///
     /// An iterator over all mods that are dependent on the given mod
     ///
-    pub fn dependent<'a>(&'a self, local_mod: &'a LocalMod) -> impl Iterator<Item = &'a LocalMod> {
+    pub fn dependent<'a>(&'a self, unique_name: &'a String) -> impl Iterator<Item = &'a LocalMod> {
         self.valid().filter(|m| {
             m.manifest
                 .dependencies
                 .as_ref()
-                .map_or(false, |deps| deps.contains(&local_mod.manifest.unique_name))
+                .map_or(false, |deps| deps.contains(unique_name))
         })
     }
 

@@ -38,8 +38,6 @@ const LocalModActions = memo(function LocalModTools(props: LocalModActionsProps)
     // Disable the fix button if ANY mods are busy, this is to stop the user from clicking fix when a dep is installing
     const isAnyBusy = (hooks.getBusyMods("modBusy")[1] ?? []).length !== 0;
 
-    console.debug(props.uniqueName, props.donateLinks);
-
     return (
         <>
             {!guiConfig?.hideDonate && props.donateLinks && props.donateLinks.length !== 0 && (

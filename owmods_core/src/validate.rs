@@ -126,7 +126,7 @@ pub async fn fix_deps(
     }
     install_mods_parallel(missing.clone(), config, remote_db, db).await?;
     for missing_mod in missing {
-        send_analytics_event(AnalyticsEventName::ModRequiredInstall, &missing_mod).await;
+        send_analytics_event(AnalyticsEventName::ModRequiredInstall, &missing_mod, config).await;
     }
     Ok(())
 }

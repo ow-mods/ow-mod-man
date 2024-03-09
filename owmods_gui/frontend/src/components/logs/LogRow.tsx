@@ -97,7 +97,11 @@ const InnerLogRow = memo(function LogRow(props: LogRowProps) {
                                 <Skeleton width={102} />
                             </>
                         ) : (
-                            <Typography minWidth={0} color={getColor(theme.palette, messageType)}>
+                            <Typography
+                                whiteSpace="pre-wrap"
+                                minWidth={0}
+                                color={getColor(theme.palette, messageType)}
+                            >
                                 {messageLines.map((line, i) => (
                                     <Fragment key={`${i}-${line}`}>
                                         {line}

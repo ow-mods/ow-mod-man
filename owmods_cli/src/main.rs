@@ -38,7 +38,15 @@ async fn run_from_cli(cli: BaseCli) -> Result<()> {
     let r = cli.recursive;
     let assert_setup = cli.assert_setup;
 
-    let config = Config::get(None)?;
+    let mut config = Config::get(None)?;
+
+    if let Some(analytics) = cli.analytics {
+        if analytics != config.send_analytics {
+            info!("Setting send_analytics to {}", analytics);
+            config.send_analytics = analytics;
+            config.save()?;
+        }
+    }
 
     let ran_setup = matches!(
         &cli.command,
@@ -112,7 +120,7 @@ async fn run_from_cli(cli: BaseCli) -> Result<()> {
                     );
                 }
             } else {
-                info!("No alert");
+                info!("No new alerts!");
             };
         }
         Commands::List { mod_type, tag } => match mod_type {

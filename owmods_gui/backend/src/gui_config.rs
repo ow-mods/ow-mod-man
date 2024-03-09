@@ -56,6 +56,8 @@ pub struct GuiConfig {
     #[serde(default = "_default_false")]
     auto_enable_deps: bool,
     #[serde(default = "_default_false")]
+    auto_disable_deps: bool,
+    #[serde(default = "_default_false")]
     pub no_log_server: bool,
     #[serde(default = "_default_false")]
     pub hide_installed_in_remote: bool,
@@ -79,6 +81,7 @@ impl Default for GuiConfig {
             watch_fs: true,
             no_warning: false,
             log_multi_window: false,
+            auto_disable_deps: false,
             auto_enable_deps: false,
             hide_installed_in_remote: false,
             hide_donate: false,

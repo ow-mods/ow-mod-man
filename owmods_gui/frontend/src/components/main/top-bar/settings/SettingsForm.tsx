@@ -11,13 +11,14 @@ import { useGetTranslation } from "@hooks";
 import { commands } from "@commands";
 import { TranslationNameMap } from "@components/common/TranslationContext";
 import { os } from "@tauri-apps/api";
-import { Box, useTheme } from "@mui/material";
+import { Box, Button, Tooltip, useTheme } from "@mui/material";
 import SettingsFolder from "./SettingsFolder";
 import SettingsSelect from "./SettingsSelect";
 import SettingsText from "./SettingsText";
 import SettingsCheck from "./SettingsCheck";
 import SettingsHeader from "./SettingsHeader";
 import { simpleOnError } from "../../../../errorHandling";
+import { DeleteSweepRounded, FolderDeleteRounded } from "@mui/icons-material";
 
 const LanguageArr = Object.values(Language);
 const ThemeArr = Object.values(Theme);
@@ -94,7 +95,7 @@ const SettingsForm = forwardRef(function SettingsForm(props: SettingsFormProps, 
         ]
     );
 
-    const handleConf = (id: string, newVal: string | boolean) => {
+    const handleConf = (id: string, newVal: string | boolean | null | string[]) => {
         setConfig({ ...config, [id]: newVal });
     };
 
@@ -106,13 +107,16 @@ const SettingsForm = forwardRef(function SettingsForm(props: SettingsFormProps, 
         setGuiConfig({ ...guiConfig, [id]: newVal });
     };
 
-    const onReset = useCallback((i: number) => {
-        commands.getDefaultConfigs().then((data) => {
-            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-            // @ts-ignore
-            [setConfig, setGuiConfig, setOwmlConfig][i](data[i]);
-        });
-    }, []);
+    const onReset = useCallback(
+        (i: number) => {
+            commands.getDefaultConfigs().then((data) => {
+                // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+                // @ts-ignore
+                [setConfig, setGuiConfig, setOwmlConfig][i](data[i]);
+            });
+        },
+        [setConfig, setGuiConfig, setOwmlConfig]
+    );
 
     const colTemplate = `repeat(auto-fit, minmax(${theme.spacing(40)}, 1fr))`;
 
@@ -208,6 +212,13 @@ const SettingsForm = forwardRef(function SettingsForm(props: SettingsFormProps, 
                     id="autoEnableDeps"
                     tooltip={getTranslation("TOOLTIP_AUTO_ENABLE_DEPS")}
                 />
+                <SettingsCheck
+                    onChange={handleGui}
+                    value={guiConfig.autoDisableDeps}
+                    label={getTranslation("AUTO_DISABLE_DEPS")}
+                    id="autoDisableDeps"
+                    tooltip={getTranslation("TOOLTIP_AUTO_DISABLE_DEPS")}
+                />
                 {showLogServerOption && (
                     <SettingsCheck
                         onChange={handleGui}
@@ -255,7 +266,14 @@ const SettingsForm = forwardRef(function SettingsForm(props: SettingsFormProps, 
                     tooltip={getTranslation("TOOLTIP_INCREMENTAL_GC")}
                 />
             </Box>
-            <SettingsHeader text={getTranslation("GENERAL_SETTINGS")} onReset={() => onReset(3)} />
+            <SettingsHeader text={getTranslation("GENERAL_SETTINGS")} onReset={() => onReset(0)} />
+            <SettingsCheck
+                onChange={handleConf}
+                value={config.sendAnalytics}
+                label={getTranslation("ANALYTICS")}
+                id="sendAnalytics"
+                tooltip={getTranslation("TOOLTIP_ANALYTICS")}
+            />
             <SettingsText
                 onChange={handleConf}
                 value={config.databaseUrl}
@@ -277,6 +295,22 @@ const SettingsForm = forwardRef(function SettingsForm(props: SettingsFormProps, 
                 id="owmlPath"
                 tooltip={getTranslation("TOOLTIP_OWML_PATH")}
             />
+            <Tooltip title={getTranslation("TOOLTIP_CLEAR_DB_ALERTS")}>
+                <Button
+                    startIcon={<DeleteSweepRounded />}
+                    onClick={() => handleConf("lastViewedDbAlert", null)}
+                >
+                    {getTranslation("CLEAR_DB_ALERTS")}
+                </Button>
+            </Tooltip>
+            <Tooltip title={getTranslation("TOOLTIP_CLEAR_MOD_ALERTS")}>
+                <Button
+                    startIcon={<FolderDeleteRounded />}
+                    onClick={() => handleConf("viewedAlerts", [])}
+                >
+                    {getTranslation("CLEAR_MOD_ALERTS")}
+                </Button>
+            </Tooltip>
         </Box>
     );
 });

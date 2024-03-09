@@ -1,7 +1,8 @@
-import { hooks } from "@commands";
+import { commands, hooks } from "@commands";
 import { withStyledErrorBoundary } from "@components/common/StyledErrorBoundary";
+import { useGetTranslation } from "@hooks";
 import { ErrorRounded, InfoRounded, LaunchRounded, WarningRounded } from "@mui/icons-material";
-import { Box, Button, Palette, Typography, useTheme } from "@mui/material";
+import { Box, Button, Link, Palette, Typography, useTheme } from "@mui/material";
 import { shell } from "@tauri-apps/api";
 import { Alert } from "@types";
 import { memo, useCallback } from "react";
@@ -38,6 +39,7 @@ const AlertIcon = (props: { severity: AlertSeverity }) => {
 // };
 
 const AppAlert = memo(function AppAlert() {
+    const getTranslation = useGetTranslation();
     const theme = useTheme();
     const alert: Alert | null = hooks.getAlert("configReload")[1];
 
@@ -47,13 +49,17 @@ const AppAlert = memo(function AppAlert() {
         shell.open(alert?.url ?? "");
     }, [alert?.url]);
 
+    const onDismiss = useCallback(() => {
+        commands.dismissAlert({ alert: alert! });
+    }, [alert]);
+
     if (alert === null || !alert.enabled) {
         return <></>;
     }
 
     return (
         <Box
-            padding={theme.spacing(1)}
+            padding={1}
             sx={{
                 backgroundColor: getColor(theme.palette, severity)
             }}
@@ -69,7 +75,7 @@ const AppAlert = memo(function AppAlert() {
                 {alert.url && (
                     <Button
                         size="small"
-                        sx={{ marginLeft: theme.spacing(1) }}
+                        sx={{ marginLeft: 1 }}
                         color="inherit"
                         startIcon={<LaunchRounded />}
                         onClick={onClick}
@@ -77,6 +83,9 @@ const AppAlert = memo(function AppAlert() {
                         {alert.urlLabel ?? "More Info"}
                     </Button>
                 )}
+                <Link marginLeft={1} color="inherit" href="#" onClick={onDismiss}>
+                    {getTranslation("DISMISS")}
+                </Link>
             </Typography>
         </Box>
     );

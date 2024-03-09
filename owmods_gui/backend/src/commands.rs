@@ -682,6 +682,7 @@ pub async fn update_all_mods(
         send_analytics_event(
             AnalyticsEventName::ModUpdate,
             &updated_mod.manifest.unique_name,
+            &config,
         )
         .await;
     }
@@ -921,8 +922,29 @@ pub async fn db_has_issues(state: tauri::State<'_, State>, window: tauri::Window
 #[tauri::command]
 pub async fn get_alert(state: tauri::State<'_, State>) -> Result<Alert> {
     let config = state.config.read().await;
-    let alert = fetch_alert(&config.alert_url).await?;
+    let mut alert = fetch_alert(&config.alert_url).await?;
+    if config
+        .last_viewed_db_alert
+        .as_ref()
+        .map(|lv| lv == &alert.compute_hash())
+        .unwrap_or(false)
+    {
+        alert.enabled = false;
+    }
     Ok(alert)
+}
+
+#[tauri::command]
+pub async fn dismiss_alert(
+    state: tauri::State<'_, State>,
+    handle: tauri::AppHandle,
+    alert: Alert,
+) -> Result {
+    let mut config = state.config.write().await;
+    config.last_viewed_db_alert = Some(alert.compute_hash());
+    config.save()?;
+    handle.typed_emit_all(&Event::ConfigReload(())).ok();
+    Ok(())
 }
 
 #[tauri::command]

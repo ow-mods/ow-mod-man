@@ -55,7 +55,7 @@ jobs:
 
       - name: Generate Deb File
         if: matrix.platform == 'ubuntu-20.04'
-        run: cargo deb -p owmods_cli
+        run: cargo deb -p owmods_cli -o owmods_cli_${{ steps.get_version.outputs.version }}_amd64.deb
         env:
           ANALYTICS_API_KEY: ${{ secrets.ANALYTICS_API_KEY }}
 

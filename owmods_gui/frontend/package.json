@@ -28,7 +28,7 @@
         "react": "18.2.0",
         "react-dom": "18.2.0",
         "react-error-boundary": "4.0.13",
-        "react-virtuoso": "4.7.3"
+        "react-virtuoso": "4.7.4"
     },
     "devDependencies": {
         "@testing-library/react": "14.2.2",
@@ -41,8 +41,8 @@
         "eslint-plugin-react": "7.34.1",
         "eslint-plugin-react-hooks": "4.6.0",
         "prettier": "3.2.5",
-        "typescript": "5.4.2",
-        "vite": "5.1.6",
+        "typescript": "5.4.3",
+        "vite": "5.2.2",
         "vite-imagetools": "6.2.9"
     }
 }

@@ -615,7 +615,7 @@ pub async fn update_mod(
     };
 
     let res = if unique_name == OWML_UNIQUE_NAME {
-        download_and_install_owml(&config, &remote_mod, false).await
+        download_and_install_owml(&config, remote_mod, false).await
     } else {
         install_mod_from_db(
             &unique_name.to_string(),

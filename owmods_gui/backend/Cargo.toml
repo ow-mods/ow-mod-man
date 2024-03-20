@@ -1,6 +1,6 @@
 [package]
 name = "owmods_gui"
-version = "0.13.0"
+version = "0.13.1"
 license = "GPL-3.0-or-later"
 edition = "2021"
 
@@ -25,7 +25,7 @@ tauri = { version = "1.6.1", features = [ "clipboard-write-text",
     "window-set-title",
     # "reqwest-native-tls-vendored"
 ] }
-anyhow = "1.0.80"
+anyhow = "1.0.81"
 tokio = { version = "1.36.0", features = ["sync", "macros"] }
 log = { version = "0.4.21", features = ["std", "serde"] }
 typeshare = "1.0.2"
@@ -36,7 +36,7 @@ regex = "1.10.3"
 time = { version = "0.3.34", features = ["macros", "local-offset"] }
 tauri-plugin-deep-link = "0.1.2"
 opener = "0.6.1"
-tauri-plugin-window-state = "0.1.0"
+tauri-plugin-window-state = "0.1.1"
 
 [features]
 default = ["custom-protocol"]

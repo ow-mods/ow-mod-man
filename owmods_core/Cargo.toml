@@ -15,14 +15,14 @@ serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
 opener = "0.6.1"
 directories = "5.0.1"
-reqwest = { version = "0.11.24", default-features = false, features = [
+reqwest = { version = "0.11.27", default-features = false, features = [
     "blocking",
     "json",
     "rustls-tls",
 ] }
 glob = "0.3.1"
-version-compare = "0.1.1"
-anyhow = "1.0.80"
+version-compare = "0.2.0"
+anyhow = "1.0.81"
 zip = { version = "0.6.6", default-features = false, features = [
     "deflate",
     "zstd",
@@ -31,7 +31,7 @@ futures = "0.3.30"
 log = "0.4.21"
 tokio = { version = "1.36.0", features = ["net", "time", "process", "macros"] }
 serde_repr = "0.1.18"
-uuid = { version = "1.7.0", features = ["v4", "fast-rng"] }
+uuid = { version = "1.8.0", features = ["v4", "fast-rng"] }
 typeshare = "1.0.2"
 lazy_static = "1.4.0"
 tempfile = "3.10.1"
@@ -39,4 +39,4 @@ unicode-normalization = "0.1.23"
 regex = "1.10.3"
 
 [dev-dependencies]
-tokio-test = "0.4.3"
+tokio-test = "0.4.4"

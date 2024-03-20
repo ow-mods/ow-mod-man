@@ -1,6 +1,6 @@
 [package]
 name = "owmods_gui"
-version = "0.13.0"
+version = "0.13.1"
 license = "GPL-3.0-or-later"
 edition = "2021"
 

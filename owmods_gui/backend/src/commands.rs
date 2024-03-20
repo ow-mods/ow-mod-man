@@ -604,16 +604,20 @@ pub async fn update_mod(
     let remote_db = state.remote_db.read().await.clone();
     let remote_db = remote_db.try_get()?;
 
-    let remote_mod = remote_db
-        .get_mod(unique_name)
-        .ok_or_else(|| anyhow!("Can't find mod {} in remote", unique_name))?;
+    let remote_mod = if unique_name == OWML_UNIQUE_NAME {
+        remote_db
+            .get_owml()
+            .ok_or_else(|| anyhow!("Can't find OWML"))?
+    } else {
+        remote_db
+            .get_mod(unique_name)
+            .ok_or_else(|| anyhow!("Can't find mod {} in remote", unique_name))?
+    };
 
     let res = if unique_name == OWML_UNIQUE_NAME {
         download_and_install_owml(
             &config,
-            remote_db
-                .get_owml()
-                .ok_or_else(|| anyhow!("OWML Not Found!"))?,
+            &remote_mod,
             false,
         )
         .await

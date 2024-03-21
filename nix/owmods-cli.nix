@@ -12,7 +12,7 @@
 }:
 rustPlatform.buildRustPackage rec {
   pname = "owmods-cli";
-  version = "0.13.0";
+  version = "0.13.1";
 
   # Prevent unneeded rebuilds
   src = with lib.fileset;

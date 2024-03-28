@@ -36,8 +36,8 @@ dependencies:
     specifier: 4.0.13
     version: 4.0.13(react@18.2.0)
   react-virtuoso:
-    specifier: 4.7.5
-    version: 4.7.5(react-dom@18.2.0)(react@18.2.0)
+    specifier: 4.7.6
+    version: 4.7.6(react-dom@18.2.0)(react@18.2.0)
 
 devDependencies:
   '@testing-library/react':
@@ -47,8 +47,8 @@ devDependencies:
     specifier: 18.2.73
     version: 18.2.73
   '@types/react-dom':
-    specifier: 18.2.22
-    version: 18.2.22
+    specifier: 18.2.23
+    version: 18.2.23
   '@typescript-eslint/eslint-plugin':
     specifier: 7.4.0
     version: 7.4.0(@typescript-eslint/parser@7.4.0)(eslint@8.57.0)(typescript@5.4.3)
@@ -1331,7 +1331,7 @@ packages:
     dependencies:
       '@babel/runtime': 7.24.0
       '@testing-library/dom': 9.3.4
-      '@types/react-dom': 18.2.22
+      '@types/react-dom': 18.2.23
       react: 18.2.0
       react-dom: 18.2.0(react@18.2.0)
     dev: true
@@ -1384,8 +1384,8 @@ packages:
   /@types/prop-types@15.7.11:
     resolution: {integrity: sha512-ga8y9v9uyeiLdpKddhxYQkxNDrfvuPrlFb0N1qnZZByvcElJaXthF1UhvCh9TLWJBEHeNtdnbysW7Y6Uq8CVng==}
 
-  /@types/react-dom@18.2.22:
-    resolution: {integrity: sha512-fHkBXPeNtfvri6gdsMYyW+dW7RXFo6Ad09nLFK0VQWR7yGLai/Cyvyj696gbwYvBnhGtevUG9cET0pmUbMtoPQ==}
+  /@types/react-dom@18.2.23:
+    resolution: {integrity: sha512-ZQ71wgGOTmDYpnav2knkjr3qXdAFu0vsk8Ci5w3pGAIdj7/kKAyn+VsQDhXsmzzzepAiI9leWMmubXz690AI/A==}
     dependencies:
       '@types/react': 18.2.73
     dev: true
@@ -3133,8 +3133,8 @@ packages:
       react-dom: 18.2.0(react@18.2.0)
     dev: false
 
-  /react-virtuoso@4.7.5(react-dom@18.2.0)(react@18.2.0):
-    resolution: {integrity: sha512-sYRQ1dHGiLCA/4ngq86U4fjO5SubEbbR53+mmcgcQZjzTK2E+9M300C3nXr54Zgr1ewZfdr9SKt6wpha0CsYUQ==}
+  /react-virtuoso@4.7.6(react-dom@18.2.0)(react@18.2.0):
+    resolution: {integrity: sha512-6Olcf8LB2wmFHAAfhGH6oAoFlWx1aVWY5LdN4ABPKrhsIAuQT6kYiN1SBaWCvDhbx+AAGhYxlgmC8e6xnjPutQ==}
     engines: {node: '>=10'}
     peerDependencies:
       react: '>=16 || >=17 || >= 18'

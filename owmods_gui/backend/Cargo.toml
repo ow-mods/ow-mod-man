@@ -10,7 +10,7 @@ tauri-build = { version = "1.5.1", features = [] }
 [dependencies]
 owmods_core = { version = "0.13.1", path = "../../owmods_core" }
 serde_json = "1.0.116"
-serde = { version = "1.0.199", features = ["derive"] }
+serde = { version = "1.0.200", features = ["derive"] }
 tauri = { version = "1.6.2", features = [ "clipboard-write-text",
     "app-all",
     "dialog-ask",
@@ -28,7 +28,7 @@ tauri = { version = "1.6.2", features = [ "clipboard-write-text",
 anyhow = "1.0.82"
 tokio = { version = "1.37.0", features = ["sync", "macros"] }
 log = { version = "0.4.21", features = ["std", "serde"] }
-typeshare = "1.0.2"
+typeshare = "1.0.3"
 notify = { version = "6.1.1", default-features = false, features = [
     "macos_kqueue",
 ] }

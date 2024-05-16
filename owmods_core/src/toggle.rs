@@ -122,6 +122,8 @@ pub fn toggle_mod(
                         continue;
                     }
                     let show_warning = if enabled {
+                        toggled_mods.push(dep_mod.manifest.unique_name.clone());
+                        to_check.extend(dep_mod.manifest.dependencies.clone().unwrap_or_default());
                         _toggle_mod(dep_mod, enabled)
                     } else {
                         let mut flag = true;
@@ -138,16 +140,17 @@ pub fn toggle_mod(
                             flag = false;
                         }
                         if flag {
+                            toggled_mods.push(dep_mod.manifest.unique_name.clone());
+                            to_check
+                                .extend(dep_mod.manifest.dependencies.clone().unwrap_or_default());
                             _toggle_mod(dep_mod, enabled)
                         } else {
                             Ok(false)
                         }
-                    };
-                    if show_warning? {
+                    }?;
+                    if show_warning {
                         show_warnings_for.push(dep_mod.manifest.unique_name.clone());
                     }
-                    toggled_mods.push(dep_mod.manifest.unique_name.clone());
-                    to_check.extend(dep_mod.manifest.dependencies.clone().unwrap_or_default());
                 } else {
                     warn!("Dependency {} Was Not Found, Ignoring.", dep);
                 }

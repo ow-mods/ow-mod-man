@@ -50,6 +50,11 @@ Using the manager on Linux should be easy **proton and wine are not required**. 
 
 The manager can be installed on Steam Deck in Desktop Mode in the Discover app.
 
+The mod manager requires that the game is installed in `~/.steam/steam/steamapps/common/Outer Wilds` or `~/Games/Heroic/OuterWilds`.
+
+When selecting game path **DO NOT** use the browse button, on Flatpak this tries to open a portal which
+won't work, you'll need to enter the path manually or copy it.
+
 Note that you won't be able to launch the game from the manager when in steam deck's game mode. But so long as you've *pressed* "Launch Game" at least once, you can launch the game directly and it will still be modded.
 
 **You'll also need to change your controller layout to the "Mouse Only" template.**

@@ -47,5 +47,6 @@ This is the monorepo for the new <a href="https://www.mobiusdigitalgames.com/out
   - [JSpoonBaker](https://github.com/Spoonbaker)
 - Translations:
   - Chinese: [SmallGarfield](https://github.com/xiaojiafei520)
+  - Vietnamese: [KNNFx](https://github.com/KNNFx)
 
 And the support of the [Outer Wilds Modding Discord](https://discord.com/invite/wusTQYbYTc)

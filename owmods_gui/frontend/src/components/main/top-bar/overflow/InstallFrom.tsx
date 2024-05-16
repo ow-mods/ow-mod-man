@@ -71,9 +71,9 @@ const InstallFrom = memo(function InstallFrom({ onClick }: ModalProps) {
                     if (sourceType !== null) {
                         getCurrent().setFocus().catch(simpleOnError);
                         const task = async () => {
-                            commands.refreshRemoteDb().catch(simpleOnError);
+                            await commands.refreshRemoteDb().catch(simpleOnError);
                             if (sourceType === "UNIQUE_NAME") {
-                                commands.installMod({ uniqueName: protocolPayload.payload });
+                                await commands.installMod({ uniqueName: protocolPayload.payload });
                             } else {
                                 setSource(sourceType);
                                 setTarget(protocolPayload.payload);

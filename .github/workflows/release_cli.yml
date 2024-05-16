@@ -55,11 +55,12 @@ jobs:
 
       - name: Generate Deb File
         if: matrix.platform == 'ubuntu-20.04'
-        run: cargo deb -p owmods_cli
+        run: cargo deb -p owmods_cli -o owmods_cli_${{ steps.get_version.outputs.version }}_amd64.deb
         env:
           ANALYTICS_API_KEY: ${{ secrets.ANALYTICS_API_KEY }}
 
-      - name: Upload CLI
+      - name: Upload CLI (Ubuntu)
+        if: matrix.platform == 'ubuntu-20.04'
         uses: softprops/action-gh-release@v2
         with:
           name: Outer Wilds Mod Manager CLI Version ${{ steps.get_version.outputs.version }}
@@ -69,6 +70,17 @@ jobs:
           draft: true
           files: |
             owmods.tar.zst
-            target/debian/owmods-cli_${{ steps.get_version.outputs.version }}_amd64.deb
+            owmods_cli_${{ steps.get_version.outputs.version }}_amd64.deb
             target/release/owmods
-            target/release/owmods.exe
+  
+      - name: Upload CLI (Windows)
+        if: matrix.platform == 'windows-latest'
+        uses: softprops/action-gh-release@v2
+        with:
+            name: Outer Wilds Mod Manager CLI Version ${{ steps.get_version.outputs.version }}
+            tag_name: cli_v${{ steps.get_version.outputs.version }}
+            fail_on_unmatched_files: false
+            generate_release_notes: false
+            draft: true
+            files: |
+              target/release/owmods.exe

@@ -2685,7 +2685,6 @@ dependencies = [
  "typeshare",
  "unicode-normalization",
  "uuid",
- "version-compare 0.2.0",
  "zip",
 ]
 

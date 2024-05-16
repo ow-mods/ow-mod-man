@@ -29,7 +29,7 @@ pub fn fix_version_post_update(local_mod: &LocalMod, remote_mod: &RemoteMod) -> 
             remote_mod.version, local_mod.manifest.version
         );
         let mut manifest = local_mod.manifest.clone();
-        manifest.version = remote_mod.version.clone();
+        manifest.version.clone_from(&remote_mod.version);
         let manifest_path = PathBuf::from(local_mod.mod_path.clone()).join("manifest.json");
         serialize_to_json(&manifest, &manifest_path, false)?;
         Ok(())

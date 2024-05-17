@@ -27,6 +27,7 @@ pub struct Logger {
 
 #[typeshare]
 #[derive(Serialize, Clone)]
+#[allow(dead_code)] // Clippy marks this as dead??
 #[serde(rename_all = "camelCase")]
 struct LogPayload {
     log_type: Level,

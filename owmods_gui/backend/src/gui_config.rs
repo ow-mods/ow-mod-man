@@ -25,6 +25,7 @@ pub enum Theme {
 #[derive(Default, Serialize, Deserialize, Clone)]
 pub enum Language {
     Chinese,
+    Vietnamese,
     Wario,
     #[default]
     #[serde(other)]

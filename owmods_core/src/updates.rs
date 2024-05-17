@@ -2,7 +2,6 @@ use std::path::PathBuf;
 
 use anyhow::Result;
 use log::{info, warn};
-use version_compare::Cmp;
 
 use crate::{
     analytics::{send_analytics_event, AnalyticsEventName},
@@ -29,7 +28,7 @@ pub fn fix_version_post_update(local_mod: &LocalMod, remote_mod: &RemoteMod) -> 
             remote_mod.version, local_mod.manifest.version
         );
         let mut manifest = local_mod.manifest.clone();
-        manifest.version = remote_mod.version.clone();
+        manifest.version.clone_from(&remote_mod.version);
         let manifest_path = PathBuf::from(local_mod.mod_path.clone()).join("manifest.json");
         serialize_to_json(&manifest, &manifest_path, false)?;
         Ok(())
@@ -58,9 +57,7 @@ pub fn check_mod_needs_update<'a>(
     };
     if let Some(remote_mod) = remote_mod {
         (
-            version_compare::compare(&remote_mod.version, &local_mod.manifest.version)
-                .map(|o| o == Cmp::Gt)
-                .unwrap_or_else(|_| local_mod.manifest.version != remote_mod.version),
+            local_mod.manifest.version != remote_mod.version,
             Some(remote_mod),
         )
     } else {

@@ -18,11 +18,16 @@ This is the monorepo for the new <a href="https://www.mobiusdigitalgames.com/out
 
 ## Platform Support
 
-| **Platform** | **Supported** |
-| :----------: | :-----------: |
-| **Windows**  |      ✅       |
-|  **Linux**   |      ✅       |
-|   **Deck**   |      ✅       |
+| **Platform** | **Supported**  |
+| :----------: |  :-----------: |
+| **Windows**  |      ✅        |
+|  **Linux**   |      ✅        |
+|   **Deck**   |      ✅        |
+|   **Mac**    |      ❌*       |
+
+You'll want to check out the [Help document](owmods_gui/HELP.md) for platform-specific instruction and caveats.
+
+\* Currently not native, but you can [check out this Reddit post](https://www.reddit.com/r/outerwilds/comments/1b9ysbm/outer_wilds_is_playable_on_macos_with_an_m1/) by u/FoxGray for a way to run it.
 
 ## Related Repos
 
@@ -47,5 +52,6 @@ This is the monorepo for the new <a href="https://www.mobiusdigitalgames.com/out
   - [JSpoonBaker](https://github.com/Spoonbaker)
 - Translations:
   - Chinese: [SmallGarfield](https://github.com/xiaojiafei520)
+  - Vietnamese: [KNNFx](https://github.com/KNNFx)
 
 And the support of the [Outer Wilds Modding Discord](https://discord.com/invite/wusTQYbYTc)

@@ -2,7 +2,7 @@ use std::path::PathBuf;
 
 use anyhow::Result;
 use log::{info, warn};
-use versions::Version;
+use versions::Versioning;
 
 use crate::{
     analytics::{send_analytics_event, AnalyticsEventName},
@@ -57,8 +57,8 @@ pub fn check_mod_needs_update<'a>(
         remote_db.get_mod(&local_mod.manifest.unique_name)
     };
     if let Some(remote_mod) = remote_mod {
-        let local_ver = Version::new(&local_mod.manifest.version);
-        let remote_ver = Version::new(&remote_mod.version);
+        let local_ver = Versioning::new(&local_mod.manifest.version);
+        let remote_ver = Versioning::new(&remote_mod.version);
         let outdated = if let (Some(local_ver), Some(remote_ver)) = (local_ver, remote_ver) {
             local_ver < remote_ver
         } else {

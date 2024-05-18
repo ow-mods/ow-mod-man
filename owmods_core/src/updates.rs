@@ -2,6 +2,7 @@ use std::path::PathBuf;
 
 use anyhow::Result;
 use log::{info, warn};
+use versions::Version;
 
 use crate::{
     analytics::{send_analytics_event, AnalyticsEventName},
@@ -56,10 +57,14 @@ pub fn check_mod_needs_update<'a>(
         remote_db.get_mod(&local_mod.manifest.unique_name)
     };
     if let Some(remote_mod) = remote_mod {
-        (
-            local_mod.manifest.version != remote_mod.version,
-            Some(remote_mod),
-        )
+        let local_ver = Version::new(&local_mod.manifest.version);
+        let remote_ver = Version::new(&remote_mod.version);
+        let outdated = if let (Some(local_ver), Some(remote_ver)) = (local_ver, remote_ver) {
+            local_ver < remote_ver
+        } else {
+            false
+        };
+        (outdated, Some(remote_mod))
     } else {
         (false, None)
     }
@@ -171,6 +176,13 @@ mod tests {
     #[test]
     fn test_check_mod_needs_update_none() {
         let (new_mod, db) = setup("0.2.0", "0.2.0");
+        let (needs_update, _) = check_mod_needs_update(&new_mod, &db);
+        assert!(!needs_update);
+    }
+
+    #[test]
+    fn test_check_mod_needs_update_prerelease() {
+        let (new_mod, db) = setup("1.2.0-rc.1", "1.2.0");
         let (needs_update, _) = check_mod_needs_update(&new_mod, &db);
         assert!(!needs_update);
     }

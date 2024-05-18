@@ -182,9 +182,16 @@ mod tests {
 
     #[test]
     fn test_check_mod_needs_update_prerelease() {
-        let (new_mod, db) = setup("1.2.0-rc.1", "1.2.0");
+        let (new_mod, db) = setup("1.2.1-rc.1", "1.2.0");
         let (needs_update, _) = check_mod_needs_update(&new_mod, &db);
         assert!(!needs_update);
+    }
+
+    #[test]
+    fn test_check_mod_needs_update_prerelease_older() {
+        let (new_mod, db) = setup("1.2.1-rc.1", "1.2.1");
+        let (needs_update, _) = check_mod_needs_update(&new_mod, &db);
+        assert!(needs_update);
     }
 
     #[test]

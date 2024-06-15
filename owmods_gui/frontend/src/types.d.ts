@@ -372,6 +372,7 @@ export interface GameMessage {
 }
 
 export enum Language {
+    Japanese = "Japanese",
     Chinese = "Chinese",
     Vietnamese = "Vietnamese",
     Wario = "Wario",

@@ -16,7 +16,6 @@
         "lint": "tsc --noEmit && eslint --cache . --fix",
         "lint-dry": "tsc --noEmit && eslint .",
         "prettify": "prettier --write . --ignore-unknown",
-        "preinstall": "npx only-allow npm",
         "prettier-check": "prettier --check . --ignore-unknown"
     },
     "dependencies": {

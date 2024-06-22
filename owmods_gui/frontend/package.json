@@ -3,6 +3,10 @@
     "private": true,
     "version": "0.14.0",
     "type": "module",
+    "engines": {
+        "npm": ">=10.0.0",
+        "node": ">=20.0.0"
+    },
     "scripts": {
         "dev": "vite",
         "devtools": "react-devtools --in-process-gpu",
@@ -12,6 +16,7 @@
         "lint": "tsc --noEmit && eslint --cache . --fix",
         "lint-dry": "tsc --noEmit && eslint .",
         "prettify": "prettier --write . --ignore-unknown",
+        "preinstall": "npx only-allow npm",
         "prettier-check": "prettier --check . --ignore-unknown"
     },
     "dependencies": {

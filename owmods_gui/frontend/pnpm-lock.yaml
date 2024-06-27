@@ -57,7 +57,7 @@ devDependencies:
     version: 7.14.1(eslint@8.57.0)(typescript@5.5.2)
   '@vitejs/plugin-react':
     specifier: 4.3.1
-    version: 4.3.1(vite@5.3.1)
+    version: 4.3.1(vite@5.3.2)
   eslint:
     specifier: 8.57.0
     version: 8.57.0
@@ -74,8 +74,8 @@ devDependencies:
     specifier: 5.5.2
     version: 5.5.2
   vite:
-    specifier: 5.3.1
-    version: 5.3.1
+    specifier: 5.3.2
+    version: 5.3.2
   vite-imagetools:
     specifier: 7.0.2
     version: 7.0.2
@@ -1556,7 +1556,7 @@ packages:
     resolution: {integrity: sha512-zuVdFrMJiuCDQUMCzQaD6KL28MjnqqN8XnAqiEq9PNm/hCPTSGfrXCOfwj1ow4LFb/tNymJPwsNbVePc1xFqrQ==}
     dev: true
 
-  /@vitejs/plugin-react@4.3.1(vite@5.3.1):
+  /@vitejs/plugin-react@4.3.1(vite@5.3.2):
     resolution: {integrity: sha512-m/V2syj5CuVnaxcUJOQRel/Wr31FFXRFlnOoq1TVtkCxsY5veGMTEmpWHndrhB2U8ScHtCQB1e+4hWYExQc6Lg==}
     engines: {node: ^14.18.0 || >=16.0.0}
     peerDependencies:
@@ -1567,7 +1567,7 @@ packages:
       '@babel/plugin-transform-react-jsx-source': 7.24.7(@babel/core@7.24.7)
       '@types/babel__core': 7.20.5
       react-refresh: 0.14.2
-      vite: 5.3.1
+      vite: 5.3.2
     transitivePeerDependencies:
       - supports-color
     dev: true
@@ -3580,8 +3580,8 @@ packages:
       - rollup
     dev: true
 
-  /vite@5.3.1:
-    resolution: {integrity: sha512-XBmSKRLXLxiaPYamLv3/hnP/KXDai1NDexN0FpkTaZXTfycHvkRHoenpgl/fvuK/kPbB6xAgoyiryAhQNxYmAQ==}
+  /vite@5.3.2:
+    resolution: {integrity: sha512-6lA7OBHBlXUxiJxbO5aAY2fsHHzDr1q7DvXYnyZycRs2Dz+dXBWuhpWHvmljTRTpQC2uvGmUFFkSHF2vGo90MA==}
     engines: {node: ^18.0.0 || >=20.0.0}
     hasBin: true
     peerDependencies:

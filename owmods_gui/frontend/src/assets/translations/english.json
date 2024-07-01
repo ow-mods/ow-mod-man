@@ -32,6 +32,7 @@
     "DISMISS": "Dismiss",
     "DONATE": "Donate",
     "DOWNLOADS": "Downloads",
+    "DOWNLOAD_COUNT": "Downloads",
     "Debug": "Debug",
     "DisabledDep": "Dependency $payload$ is installed, but it's disabled",
     "DuplicateMod": "A mod with this unique name was already loaded from $payload$",

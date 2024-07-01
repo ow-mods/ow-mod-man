@@ -72,7 +72,7 @@ const ModsTable = forwardRef<TableVirtuosoHandle, ModsTableProps>(function ModsT
                         </TableCell>
                     )}
                     <TableCell>{getTranslation("NAME")}</TableCell>
-                    <TableCell width="100px">{getTranslation("DOWNLOADS")}</TableCell>
+                    <TableCell width="100px">{getTranslation("DOWNLOAD_COUNT")}</TableCell>
                     <TableCell width="110px" align="center">
                         {getTranslation("VERSION")}
                     </TableCell>

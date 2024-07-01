@@ -1,4 +1,5 @@
 import { hooks } from "@commands";
+import { useGetTranslation } from "@hooks";
 import { DownloadingRounded } from "@mui/icons-material";
 import { Suspense, lazy, memo, useEffect, useMemo, useRef, useState } from "react";
 import { AppIcon } from "../AppIcons";
@@ -31,6 +32,8 @@ const recentCompleteClassMap: Record<RecentComplete, string | undefined> = {
 };
 
 const DownloadsIcon = memo(function DownloadsIcon() {
+    const getTranslation = useGetTranslation();
+
     const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>();
     const [recentComplete, setRecentComplete] = useState<RecentComplete>("none");
     const [viewedDownloads, setViewedDownloads] = useState<number>(0);
@@ -95,7 +98,7 @@ const DownloadsIcon = memo(function DownloadsIcon() {
         <>
             <Box display="flex" position="relative">
                 <Box zIndex={100}>
-                    <AppIcon onClick={handleClick} label="Downloads">
+                    <AppIcon onClick={handleClick} label={getTranslation("DOWNLOADS")}>
                         <DownloadingRounded
                             className={recentCompleteClassMap[recentComplete]}
                             color={iconColor}

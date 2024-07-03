@@ -34,7 +34,7 @@ use owmods_core::{
 use serde::Serialize;
 use tauri::FileDropEvent;
 use tauri::{api::dialog, async_runtime, AppHandle, Manager, WindowEvent};
-use tokio::{sync::mpsc, try_join};
+use tokio::{select, sync::mpsc, try_join};
 use typeshare::typeshare;
 
 use crate::events::{CustomEventEmitter, CustomEventEmitterAll, CustomEventTriggerGlobal, Event};
@@ -761,10 +761,24 @@ pub async fn run_game(
     let (tx, mut rx) = mpsc::channel(32);
 
     let log_handler = async {
-        while let Some(msg) = rx.recv().await {
-            let mut game_log = state.game_log.write().await;
-            if let Some(log_data) = game_log.get_mut(&port) {
-                log_data.take_message(msg);
+        loop {
+            select! {
+                msg = rx.recv() => {
+                    if let Some(msg) = msg {
+                        let mut game_log = state.game_log.write().await;
+                        if let Some(log_data) = game_log.get_mut(&port) {
+                            log_data.take_message(msg);
+                        }
+                    } else {
+                        break;
+                    }
+                }
+                _ = tokio::time::sleep(tokio::time::Duration::from_secs(5)) => {
+                    let mut game_log = state.game_log.write().await;
+                    if let Some(log_data) = game_log.get_mut(&port) {
+                        log_data.process_emit_queue();
+                    }
+                }
             }
         }
         Ok(())

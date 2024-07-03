@@ -79,7 +79,8 @@
           "license": "../../LICENSE",
           "installerIcon": "icons/icon.ico",
           "installMode": "both",
-          "headerImage": "installer-images/nsis/Header.bmp"
+          "headerImage": "installer-images/nsis/Header.bmp",
+	  "sidebarImage": "installer-images/nsis/Sidebar.bmp"
         }
       }
     },

@@ -29,10 +29,12 @@ export const useTauri = <T, E extends Event["name"]>(
         const subscriptions: (() => void)[] = [];
         if (status !== "Loading") {
             for (const eventToSubscribe of events) {
-                subscriptions.push(listen(eventToSubscribe, (params) => {
-                    if (shouldChangeFn && !shouldChangeFn(params)) return;
-                    setStatus("Loading");
-                }));
+                subscriptions.push(
+                    listen(eventToSubscribe, (params) => {
+                        if (shouldChangeFn && !shouldChangeFn(params)) return;
+                        setStatus("Loading");
+                    })
+                );
             }
         } else {
             commandFn()

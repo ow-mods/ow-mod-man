@@ -84,7 +84,6 @@
       "groupName": "GUI Frontend",
       "groupSlug": "js",
       "commitMessagePrefix": "[CHORE]",
-      "rangeStrategy": "pin",
       "lockFileMaintenance": {
         "enabled": true
       }

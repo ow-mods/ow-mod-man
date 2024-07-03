@@ -72,7 +72,7 @@ rustPlatform.buildRustPackage rec {
       inherit version;
       pname = "owmods_gui-ui";
 
-      npmDepsHash = "sha256-ltKPmmvhe9hdeGXvstzdpEP/qzlK6YbRMS5IxkOeWik=";
+      npmDepsHash = "sha256-0ei/Xz7LxpTovoza680evIII8JYsmsyivxf++vNsuRI=";
       src = ../owmods_gui/frontend;
 
       packageJSON = ../owmods_gui/frontend/package.json;
@@ -85,7 +85,7 @@ rustPlatform.buildRustPackage rec {
       VITE_VERSION_SUFFIX = "-nix";
       installInPlace = true;
       distDir = "../dist";
-  };
+    };
   in ''
     substituteInPlace owmods_gui/backend/tauri.conf.json \
     --replace '"distDir": "../dist"' '"distDir": "${frontend}"'

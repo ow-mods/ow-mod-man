@@ -32,6 +32,8 @@ jobs:
 
       - name: Setup Node
         uses: actions/setup-node@v4
+        with:
+          node-version-file: owmods_gui/frontend/package.json
 
       - name: Install Dependencies
         run: npm install

@@ -26,15 +26,12 @@ export const useTauri = <T, E extends Event["name"]>(
     const errorBound = useErrorBoundary();
 
     useEffect(() => {
-        const subscriptions: (() => void)[] = [];
         if (status !== "Loading") {
             for (const eventToSubscribe of events) {
-                subscriptions.push(
-                    listen(eventToSubscribe, (params) => {
-                        if (shouldChangeFn && !shouldChangeFn(params)) return;
-                        setStatus("Loading");
-                    })
-                );
+                listen(eventToSubscribe, (params) => {
+                    if (shouldChangeFn && !shouldChangeFn(params)) return;
+                    setStatus("Loading");
+                });
             }
         } else {
             commandFn()
@@ -47,11 +44,6 @@ export const useTauri = <T, E extends Event["name"]>(
                 })
                 .finally(() => setStatus("Done"));
         }
-        return () => {
-            for (const unsub of subscriptions) {
-                unsub();
-            }
-        };
     }, [commandFn, shouldChangeFn, errorBound, events, status]);
 
     useEffect(() => {

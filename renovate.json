@@ -14,6 +14,7 @@
       "(^|/)action\\.ya?ml$"
     ]
   },
+  "ignoreDeps": ["eslint"],
   "cargo": {
     "enabled": true
   },
@@ -83,7 +84,10 @@
       "groupName": "GUI Frontend",
       "groupSlug": "js",
       "commitMessagePrefix": "[CHORE]",
-      "rangeStrategy": "pin"
+      "rangeStrategy": "pin",
+      "lockFileMaintenance": {
+        "enabled": true
+      }
     }
   ]
 }

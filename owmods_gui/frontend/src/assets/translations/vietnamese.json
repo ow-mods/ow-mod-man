@@ -32,6 +32,7 @@
     "DISMISS": "Loại Bỏ",
     "DONATE": "Quyên Góp",
     "DOWNLOADS": "Tải Về",
+    "DOWNLOAD_COUNT": "Tải Về",
     "Debug": "Debug",
     "DisabledDep": "Dependency $payload$ đã được cài đặt, nhưng đã bị tắt",
     "DuplicateMod": "Một mod có tên đặc trưng đã được tải từ $payload$",

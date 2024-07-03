@@ -1,7 +1,7 @@
 {
   "build": {
-    "beforeBuildCommand": "cd frontend && pnpm run build",
-    "beforeDevCommand": "cd frontend && pnpm run dev",
+    "beforeBuildCommand": "cd frontend && npm run build",
+    "beforeDevCommand": "cd frontend && npm run dev",
     "devPath": "http://localhost:5173",
     "distDir": "../dist"
   },
@@ -79,7 +79,8 @@
           "license": "../../LICENSE",
           "installerIcon": "icons/icon.ico",
           "installMode": "both",
-          "headerImage": "installer-images/nsis/Header.bmp"
+          "headerImage": "installer-images/nsis/Header.bmp",
+	  "sidebarImage": "installer-images/nsis/Sidebar.bmp"
         }
       }
     },

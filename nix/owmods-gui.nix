@@ -16,13 +16,13 @@
   makeDesktopItem,
   copyDesktopItems,
   rustPlatform,
-  mkPnpmPackage,
+  buildNpmPackage,
   mono,
   wrapWithMono ? true,
 }:
 rustPlatform.buildRustPackage rec {
   pname = "owmods-gui";
-  version = "0.14.0";
+  version = "0.14.1";
 
   VITE_VERSION_SUFFIX = "-nix";
 
@@ -68,9 +68,21 @@ rustPlatform.buildRustPackage rec {
   postFixup = lib.optionalString wrapWithMono "gappsWrapperArgs+=(--prefix PATH : '${mono}/bin')";
 
   postPatch = let
-    frontend = mkPnpmPackage {
-      VITE_VERSION_SUFFIX = "-nix";
+    frontend = buildNpmPackage {
+      inherit version;
+      pname = "owmods_gui-ui";
+
+      npmDepsHash = "sha256-e0F+S4WPlnB/s07U8aNZYBtg0SHnmAmX4slUdBXXMFA=";
       src = ../owmods_gui/frontend;
+
+      packageJSON = ../owmods_gui/frontend/package.json;
+      postBuild = ''
+        ls ..
+        cp -r ../dist/ $out
+      '';
+      distPhase = "true";
+      dontInstall = true;
+      VITE_VERSION_SUFFIX = "-nix";
       installInPlace = true;
       distDir = "../dist";
     };

@@ -9,7 +9,6 @@ pkgs.mkShell {
     rustfmt
     nodejs
     openssl
-    nodePackages.pnpm
     gcc
     webkitgtk
     glib-networking

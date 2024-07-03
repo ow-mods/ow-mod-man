@@ -1,10 +1,10 @@
 # Contributing
 
-To build this project you'll need rust, cargo, and pnpm.
+To build this project you'll need rust, cargo, and node/npm.
 
 This package is called `owmods_gui` so anytime you want to perform cargo commands on it **do not do it in this folder**, do it from the root of the repo and add `-p owmods_gui` to your cargo command.
 
-Ex: `cargo add tokio` should become `cargo add clap -p owmods_gui`.
+Ex: `cargo add tokio` should become `cargo add tokio -p owmods_gui`.
 
 ## Setup on Linux
 
@@ -18,9 +18,9 @@ Run the `shell.nix` file. Allow insecure is needed for OpenSSL 1.1.1 support.
 NIX_ALLOW_INSECURE=1 nix-shell shell.nix --impure
 ```
 
-## pnpm
+## npm
 
-The frontend for this package is made with TS so you need to install related dependencies. First cd in to `owmods_gui/frontend`, then run `pnpm i`
+The frontend for this package is made with TS so you need to install related dependencies. First cd in to `owmods_gui/frontend`, then run `npm i`
 
 ## Typeshare
 
@@ -32,11 +32,11 @@ To do this, you need to install the typeshare cli:
 cargo install typeshare-cli
 ```
 
-Then run the `gen-types` pnpm command:
+Then run the `gen-types` npm command:
 
 ```sh
 cd owmods_gui/frontend
-pnpm gen-types
+npm run gen-types
 ```
 
 This will generate `types.d.ts` in `owmods_gui/frontend/src/types.d.ts`.
@@ -54,8 +54,8 @@ And lint and format the frontend as well:
 
 ```sh
 cd owmods_gui/frontend
-pnpm lint
-pnpm prettify
+npm run lint
+npm run prettify
 ```
 
 Git hooks are setup to run clippy on every commit, meaning they may take longer.
@@ -71,7 +71,7 @@ This is a result of your OS falsely thinking the dev version of the manager shou
 Events are used to communicate between the frontend and backend. They are defined in `owmods_gui/src/events.rs`.
 The events are then synced via typeshare to the frontend, where they are defined in `owmods_gui/frontend/src/types.d.ts`.
 
-To use an event, you must first define it in `owmods_gui/src/events.rs` and then sync it to the frontend by running `pnpm gen-types` in `owmods_gui/frontend`.
+To use an event, you must first define it in `owmods_gui/src/events.rs` and then sync it to the frontend by running `npm gen-types` in `owmods_gui/frontend`.
 
 Then, you can use the event in the frontend by importing `emit` or `listen` from `owmods_gui/frontend/events.ts` and using it like so:
 

@@ -1,48 +1,48 @@
 {
     "name": "owmods-gui-frontend",
     "private": true,
-    "version": "0.14.0",
+    "version": "0.14.1",
     "type": "module",
+    "engines": {
+        "npm": ">=10.0.0",
+        "node": ">=20.0.0"
+    },
     "scripts": {
         "dev": "vite",
         "devtools": "react-devtools --in-process-gpu",
         "gen-types": "typeshare ../.. --lang=typescript --output-file=src/types.d.ts && prettier --write src/types.d.ts",
         "build": "tsc && vite build --emptyOutDir",
         "preview": "vite preview",
-        "check": "pnpm lint && pnpm prettify",
         "lint": "tsc --noEmit && eslint --cache . --fix",
         "lint-dry": "tsc --noEmit && eslint .",
         "prettify": "prettier --write . --ignore-unknown",
-        "format": "pnpm prettify",
-        "prettier-check": "prettier --check . --ignore-unknown",
-        "preinstall": "npx only-allow pnpm"
+        "prettier-check": "prettier --check . --ignore-unknown"
     },
     "dependencies": {
         "@emotion/react": "11.11.4",
         "@emotion/styled": "11.11.5",
         "@fontsource/roboto": "5.0.13",
-        "@mui/icons-material": "5.15.18",
+        "@mui/icons-material": "5.15.21",
         "@mui/lab": "5.0.0-alpha.170",
-        "@mui/material": "5.15.18",
-        "@tauri-apps/api": "1.5.6",
+        "@mui/material": "5.15.21",
+        "@tauri-apps/api": "1.6.0",
         "react": "18.3.1",
         "react-dom": "18.3.1",
         "react-error-boundary": "4.0.13",
-        "react-virtuoso": "4.7.10"
+        "react-virtuoso": "4.7.11"
     },
     "devDependencies": {
-        "@testing-library/react": "15.0.7",
-        "@types/react": "18.3.2",
+        "@types/react": "18.3.3",
         "@types/react-dom": "18.3.0",
-        "@typescript-eslint/eslint-plugin": "7.9.0",
-        "@typescript-eslint/parser": "7.9.0",
-        "@vitejs/plugin-react": "4.2.1",
-        "eslint": "^8.57.0",
-        "eslint-plugin-react": "7.34.1",
+        "@typescript-eslint/eslint-plugin": "7.15.0",
+        "@typescript-eslint/parser": "7.15.0",
+        "@vitejs/plugin-react": "4.3.1",
+        "eslint": "8.57.0",
+        "eslint-plugin-react": "7.34.3",
         "eslint-plugin-react-hooks": "4.6.2",
-        "prettier": "3.2.5",
-        "typescript": "5.4.5",
-        "vite": "5.2.11",
+        "prettier": "3.3.2",
+        "typescript": "5.5.3",
+        "vite": "5.3.3",
         "vite-imagetools": "7.0.2"
     }
 }

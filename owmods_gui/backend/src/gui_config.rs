@@ -24,6 +24,7 @@ pub enum Theme {
 #[typeshare]
 #[derive(Default, Serialize, Deserialize, Clone)]
 pub enum Language {
+    Japanese,
     Chinese,
     Vietnamese,
     Wario,

@@ -12,7 +12,7 @@
       "type": "node-terminal",
       "request": "launch",
       "cwd": "${workspaceFolder}/owmods_gui/frontend",
-      "command": "pnpm dev"
+      "command": "npm run dev"
     }
   ]
 }

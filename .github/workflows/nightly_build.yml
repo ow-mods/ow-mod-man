@@ -43,32 +43,12 @@ jobs:
         with:
           node-version: 20
 
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v2
-        with:
-          version: 8
-          run_install: false
-
-      - name: Get pnpm store directory
-        id: pnpm-cache
-        shell: bash
-        run: |
-          echo "STORE_PATH=$(pnpm store path)" >> $GITHUB_OUTPUT
-
-      - uses: actions/cache@v4
-        name: Setup pnpm cache
-        with:
-          path: ${{ steps.pnpm-cache.outputs.STORE_PATH }}
-          key: ${{ matrix.platform }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
-          restore-keys: |
-            ${{ matrix.platform }}-pnpm-store-
-
       - name: Install Frontend Dependencies
         working-directory: owmods_gui/frontend
-        run: pnpm install
+        run: npm install
 
       - name: Install Tauri CLI
-        run: pnpm add -g @tauri-apps/cli
+        run: npm add -g @tauri-apps/cli
 
       - name: Build GUI
         run: tauri build --ci -b $([[ ${{ matrix.platform }} = 'windows-latest' ]] && echo 'msi nsis' || echo 'appimage deb')

@@ -3,19 +3,20 @@
     "private": true,
     "version": "0.14.0",
     "type": "module",
+    "engines": {
+        "npm": ">=10.0.0",
+        "node": ">=20.0.0"
+    },
     "scripts": {
         "dev": "vite",
         "devtools": "react-devtools --in-process-gpu",
         "gen-types": "typeshare ../.. --lang=typescript --output-file=src/types.d.ts && prettier --write src/types.d.ts",
         "build": "tsc && vite build --emptyOutDir",
         "preview": "vite preview",
-        "check": "pnpm lint && pnpm prettify",
         "lint": "tsc --noEmit && eslint --cache . --fix",
         "lint-dry": "tsc --noEmit && eslint .",
         "prettify": "prettier --write . --ignore-unknown",
-        "format": "pnpm prettify",
-        "prettier-check": "prettier --check . --ignore-unknown",
-        "preinstall": "npx only-allow pnpm"
+        "prettier-check": "prettier --check . --ignore-unknown"
     },
     "dependencies": {
         "@emotion/react": "11.11.4",

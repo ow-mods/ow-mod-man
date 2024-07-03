@@ -9,6 +9,7 @@ This file contains common questions for the manager.
   - [How do I use this?](#how-do-i-use-this)
     - [The manager has encountered a fatal error, the system cannot find the file specified (Windows)](#the-manager-has-encountered-a-fatal-error-the-system-cannot-find-the-file-specified-windows)
   - [How do I use this on Linux?](#how-do-i-use-this-on-linux)
+    - [Mod folder not found on Flatpak version of Steam](#mod-folder-not-found-on-flatpak-version-of-steam) 
     - [What About Steam Deck?](#what-about-steam-deck)
   - [How do I uninstall it?](#how-do-i-uninstall-it)
   - [How do I update it?](#how-do-i-update-it)
@@ -45,6 +46,15 @@ The manager's installer is supposed to install Webview2 for you, but depending o
 ## How do I use this on Linux?
 
 Using the manager on Linux should be easy **proton and wine are not required**. The manager requires [Mono](https://www.mono-project.com) 6 to be installed and available on the PATH. If you're using the Flatpak, AUR, or Nix versions, Mono will be installed and set up automatically.
+
+### Mod folder not found on Flatpak version of Steam
+
+This is an issue with sharing the manager's folder with Steam, as OWML will be running from within Steam's flatpak container it won't be able to access the mods folder. See [this issue](https://github.com/ow-mods/ow-mod-man/issues/501) for details. tl;dr:
+
+1. Move the OWML folder from `~/.local/share/OuterWildsModManager/OWML` to `~/.var/app/com.valvesoftware.Steam/.local/share/OuterWildsModManager/OWML`, this will make it available to the Steam container
+2. Change your OWML path in the manager settings to `~/.var/app/com.valvesoftware.Steam/.local/share/OuterWildsModManager/OWML` to point to the new OWML location
+3. Reverify your game files in Steam, this is to remove any possibly bad versions of OWML that still point to the old path
+4. Try to launch the game again through the manager
 
 ### What About Steam Deck?
 

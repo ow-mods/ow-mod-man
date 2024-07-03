@@ -141,16 +141,20 @@ const LocalModRow = memo(function LocalModRow(props: LocalModRowProps) {
         [autoEnableDeps, autoDisableDeps, getTranslation, props.uniqueName]
     );
     const onUninstall = useCallback(() => {
-        commands.uninstallMod({ uniqueName: props.uniqueName }).then((warnings) => {
-            commands.refreshLocalDb();
-            for (const modName of warnings) {
-                dialog.message(getTranslation("PREPATCHER_WARNING", { name: modName }), {
-                    type: "warning",
-                    title: getTranslation("PREPATCHER_WARNING_TITLE", { name: modName })
-                });
-            }
-        });
-    }, [getTranslation, props.uniqueName]);
+        if (local?.loadState === "invalid") {
+            commands.uninstallBrokenMod({ modPath: props.uniqueName });
+        } else {
+            commands.uninstallMod({ uniqueName: props.uniqueName }).then((warnings) => {
+                commands.refreshLocalDb();
+                for (const modName of warnings) {
+                    dialog.message(getTranslation("PREPATCHER_WARNING", { name: modName }), {
+                        type: "warning",
+                        title: getTranslation("PREPATCHER_WARNING_TITLE", { name: modName })
+                    });
+                }
+            });
+        }
+    }, [getTranslation, props.uniqueName, local?.loadState]);
     const onFix = useCallback(() => {
         const task = async () => {
             if (outdated) {

@@ -4,8 +4,8 @@
     "version": "0.14.0",
     "type": "module",
     "engines": {
-        "npm": ">=10.0.0",
-        "node": ">=20.0.0"
+        "npm": "10.8.1",
+        "node": "22.4.0"
     },
     "scripts": {
         "dev": "vite",
@@ -25,7 +25,7 @@
         "@mui/icons-material": "5.15.21",
         "@mui/lab": "5.0.0-alpha.170",
         "@mui/material": "5.15.21",
-        "@tauri-apps/api": "1.5.6",
+        "@tauri-apps/api": "1.6.0",
         "react": "18.3.1",
         "react-dom": "18.3.1",
         "react-error-boundary": "4.0.13",
@@ -35,15 +35,15 @@
         "@testing-library/react": "15.0.7",
         "@types/react": "18.3.3",
         "@types/react-dom": "18.3.0",
-        "@typescript-eslint/eslint-plugin": "7.14.1",
-        "@typescript-eslint/parser": "7.14.1",
+        "@typescript-eslint/eslint-plugin": "7.15.0",
+        "@typescript-eslint/parser": "7.15.0",
         "@vitejs/plugin-react": "4.3.1",
         "eslint": "8.57.0",
         "eslint-plugin-react": "7.34.3",
         "eslint-plugin-react-hooks": "4.6.2",
         "prettier": "3.3.2",
-        "typescript": "5.5.2",
-        "vite": "5.3.2",
+        "typescript": "5.5.3",
+        "vite": "5.3.3",
         "vite-imagetools": "7.0.2"
     }
 }

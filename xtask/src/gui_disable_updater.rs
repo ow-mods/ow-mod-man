@@ -2,7 +2,7 @@ use std::process::Command;
 
 use anyhow::Result;
 use serde_json::{from_str, Value};
-use toml_edit::{value, Document};
+use toml_edit::DocumentMut;
 
 const GUI_TAURI_CONF_PATH: &str = "owmods_gui/backend/tauri.conf.json";
 const GUI_CARGO_TOML_PATH: &str = "owmods_gui/backend/Cargo.toml";
@@ -15,8 +15,8 @@ pub fn disable_updater() -> Result<()> {
     tauri_conf["tauri"]["updater"]["active"] = false.into();
     // Cargo.toml
     let cargo_toml = std::fs::read_to_string(GUI_CARGO_TOML_PATH)?;
-    let mut cargo_toml = cargo_toml.parse::<Document>()?;
-    let mut features = cargo_toml["dependencies"]["tauri"]["features"]
+    let mut cargo_toml = cargo_toml.parse::<DocumentMut>()?;
+    let features = cargo_toml["dependencies"]["tauri"]["features"]
         .as_array_mut()
         .unwrap();
     features.retain(|f| f.as_str().unwrap() != "updater");
@@ -29,7 +29,7 @@ pub fn disable_updater() -> Result<()> {
 
     println!("Refetching dependencies...");
 
-    let cmd = Command::new("cargo")
+    Command::new("cargo")
         .arg("update")
         .current_dir("owmods_gui/backend")
         .output()?;

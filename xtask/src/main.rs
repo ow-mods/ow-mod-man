@@ -2,16 +2,15 @@ use std::path::PathBuf;
 
 use anyhow::Result;
 use cli_tasks::{generate_cli_pkg_build, generate_completions, generate_man_files, print_version};
-use gui_tasks::generate_gui_pkg_build;
 use gui_disable_updater::disable_updater;
+use gui_tasks::generate_gui_pkg_build;
 use regex::RegexBuilder;
 
 mod cli_tasks;
-mod gui_tasks;
 mod gui_disable_updater;
+mod gui_tasks;
 mod log_client;
 mod log_spammer;
-
 
 pub fn get_out_dir() -> Result<PathBuf> {
     let out_dir = std::path::PathBuf::from(std::env::var_os("CARGO_MANIFEST_DIR").unwrap())

@@ -37,6 +37,9 @@ pub struct OWMLConfig {
     /// The path to OWML
     #[serde(skip_serializing_if = "Option::is_none")]
     owml_path: Option<String>,
+    /// Mods that OWML has run a prepatcher for
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub prepatched_mods: Vec<String>,
     /// The port to use for sending logs to
     pub socket_port: u16,
     #[typeshare(skip)]

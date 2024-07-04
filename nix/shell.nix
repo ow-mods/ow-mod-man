@@ -8,8 +8,8 @@ pkgs.mkShell {
     clippy
     rustfmt
     nodejs
-    openssl
     gcc
+    openssl
     webkitgtk
     glib-networking
     pkg-config

@@ -33,7 +33,7 @@ pub fn remove_mod(
     if PathBuf::from(&local_mod.mod_path).is_dir() {
         // In case weird circular dep stuff happens, just don't delete it if it doesn't exist
         remove_dir_all(&local_mod.mod_path)?;
-        if local_mod.uses_pre_patcher() {
+        if local_mod.manifest.patcher.is_some() {
             show_warnings_for.push(local_mod.manifest.name.clone());
         }
     }

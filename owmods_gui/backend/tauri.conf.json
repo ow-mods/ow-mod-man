@@ -10,20 +10,20 @@
   },
   "tauri": {
     "allowlist": {
-      "dialog": {
-        "confirm": true,
-        "open": true,
-        "message": true,
-        "save": true,
-        "ask": true
-      },
-      "clipboard": {
-        "writeText": true
-      },
       "app": {
         "all": true,
         "hide": false,
         "show": false
+      },
+      "clipboard": {
+        "writeText": true
+      },
+      "dialog": {
+        "ask": true,
+        "confirm": true,
+        "message": true,
+        "open": true,
+        "save": true
       },
       "os": {
         "all": true
@@ -35,17 +35,14 @@
         "open": "(^https://(www\\.)?(github.com|outerwildsmods.com|paypal.me|patreon.com|buymeacoffee.com|cash.app|ko-fi.com)/)|(^https://(www\\.)?discord.gg/wusTQYbYTc$)"
       },
       "window": {
-        "setTitle": true,
-        "setFocus": true
+        "setFocus": true,
+        "setTitle": true
       }
     },
     "bundle": {
       "active": true,
       "category": "Game",
       "copyright": "",
-      "deb": {
-        "depends": ["libssl1.1"]
-      },
       "externalBin": [],
       "icon": [
         "icons/32x32.png",
@@ -69,46 +66,49 @@
       "windows": {
         "certificateThumbprint": null,
         "digestAlgorithm": "sha256",
+        "nsis": {
+          "headerImage": "installer-images/nsis/Header.bmp",
+          "installMode": "both",
+          "installerIcon": "icons/icon.ico",
+          "license": "../../LICENSE",
+          "sidebarImage": "installer-images/nsis/Sidebar.bmp"
+        },
         "timestampUrl": "",
         "wix": {
-          "license": "../../LICENSE",
           "bannerPath": "installer-images/wix/TopBanner.png",
-          "dialogImagePath": "installer-images/wix/Background.png"
-        },
-        "nsis": {
-          "license": "../../LICENSE",
-          "installerIcon": "icons/icon.ico",
-          "installMode": "both",
-          "headerImage": "installer-images/nsis/Header.bmp",
-	  "sidebarImage": "installer-images/nsis/Sidebar.bmp"
+          "dialogImagePath": "installer-images/wix/Background.png",
+          "license": "../../LICENSE"
         }
       }
     },
     "security": {
       "csp": "default-src 'self'; img-src 'self' https://ow-mods.github.io; style-src 'self' 'unsafe-inline'; font-src 'self' data:",
-      "dangerousDisableAssetCspModification": ["style-src", "font-src"]
+      "dangerousDisableAssetCspModification": [
+        "style-src",
+        "font-src"
+      ]
     },
     "updater": {
       "active": true,
       "dialog": true,
-      "windows": {
-        "installMode": "basicUi"
-      },
-      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IDkzRURBNzdENEVCREU1NDYKUldSRzViMU9mYWZ0azRoODZIdmVGWUZxVTNQRUVXU2hOTllqcGM4N2RRNjFEN2N3cnhXbW45V0sK",
       "endpoints": [
         "https://github.com/Bwc9876/ow-mod-man/releases/latest/download/latest.json",
         "https://github.com/ow-mods/ow-mod-man/releases/latest/download/latest.json"
-      ]
+      ],
+      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IDkzRURBNzdENEVCREU1NDYKUldSRzViMU9mYWZ0azRoODZIdmVGWUZxVTNQRUVXU2hOTllqcGM4N2RRNjFEN2N3cnhXbW45V0sK",
+      "windows": {
+        "installMode": "basicUi"
+      }
     },
     "windows": [
       {
         "fullscreen": false,
         "height": 750,
         "minHeight": 400,
+        "minWidth": 600,
         "resizable": true,
         "title": "Outer Wilds Mod Manager",
-        "width": 850,
-        "minWidth": 600
+        "width": 850
       }
     ]
   }

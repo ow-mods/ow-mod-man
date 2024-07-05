@@ -83,6 +83,8 @@ export interface ModManifest {
     warning?: ModWarning;
     /** An exe that runs before the game starts, a prepatcher. This is used for mods that need to patch the game before it starts */
     patcher?: string;
+    /** An exe that runs after the game starts, an unpatcher. This is used for mods that need to unpatch the game after being disabled */
+    unpatcher?: string;
     /**
      * A link to donate to the mod. May only be for Patreon or PayPal. This is deprecated in favor of `donate_links`
      *
@@ -215,6 +217,8 @@ export interface OWMLConfig {
     incrementalGC: boolean;
     /** The path to OWML */
     owmlPath?: string;
+    /** Mods that OWML has run a prepatcher for */
+    prepatchedMods?: string[];
     /** The port to use for sending logs to */
     socketPort: number;
 }

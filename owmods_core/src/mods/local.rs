@@ -21,13 +21,6 @@ pub struct LocalMod {
     pub manifest: ModManifest,
 }
 
-impl LocalMod {
-    /// Determines if a mod uses a prepatcher
-    pub fn uses_pre_patcher(&self) -> bool {
-        self.manifest.patcher.is_some()
-    }
-}
-
 /// Represents a mod that completely failed to load
 #[typeshare]
 #[derive(Debug, Serialize, Clone)]
@@ -192,6 +185,9 @@ pub struct ModManifest {
     /// An exe that runs before the game starts, a prepatcher. This is used for mods that need to patch the game before it starts
     #[serde(skip_serializing_if = "Option::is_none")]
     pub patcher: Option<String>,
+    /// An exe that runs after the game starts, an unpatcher. This is used for mods that need to unpatch the game after being disabled
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub unpatcher: Option<String>,
     /// A link to donate to the mod. May only be for Patreon or PayPal. This is deprecated in favor of `donate_links`
     ///
     /// It's recommended you use [ModManifest::migrate_donation_link] to migrate this to `donate_links`

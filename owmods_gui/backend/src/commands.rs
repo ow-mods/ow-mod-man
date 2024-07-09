@@ -37,12 +37,15 @@ use tauri::{api::dialog, async_runtime, AppHandle, Manager, WindowEvent};
 use tokio::{select, sync::mpsc, try_join};
 use typeshare::typeshare;
 
-use crate::events::{CustomEventEmitter, CustomEventEmitterAll, CustomEventTriggerGlobal, Event};
 use crate::game::LogData;
 use crate::RemoteDatabaseOption;
 use crate::{
     error::{Error, Result},
     events::CustomEventListener,
+};
+use crate::{
+    events::{CustomEventEmitter, CustomEventEmitterAll, CustomEventTriggerGlobal, Event},
+    protocol::PROTOCOL_LISTENER_AMOUNT,
 };
 use crate::{
     game::{make_log_window, show_warnings, GameMessage},
@@ -966,9 +969,6 @@ pub async fn pop_protocol_url(
     handle: tauri::AppHandle,
     id: &str,
 ) -> Result {
-    /// Amount of listeners that need to be active before we can emit the event
-    const PROTOCOL_LISTENER_AMOUNT: usize = 2;
-
     let id = id.to_string();
 
     let mut protocol_listeners = state.protocol_listeners.write().await;

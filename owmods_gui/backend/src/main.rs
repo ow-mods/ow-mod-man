@@ -32,7 +32,7 @@ mod gui_config;
 mod logging;
 mod protocol;
 
-type StatePart<T> = Arc<TokioLock<T>>;
+pub type StatePart<T> = Arc<TokioLock<T>>;
 type LogPort = u16;
 type LogMessages = HashMap<LogPort, LogData>;
 

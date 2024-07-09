@@ -15,7 +15,32 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        platform: [ubuntu-20.04, windows-latest]
+        include:
+            - platform: 'macos-latest' # for Arm based macs (M1 and above).
+              args: 'app dmg -- --target aarch64-apple-darwin'
+              bundle-name: MacOS-aarch64
+              bundle-path: |
+                target/release/bundle/**/*.dmg
+                target/release/bundle/**/*.app
+            - platform: 'macos-latest' # for Intel based macs.
+              args: 'app dmg -- --target x86_64-apple-darwin'
+              bundle-name: MacOS-x86_64
+              bundle-path: |
+                target/release/bundle/**/*.dmg
+                target/release/bundle/**/*.app
+            - platform: 'ubuntu-22.04'
+              args: 'appimage deb'
+              bundle-name: Linux
+              bundle-path: |
+                target/release/bundle/**/*.deb
+                target/release/bundle/**/*.AppImage
+            - platform: 'windows-latest'
+              args: 'msi nsis'
+              bundle-name: Windows
+              bundle-path: |
+                target/release/bundle/**/*.msi
+                target/release/bundle/**/*.exe
+                target/release/*.exe
     runs-on: ${{ matrix.platform }}
 
     steps:
@@ -56,29 +81,14 @@ jobs:
           cargo xtask gui_disable_updater
 
       - name: Build GUI
-        run: tauri build --ci -b $([[ ${{ matrix.platform }} = 'windows-latest' ]] && echo 'msi nsis' || echo 'appimage deb')
+        run: tauri build --ci -b ${{ matrix.args }}
         shell: bash
         env:
           VITE_COMMIT: ${{ github.sha }}
           VITE_VERSION_SUFFIX: -nightly
 
-      # Seperate artifacts for each platform
-
-      - name: Upload GUI (Linux)
+      - name: Upload GUI
         uses: actions/upload-artifact@v4
-        if: matrix.platform == 'ubuntu-20.04'
         with:
-          name: GUI-Nightly-Linux
-          path: |
-            target/release/bundle/**/*.deb
-            target/release/bundle/**/*.AppImage
-
-      - name: Upload GUI (Windows)
-        uses: actions/upload-artifact@v4
-        if: matrix.platform == 'windows-latest'
-        with:
-          name: GUI-Nightly-Windows
-          path: |
-            target/release/bundle/**/*.msi
-            target/release/bundle/**/*.exe
-            target/release/*.exe
+          name: GUI-Nightly-${{ matrix.bundle-name }}
+          path: ${{ matrix.bundle-path }}

@@ -54,11 +54,7 @@
       "identifier": "com.bwc9876.owmods-gui",
       "longDescription": "A manager for Outer Wilds mods",
       "macOS": {
-        "entitlements": null,
-        "exceptionDomain": "",
-        "frameworks": [],
-        "providerShortName": null,
-        "signingIdentity": null
+        "license": "../../LICENSE"
       },
       "resources": [],
       "shortDescription": "",
@@ -83,10 +79,7 @@
     },
     "security": {
       "csp": "default-src 'self'; img-src 'self' https://ow-mods.github.io; style-src 'self' 'unsafe-inline'; font-src 'self' data:",
-      "dangerousDisableAssetCspModification": [
-        "style-src",
-        "font-src"
-      ]
+      "dangerousDisableAssetCspModification": ["style-src", "font-src"]
     },
     "updater": {
       "active": true,

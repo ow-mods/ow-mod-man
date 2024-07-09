@@ -8,8 +8,9 @@ This file contains common questions for the manager.
   - [Table of Contents](#table-of-contents)
   - [How do I use this?](#how-do-i-use-this)
     - [The manager has encountered a fatal error, the system cannot find the file specified (Windows)](#the-manager-has-encountered-a-fatal-error-the-system-cannot-find-the-file-specified-windows)
+  - [How do I use this on Mac?](#how-do-i-use-this-on-mac)
   - [How do I use this on Linux?](#how-do-i-use-this-on-linux)
-    - [Mod folder not found on Flatpak version of Steam](#mod-folder-not-found-on-flatpak-version-of-steam) 
+    - [Mod folder not found on Flatpak version of Steam](#mod-folder-not-found-on-flatpak-version-of-steam)
     - [What About Steam Deck?](#what-about-steam-deck)
   - [How do I uninstall it?](#how-do-i-uninstall-it)
   - [How do I update it?](#how-do-i-update-it)
@@ -22,7 +23,9 @@ This file contains common questions for the manager.
 
 ## How do I use this?
 
-- Download the Outer Wilds Mod Manager installer [from the latest release](https://github.com/ow-mods/ow-mod-man/releases/latest);
+(See below for non-Windows instructions)
+
+- Download the Outer Wilds Mod Manager from [the mods website](https://outerwildsmods.com/mod-manager);
 - Run the downloaded .msi (you might need to ignore some Chrome / Windows warnings);
 - Shortcuts are added to the desktop and start menu, use them to run the manager;
 - Run the manager;
@@ -43,9 +46,22 @@ This is a result of not having the [Microsoft Edge WebView2 Runtime](https://dev
 
 The manager's installer is supposed to install Webview2 for you, but depending on how your debloating script works, it may have left rouge registry keys that make the manager think it's already installed. If you're still having issues, try inspecting the registry keys mentioned in [this Webview2 article](https://learn.microsoft.com/en-us/microsoft-edge/webview2/concepts/distribution#detect-if-a-suitable-webview2-runtime-is-already-installed) to see if they're pointing to bad folders.
 
+## How do I use this on Mac?
+
+The manager can be used on MacOS with some caveats:
+
+1. Seeing as how Outer Wilds isn't available on MacOS, OWML will not be able to find the game on its own. You'll need to manually set it in the settings menu (Gear in the top-corner, scroll down to OWML Settings -> Game Path). This folder should contain the game's `.exe` file and the `OuterWilds_Data` folder.
+2. The manager needs [Mono](https://www.mono-project.com/docs/getting-started/install/mac/) to be installed in order to run OWML. Ensure you have it installed and available on your PATH. You can run `where mono` in the terminal to check if it's installed, it should return a path to the mono executable.
+3. The manager will not be able to launch the game directly. After you see a "Client Disconnected From Console" message in the logs window your game will be patched to run modded, just launch the game directly.
+   1. Note if you see a message along the lines of "Current game path not valid", this means that the game hasn't been patched. You'll need to set the game path in the settings menu and try again.
+
+MacOS support is experimental and not well-tested. If you need help troubleshooting or have a suggestion for
+improving the MacOS experience, please [open an issue](https://github.com/ow-mods/ow-mod-man/issues/new/choose)
+or come chat with us on [the Discord server](https://discord.com/invite/wusTQYbYTc).
+
 ## How do I use this on Linux?
 
-Using the manager on Linux should be easy **proton and wine are not required**. The manager requires [Mono](https://www.mono-project.com) 6 to be installed and available on the PATH. If you're using the Flatpak, AUR, or Nix versions, Mono will be installed and set up automatically.
+Using the manager on Linux should be easy, **proton and wine are not required**. The manager requires [Mono](https://www.mono-project.com) 6 to be installed and available on the PATH. If you're using the Flatpak, AUR, or Nix versions, Mono will be installed and set up automatically.
 
 ### Mod folder not found on Flatpak version of Steam
 

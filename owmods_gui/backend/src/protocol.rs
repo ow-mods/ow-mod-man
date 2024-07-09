@@ -4,7 +4,7 @@ use owmods_core::protocol::{ProtocolPayload, ProtocolVerb};
 
 use crate::events::{CustomEventEmitterAll, Event};
 
-#[cfg(windows)]
+#[cfg(not(target_os = "linux"))]
 fn register_or_listen<F>(uri: &str, handler: F) -> Result<()>
 where
     F: FnMut(String) + Send + 'static,
@@ -14,12 +14,12 @@ where
     Ok(())
 }
 
-#[cfg(not(windows))]
+#[cfg(target_os = "linux")]
 fn register_or_listen<F>(_: &str, handler: F) -> Result<()>
 where
     F: FnMut(String) + Send + 'static,
 {
-    debug!("Skipping protocol registration for non-Windows platform");
+    debug!("Skipping protocol registration for Linux");
     tauri_plugin_deep_link::listen(handler)?;
     Ok(())
 }

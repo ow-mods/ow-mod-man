@@ -21,7 +21,7 @@ jobs:
       - name: Setup Rust Cache
         uses: Swatinem/rust-cache@v2
         with:
-          shared-key: ${{ runner.os }}-rust-cache-${{ hashFiles('Cargo.lock') }}
+          shared-key: v1-core-${{ runner.os }}-rust-cache-${{ hashFiles('Cargo.lock') }}
 
       - name: Publish Core
         run: cargo publish -p owmods_core

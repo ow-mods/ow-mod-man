@@ -9,7 +9,7 @@ on:
 jobs:
   publish:
     name: Publish
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -22,7 +22,7 @@ jobs:
       - name: Setup Rust Cache
         uses: Swatinem/rust-cache@v2
         with:
-          shared-key: ${{ runner.os }}-rust-cache-${{ hashFiles('Cargo.lock') }}
+          shared-key: v1-cli-${{ runner.os }}-rust-cache-${{ hashFiles('Cargo.lock') }}
 
       - name: Publish To Crates.io
         run: cargo publish -p owmods_cli

@@ -34,6 +34,8 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version-file: owmods_gui/frontend/package.json
+          cache: npm
+          cache-dependency-path: owmods_gui/frontend/package-lock.json
 
       - name: Install Dependencies
         run: npm install

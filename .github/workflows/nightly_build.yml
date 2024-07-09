@@ -65,12 +65,14 @@ jobs:
       - name: Setup Rust Cache
         uses: Swatinem/rust-cache@v2
         with:
-          shared-key: v1-${{ matrix.platform }}-rust-cache-${{ hashFiles('Cargo.lock') }}
+          shared-key: v1-gui-${{ matrix.platform }}-${{ matrix.target }}-rust-cache-${{ hashFiles('Cargo.lock') }}
 
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
           node-version-file: owmods_gui/frontend/package.json
+          cache: npm
+          cache-dependency-path: owmods_gui/frontend/package-lock.json
 
       - name: Install Frontend Dependencies
         working-directory: owmods_gui/frontend

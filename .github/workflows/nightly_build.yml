@@ -16,37 +16,36 @@ jobs:
       fail-fast: false
       matrix:
         include:
-            - platform: 'macos-latest' # for Arm based macs (M1 and above).
-              target: 'aarch64-apple-darwin'
-              args: 'app dmg -- --target aarch64-apple-darwin'
-              bundle-name: MacOS-aarch64
-              bundle-path: |
-                target/release/bundle/**/*.dmg
-                target/release/bundle/**/*.app
-            - platform: 'macos-latest' # for Intel based macs.
-              target: 'x86_64-apple-darwin'
-              args: 'app dmg -- --target x86_64-apple-darwin'
-              bundle-name: MacOS-x86_64
-              bundle-path: |
-                target/release/bundle/**/*.dmg
-                target/release/bundle/**/*.app
-            - platform: 'ubuntu-22.04'
-              target: 'x86_64-unknown-linux-gnu'
-              args: 'appimage deb'
-              bundle-name: Linux
-              bundle-path: |
-                target/release/bundle/**/*.deb
-                target/release/bundle/**/*.AppImage
-            - platform: 'windows-latest'
-              target: 'x86_64-pc-windows-msvc'
-              args: 'msi nsis'
-              bundle-name: Windows
-              bundle-path: |
-                target/release/bundle/**/*.msi
-                target/release/bundle/**/*.exe
-                target/release/*.exe
+          - platform: "macos-latest" # for Arm based macs (M1 and above).
+            target: "aarch64-apple-darwin"
+            args: "app dmg --target aarch64-apple-darwin"
+            bundle-name: MacOS-aarch64
+            bundle-path: |
+              target/**/bundle/**/*.dmg
+              target/**/bundle/**/*.app
+          - platform: "macos-latest" # for Intel based macs.
+            target: "x86_64-apple-darwin"
+            args: "app dmg --target x86_64-apple-darwin"
+            bundle-name: MacOS-x86_64
+            bundle-path: |
+              target/**/bundle/**/*.dmg
+              target/**/bundle/**/*.app
+          - platform: "ubuntu-22.04"
+            target: "x86_64-unknown-linux-gnu"
+            args: "appimage deb"
+            bundle-name: Linux
+            bundle-path: |
+              target/release/bundle/**/*.deb
+              target/release/bundle/**/*.AppImage
+          - platform: "windows-latest"
+            target: "x86_64-pc-windows-msvc"
+            args: "msi nsis"
+            bundle-name: Windows
+            bundle-path: |
+              target/release/bundle/**/*.msi
+              target/release/bundle/**/*.exe
+              target/release/*.exe
     runs-on: ${{ matrix.platform }}
-
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4

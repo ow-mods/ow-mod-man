@@ -51,7 +51,7 @@ The manager's installer is supposed to install Webview2 for you, but depending o
 The manager can be used on MacOS with some caveats:
 
 1. Seeing as how Outer Wilds isn't available on MacOS, OWML will not be able to find the game on its own. You'll need to manually set it in the settings menu (Gear in the top-corner, scroll down to OWML Settings -> Game Path). This folder should contain the game's `.exe` file and the `OuterWilds_Data` folder.
-2. The manager needs [Mono](https://www.mono-project.com/docs/getting-started/install/mac/) to be installed in order to run OWML. Ensure you have it installed and available on your PATH. You can run `where mono` in the terminal to check if it's installed, it should return a path to the mono executable.
+2. The manager needs [Mono](https://www.mono-project.com/docs/getting-started/install/mac/) to be installed in order to run OWML. The manager assumes the default location of Mono at `/Library/Frameworks/Mono.framework/Versions/Current/Commands/mono` however this path can be overridden with the `MONO_BINARY` environment variable
 3. The manager will not be able to launch the game directly. After you see a "Client Disconnected From Console" message in the logs window your game will be patched to run modded, just launch the game directly.
    1. Note if you see a message along the lines of "Current game path not valid", this means that the game hasn't been patched. You'll need to set the game path in the settings menu and try again.
 

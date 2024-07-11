@@ -1,16 +1,15 @@
 use std::path::{Path, PathBuf};
 
-use anyhow::{anyhow, Result};
+use anyhow::{Context, Result};
 use log::warn;
 
 use crate::{
     db::LocalDatabase,
-    file::{deserialize_from_json, fix_json_file, serialize_to_json},
+    file::{deserialize_from_json, serialize_to_json},
     mods::local::{LocalMod, ModStubConfig},
 };
 
 fn read_config(config_path: &Path) -> Result<ModStubConfig> {
-    fix_json_file(config_path).ok();
     deserialize_from_json(config_path)
 }
 
@@ -97,7 +96,7 @@ pub fn toggle_mod(
 
     let local_mod = local_db
         .get_mod(unique_name)
-        .ok_or_else(|| anyhow!("Mod {} not found in local database.", unique_name))?;
+        .with_context(|| format!("Mod {} not found in local database.", unique_name))?;
     let show_warning = _toggle_mod(local_mod, enabled)?;
 
     if show_warning {

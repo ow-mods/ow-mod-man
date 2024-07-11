@@ -4,7 +4,7 @@ use std::{
     path::PathBuf,
 };
 
-use anyhow::anyhow;
+use anyhow::{anyhow, Context};
 use log::error;
 use owmods_core::{
     alerts::{fetch_alert, Alert},
@@ -182,7 +182,7 @@ pub async fn get_local_mod(
     if unique_name == OWML_UNIQUE_NAME {
         let config = state.config.read().await;
         let owml = LocalDatabase::get_owml(&config.owml_path)
-            .ok_or_else(|| anyhow!("Couldn't Find OWML at path {}", &config.owml_path))?;
+            .with_context(|| format!("Couldn't Find OWML at path {}", &config.owml_path))?;
         Ok(Some(UnsafeLocalMod::Valid(Box::new(owml))))
     } else {
         Ok(state
@@ -406,7 +406,7 @@ pub async fn uninstall_mod(
     let db = state.local_db.read().await;
     let local_mod = db
         .get_mod(unique_name)
-        .ok_or_else(|| anyhow!("Mod {} not found", unique_name))?;
+        .with_context(|| format!("Mod {} not found", unique_name))?;
     let warnings = remove_mod(local_mod, &db, false)?;
 
     Ok(warnings)
@@ -417,7 +417,7 @@ pub async fn uninstall_broken_mod(mod_path: &str, state: tauri::State<'_, State>
     let db = state.local_db.read().await;
     let local_mod = db
         .get_mod_unsafe(mod_path)
-        .ok_or_else(|| anyhow!("Mod {} not found", mod_path))?;
+        .with_context(|| format!("Mod {} not found", mod_path))?;
     match local_mod {
         UnsafeLocalMod::Invalid(m) => {
             remove_failed_mod(m)?;
@@ -520,9 +520,7 @@ pub async fn install_owml(
     let config = state.config.read().await;
     let db = state.remote_db.read().await;
     let db = db.try_get()?;
-    let owml = db
-        .get_owml()
-        .ok_or_else(|| anyhow!("Error Installing OWML"))?;
+    let owml = db.get_owml().context("Error Installing OWML")?;
     download_and_install_owml(&config, owml, prerelease).await?;
     handle.typed_emit_all(&Event::OwmlConfigReload(())).ok();
     Ok(())
@@ -608,13 +606,11 @@ pub async fn update_mod(
     let remote_db = remote_db.try_get()?;
 
     let remote_mod = if unique_name == OWML_UNIQUE_NAME {
-        remote_db
-            .get_owml()
-            .ok_or_else(|| anyhow!("Can't find OWML"))?
+        remote_db.get_owml().context("Can't find OWML")?
     } else {
         remote_db
             .get_mod(unique_name)
-            .ok_or_else(|| anyhow!("Can't find mod {} in remote", unique_name))?
+            .with_context(|| format!("Can't find mod {} in remote", unique_name))?
     };
 
     let res = if unique_name == OWML_UNIQUE_NAME {
@@ -666,7 +662,7 @@ pub async fn update_all_mods(
             &config,
             remote_db
                 .get_owml()
-                .ok_or_else(|| anyhow!("Couldn't find OWML in database"))?,
+                .context("Couldn't find OWML in database")?,
             false,
         )
         .await?;
@@ -890,7 +886,7 @@ pub async fn fix_mod_deps(
     let remote_db = remote_db.try_get()?;
     let local_mod = local_db
         .get_mod(unique_name)
-        .ok_or_else(|| anyhow!("Can't find mod {}", unique_name))?;
+        .with_context(|| format!("Can't find mod {}", unique_name))?;
 
     mark_mod_busy(unique_name, true, true, &state, &handle).await;
     let res = fix_deps(local_mod, &config, &local_db, remote_db).await;
@@ -1053,7 +1049,7 @@ pub async fn has_disabled_deps(unique_name: &str, state: tauri::State<'_, State>
     let db = state.local_db.read().await;
     let local_mod = db
         .get_mod(unique_name)
-        .ok_or_else(|| anyhow!("Mod Not Found: {unique_name}"))?;
+        .context("Mod Not Found: {unique_name}")?;
     let mut flag = false;
     if let Some(deps) = &local_mod.manifest.dependencies {
         for dep in deps.iter() {

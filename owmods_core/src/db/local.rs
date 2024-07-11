@@ -3,11 +3,11 @@ use std::{
     path::{Path, PathBuf},
 };
 
-use anyhow::{anyhow, Result};
+use anyhow::{Context, Result};
 use log::{debug, warn};
 
 use crate::{
-    file::{deserialize_from_json, fix_json_file},
+    file::deserialize_from_json,
     mods::local::{FailedMod, LocalMod, ModManifest, UnsafeLocalMod},
     search::search_list,
     toggle::get_mod_enabled,
@@ -155,7 +155,6 @@ impl LocalDatabase {
     ///
     pub fn get_owml(owml_path: &str) -> Option<LocalMod> {
         let manifest_path = PathBuf::from(owml_path).join("OWML.Manifest.json");
-        fix_json_file(&manifest_path).ok();
         let mut owml_manifest: ModManifest = deserialize_from_json(&manifest_path).ok()?;
         owml_manifest.version = fix_version(&owml_manifest.version).to_string();
         Some(LocalMod {
@@ -198,12 +197,7 @@ impl LocalDatabase {
             "Loading Mod With Manifest: {}",
             manifest_path.to_str().unwrap()
         );
-        let folder_path = manifest_path.parent();
-        if folder_path.is_none() {
-            return Err(anyhow!("Mod Path Not Found"));
-        }
-        let folder_path = folder_path.unwrap(); // <- Unwrap is safe, .is_none() check is above
-        fix_json_file(manifest_path).ok();
+        let folder_path = manifest_path.parent().context("Mod Path Not Found")?;
         let mut manifest: ModManifest = deserialize_from_json(manifest_path)?;
         manifest.version = fix_version(&manifest.version).to_string();
         Ok(LocalMod {
@@ -414,7 +408,7 @@ impl LocalDatabase {
             glob::glob(mods_path.join("**").join("manifest.json").to_str().unwrap())?;
         for entry in glob_matches {
             let entry = entry?;
-            let parent = entry.parent().ok_or_else(|| anyhow!("Invalid Manifest!"))?;
+            let parent = entry.parent().context("Invalid Manifest!")?;
             let path = parent.to_str().unwrap().to_string();
             let display_path = parent
                 .strip_prefix(mods_path)

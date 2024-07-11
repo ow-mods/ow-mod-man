@@ -417,32 +417,36 @@ impl LocalDatabase {
                 .unwrap()
                 .to_string();
             let local_mod = Self::read_local_mod(&entry);
-            if let Ok(mut local_mod) = local_mod {
-                if let Some(UnsafeLocalMod::Valid(other)) =
-                    mods.get(&local_mod.manifest.unique_name)
-                {
+            match local_mod {
+                Ok(mut local_mod) => {
+                    if let Some(UnsafeLocalMod::Valid(other)) =
+                        mods.get(&local_mod.manifest.unique_name)
+                    {
+                        let failed_mod = FailedMod {
+                            mod_path: path.to_string(),
+                            display_path,
+                            error: ModValidationError::DuplicateMod(other.mod_path.to_string()),
+                        };
+                        mods.insert(path.to_string(), UnsafeLocalMod::Invalid(failed_mod));
+                    } else {
+                        local_mod.manifest.migrate_donation_link();
+                        mods.insert(
+                            local_mod.manifest.unique_name.to_owned(),
+                            UnsafeLocalMod::Valid(Box::new(local_mod)),
+                        );
+                    }
+                }
+                Err(why) => {
+                    let err =
+                        format!("{:?}", why.context("Failed to load mod")).replace("\n\n", "\n");
+                    warn!("{:?}\n(Mod path: {})", err, path);
                     let failed_mod = FailedMod {
                         mod_path: path.to_string(),
                         display_path,
-                        error: ModValidationError::DuplicateMod(other.mod_path.to_string()),
+                        error: ModValidationError::InvalidManifest(err),
                     };
                     mods.insert(path.to_string(), UnsafeLocalMod::Invalid(failed_mod));
-                } else {
-                    local_mod.manifest.migrate_donation_link();
-                    mods.insert(
-                        local_mod.manifest.unique_name.to_owned(),
-                        UnsafeLocalMod::Valid(Box::new(local_mod)),
-                    );
                 }
-            } else {
-                let err = format!("{:?}", local_mod.err().unwrap());
-                warn!("Failed to load mod at {}: {:?}", path, err);
-                let failed_mod = FailedMod {
-                    mod_path: path.to_string(),
-                    display_path,
-                    error: ModValidationError::InvalidManifest(err),
-                };
-                mods.insert(path.to_string(), UnsafeLocalMod::Invalid(failed_mod));
             }
         }
         Ok(mods)

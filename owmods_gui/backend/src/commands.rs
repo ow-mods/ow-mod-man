@@ -899,7 +899,8 @@ pub async fn fix_mod_deps(
 pub async fn db_has_issues(state: tauri::State<'_, State>, window: tauri::Window) -> Result<bool> {
     let local_db = state.local_db.read().await.clone();
     let config = state.config.read().await.clone();
-    let mut has_errors = local_db.active().any(|m| !m.errors.is_empty());
+    let mut has_errors =
+        local_db.active().any(|m| !m.errors.is_empty()) || local_db.invalid().count() > 0;
 
     let owml = LocalDatabase::get_owml(&config.owml_path);
     if let Some(owml) = owml {

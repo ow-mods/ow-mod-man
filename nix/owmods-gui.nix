@@ -72,7 +72,7 @@ rustPlatform.buildRustPackage rec {
       inherit version;
       pname = "owmods_gui-ui";
 
-      npmDepsHash = "sha256-akuXQeoQs1ooUJ0YW3mI+DueIfGgUz5uY88Wbt4xlEU=";
+      npmDepsHash = "sha256-y2ozBEXF4kYaXxMqDhObCsCUn+4QePj86+PjPoUZ9AE=";
       src = ../owmods_gui/frontend;
 
       packageJSON = ../owmods_gui/frontend/package.json;

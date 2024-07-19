@@ -50,9 +50,12 @@ The manager's installer is supposed to install Webview2 for you, but depending o
 
 The manager can be used on MacOS with some caveats:
 
-1. Seeing as how Outer Wilds isn't available on MacOS, OWML will not be able to find the game on its own. You'll need to manually set it in the settings menu (Gear in the top-corner, scroll down to OWML Settings -> Game Path). This folder should contain the game's `.exe` file and the `OuterWilds_Data` folder.
-2. The manager needs [Mono](https://www.mono-project.com/docs/getting-started/install/mac/) to be installed in order to run OWML. The manager assumes the default location of Mono at `/Library/Frameworks/Mono.framework/Versions/Current/Commands/mono` however this path can be overridden with the `MONO_BINARY` environment variable
-3. The manager will not be able to launch the game directly. After you see a "Client Disconnected From Console" message in the logs window your game will be patched to run modded, just launch the game directly.
+1. We haven't setup code signing because Apple moment:
+   1. Try to open the DMG for the manager at least once
+   2. System Preferences -> Security & Privacy -> General -> Allow apps downloaded from -> Outer Wilds Mod Manager -> Open anyway
+2. Seeing as how Outer Wilds isn't available on MacOS, OWML will not be able to find the game on its own. You'll need to manually set it in the settings menu (Gear in the top-corner, scroll down to OWML Settings -> Game Path). This folder should contain the game's `.exe` file and the `OuterWilds_Data` folder.
+3. The manager needs [Mono](https://www.mono-project.com/docs/getting-started/install/mac/) to be installed in order to run OWML. The manager assumes the default location of Mono at `/Library/Frameworks/Mono.framework/Versions/Current/Commands/mono` however this path can be overridden with the `MONO_BINARY` environment variable
+4. The manager will not be able to launch the game directly. After you see a "Client Disconnected From Console" message in the logs window your game will be patched to run modded, just launch the game directly.
    1. Note if you see a message along the lines of "Current game path not valid", this means that the game hasn't been patched. You'll need to set the game path in the settings menu and try again.
 
 MacOS support is experimental and not well-tested. If you need help troubleshooting or have a suggestion for

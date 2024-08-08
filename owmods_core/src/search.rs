@@ -1,3 +1,5 @@
+use std::cmp::Ordering;
+
 use unicode_normalization::UnicodeNormalization;
 
 /// Represents an object that can be searched
@@ -6,6 +8,11 @@ pub trait Searchable {
     /// Each value will be weighted based on its position in the list (first is most important)
     /// Values are automatically normalized for optimal searching via [normalize_value] when using [search_list]
     fn get_values(&self) -> Vec<String>;
+
+    /// In the event two items have the same score, this function will be called to break the tie
+    fn break_tie(&self, _other: &Self) -> Ordering {
+        Ordering::Equal
+    }
 }
 
 /// Normalizes a string for optimal searching
@@ -88,7 +95,7 @@ where
             }
         })
         .collect();
-    scores.sort_by(|(_, a), (_, b)| a.total_cmp(b).reverse());
+    scores.sort_by(|(s, a), (o, b)| a.total_cmp(b).reverse().then_with(|| s.break_tie(o)));
     scores.iter().map(|(m, _)| *m).collect()
 }
 #[cfg(test)]

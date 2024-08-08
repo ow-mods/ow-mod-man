@@ -15,7 +15,7 @@ use crate::{
     validate::{check_mod, ModValidationError},
 };
 
-use super::combined_search::LocalModWithRemoteName;
+use super::combined_search::LocalModWithRemoteSearchData;
 use super::{fix_version, RemoteDatabase};
 
 /// Represents the local (on the local PC) database of mods.
@@ -329,13 +329,11 @@ impl LocalDatabase {
         remote_db: &RemoteDatabase,
     ) -> Vec<&UnsafeLocalMod> {
         let mods: Vec<&UnsafeLocalMod> = self.all().collect();
-        let mods: Vec<LocalModWithRemoteName> = mods
+        let mods: Vec<LocalModWithRemoteSearchData> = mods
             .into_iter()
             .map(|m| {
-                let remote_name = remote_db
-                    .get_mod(m.get_unique_name())
-                    .map(|m| m.name.clone());
-                LocalModWithRemoteName::new(m, remote_name)
+                let remote = remote_db.get_mod(m.get_unique_name()).cloned();
+                LocalModWithRemoteSearchData::new(m, remote)
             })
             .collect();
         let mods = mods.iter().collect();

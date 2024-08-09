@@ -16,7 +16,7 @@ export default defineConfig({
         }
     },
     envPrefix: ["VITE_", "TAURI_ENV_"],
-    plugins: [react(), imagetools()],
+    plugins: [react({ include: process.cwd() }), imagetools()],
     build: {
         rollupOptions: {
             input: {

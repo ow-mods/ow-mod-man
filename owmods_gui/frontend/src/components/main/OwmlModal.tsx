@@ -63,7 +63,7 @@ const OwmlModal = memo(function OwmlModal() {
                                 : "OWML_INSTALL_ERROR"
                         )}\n\n${e}`,
                         {
-                            type: "error",
+                            kind: "error",
                             title: getTranslation("FATAL_ERROR")
                         }
                     );

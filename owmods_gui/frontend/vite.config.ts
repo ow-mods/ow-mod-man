@@ -10,29 +10,24 @@ export default defineConfig({
     publicDir: false,
     clearScreen: false,
     server: {
-        strictPort: true
+        strictPort: true,
+        watch: {
+            ignored: ["owmods_gui/backend/target/**"]
+        }
     },
-    envPrefix: [
-        "VITE_",
-        "TAURI_PLATFORM",
-        "TAURI_ARCH",
-        "TAURI_FAMILY",
-        "TAURI_PLATFORM_VERSION",
-        "TAURI_PLATFORM_TYPE",
-        "TAURI_DEBUG"
-    ],
+    envPrefix: ["VITE_", "TAURI_ENV_"],
     plugins: [react(), imagetools()],
     build: {
         rollupOptions: {
             input: {
-                main: path.resolve(__dirname, "index.html"),
-                logs: path.resolve(__dirname, "logs/index.html")
+                main: path.resolve(__dirname, "./index.html"),
+                logs: path.resolve(__dirname, "./logs/index.html")
             }
         },
         outDir: "../dist",
-        target: process.env.TAURI_PLATFORM == "windows" ? "chrome105" : "safari13",
-        minify: !process.env.TAURI_DEBUG ? "esbuild" : false,
-        sourcemap: !!process.env.TAURI_DEBUG
+        target: process.env.TAURI_ENV_PLATFORM == "windows" ? "chrome105" : "safari13",
+        minify: !process.env.TAURI_ENV_DEBUG ? "esbuild" : false,
+        sourcemap: !!process.env.TAURI_ENV_DEBUG
     },
     resolve: {
         alias: [

@@ -32,22 +32,18 @@ use owmods_core::{
     validate::fix_deps,
 };
 use serde::Serialize;
-use tauri::{async_runtime, AppHandle, FileDropEvent, Manager, WindowEvent};
+use tauri::{async_runtime, AppHandle, DragDropEvent, Manager, WindowEvent};
 use tauri_plugin_dialog::{DialogExt, MessageDialogKind};
-use tokio::{sync::mpsc, try_join};
+use tokio::{select, sync::mpsc, try_join};
 use typeshare::typeshare;
 
-use crate::events::{CustomEventEmitter, CustomEventEmitterAll, Event};
-use crate::game::LogData;
 use crate::RemoteDatabaseOption;
 use crate::{
     error::{Error, Result},
-    events::CustomEventListener,
-};
-use crate::{
-    events::{CustomEventEmitter, CustomEventEmitterAll, CustomEventTriggerGlobal, Event},
+    events::{CustomEventEmitter, CustomEventEmitterAll, Event},
     protocol::PROTOCOL_LISTENER_AMOUNT,
 };
+use crate::{events::CustomEventListener, game::LogData};
 use crate::{
     game::{make_log_window, show_warnings, GameMessage},
     gui_config::GuiConfig,
@@ -215,9 +211,7 @@ pub async fn refresh_remote_db(handle: tauri::AppHandle, state: tauri::State<'_,
     };
 
     if first_load {
-        handle
-            .typed_emit_all(&Event::RemoteInitialized(()))
-            .ok();
+        handle.typed_emit_all(&Event::RemoteInitialized(())).ok();
     }
 
     handle.typed_emit_all(&Event::RemoteRefresh(())).ok();
@@ -926,9 +920,9 @@ pub async fn db_has_issues(state: tauri::State<'_, State>, window: tauri::Window
                     .blocking_show();
                 if answer {
                     let handle = window.app_handle();
-                    mark_mod_busy(OWML_UNIQUE_NAME, true, true, &state, &handle).await;
+                    mark_mod_busy(OWML_UNIQUE_NAME, true, true, &state, handle).await;
                     download_and_install_owml(&config, remote_owml.unwrap(), false).await?;
-                    mark_mod_busy(OWML_UNIQUE_NAME, false, true, &state, &handle).await;
+                    mark_mod_busy(OWML_UNIQUE_NAME, false, true, &state, handle).await;
                     let event = Event::RequestReload("LOCAL".to_string());
                     handle.typed_emit_all(&event).unwrap();
                 } else {
@@ -1076,9 +1070,9 @@ pub async fn has_disabled_deps(unique_name: &str, state: tauri::State<'_, State>
 pub async fn register_drop_handler(window: tauri::Window) -> Result {
     let handle = window.app_handle().clone();
     window.on_window_event(move |e| {
-        if let WindowEvent::FileDrop(e) = e {
+        if let WindowEvent::DragDrop(e) = e {
             match e {
-                FileDropEvent::Dropped { paths, position: _ } => {
+                DragDropEvent::Drop { paths, position: _ } => {
                     if let Some(f) = paths.first() {
                         if f.extension().map(|e| e == "zip").unwrap_or(false) {
                             handle.typed_emit_all(&Event::DragLeave(())).ok();
@@ -1091,14 +1085,14 @@ pub async fn register_drop_handler(window: tauri::Window) -> Result {
                         }
                     }
                 }
-                FileDropEvent::Hovered { paths, position: _ } => {
+                DragDropEvent::Enter { paths, position: _ } => {
                     if let Some(f) = paths.first() {
                         if f.extension().map(|e| e == "zip").unwrap_or(false) {
                             handle.typed_emit_all(&Event::DragEnter(())).ok();
                         }
                     }
                 }
-                FileDropEvent::Cancelled => {
+                DragDropEvent::Leave => {
                     handle.typed_emit_all(&Event::DragLeave(())).ok();
                 }
                 _ => {}

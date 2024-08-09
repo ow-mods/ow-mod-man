@@ -16,7 +16,7 @@ pkgs.mkShell {
     gtk3
     libsoup
     librsvg
-    cargo-tauri
+    (pkgs.callPackage ./tauri-cli.nix {})
     typeshare
   ];
   OPENSSL_LIB_DIR = "${pkgs.openssl.out}/lib";

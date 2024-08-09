@@ -9,7 +9,7 @@ import {
     LocalParkingRounded
 } from "@mui/icons-material";
 import ModActionIcon from "../ModActionIcon";
-import shell from "@tauri-apps/plugin-shell";
+import * as shell from "@tauri-apps/plugin-shell";
 
 export interface LocalModDonateIconProps {
     uniqueName: string;

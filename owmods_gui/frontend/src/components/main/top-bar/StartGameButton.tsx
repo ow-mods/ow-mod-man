@@ -23,7 +23,7 @@ const StartGameButton = () => {
             const skipWarning = (await commands.getGuiConfig()).noWarning;
             if (!skipWarning && hasIssues) {
                 const yes = await dialog.ask(getTranslation("LAUNCH_ANYWAY"), {
-                    type: "warning",
+                    kind: "warning",
                     title: getTranslation("CONFIRM")
                 });
                 if (yes) {

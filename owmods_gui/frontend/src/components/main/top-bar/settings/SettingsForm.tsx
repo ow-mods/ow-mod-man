@@ -1,11 +1,4 @@
-import {
-    ReactNode,
-    forwardRef,
-    useCallback,
-    useEffect,
-    useImperativeHandle,
-    useState
-} from "react";
+import { ReactNode, forwardRef, useCallback, useImperativeHandle, useState } from "react";
 import { Config, GuiConfig, Language, OWMLConfig, Theme } from "@types";
 import { useGetTranslation } from "@hooks";
 import { commands } from "@commands";
@@ -41,11 +34,7 @@ export interface SettingsRowProps {
     tooltip?: string;
 }
 
-let defaultShowLogServerOption = false;
-
-// Moved to out here due to #98
-// Should work 99% of the time but the state is there just in case
-os.platform().then((p) => (defaultShowLogServerOption = p === "windows"));
+const showLogServerOption = os.platform() === "windows";
 
 const SettingsForm = forwardRef(function SettingsForm(props: SettingsFormProps, ref) {
     const [config, setConfig] = useState<Config>(props.initialConfig);
@@ -53,12 +42,6 @@ const SettingsForm = forwardRef(function SettingsForm(props: SettingsFormProps, 
     const [guiConfig, setGuiConfig] = useState<GuiConfig>(props.initialGuiConfig);
     const getTranslation = useGetTranslation();
     const theme = useTheme();
-
-    const [showLogServerOption, setShowLogServerOption] = useState(defaultShowLogServerOption);
-
-    useEffect(() => {
-        os.platform().then((p) => setShowLogServerOption(p === "windows"));
-    }, []);
 
     useImperativeHandle(
         ref,

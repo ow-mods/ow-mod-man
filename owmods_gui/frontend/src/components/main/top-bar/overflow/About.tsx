@@ -14,12 +14,11 @@ import {
     IconButton
 } from "@mui/material";
 import * as os from "@tauri-apps/plugin-os";
-import * as app from "@tauri-apps/plugin-app";
+import * as app from "@tauri-apps/api/app";
 import * as shell from "@tauri-apps/plugin-shell";
 import { memo, useCallback, useEffect, useState } from "react";
 import logo from "@assets/images/logo.png?w=256&h=256&format=webp&imagetools";
 import ODTooltip from "@components/common/ODTooltip";
-import { commands } from "@commands";
 
 export interface ModalProps {
     onClick?: () => void;
@@ -32,35 +31,21 @@ const About = memo(function About({ onClick }: ModalProps) {
     const getTranslation = useGetTranslation();
 
     const [open, setOpen] = useState(false);
-
-    const [appVersion, setVersion] = useState("");
-    const [appPlatform, setPlatform] = useState("");
-    const [archRaw, setArch] = useState("");
+    const [appVersion, setVersion] = useState<string | null>(null);
 
     useEffect(() => {
-        const onErr = (e: string) => {
-            commands.logError({ err: e.toString() });
-        };
-
         app.getVersion()
-            .then(setVersion)
+            .then((version) => {
+                setVersion(version);
+            })
             .catch((e) => {
-                onErr(e);
+                console.error(`Failed to get app version: ${e}`);
                 setVersion("Error");
             });
-        os.platform()
-            .then(setPlatform)
-            .catch((e) => {
-                onErr(e);
-                setPlatform("Error");
-            });
-        os.arch()
-            .then(setArch)
-            .catch((e) => {
-                onErr(e);
-                setArch("Error");
-            });
-    }, []);
+    });
+
+    const appPlatform = os.platform();
+    const arch = os.arch();
 
     const handleClick = useCallback(() => {
         setOpen(true);
@@ -113,7 +98,7 @@ const About = memo(function About({ onClick }: ModalProps) {
                         <br />
                         {getTranslation("PLATFORM", { platform: appPlatform })}
                         <br />
-                        {getTranslation("ARCHITECTURE", { arch: archRaw })}
+                        {getTranslation("ARCHITECTURE", { arch })}
                         <br />
                         {commitHash ?? ""}
                     </DialogContentText>

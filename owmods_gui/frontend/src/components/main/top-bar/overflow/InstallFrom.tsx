@@ -23,7 +23,7 @@ import {
 } from "@mui/material";
 import { ProtocolVerb } from "@types";
 import { commands } from "@commands";
-import { getCurrent } from "@tauri-apps/api/window";
+import { getCurrentWindow } from "@tauri-apps/api/window";
 import { OpenFileInput } from "@components/common/FileInput";
 import { listen } from "@events";
 import { simpleOnError } from "../../../../errorHandling";
@@ -69,7 +69,7 @@ const InstallFrom = memo(function InstallFrom({ onClick }: ModalProps) {
                 if (valid) {
                     const sourceType = getSourceTypeFromProtocol(protocolPayload.verb);
                     if (sourceType !== null) {
-                        getCurrent().setFocus().catch(simpleOnError);
+                        getCurrentWindow().setFocus().catch(simpleOnError);
                         const task = async () => {
                             await commands.refreshRemoteDb().catch(simpleOnError);
                             if (sourceType === "UNIQUE_NAME") {

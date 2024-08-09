@@ -3,7 +3,6 @@ import ModRow from "../ModRow";
 import { memo, useCallback, useMemo } from "react";
 import { useGetTranslation, useUnifiedMod } from "@hooks";
 import * as dialog from "@tauri-apps/plugin-dialog";
-import * as shell from "@tauri-apps/plugin-shell";
 import LocalModActions from "./LocalModActions";
 import { LocalMod, RemoteMod, UnsafeLocalMod } from "@types";
 
@@ -118,7 +117,7 @@ const LocalModRow = memo(function LocalModRow(props: LocalModRowProps) {
                     enableDeps =
                         autoEnableDeps ||
                         (await dialog.ask(getTranslation("ENABLE_DEPS_MESSAGE"), {
-                            type: "info",
+                            kind: "info",
                             title: getTranslation("CONFIRM")
                         }));
                 }
@@ -130,7 +129,7 @@ const LocalModRow = memo(function LocalModRow(props: LocalModRowProps) {
                 commands.refreshLocalDb();
                 for (const modName of warnings) {
                     dialog.message(getTranslation("PREPATCHER_WARNING", { name: modName }), {
-                        type: "warning",
+                        kind: "warning",
                         title: getTranslation("PREPATCHER_WARNING_TITLE", {
                             name: modName
                         })
@@ -149,7 +148,7 @@ const LocalModRow = memo(function LocalModRow(props: LocalModRowProps) {
                 commands.refreshLocalDb();
                 for (const modName of warnings) {
                     dialog.message(getTranslation("PREPATCHER_WARNING", { name: modName }), {
-                        type: "warning",
+                        kind: "warning",
                         title: getTranslation("PREPATCHER_WARNING_TITLE", { name: modName })
                     });
                 }

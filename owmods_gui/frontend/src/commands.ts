@@ -107,7 +107,7 @@ const makeInvoke = (key: Command, forceNoDisplayErr?: boolean) => {
         >;
         if (!(forceNoDisplayErr ?? false) && (displayErr ?? true)) {
             promise.catch((e) => {
-                dialog.message(e, { type: "error", title: `Error (${name})` });
+                dialog.message(e, { kind: "error", title: `Error (${name})` });
             });
         }
         return promise;

@@ -1,11 +1,11 @@
+import { useState, useCallback, useEffect, memo, useRef } from "react";
 import { commands, hooks } from "@commands";
 import BaseApp from "@components/common/BaseApp";
 import { TranslationMap } from "@components/common/TranslationContext";
 import { useGetTranslation } from "@hooks";
 import * as dialog from "@tauri-apps/plugin-dialog";
-import { getCurrent } from "@tauri-apps/api/window";
 import { SocketMessageType } from "@types";
-import { useState, useCallback, useEffect, memo, useRef } from "react";
+import * as window from "@tauri-apps/api/window";
 import LogHeader from "./LogHeader";
 import { Container, useTheme } from "@mui/material";
 import LogTable from "./LogTable";
@@ -15,7 +15,7 @@ import { simpleOnError } from "../../errorHandling";
 export type LogFilter = keyof typeof SocketMessageType | "Any";
 export type LogLines = number[];
 
-const thisWindow = getCurrent();
+const thisWindow = window.getCurrentWindow();
 
 const getFilterToPass = (activeFilter: LogFilter) => {
     if (activeFilter === "Any") {
@@ -58,7 +58,7 @@ const InnerLogApp = memo(function InnerLogApp({ port }: { port: number }) {
         listen("logFatal", (msg) => {
             if (msg.port !== port) return;
             dialog.message(`[${msg.message.senderName ?? "Unknown"}]: ${msg.message.message}`, {
-                type: "error",
+                kind: "error",
                 title: getTranslation("FATAL_ERROR")
             });
         });

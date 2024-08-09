@@ -7,7 +7,7 @@ use anyhow::Result;
 use log::{error, info};
 use notify::{Event, EventKind, RecursiveMode, Watcher};
 use owmods_core::config::Config;
-use tauri::{AppHandle, Manager};
+use tauri::{AppHandle, Listener, Manager};
 
 use crate::{
     events::{CustomEventEmitterAll, Event as CustomEvent},
@@ -62,7 +62,7 @@ pub fn setup_fs_watch(handle: AppHandle) -> Result<()> {
 
     let e_handle = handle.clone();
 
-    handle.listen_global("owmods://events/invoke", move |e| {
+    handle.listen_any("owmods://events/invoke", move |e| {
         let payload = serde_json::from_str::<CustomEvent>(e.payload());
 
         if let Ok(payload) = payload {

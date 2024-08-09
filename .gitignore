@@ -5,6 +5,7 @@ result
 scripts/
 owmods.tar.zst
 owmods_gui/frontend/stats.html
+owmods_gui/backend/gen
 
 # Logs
 *.log

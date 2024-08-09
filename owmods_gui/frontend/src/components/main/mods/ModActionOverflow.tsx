@@ -11,7 +11,7 @@ import {
 } from "react";
 import ModActionIcon from "./ModActionIcon";
 import { useGetTranslation } from "@hooks";
-import clipboard from "@tauri-apps/plugin-clipboard-manager";
+import * as clipboard from "@tauri-apps/plugin-clipboard-manager";
 
 export interface ModActionOverflowProps {
     tabId: string;

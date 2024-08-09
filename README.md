@@ -18,11 +18,16 @@ This is the monorepo for the new <a href="https://www.mobiusdigitalgames.com/out
 
 ## Platform Support
 
-| **Platform** | **Supported** |
-| :----------: | :-----------: |
-| **Windows**  |      ✅       |
-|  **Linux**   |      ✅       |
-|   **Deck**   |      ✅       |
+| **Platform** | **Supported**  |
+| :----------: |  :-----------: |
+| **Windows**  |      ✅        |
+|  **Linux**   |      ✅        |
+|   **Deck**   |      ✅        |
+|   **Mac**    |      ✅*       |
+
+You'll want to check out the [Help document](owmods_gui/HELP.md) for platform-specific instruction and caveats.
+
+\* Some caveats and additional steps may be required on Mac. see [the Mac section of the HELP document](owmods_gui/HELP.md##how-do-i-use-this-on-mac) for more info.
 
 ## Related Repos
 
@@ -47,5 +52,7 @@ This is the monorepo for the new <a href="https://www.mobiusdigitalgames.com/out
   - [JSpoonBaker](https://github.com/Spoonbaker)
 - Translations:
   - Chinese: [SmallGarfield](https://github.com/xiaojiafei520)
+  - Vietnamese: [KNNFx](https://github.com/KNNFx)
+  - Japanese: [orclecle](https://github.com/TRSasasusu)
 
 And the support of the [Outer Wilds Modding Discord](https://discord.com/invite/wusTQYbYTc)

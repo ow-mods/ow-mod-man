@@ -30,7 +30,7 @@ const SettingsSelect = (props: SettingsSelectProps) => {
                     <MenuItem key={o} value={o}>
                         {props.translate
                             ? getTranslation(o as TranslationKey)
-                            : props.nameMap?.[o] ?? o}
+                            : (props.nameMap?.[o] ?? o)}
                     </MenuItem>
                 ))}
             </Select>

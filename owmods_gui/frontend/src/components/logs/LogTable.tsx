@@ -1,12 +1,19 @@
 import { TableCell, useTheme } from "@mui/material";
 import { TableContainer, Paper, Table, TableBody, TableHead, TableRow } from "@mui/material";
 import { forwardRef, memo, useCallback, useMemo, useRef } from "react";
-import { TableProps, TableVirtuoso, VirtuosoHandle } from "react-virtuoso";
+import {
+    ScrollerProps,
+    TableBodyProps,
+    TableComponents,
+    TableProps,
+    TableVirtuoso,
+    VirtuosoHandle
+} from "react-virtuoso";
 import { LogLines } from "./LogApp";
 import { useGetTranslation } from "@hooks";
 import LogRow from "./LogRow";
 
-const ScrollerComp = forwardRef<HTMLDivElement>(function TScroller(props, ref) {
+const ScrollerComp = forwardRef<HTMLDivElement, ScrollerProps>(function TScroller(props, ref) {
     return <TableContainer component={Paper} {...props} ref={ref} />;
 });
 const TableComp = (props: TableProps) => {
@@ -22,7 +29,7 @@ const TableComp = (props: TableProps) => {
         />
     );
 };
-const BodyComp = forwardRef<HTMLTableSectionElement>(function TBody(props, ref) {
+const BodyComp = forwardRef<HTMLTableSectionElement, TableBodyProps>(function TBody(props, ref) {
     return <TableBody {...props} ref={ref} />;
 });
 
@@ -69,7 +76,7 @@ const LogTable = memo(function LogTable(props: LogTableProps) {
     return (
         <TableVirtuoso
             ref={virtuoso}
-            components={LogTableComponents}
+            components={LogTableComponents as unknown as TableComponents<number, unknown>}
             computeItemKey={(index) => `${index}-${props.logLines[index]}`}
             increaseViewportBy={500}
             atBottomThreshold={1000}

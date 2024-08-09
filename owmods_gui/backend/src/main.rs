@@ -32,7 +32,7 @@ mod gui_config;
 mod logging;
 mod protocol;
 
-type StatePart<T> = Arc<TokioLock<T>>;
+pub type StatePart<T> = Arc<TokioLock<T>>;
 type LogPort = u16;
 type LogMessages = HashMap<LogPort, LogData>;
 
@@ -198,6 +198,7 @@ fn main() -> Result<(), Box<dyn Error>> {
             fix_mod_deps,
             db_has_issues,
             get_alert,
+            dismiss_alert,
             pop_protocol_url,
             check_owml,
             get_defaults,

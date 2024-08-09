@@ -13,32 +13,38 @@ fn fix_version(version: &str) -> &str {
 
 mod combined_search {
     use crate::mods::local::UnsafeLocalMod;
+    use crate::mods::remote::RemoteMod;
     use crate::search::Searchable;
 
-    pub struct LocalModWithRemoteName<'a> {
+    pub struct LocalModWithRemoteSearchData<'a> {
         pub local_mod: &'a UnsafeLocalMod,
-        remote_name: Option<String>,
+        remote: Option<RemoteMod>,
     }
 
-    impl<'a> LocalModWithRemoteName<'a> {
-        pub fn new(local_mod: &'a UnsafeLocalMod, remote_name: Option<String>) -> Self {
-            Self {
-                local_mod,
-                remote_name,
-            }
+    impl<'a> LocalModWithRemoteSearchData<'a> {
+        pub fn new(local_mod: &'a UnsafeLocalMod, remote: Option<RemoteMod>) -> Self {
+            Self { local_mod, remote }
         }
     }
 
-    impl Searchable for LocalModWithRemoteName<'_> {
+    impl Searchable for LocalModWithRemoteSearchData<'_> {
         fn get_values(&self) -> Vec<String> {
-            if let Some(name) = &self.remote_name {
+            if let Some(ref remote) = self.remote {
                 self.local_mod
                     .get_values()
                     .into_iter()
-                    .chain(vec![name.clone()])
+                    .chain(remote.get_values())
                     .collect()
             } else {
                 self.local_mod.get_values()
+            }
+        }
+
+        fn break_tie(&self, other: &Self) -> std::cmp::Ordering {
+            if let (Some(self_remote), Some(other_remote)) = (&self.remote, &other.remote) {
+                self_remote.break_tie(other_remote)
+            } else {
+                self.remote.is_some().cmp(&other.remote.is_some()).reverse()
             }
         }
     }

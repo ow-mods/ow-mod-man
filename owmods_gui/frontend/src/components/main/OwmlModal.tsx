@@ -57,11 +57,11 @@ const OwmlModal = memo(function OwmlModal() {
                 })
                 .catch((e) => {
                     dialog.message(
-                        getTranslation(
+                        `${getTranslation(
                             e === "No prerelease for OWML found"
                                 ? "OWML_NO_PRERELEASE"
                                 : "OWML_INSTALL_ERROR"
-                        ),
+                        )}\n\n${e}`,
                         {
                             type: "error",
                             title: getTranslation("FATAL_ERROR")

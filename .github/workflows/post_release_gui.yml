@@ -22,7 +22,7 @@ jobs:
       - name: Setup Rust Cache
         uses: Swatinem/rust-cache@v2
         with:
-          shared-key: ${{ runner.os }}-rust-cache-${{ hashFiles('Cargo.lock') }}
+          shared-key: v1-gui-${{ runner.os }}-rust-cache-${{ hashFiles('Cargo.lock') }}
 
       - name: Create PKGBUILD
         run: cargo xtask gui_pkg_build
@@ -37,4 +37,4 @@ jobs:
           commit_email: ${{ secrets.AUR_EMAIL }}
           ssh_private_key: ${{ secrets.AUR_SSH_PRIVATE_KEY }}
           commit_message: Update AUR package
-          ssh_keyscan_types: rsa,dsa,ecdsa,ed25519
+          ssh_keyscan_types: rsa,ecdsa,ed25519

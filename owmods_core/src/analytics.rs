@@ -5,6 +5,8 @@ use log::{debug, warn};
 use reqwest::Client;
 use serde::Serialize;
 
+use crate::config::Config;
+
 const MEASUREMENT_ID: &str = "G-2QQN7V5WE1";
 const API_KEY: Option<&str> = option_env!("ANALYTICS_API_KEY");
 
@@ -78,16 +80,25 @@ impl AnalyticsPayload {
 /// ## Examples
 ///
 /// ```no_run
-/// use owmods_core::analytics::{send_analytics_event, AnalyticsEventName};
+/// use owmods_core::{config::Config,analytics::{send_analytics_event, AnalyticsEventName}};
 ///
 /// # tokio_test::block_on(async {
 /// // Time saver is the best mod!
+/// let config = Config::get(None).unwrap();
 /// loop {
-///     send_analytics_event(AnalyticsEventName::ModInstall, "Bwc9876.TimeSaver").await;
+///     send_analytics_event(AnalyticsEventName::ModInstall, "Bwc9876.TimeSaver", &config).await;
 /// }
 /// # });
 ///
-pub async fn send_analytics_event(event_name: AnalyticsEventName, unique_name: &str) {
+pub async fn send_analytics_event(
+    event_name: AnalyticsEventName,
+    unique_name: &str,
+    config: &Config,
+) {
+    if !config.send_analytics {
+        debug!("Skipping Analytics As It's Disabled");
+        return;
+    }
     if let Some(api_key) = API_KEY {
         let url = format!("https://www.google-analytics.com/mp/collect?measurement_id={MEASUREMENT_ID}&api_secret={api_key}");
         let client = Client::new();

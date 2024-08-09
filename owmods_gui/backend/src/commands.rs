@@ -4,7 +4,7 @@ use std::{
     path::PathBuf,
 };
 
-use anyhow::anyhow;
+use anyhow::{anyhow, Context};
 use log::error;
 use owmods_core::{
     alerts::{fetch_alert, Alert},
@@ -43,6 +43,10 @@ use crate::RemoteDatabaseOption;
 use crate::{
     error::{Error, Result},
     events::CustomEventListener,
+};
+use crate::{
+    events::{CustomEventEmitter, CustomEventEmitterAll, CustomEventTriggerGlobal, Event},
+    protocol::PROTOCOL_LISTENER_AMOUNT,
 };
 use crate::{
     game::{make_log_window, show_warnings, GameMessage},
@@ -180,7 +184,7 @@ pub async fn get_local_mod(
     if unique_name == OWML_UNIQUE_NAME {
         let config = state.config.read().await;
         let owml = LocalDatabase::get_owml(&config.owml_path)
-            .ok_or_else(|| anyhow!("Couldn't Find OWML at path {}", &config.owml_path))?;
+            .with_context(|| format!("Couldn't Find OWML at path {}", &config.owml_path))?;
         Ok(Some(UnsafeLocalMod::Valid(Box::new(owml))))
     } else {
         Ok(state
@@ -407,7 +411,7 @@ pub async fn uninstall_mod(
     let db = state.local_db.read().await;
     let local_mod = db
         .get_mod(unique_name)
-        .ok_or_else(|| anyhow!("Mod {} not found", unique_name))?;
+        .with_context(|| format!("Mod {} not found", unique_name))?;
     let warnings = remove_mod(local_mod, &db, false)?;
 
     Ok(warnings)
@@ -418,7 +422,7 @@ pub async fn uninstall_broken_mod(mod_path: &str, state: tauri::State<'_, State>
     let db = state.local_db.read().await;
     let local_mod = db
         .get_mod_unsafe(mod_path)
-        .ok_or_else(|| anyhow!("Mod {} not found", mod_path))?;
+        .with_context(|| format!("Mod {} not found", mod_path))?;
     match local_mod {
         UnsafeLocalMod::Invalid(m) => {
             remove_failed_mod(m)?;
@@ -521,9 +525,7 @@ pub async fn install_owml(
     let config = state.config.read().await;
     let db = state.remote_db.read().await;
     let db = db.try_get()?;
-    let owml = db
-        .get_owml()
-        .ok_or_else(|| anyhow!("Error Installing OWML"))?;
+    let owml = db.get_owml().context("Error Installing OWML")?;
     download_and_install_owml(&config, owml, prerelease).await?;
     handle.typed_emit_all(&Event::OwmlConfigReload(())).ok();
     Ok(())
@@ -608,19 +610,16 @@ pub async fn update_mod(
     let remote_db = state.remote_db.read().await.clone();
     let remote_db = remote_db.try_get()?;
 
-    let remote_mod = remote_db
-        .get_mod(unique_name)
-        .ok_or_else(|| anyhow!("Can't find mod {} in remote", unique_name))?;
+    let remote_mod = if unique_name == OWML_UNIQUE_NAME {
+        remote_db.get_owml().context("Can't find OWML")?
+    } else {
+        remote_db
+            .get_mod(unique_name)
+            .with_context(|| format!("Can't find mod {} in remote", unique_name))?
+    };
 
     let res = if unique_name == OWML_UNIQUE_NAME {
-        download_and_install_owml(
-            &config,
-            remote_db
-                .get_owml()
-                .ok_or_else(|| anyhow!("OWML Not Found!"))?,
-            false,
-        )
-        .await
+        download_and_install_owml(&config, remote_mod, false).await
     } else {
         install_mod_from_db(
             &unique_name.to_string(),
@@ -668,7 +667,7 @@ pub async fn update_all_mods(
             &config,
             remote_db
                 .get_owml()
-                .ok_or_else(|| anyhow!("Couldn't find OWML in database"))?,
+                .context("Couldn't find OWML in database")?,
             false,
         )
         .await?;
@@ -686,6 +685,7 @@ pub async fn update_all_mods(
         send_analytics_event(
             AnalyticsEventName::ModUpdate,
             &updated_mod.manifest.unique_name,
+            &config,
         )
         .await;
     }
@@ -765,10 +765,24 @@ pub async fn run_game(
     let (tx, mut rx) = mpsc::channel(32);
 
     let log_handler = async {
-        while let Some(msg) = rx.recv().await {
-            let mut game_log = state.game_log.write().await;
-            if let Some(log_data) = game_log.get_mut(&port) {
-                log_data.take_message(msg);
+        loop {
+            select! {
+                msg = rx.recv() => {
+                    if let Some(msg) = msg {
+                        let mut game_log = state.game_log.write().await;
+                        if let Some(log_data) = game_log.get_mut(&port) {
+                            log_data.take_message(msg);
+                        }
+                    } else {
+                        break;
+                    }
+                }
+                _ = tokio::time::sleep(tokio::time::Duration::from_secs(5)) => {
+                    let mut game_log = state.game_log.write().await;
+                    if let Some(log_data) = game_log.get_mut(&port) {
+                        log_data.process_emit_queue();
+                    }
+                }
             }
         }
         Ok(())
@@ -877,7 +891,7 @@ pub async fn fix_mod_deps(
     let remote_db = remote_db.try_get()?;
     let local_mod = local_db
         .get_mod(unique_name)
-        .ok_or_else(|| anyhow!("Can't find mod {}", unique_name))?;
+        .with_context(|| format!("Can't find mod {}", unique_name))?;
 
     mark_mod_busy(unique_name, true, true, &state, &handle).await;
     let res = fix_deps(local_mod, &config, &local_db, remote_db).await;
@@ -890,7 +904,8 @@ pub async fn fix_mod_deps(
 pub async fn db_has_issues(state: tauri::State<'_, State>, window: tauri::Window) -> Result<bool> {
     let local_db = state.local_db.read().await.clone();
     let config = state.config.read().await.clone();
-    let mut has_errors = local_db.active().any(|m| !m.errors.is_empty());
+    let mut has_errors =
+        local_db.active().any(|m| !m.errors.is_empty()) || local_db.invalid().count() > 0;
 
     let owml = LocalDatabase::get_owml(&config.owml_path);
     if let Some(owml) = owml {
@@ -928,8 +943,29 @@ pub async fn db_has_issues(state: tauri::State<'_, State>, window: tauri::Window
 #[tauri::command]
 pub async fn get_alert(state: tauri::State<'_, State>) -> Result<Alert> {
     let config = state.config.read().await;
-    let alert = fetch_alert(&config.alert_url).await?;
+    let mut alert = fetch_alert(&config.alert_url).await?;
+    if config
+        .last_viewed_db_alert
+        .as_ref()
+        .map(|lv| lv == &alert.compute_hash())
+        .unwrap_or(false)
+    {
+        alert.enabled = false;
+    }
     Ok(alert)
+}
+
+#[tauri::command]
+pub async fn dismiss_alert(
+    state: tauri::State<'_, State>,
+    handle: tauri::AppHandle,
+    alert: Alert,
+) -> Result {
+    let mut config = state.config.write().await;
+    config.last_viewed_db_alert = Some(alert.compute_hash());
+    config.save()?;
+    handle.typed_emit_all(&Event::ConfigReload(())).ok();
+    Ok(())
 }
 
 #[tauri::command]
@@ -938,9 +974,6 @@ pub async fn pop_protocol_url(
     handle: tauri::AppHandle,
     id: &str,
 ) -> Result {
-    /// Amount of listeners that need to be active before we can emit the event
-    const PROTOCOL_LISTENER_AMOUNT: usize = 2;
-
     let id = id.to_string();
 
     let mut protocol_listeners = state.protocol_listeners.write().await;
@@ -1025,7 +1058,7 @@ pub async fn has_disabled_deps(unique_name: &str, state: tauri::State<'_, State>
     let db = state.local_db.read().await;
     let local_mod = db
         .get_mod(unique_name)
-        .ok_or_else(|| anyhow!("Mod Not Found: {unique_name}"))?;
+        .context("Mod Not Found: {unique_name}")?;
     let mut flag = false;
     if let Some(deps) = &local_mod.manifest.dependencies {
         for dep in deps.iter() {

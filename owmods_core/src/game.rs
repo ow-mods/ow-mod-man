@@ -6,7 +6,9 @@ use tokio::process::Command;
 
 use crate::{config::Config, constants::OWML_EXE_NAME, owml::OWMLConfig};
 
-const OUTER_WORLDS_FOLDER_NAMES: [&str; 1] = ["TOWSpacersChoice"];
+// Converted to lowercase to make it easier to compare
+const OUTER_WORLDS_FOLDER_NAMES: [&str; 3] =
+    ["theouterworlds", "theouterworldsost", "towspacerschoice"];
 
 const OUTER_WORLDS_TEXT: &str = "You appear to be trying to mod The Outer Worlds. This mod manager is for Outer *Wilds*.
 You probably want to uninstall this manager now,
@@ -66,9 +68,10 @@ pub async fn launch_game(
             .stderr(Stdio::piped());
         // Sometimes OWML.Launcher.exe doesn't like setting the socket port, just do it ourselves.
         let mut owml_config = OWMLConfig::get(config)?;
+        let lower_path = owml_config.game_path.to_lowercase();
         if OUTER_WORLDS_FOLDER_NAMES
             .iter()
-            .any(|name| owml_config.game_path.contains(name))
+            .any(|name| lower_path.contains(name))
         {
             return Err(anyhow!(OUTER_WORLDS_TEXT));
         }
@@ -127,11 +130,24 @@ fn get_cmd(config: &Config, open_in_new_window: bool) -> Result<Command> {
 }
 
 #[cfg(unix)]
+fn get_default_mono_binary() -> String {
+    if cfg!(target_os = "macos") {
+        String::from("/Library/Frameworks/Mono.framework/Versions/Current/Commands/mono")
+    } else {
+        String::from("mono")
+    }
+}
+
+#[cfg(unix)]
 fn get_cmd(config: &Config, _: bool) -> Result<Command> {
+    let mono = std::env::var("MONO_BINARY")
+        .ok()
+        .unwrap_or_else(get_default_mono_binary);
+
     let owml_path = PathBuf::from(&config.owml_path).join(OWML_EXE_NAME);
     let exe_path = owml_path.to_str().unwrap();
     fix_dlls(config)?;
-    let mut cmd = Command::new("mono");
+    let mut cmd = Command::new(mono);
     cmd.arg(exe_path);
     Ok(cmd)
 }
@@ -143,16 +159,16 @@ fn fix_dlls(config: &Config) -> Result<()> {
     // Replaces the DLLs that break OWML.Launcher.exe on Linux, any questions spam JohnCorby
     const SYSTEM_DLL: &[u8] = include_bytes!("../linux_replacement_dlls/System.dll");
     const SYSTEM_CORE_DLL: &[u8] = include_bytes!("../linux_replacement_dlls/System.Core.dll");
-    const OWML_MOD_LOADER_DLL: &[u8] =
-        include_bytes!("../linux_replacement_dlls/OWML.ModLoader.dll");
+    // const OWML_MOD_LOADER_DLL: &[u8] =
+    //     include_bytes!("../linux_replacement_dlls/OWML.ModLoader.dll");
 
     let owml_dir = PathBuf::from(&config.owml_path);
     let mut file = File::create(owml_dir.join("System.dll"))?;
     file.write_all(SYSTEM_DLL)?;
     let mut file = File::create(owml_dir.join("System.Core.dll"))?;
     file.write_all(SYSTEM_CORE_DLL)?;
-    let mut file = File::create(owml_dir.join("OWML.ModLoader.dll"))?;
-    file.write_all(OWML_MOD_LOADER_DLL)?;
+    // let mut file = File::create(owml_dir.join("OWML.ModLoader.dll"))?;
+    // file.write_all(OWML_MOD_LOADER_DLL)?;
 
     Ok(())
 }

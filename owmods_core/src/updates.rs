@@ -2,7 +2,7 @@ use std::path::PathBuf;
 
 use anyhow::Result;
 use log::{info, warn};
-use version_compare::Cmp;
+use versions::Versioning;
 
 use crate::{
     analytics::{send_analytics_event, AnalyticsEventName},
@@ -29,7 +29,7 @@ pub fn fix_version_post_update(local_mod: &LocalMod, remote_mod: &RemoteMod) -> 
             remote_mod.version, local_mod.manifest.version
         );
         let mut manifest = local_mod.manifest.clone();
-        manifest.version = remote_mod.version.clone();
+        manifest.version.clone_from(&remote_mod.version);
         let manifest_path = PathBuf::from(local_mod.mod_path.clone()).join("manifest.json");
         serialize_to_json(&manifest, &manifest_path, false)?;
         Ok(())
@@ -57,12 +57,14 @@ pub fn check_mod_needs_update<'a>(
         remote_db.get_mod(&local_mod.manifest.unique_name)
     };
     if let Some(remote_mod) = remote_mod {
-        (
-            version_compare::compare(&remote_mod.version, &local_mod.manifest.version)
-                .map(|o| o == Cmp::Gt)
-                .unwrap_or_else(|_| local_mod.manifest.version != remote_mod.version),
-            Some(remote_mod),
-        )
+        let local_ver = Versioning::new(&local_mod.manifest.version);
+        let remote_ver = Versioning::new(&remote_mod.version);
+        let outdated = if let (Some(local_ver), Some(remote_ver)) = (local_ver, remote_ver) {
+            local_ver < remote_ver
+        } else {
+            false
+        };
+        (outdated, Some(remote_mod))
     } else {
         (false, None)
     }
@@ -132,6 +134,7 @@ pub async fn update_all(
                 send_analytics_event(
                     AnalyticsEventName::ModUpdate,
                     &updated_mod.manifest.unique_name,
+                    config,
                 )
                 .await;
             }
@@ -175,6 +178,20 @@ mod tests {
         let (new_mod, db) = setup("0.2.0", "0.2.0");
         let (needs_update, _) = check_mod_needs_update(&new_mod, &db);
         assert!(!needs_update);
+    }
+
+    #[test]
+    fn test_check_mod_needs_update_prerelease() {
+        let (new_mod, db) = setup("1.2.1-rc.1", "1.2.0");
+        let (needs_update, _) = check_mod_needs_update(&new_mod, &db);
+        assert!(!needs_update);
+    }
+
+    #[test]
+    fn test_check_mod_needs_update_prerelease_older() {
+        let (new_mod, db) = setup("1.2.1-rc.1", "1.2.1");
+        let (needs_update, _) = check_mod_needs_update(&new_mod, &db);
+        assert!(needs_update);
     }
 
     #[test]

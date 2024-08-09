@@ -8,7 +8,9 @@ This file contains common questions for the manager.
   - [Table of Contents](#table-of-contents)
   - [How do I use this?](#how-do-i-use-this)
     - [The manager has encountered a fatal error, the system cannot find the file specified (Windows)](#the-manager-has-encountered-a-fatal-error-the-system-cannot-find-the-file-specified-windows)
+  - [How do I use this on Mac?](#how-do-i-use-this-on-mac)
   - [How do I use this on Linux?](#how-do-i-use-this-on-linux)
+    - [Mod folder not found on Flatpak version of Steam](#mod-folder-not-found-on-flatpak-version-of-steam)
     - [What About Steam Deck?](#what-about-steam-deck)
   - [How do I uninstall it?](#how-do-i-uninstall-it)
   - [How do I update it?](#how-do-i-update-it)
@@ -21,7 +23,9 @@ This file contains common questions for the manager.
 
 ## How do I use this?
 
-- Download the Outer Wilds Mod Manager installer [from the latest release](https://github.com/ow-mods/ow-mod-man/releases/latest);
+(See below for non-Windows instructions)
+
+- Download the Outer Wilds Mod Manager from [the mods website](https://outerwildsmods.com/mod-manager);
 - Run the downloaded .msi (you might need to ignore some Chrome / Windows warnings);
 - Shortcuts are added to the desktop and start menu, use them to run the manager;
 - Run the manager;
@@ -42,13 +46,43 @@ This is a result of not having the [Microsoft Edge WebView2 Runtime](https://dev
 
 The manager's installer is supposed to install Webview2 for you, but depending on how your debloating script works, it may have left rouge registry keys that make the manager think it's already installed. If you're still having issues, try inspecting the registry keys mentioned in [this Webview2 article](https://learn.microsoft.com/en-us/microsoft-edge/webview2/concepts/distribution#detect-if-a-suitable-webview2-runtime-is-already-installed) to see if they're pointing to bad folders.
 
+## How do I use this on Mac?
+
+The manager can be used on MacOS with some caveats:
+
+1. We haven't setup code signing because Apple moment:
+   1. Try to open the DMG for the manager at least once
+   2. System Preferences -> Security & Privacy -> General -> Allow apps downloaded from -> Outer Wilds Mod Manager -> Open anyway
+2. Seeing as how Outer Wilds isn't available on MacOS, OWML will not be able to find the game on its own. You'll need to manually set it in the settings menu (Gear in the top-corner, scroll down to OWML Settings -> Game Path). This folder should contain the game's `.exe` file and the `OuterWilds_Data` folder.
+3. The manager needs [Mono](https://www.mono-project.com/docs/getting-started/install/mac/) to be installed in order to run OWML. The manager assumes the default location of Mono at `/Library/Frameworks/Mono.framework/Versions/Current/Commands/mono` however this path can be overridden with the `MONO_BINARY` environment variable
+4. The manager will not be able to launch the game directly. After you see a "Client Disconnected From Console" message in the logs window your game will be patched to run modded, just launch the game directly.
+   1. Note if you see a message along the lines of "Current game path not valid", this means that the game hasn't been patched. You'll need to set the game path in the settings menu and try again.
+
+MacOS support is experimental and not well-tested. If you need help troubleshooting or have a suggestion for
+improving the MacOS experience, please [open an issue](https://github.com/ow-mods/ow-mod-man/issues/new/choose)
+or come chat with us on [the Discord server](https://discord.com/invite/wusTQYbYTc).
+
 ## How do I use this on Linux?
 
-Using the manager on Linux should be easy **proton and wine are not required**. The manager requires [Mono](https://www.mono-project.com) 6 to be installed and available on the PATH. If you're using the Flatpak, AUR, or Nix versions, Mono will be installed and set up automatically.
+Using the manager on Linux should be easy, **proton and wine are not required**. The manager requires [Mono](https://www.mono-project.com) 6 to be installed and available on the PATH. If you're using the Flatpak, AUR, or Nix versions, Mono will be installed and set up automatically.
+
+### Mod folder not found on Flatpak version of Steam
+
+This is an issue with sharing the manager's folder with Steam, as OWML will be running from within Steam's flatpak container it won't be able to access the mods folder. See [this issue](https://github.com/ow-mods/ow-mod-man/issues/501) for details. tl;dr:
+
+1. Move the OWML folder from `~/.local/share/OuterWildsModManager/OWML` to `~/.var/app/com.valvesoftware.Steam/.local/share/OuterWildsModManager/OWML`, this will make it available to the Steam container
+2. Change your OWML path in the manager settings to `~/.var/app/com.valvesoftware.Steam/.local/share/OuterWildsModManager/OWML` to point to the new OWML location
+3. Reverify your game files in Steam, this is to remove any possibly bad versions of OWML that still point to the old path
+4. Try to launch the game again through the manager
 
 ### What About Steam Deck?
 
 The manager can be installed on Steam Deck in Desktop Mode in the Discover app.
+
+The mod manager requires that the game is installed in `~/.steam/steam/steamapps/common/Outer Wilds` or `~/Games/Heroic/OuterWilds`.
+
+When selecting game path **DO NOT** use the browse button, on Flatpak this tries to open a portal which
+won't work, you'll need to enter the path manually or copy it.
 
 Note that you won't be able to launch the game from the manager when in steam deck's game mode. But so long as you've *pressed* "Launch Game" at least once, you can launch the game directly and it will still be modded.
 

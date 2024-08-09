@@ -70,19 +70,23 @@ const InstallFrom = memo(function InstallFrom({ onClick }: ModalProps) {
                     const sourceType = getSourceTypeFromProtocol(protocolPayload.verb);
                     if (sourceType !== null) {
                         getCurrent().setFocus().catch(simpleOnError);
-                        if (sourceType === "UNIQUE_NAME") {
-                            commands.installMod({ uniqueName: protocolPayload.payload });
-                        } else {
-                            setSource(sourceType);
-                            setTarget(protocolPayload.payload);
-                            if (
-                                protocolPayload.verb === "installPreRelease" ||
-                                protocolPayload.verb === "installMod"
-                            ) {
-                                setPrerelease(protocolPayload.verb === "installPreRelease");
+                        const task = async () => {
+                            await commands.refreshRemoteDb().catch(simpleOnError);
+                            if (sourceType === "UNIQUE_NAME") {
+                                await commands.installMod({ uniqueName: protocolPayload.payload });
+                            } else {
+                                setSource(sourceType);
+                                setTarget(protocolPayload.payload);
+                                if (
+                                    protocolPayload.verb === "installPreRelease" ||
+                                    protocolPayload.verb === "installMod"
+                                ) {
+                                    setPrerelease(protocolPayload.verb === "installPreRelease");
+                                }
+                                setOpen(true);
                             }
-                            setOpen(true);
-                        }
+                        };
+                        task();
                     }
                 }
             });

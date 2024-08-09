@@ -74,7 +74,9 @@ const LocalModRow = memo(function LocalModRow(props: LocalModRowProps) {
     // Fetch data
     const [status1, local] = hooks.getLocalMod("localRefresh", { ...props });
     const remoteOpt = hooks.getRemoteMod("remoteRefresh", { ...props })[1];
-    const autoEnableDeps = hooks.getGuiConfig("guiConfigReload")[1]?.autoEnableDeps ?? false;
+    const guiConfig = hooks.getGuiConfig("guiConfigReload")[1];
+    const autoEnableDeps = guiConfig?.autoEnableDeps ?? false;
+    const autoDisableDeps = guiConfig?.autoDisableDeps ?? false;
 
     const remote = (remoteOpt?.type === "err" ? null : remoteOpt?.data) as RemoteMod | null;
 
@@ -123,7 +125,7 @@ const LocalModRow = memo(function LocalModRow(props: LocalModRowProps) {
                 const warnings = await commands.toggleMod({
                     uniqueName: props.uniqueName,
                     enabled: newVal,
-                    recursive: enableDeps
+                    recursive: enableDeps || (autoDisableDeps && !newVal)
                 });
                 commands.refreshLocalDb();
                 for (const modName of warnings) {
@@ -137,19 +139,23 @@ const LocalModRow = memo(function LocalModRow(props: LocalModRowProps) {
             };
             task();
         },
-        [autoEnableDeps, getTranslation, props.uniqueName]
+        [autoEnableDeps, autoDisableDeps, getTranslation, props.uniqueName]
     );
     const onUninstall = useCallback(() => {
-        commands.uninstallMod({ uniqueName: props.uniqueName }).then((warnings) => {
-            commands.refreshLocalDb();
-            for (const modName of warnings) {
-                dialog.message(getTranslation("PREPATCHER_WARNING", { name: modName }), {
-                    type: "warning",
-                    title: getTranslation("PREPATCHER_WARNING_TITLE", { name: modName })
-                });
-            }
-        });
-    }, [getTranslation, props.uniqueName]);
+        if (local?.loadState === "invalid") {
+            commands.uninstallBrokenMod({ modPath: props.uniqueName });
+        } else {
+            commands.uninstallMod({ uniqueName: props.uniqueName }).then((warnings) => {
+                commands.refreshLocalDb();
+                for (const modName of warnings) {
+                    dialog.message(getTranslation("PREPATCHER_WARNING", { name: modName }), {
+                        type: "warning",
+                        title: getTranslation("PREPATCHER_WARNING_TITLE", { name: modName })
+                    });
+                }
+            });
+        }
+    }, [getTranslation, props.uniqueName, local?.loadState]);
     const onFix = useCallback(() => {
         const task = async () => {
             if (outdated) {

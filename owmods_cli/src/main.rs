@@ -1,6 +1,6 @@
 use std::{fmt::Write, path::PathBuf, process};
 
-use anyhow::{anyhow, Result};
+use anyhow::{Context, Result};
 use clap::{CommandFactory, Parser};
 use colored::Colorize;
 use log::{error, info, warn, LevelFilter};
@@ -38,7 +38,15 @@ async fn run_from_cli(cli: BaseCli) -> Result<()> {
     let r = cli.recursive;
     let assert_setup = cli.assert_setup;
 
-    let config = Config::get(None)?;
+    let mut config = Config::get(None)?;
+
+    if let Some(analytics) = cli.analytics {
+        if analytics != config.send_analytics {
+            info!("Setting send_analytics to {}", analytics);
+            config.send_analytics = analytics;
+            config.save()?;
+        }
+    }
 
     let ran_setup = matches!(
         &cli.command,
@@ -88,7 +96,7 @@ async fn run_from_cli(cli: BaseCli) -> Result<()> {
                 let db = RemoteDatabase::fetch(&config.database_url).await?;
                 let owml = db
                     .get_owml()
-                    .ok_or_else(|| anyhow!("OWML not found, is the database URL correct?"))?;
+                    .context("OWML not found, is the database URL correct?")?;
                 download_and_install_owml(&config, owml, *prerelease).await?;
                 info!("Done! Happy Modding!");
             }
@@ -112,7 +120,7 @@ async fn run_from_cli(cli: BaseCli) -> Result<()> {
                     );
                 }
             } else {
-                info!("No alert");
+                info!("No new alerts!");
             };
         }
         Commands::List { mod_type, tag } => match mod_type {

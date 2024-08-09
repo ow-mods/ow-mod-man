@@ -74,7 +74,7 @@ I tried to automate this process in a way that makes sense but it still needs so
    3. `owmods_gui/backend/Cargo.toml` - **also update the reference to owmods_core if it was updated**
    4. `nix/owmods-cli.nix`
    5. `nix/owmods-gui.nix`
-   6. `owmods_gui/frontend/package.json` - used by `pnpm2nix` to generate a derivation for the frontend
+   6. `owmods_gui/frontend/package.json`
    7. `xtask/Cargo.toml` - not the end of the world if you don't update this, determines the version shown in man pages for the CLI
 2. Merge `dev` to `main` (assuming you have a PR going)
 3. Run the "Create Core Release" action

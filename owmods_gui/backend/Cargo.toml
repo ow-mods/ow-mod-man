@@ -1,6 +1,10 @@
 [package]
 name = "owmods_gui"
-version = "0.12.0"
+authors = ["Bwc9876 <bwc9876@outerwildsmods.com>"]
+description = "A GUI Tool To Manage OWML Mods"
+version = "0.14.2"
+readme = "./README.md"
+repository = "https://github.com/ow-mods/ow-mod-man/"
 license = "GPL-3.0-or-later"
 edition = "2021"
 

@@ -3,11 +3,11 @@ use std::{
     path::{Path, PathBuf},
 };
 
-use anyhow::{anyhow, Result};
+use anyhow::{Context, Result};
 use log::{debug, warn};
 
 use crate::{
-    file::{deserialize_from_json, fix_json_file},
+    file::deserialize_from_json,
     mods::local::{FailedMod, LocalMod, ModManifest, UnsafeLocalMod},
     search::search_list,
     toggle::get_mod_enabled,
@@ -15,7 +15,7 @@ use crate::{
     validate::{check_mod, ModValidationError},
 };
 
-use super::combined_search::LocalModWithRemoteName;
+use super::combined_search::LocalModWithRemoteSearchData;
 use super::{fix_version, RemoteDatabase};
 
 /// Represents the local (on the local PC) database of mods.
@@ -155,7 +155,6 @@ impl LocalDatabase {
     ///
     pub fn get_owml(owml_path: &str) -> Option<LocalMod> {
         let manifest_path = PathBuf::from(owml_path).join("OWML.Manifest.json");
-        fix_json_file(&manifest_path).ok();
         let mut owml_manifest: ModManifest = deserialize_from_json(&manifest_path).ok()?;
         owml_manifest.version = fix_version(&owml_manifest.version).to_string();
         Some(LocalMod {
@@ -198,12 +197,7 @@ impl LocalDatabase {
             "Loading Mod With Manifest: {}",
             manifest_path.to_str().unwrap()
         );
-        let folder_path = manifest_path.parent();
-        if folder_path.is_none() {
-            return Err(anyhow!("Mod Path Not Found"));
-        }
-        let folder_path = folder_path.unwrap(); // <- Unwrap is safe, .is_none() check is above
-        fix_json_file(manifest_path).ok();
+        let folder_path = manifest_path.parent().context("Mod Path Not Found")?;
         let mut manifest: ModManifest = deserialize_from_json(manifest_path)?;
         manifest.version = fix_version(&manifest.version).to_string();
         Ok(LocalMod {
@@ -268,12 +262,12 @@ impl LocalDatabase {
     ///
     /// An iterator over all mods that are dependent on the given mod
     ///
-    pub fn dependent<'a>(&'a self, local_mod: &'a LocalMod) -> impl Iterator<Item = &'a LocalMod> {
+    pub fn dependent<'a>(&'a self, unique_name: &'a String) -> impl Iterator<Item = &'a LocalMod> {
         self.valid().filter(|m| {
             m.manifest
                 .dependencies
                 .as_ref()
-                .map_or(false, |deps| deps.contains(&local_mod.manifest.unique_name))
+                .map_or(false, |deps| deps.contains(unique_name))
         })
     }
 
@@ -335,13 +329,11 @@ impl LocalDatabase {
         remote_db: &RemoteDatabase,
     ) -> Vec<&UnsafeLocalMod> {
         let mods: Vec<&UnsafeLocalMod> = self.all().collect();
-        let mods: Vec<LocalModWithRemoteName> = mods
+        let mods: Vec<LocalModWithRemoteSearchData> = mods
             .into_iter()
             .map(|m| {
-                let remote_name = remote_db
-                    .get_mod(m.get_unique_name())
-                    .map(|m| m.name.clone());
-                LocalModWithRemoteName::new(m, remote_name)
+                let remote = remote_db.get_mod(m.get_unique_name()).cloned();
+                LocalModWithRemoteSearchData::new(m, remote)
             })
             .collect();
         let mods = mods.iter().collect();
@@ -414,7 +406,7 @@ impl LocalDatabase {
             glob::glob(mods_path.join("**").join("manifest.json").to_str().unwrap())?;
         for entry in glob_matches {
             let entry = entry?;
-            let parent = entry.parent().ok_or_else(|| anyhow!("Invalid Manifest!"))?;
+            let parent = entry.parent().context("Invalid Manifest!")?;
             let path = parent.to_str().unwrap().to_string();
             let display_path = parent
                 .strip_prefix(mods_path)
@@ -423,32 +415,36 @@ impl LocalDatabase {
                 .unwrap()
                 .to_string();
             let local_mod = Self::read_local_mod(&entry);
-            if let Ok(mut local_mod) = local_mod {
-                if let Some(UnsafeLocalMod::Valid(other)) =
-                    mods.get(&local_mod.manifest.unique_name)
-                {
+            match local_mod {
+                Ok(mut local_mod) => {
+                    if let Some(UnsafeLocalMod::Valid(other)) =
+                        mods.get(&local_mod.manifest.unique_name)
+                    {
+                        let failed_mod = FailedMod {
+                            mod_path: path.to_string(),
+                            display_path,
+                            error: ModValidationError::DuplicateMod(other.mod_path.to_string()),
+                        };
+                        mods.insert(path.to_string(), UnsafeLocalMod::Invalid(failed_mod));
+                    } else {
+                        local_mod.manifest.migrate_donation_link();
+                        mods.insert(
+                            local_mod.manifest.unique_name.to_owned(),
+                            UnsafeLocalMod::Valid(Box::new(local_mod)),
+                        );
+                    }
+                }
+                Err(why) => {
+                    let err =
+                        format!("{:?}", why.context("Failed to load mod")).replace("\n\n", "\n");
+                    warn!("{:?}\n(Mod path: {})", err, path);
                     let failed_mod = FailedMod {
                         mod_path: path.to_string(),
                         display_path,
-                        error: ModValidationError::DuplicateMod(other.mod_path.to_string()),
+                        error: ModValidationError::InvalidManifest(err),
                     };
                     mods.insert(path.to_string(), UnsafeLocalMod::Invalid(failed_mod));
-                } else {
-                    local_mod.manifest.migrate_donation_link();
-                    mods.insert(
-                        local_mod.manifest.unique_name.to_owned(),
-                        UnsafeLocalMod::Valid(Box::new(local_mod)),
-                    );
                 }
-            } else {
-                let err = format!("{:?}", local_mod.err().unwrap());
-                warn!("Failed to load mod at {}: {:?}", path, err);
-                let failed_mod = FailedMod {
-                    mod_path: path.to_string(),
-                    display_path,
-                    error: ModValidationError::InvalidManifest(err),
-                };
-                mods.insert(path.to_string(), UnsafeLocalMod::Invalid(failed_mod));
             }
         }
         Ok(mods)

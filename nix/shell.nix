@@ -8,8 +8,6 @@ pkgs.mkShell {
     clippy
     rustfmt
     nodejs
-    openssl
-    nodePackages.pnpm
     gcc
     webkitgtk_4_1
     glib-networking
@@ -21,6 +19,8 @@ pkgs.mkShell {
     cargo-tauri
     typeshare
   ];
+  OPENSSL_LIB_DIR = "${pkgs.openssl.out}/lib";
+  OPENSSL_INCLUDE_DIR = "${pkgs.openssl.dev}/include";
   shellHook = ''
     export GIO_MODULE_DIR=${pkgs.glib-networking}/lib/gio/modules/
   '';

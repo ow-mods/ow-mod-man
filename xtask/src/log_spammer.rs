@@ -12,7 +12,7 @@ pub fn spam_logs(port: u16) -> Result<()> {
         println!("Message {i}, {}", i == usize::MAX);
         // I just want to easily change stuff when testing so im leaving the format here
         #[allow(clippy::useless_format)]
-        let msg = format!("{{\"type\": 0, \"message\": \"Line 1\", \"senderName\": \"xtask\", \"senderType\": \"log_spammer\"}}\n");
+        let msg = format!("{{\"type\": 0, \"message\": \"Line {i}\", \"senderName\": \"xtask\", \"senderType\": \"log_spammer\"}}\n");
         stream.write_all(msg.as_bytes())?;
         i += 1;
         std::thread::sleep(Duration::from_secs_f32(

@@ -1,16 +1,15 @@
 use std::path::{Path, PathBuf};
 
-use anyhow::{anyhow, Result};
+use anyhow::{Context, Result};
 use log::warn;
 
 use crate::{
     db::LocalDatabase,
-    file::{deserialize_from_json, fix_json_file, serialize_to_json},
+    file::{deserialize_from_json, serialize_to_json},
     mods::local::{LocalMod, ModStubConfig},
 };
 
 fn read_config(config_path: &Path) -> Result<ModStubConfig> {
-    fix_json_file(config_path).ok();
     deserialize_from_json(config_path)
 }
 
@@ -69,7 +68,10 @@ fn _toggle_mod(local_mod: &LocalMod, enabled: bool) -> Result<bool> {
         return _toggle_mod(local_mod, enabled);
     }
 
-    Ok(!enabled && local_mod.uses_pre_patcher())
+    let uses_prepatcher =
+        local_mod.manifest.patcher.is_some() && local_mod.manifest.unpatcher.is_none();
+
+    Ok(!enabled && uses_prepatcher)
 }
 
 /// Toggle a mod to a given enabled value.
@@ -94,49 +96,63 @@ pub fn toggle_mod(
 
     let local_mod = local_db
         .get_mod(unique_name)
-        .ok_or_else(|| anyhow!("Mod {} not found in local database.", unique_name))?;
+        .with_context(|| format!("Mod {} not found in local database.", unique_name))?;
     let show_warning = _toggle_mod(local_mod, enabled)?;
 
     if show_warning {
         show_warnings_for.push(unique_name.to_string());
     }
 
-    if recursive {
-        let mut to_toggle: Vec<String> =
-            local_mod.manifest.dependencies.clone().unwrap_or_default();
+    if recursive
+        && !local_mod
+            .manifest
+            .dependencies
+            .as_ref()
+            .map(|d| d.is_empty())
+            .unwrap_or(true)
+    {
+        let mut to_check: Vec<String> = local_mod.manifest.dependencies.clone().unwrap_or_default();
         let mut toggled_mods: Vec<String> = vec![unique_name.to_string()];
-        while !to_toggle.is_empty() {
-            for dep in std::mem::take(&mut to_toggle) {
+        while !to_check.is_empty() {
+            for dep in std::mem::take(&mut to_check) {
                 if toggled_mods.contains(&dep) {
                     continue;
                 }
                 let dep_mod = local_db.get_mod(&dep);
                 if let Some(dep_mod) = dep_mod {
+                    if dep_mod.enabled == enabled {
+                        continue;
+                    }
                     let show_warning = if enabled {
+                        toggled_mods.push(dep_mod.manifest.unique_name.clone());
+                        to_check.extend(dep_mod.manifest.dependencies.clone().unwrap_or_default());
                         _toggle_mod(dep_mod, enabled)
                     } else {
                         let mut flag = true;
-                        for dependent_mod in local_db.dependent(dep_mod).filter(|m| m.enabled) {
-                            if dependent_mod.manifest.unique_name != local_mod.manifest.unique_name
-                            {
-                                warn!(
-                                    "Not disabling {} as it's also needed by {}",
-                                    dep_mod.manifest.name, dependent_mod.manifest.name
-                                );
-                                flag = false;
-                            }
+                        for dependent_mod in local_db
+                            .dependent(&dep_mod.manifest.unique_name)
+                            .filter(|m| {
+                                m.enabled && !toggled_mods.contains(&m.manifest.unique_name)
+                            })
+                        {
+                            warn!(
+                                "Not disabling {} as it's also needed by {}",
+                                dep_mod.manifest.name, dependent_mod.manifest.name
+                            );
+                            flag = false;
                         }
                         if flag {
+                            toggled_mods.push(dep_mod.manifest.unique_name.clone());
+                            to_check
+                                .extend(dep_mod.manifest.dependencies.clone().unwrap_or_default());
                             _toggle_mod(dep_mod, enabled)
                         } else {
                             Ok(false)
                         }
-                    };
-                    if show_warning? {
+                    }?;
+                    if show_warning {
                         show_warnings_for.push(dep_mod.manifest.unique_name.clone());
                     }
-                    toggled_mods.push(dep_mod.manifest.unique_name.clone());
-                    to_toggle.extend(dep_mod.manifest.dependencies.clone().unwrap_or_default());
                 } else {
                     warn!("Dependency {} Was Not Found, Ignoring.", dep);
                 }

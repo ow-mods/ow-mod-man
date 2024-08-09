@@ -21,6 +21,12 @@ pub struct BaseCli {
         help = "Assert that OWML is setup, if not simply exit with code 2 (2 is used to differentiate between a normal exit and an exit due to OWML not being setup)"
     )]
     pub assert_setup: bool,
+    #[arg(
+        global = true,
+        long = "analytics",
+        help = "Enable or disable analytics (this will be saved to the config so you won't need it in subsequent runs)"
+    )]
+    pub analytics: Option<bool>,
     #[arg(global = true, long = "debug", help = "Enable debug output")]
     pub debug: bool,
 }

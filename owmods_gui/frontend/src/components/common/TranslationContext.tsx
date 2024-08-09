@@ -1,5 +1,7 @@
 import english from "@assets/translations/english.json";
+import japanese from "@assets/translations/japanese.json";
 import chinese from "@assets/translations/chinese.json";
+import vietnamese from "@assets/translations/vietnamese.json";
 import wario from "@assets/translations/wario.json";
 //import portugueseBr from "@assets/translations/portuguese-br.json";
 import { Language } from "@types";
@@ -15,7 +17,9 @@ export type TranslationKey = keyof Translations;
 
 export const TranslationMap: Record<Language, Translations> = {
     English: english,
+    Japanese: japanese,
     Chinese: chinese,
+    Vietnamese: vietnamese,
     Wario: wario
 };
 

@@ -1,3 +1,8 @@
+use std::{
+    collections::hash_map::DefaultHasher,
+    hash::{Hash, Hasher},
+};
+
 use anyhow::Result;
 use log::debug;
 use serde::{Deserialize, Serialize};
@@ -7,7 +12,7 @@ use crate::mods::local::{LocalMod, ModWarning};
 
 /// Represents an alert gotten from the database.
 #[typeshare]
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Hash)]
 #[serde(rename_all = "camelCase")]
 pub struct Alert {
     /// Whether the alert should be shown
@@ -20,6 +25,17 @@ pub struct Alert {
     pub url: Option<String>,
     /// Optional label to display for the link instead of "More Info"
     pub url_label: Option<String>,
+}
+
+impl Alert {
+    /// Compute the hash of the alert. Used to determine if the alert has changed.
+    /// You'll want to compare the output of this against [Config::last_viewed_db_alert]
+    pub fn compute_hash(&self) -> String {
+        let mut hasher = DefaultHasher::new();
+        self.hash(&mut hasher);
+        let num = hasher.finish();
+        format!("{:x}", num)
+    }
 }
 
 /// Fetch an alert from the given url.

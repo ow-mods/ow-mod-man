@@ -36,7 +36,8 @@ Prerequisites:
 
 - rust
 - cargo
-- pnpm
+- node
+- npm
 
 You'll need the tauri CLI installed, so run:
 
@@ -53,7 +54,7 @@ git clone https://github.com/ow-mods/ow-mod-man/
 Go into `owmods_gui/frontend` and run:
 
 ```sh
-pnpm i
+npm i
 ```
 
 To install dependencies, then go back to the root of the repo.
@@ -87,5 +88,7 @@ Just create an empty `dist/` folder next to `backend`, tauri expects one to be t
 ## Screenshots
 
 ![The main screen of the app](https://github.com/ow-mods/ow-mod-man/raw/dev/.github/assets/screenshots/main.png)
+![The updates tab allowing you to update mods](https://github.com/ow-mods/ow-mod-man/raw/dev/.github/assets/screenshots/update.png)
 ![The logs screen when starting the game](https://github.com/ow-mods/ow-mod-man/raw/dev/.github/assets/screenshots/logs.png)
+![The settings menu for easy OWML tweaking](https://github.com/ow-mods/ow-mod-man/raw/dev/.github/assets/screenshots/settings.png)
 ![The about modal](https://github.com/ow-mods/ow-mod-man/raw/dev/.github/assets/screenshots/about.png)

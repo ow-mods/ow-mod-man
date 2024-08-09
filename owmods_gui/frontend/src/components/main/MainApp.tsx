@@ -15,6 +15,7 @@ import { simpleOnError } from "../../errorHandling";
 import { useErrorBoundary } from "react-error-boundary";
 import FileDrop from "./FileDrop";
 import { Event } from "@types";
+import { process } from "@tauri-apps/api";
 
 const RemoteModsPage = lazy(() => import("./mods/remote/RemoteModsPage"));
 const UpdateModsPage = lazy(() => import("./mods/updates/UpdateModsPage"));
@@ -111,6 +112,12 @@ const InnerMainApp = memo(function InnerMainApp() {
     );
 });
 
+const thisWindow = getCurrent();
+
+thisWindow.onCloseRequested(() => {
+    process.exit(0); // Exit the app on this window closing, so the log window doesn't stay open
+});
+
 const MainApp = () => {
     const [status, guiConfig] = hooks.getGuiConfig("guiConfigReload");
 
@@ -118,7 +125,7 @@ const MainApp = () => {
 
     useEffect(() => {
         if (guiConfig?.language !== null) {
-            getCurrent()
+            thisWindow
                 .setTitle(
                     TranslationMap[guiConfig?.language ?? "English"]["APP_TITLE"] ??
                         "Outer Wilds Mod Manager (*)"

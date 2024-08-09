@@ -13,6 +13,10 @@ use crate::{
     file::{deserialize_from_json, get_app_path, get_default_owml_path, serialize_to_json},
 };
 
+const fn _default_true() -> bool {
+    true
+}
+
 /// Represents the core config, contains critical info needed by the core API
 #[typeshare]
 #[derive(Debug, Serialize, Deserialize, Clone)]
@@ -26,6 +30,11 @@ pub struct Config {
     pub alert_url: String,
     /// The mod warnings that have been shown to the user
     pub viewed_alerts: Vec<String>,
+    /// The last alert that was shown to the user, this is used to track if the user has seen the alert before
+    pub last_viewed_db_alert: Option<String>,
+    /// Whether or not to send analytics events
+    #[serde(default = "_default_true")]
+    pub send_analytics: bool,
     /// Where the config is saved, this is not serialized
     #[serde(skip)]
     pub path: PathBuf,
@@ -63,6 +72,8 @@ impl Config {
             owml_path: String::from(owml_path.to_str().unwrap()),
             database_url: String::from(DEFAULT_DB_URL),
             alert_url: String::from(DEFAULT_ALERT_URL),
+            last_viewed_db_alert: None,
+            send_analytics: true,
             viewed_alerts: vec![],
             path,
         })

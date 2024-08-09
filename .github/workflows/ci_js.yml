@@ -33,33 +33,15 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: 20
-
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v2
-        with:
-          version: 8
-          run_install: false
-
-      - name: Get pnpm store directory
-        id: pnpm-cache
-        shell: bash
-        run: |
-          echo "STORE_PATH=$(pnpm store path)" >> $GITHUB_OUTPUT
-
-      - uses: actions/cache@v4
-        name: Setup pnpm cache
-        with:
-          path: ${{ steps.pnpm-cache.outputs.STORE_PATH }}
-          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
-          restore-keys: |
-            ${{ runner.os }}-pnpm-store-
+          node-version-file: owmods_gui/frontend/package.json
+          cache: npm
+          cache-dependency-path: owmods_gui/frontend/package-lock.json
 
       - name: Install Dependencies
-        run: pnpm install
+        run: npm install
 
       - name: Lint
-        run: pnpm lint-dry
+        run: npm run lint-dry
 
       - name: Check Formatting
-        run: pnpm prettier-check
+        run: npm run prettier-check

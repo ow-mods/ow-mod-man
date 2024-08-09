@@ -130,11 +130,24 @@ fn get_cmd(config: &Config, open_in_new_window: bool) -> Result<Command> {
 }
 
 #[cfg(unix)]
+fn get_default_mono_binary() -> String {
+    if cfg!(target_os = "macos") {
+        String::from("/Library/Frameworks/Mono.framework/Versions/Current/Commands/mono")
+    } else {
+        String::from("mono")
+    }
+}
+
+#[cfg(unix)]
 fn get_cmd(config: &Config, _: bool) -> Result<Command> {
+    let mono = std::env::var("MONO_BINARY")
+        .ok()
+        .unwrap_or_else(get_default_mono_binary);
+
     let owml_path = PathBuf::from(&config.owml_path).join(OWML_EXE_NAME);
     let exe_path = owml_path.to_str().unwrap();
     fix_dlls(config)?;
-    let mut cmd = Command::new("mono");
+    let mut cmd = Command::new(mono);
     cmd.arg(exe_path);
     Ok(cmd)
 }

@@ -32,7 +32,7 @@
         "react-virtuoso": "4.10.1"
     },
     "devDependencies": {
-        "@types/react": "18.3.3",
+        "@types/react": "18.3.4",
         "@types/react-dom": "18.3.0",
         "@typescript-eslint/eslint-plugin": "7.18.0",
         "@typescript-eslint/parser": "7.18.0",
@@ -42,7 +42,7 @@
         "eslint-plugin-react-hooks": "4.6.2",
         "prettier": "3.3.3",
         "typescript": "5.5.4",
-        "vite": "5.4.1",
+        "vite": "5.4.2",
         "vite-imagetools": "7.0.4"
     }
 }

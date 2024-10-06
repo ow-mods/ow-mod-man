@@ -3,7 +3,7 @@ import { PlayArrow as PlayIcon } from "@mui/icons-material";
 import { useCallback, useEffect, useState } from "react";
 import { commands } from "@commands";
 import { useGetTranslation } from "@hooks";
-import { dialog } from "@tauri-apps/api";
+import * as dialog from "@tauri-apps/plugin-dialog";
 import { simpleOnError } from "../../../errorHandling";
 import { listen } from "@events";
 
@@ -23,7 +23,7 @@ const StartGameButton = () => {
             const skipWarning = (await commands.getGuiConfig()).noWarning;
             if (!skipWarning && hasIssues) {
                 const yes = await dialog.ask(getTranslation("LAUNCH_ANYWAY"), {
-                    type: "warning",
+                    kind: "warning",
                     title: getTranslation("CONFIRM")
                 });
                 if (yes) {

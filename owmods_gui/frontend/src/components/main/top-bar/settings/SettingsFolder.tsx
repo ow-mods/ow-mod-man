@@ -22,7 +22,6 @@ const SettingsFolder = (props: SettingsTextProps) => {
                     dialogOptions={{
                         defaultPath: props.value,
                         directory: true,
-                        multiple: false,
                         title: getTranslation("SELECT", { name: props.label })
                     }}
                 />

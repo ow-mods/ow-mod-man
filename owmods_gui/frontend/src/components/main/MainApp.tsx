@@ -1,12 +1,13 @@
+import { ReactNode, Suspense, lazy, memo, useCallback, useEffect, useMemo, useState } from "react";
 import { Box } from "@mui/material";
 import TopBar from "./top-bar/TopBar";
-import { ReactNode, Suspense, lazy, memo, useCallback, useEffect, useMemo, useState } from "react";
 import { TabContext } from "@mui/lab";
 import AppTabs, { ModsTab } from "./top-bar/AppTabs";
 import LocalModsPage from "./mods/local/LocalModsPage";
 import { TranslationKey, TranslationMap } from "@components/common/TranslationContext";
 import { commands, hooks } from "@commands";
-import { getCurrent } from "@tauri-apps/api/window";
+import { getCurrentWindow } from "@tauri-apps/api/window";
+import * as process from "@tauri-apps/plugin-process";
 import AppAlert from "./AppAlert";
 import BaseApp from "@components/common/BaseApp";
 import OwmlModal from "./OwmlModal";
@@ -15,7 +16,6 @@ import { simpleOnError } from "../../errorHandling";
 import { useErrorBoundary } from "react-error-boundary";
 import FileDrop from "./FileDrop";
 import { Event } from "@types";
-import { process } from "@tauri-apps/api";
 
 const RemoteModsPage = lazy(() => import("./mods/remote/RemoteModsPage"));
 const UpdateModsPage = lazy(() => import("./mods/updates/UpdateModsPage"));
@@ -112,7 +112,7 @@ const InnerMainApp = memo(function InnerMainApp() {
     );
 });
 
-const thisWindow = getCurrent();
+const thisWindow = getCurrentWindow();
 
 thisWindow.onCloseRequested(() => {
     process.exit(0); // Exit the app on this window closing, so the log window doesn't stay open

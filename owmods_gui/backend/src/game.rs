@@ -15,7 +15,8 @@ use owmods_core::{
     socket::{SocketMessage, SocketMessageType},
 };
 use serde::{Deserialize, Serialize};
-use tauri::{api::dialog, AppHandle, Window, WindowBuilder};
+use tauri::{AppHandle, WebviewWindow, WebviewWindowBuilder, Window};
+use tauri_plugin_dialog::{DialogExt, MessageDialogKind};
 use time::{macros::format_description, OffsetDateTime};
 use typeshare::typeshare;
 
@@ -283,15 +284,15 @@ impl Drop for LogData {
     }
 }
 
-pub async fn make_log_window(handle: &AppHandle) -> Result<Window> {
+pub async fn make_log_window(handle: &AppHandle) -> Result<WebviewWindow> {
     let epoch = SystemTime::now()
         .duration_since(UNIX_EPOCH)
         .unwrap()
         .as_millis();
-    let log_window = WindowBuilder::new(
+    let log_window = WebviewWindowBuilder::new(
         handle,
         format!("game-{epoch}"),
-        tauri::WindowUrl::App("/logs/index.html".parse()?),
+        tauri::WebviewUrl::App("/logs/index.html".parse()?),
     );
     let window = log_window
         .center()
@@ -309,7 +310,14 @@ pub fn show_warnings(window: &Window, local_db: &LocalDatabase, config: &Config)
     );
     let mut config = config.clone();
     for (unique_name, warning) in warnings {
-        dialog::blocking::message(Some(window), &warning.title, &warning.body);
+        //::message(Some(window), &warning.title, &warning.body);
+        window
+            .dialog()
+            .message(&warning.body)
+            .parent(window)
+            .kind(MessageDialogKind::Warning)
+            .title(&warning.title)
+            .blocking_show();
         config.set_warning_shown(unique_name);
     }
     Ok(config)

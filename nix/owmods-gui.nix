@@ -1,7 +1,7 @@
 {
   stdenv,
   lib,
-  libsoup,
+  libsoup_3,
   dbus,
   dpkg,
   fetchurl,
@@ -9,9 +9,8 @@
   glib,
   glib-networking,
   librsvg,
-  webkitgtk,
+  webkitgtk_4_1,
   pkg-config,
-  openssl,
   wrapGAppsHook,
   makeDesktopItem,
   copyDesktopItems,
@@ -45,6 +44,10 @@ rustPlatform.buildRustPackage rec {
     lockFile = ../Cargo.lock;
   };
 
+  buildFeatures = [
+    "tauri/custom-protocol"
+  ];
+
   doCheck = false;
 
   nativeBuildInputs = [
@@ -54,13 +57,12 @@ rustPlatform.buildRustPackage rec {
   ];
 
   buildInputs = [
-    openssl
     dbus
-    libsoup
+    libsoup_3
     glib
     librsvg
     glib-networking
-    webkitgtk
+    webkitgtk_4_1
   ];
 
   buildAndTestSubdir = "owmods_gui/backend";
@@ -69,26 +71,24 @@ rustPlatform.buildRustPackage rec {
 
   postPatch = let
     frontend = buildNpmPackage {
-      inherit version;
+      inherit version VITE_VERSION_SUFFIX;
       pname = "owmods_gui-ui";
 
-      npmDepsHash = "sha256-y2ozBEXF4kYaXxMqDhObCsCUn+4QePj86+PjPoUZ9AE=";
+      npmDepsHash = "sha256-Fg83G0/SOgbZ1SJLNEwpV2gH7ZqsX8LSbXG3FTHnD8c=";
       src = ../owmods_gui/frontend;
 
       packageJSON = ../owmods_gui/frontend/package.json;
       postBuild = ''
-        ls ..
         cp -r ../dist/ $out
       '';
       distPhase = "true";
       dontInstall = true;
-      VITE_VERSION_SUFFIX = "-nix";
       installInPlace = true;
       distDir = "../dist";
     };
   in ''
     substituteInPlace owmods_gui/backend/tauri.conf.json \
-    --replace '"distDir": "../dist"' '"distDir": "${frontend}"'
+    --replace '"frontendDist": "../dist"' '"frontendDist": "${frontend}"'
   '';
 
   postInstall = ''

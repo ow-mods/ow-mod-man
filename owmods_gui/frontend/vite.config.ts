@@ -4,13 +4,24 @@ import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import { imagetools } from "vite-imagetools";
 
+const host = process.env.TAURI_DEV_HOST;
+
 import path from "path";
 
 export default defineConfig({
     publicDir: false,
     clearScreen: false,
     server: {
+        port: 1420,
         strictPort: true,
+        host: host || false,
+        hmr: host
+          ? {
+              protocol: "ws",
+              host,
+              port: 1421,
+            }
+          : undefined,
         watch: {
             ignored: ["owmods_gui/backend/target/**"]
         }

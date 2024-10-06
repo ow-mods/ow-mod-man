@@ -33,7 +33,7 @@ use owmods_core::{
 };
 use serde::Serialize;
 use tauri::{async_runtime, AppHandle, DragDropEvent, Manager, WindowEvent};
-use tauri_plugin_dialog::{DialogExt, MessageDialogKind};
+use tauri_plugin_dialog::{DialogExt, MessageDialogButtons, MessageDialogKind};
 use tokio::{select, sync::mpsc, try_join};
 use typeshare::typeshare;
 
@@ -345,8 +345,7 @@ pub async fn install_mod(
                 current_mod.manifest.name
             ))
             .kind(MessageDialogKind::Info)
-            .ok_button_label("Yes")
-            .cancel_button_label("No")
+            .buttons(MessageDialogButtons::OkCancelCustom("Yes".to_string(), "No".to_string()))
             .title("Reinstall?")
             .blocking_show();
     }
@@ -914,8 +913,7 @@ pub async fn db_has_issues(state: tauri::State<'_, State>, window: tauri::Window
                         owml.manifest.version
                     ))
                     .kind(MessageDialogKind::Info)
-                    .ok_button_label("Yes")
-                    .cancel_button_label("No")
+                    .buttons(MessageDialogButtons::OkCancelCustom("Yes".to_string(), "No".to_string()))
                     .title("Update OWML?")
                     .blocking_show();
                 if answer {

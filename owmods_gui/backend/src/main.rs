@@ -20,6 +20,7 @@ use owmods_core::{
 };
 
 use anyhow::anyhow;
+use tauri_plugin_deep_link::DeepLinkExt;
 use time::macros::format_description;
 use tokio::sync::RwLock as TokioLock;
 
@@ -93,12 +94,12 @@ pub struct State {
     mods_in_progress: StatePart<Vec<String>>,
 }
 
+
+
 fn main() -> Result<(), Box<dyn Error>> {
     let config = Config::get(None).unwrap_or(Config::default(None)?);
     let gui_config = GuiConfig::get().unwrap_or_default();
     let local_db = LocalDatabase::fetch(&config.owml_path).unwrap_or_default();
-
-    tauri_plugin_deep_link::prepare("com.bwc9876.owmods-gui");
 
     let url = std::env::args().nth(1).map(|s| ProtocolPayload::parse(&s));
 
@@ -114,6 +115,10 @@ fn main() -> Result<(), Box<dyn Error>> {
             progress_bars: manage(ProgressBars::new()),
             mods_in_progress: manage(Vec::with_capacity(4)),
         })
+        .plugin(tauri_plugin_single_instance::init(|_app, _argv, _cwd| {
+            println!("New app instance opened, invoked URI handler.");
+          }))
+        .plugin(tauri_plugin_deep_link::init())
         .setup(move |app| {
             // Logger Setup
 
@@ -131,13 +136,13 @@ fn main() -> Result<(), Box<dyn Error>> {
 
             // Protocol Listener Setup
 
-            let handle = app.handle().clone();
-
-            let res = protocol::prep_protocol(handle);
+            #[cfg(any(target_os = "linux", all(debug_assertions, windows)))]
+            let res = app.deep_link().register_all();
 
             if let Err(why) = res {
                 warn!("Failed to setup URI handler: {:?}", why);
             } else {
+                protocol::prep_protocol(app.handle().clone());
                 debug!("Setup URI handler");
             }
 

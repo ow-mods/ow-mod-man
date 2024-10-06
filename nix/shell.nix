@@ -1,5 +1,4 @@
 {pkgs ? import <nixpkgs> {}}:
-# NOTE(Spoonbaker): This doesn't include the overlay when using `nix-shell` instead of `nix shell`
 pkgs.mkShell {
   name = "owmods-shell";
   buildInputs = with pkgs; [
@@ -8,17 +7,24 @@ pkgs.mkShell {
     clippy
     rustfmt
     nodejs
-    gcc
-    webkitgtk_4_1
-    glib-networking
-    pkg-config
     libnotify
-    gtk3
-    libsoup
-    librsvg
-    (pkgs.callPackage ./tauri-cli.nix {})
     typeshare
+    at-spi2-atk
+    atkmm
+    cairo
+    gdk-pixbuf
+    glib
+    gobject-introspection
+    gobject-introspection.dev
+    gtk3
+    harfbuzz
+    librsvg
+    libsoup_3
+    (callPackage ./tauri-cli.nix {})
+    pango
+    webkitgtk
   ];
+  PKG_CONFIG_PATH = with pkgs; "${glib.dev}/lib/pkgconfig:${libsoup_3.dev}/lib/pkgconfig:${webkitgtk_4_1.dev}/lib/pkgconfig:${at-spi2-atk.dev}/lib/pkgconfig:${gtk3.dev}/lib/pkgconfig:${gdk-pixbuf.dev}/lib/pkgconfig:${cairo.dev}/lib/pkgconfig:${pango.dev}/lib/pkgconfig:${harfbuzz.dev}/lib/pkgconfig";
   OPENSSL_LIB_DIR = "${pkgs.openssl.out}/lib";
   OPENSSL_INCLUDE_DIR = "${pkgs.openssl.dev}/include";
   shellHook = ''

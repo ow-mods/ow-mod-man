@@ -1,7 +1,7 @@
 {
   stdenv,
   lib,
-  libsoup,
+  libsoup_3,
   dbus,
   dpkg,
   fetchurl,
@@ -9,7 +9,7 @@
   glib,
   glib-networking,
   librsvg,
-  webkitgtk,
+  webkitgtk_4_1,
   pkg-config,
   openssl,
   wrapGAppsHook,
@@ -56,11 +56,11 @@ rustPlatform.buildRustPackage rec {
   buildInputs = [
     openssl
     dbus
-    libsoup
+    libsoup_3
     glib
     librsvg
     glib-networking
-    webkitgtk
+    webkitgtk_4_1
   ];
 
   buildAndTestSubdir = "owmods_gui/backend";
@@ -72,7 +72,7 @@ rustPlatform.buildRustPackage rec {
       inherit version;
       pname = "owmods_gui-ui";
 
-      npmDepsHash = "sha256-y2ozBEXF4kYaXxMqDhObCsCUn+4QePj86+PjPoUZ9AE=";
+      npmDepsHash = "sha256-ZD1qVbA1Aj9BAj75A2nj/kiN2O0Ulxr9KnQTRJFvyOM=";
       src = ../owmods_gui/frontend;
 
       packageJSON = ../owmods_gui/frontend/package.json;
@@ -88,7 +88,7 @@ rustPlatform.buildRustPackage rec {
     };
   in ''
     substituteInPlace owmods_gui/backend/tauri.conf.json \
-    --replace '"distDir": "../dist"' '"distDir": "${frontend}"'
+    --replace '"frontendDist": "../dist"' '"frontendDist": "${frontend}"'
   '';
 
   postInstall = ''

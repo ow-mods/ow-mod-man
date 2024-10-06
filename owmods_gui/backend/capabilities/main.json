@@ -16,6 +16,7 @@
         "core:webview:allow-internal-toggle-devtools",
         "core:app:allow-version",
         "core:event:default",
+        "deep-link:default",
         "dialog:default",
         "shell:allow-open"
     ]

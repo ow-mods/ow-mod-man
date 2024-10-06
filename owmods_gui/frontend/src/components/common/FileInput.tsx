@@ -43,6 +43,6 @@ const FileInput = <T,>(openFunc: (options?: T) => Promise<string | string[] | nu
 
 export const OpenFileInput = FileInput(async (options?: dialog.OpenDialogOptions) => {
     const res = await dialog.open(options);
-    return res?.path ?? null;
+    return res ?? null;
 });
 export const SaveFileInput = FileInput(dialog.save);

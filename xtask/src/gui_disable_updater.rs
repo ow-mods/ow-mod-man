@@ -16,9 +16,7 @@ pub fn disable_updater() -> Result<()> {
     // Cargo.toml
     let cargo_toml = std::fs::read_to_string(GUI_CARGO_TOML_PATH)?;
     let mut cargo_toml = cargo_toml.parse::<DocumentMut>()?;
-    let features = cargo_toml["dependencies"]
-        .as_table_mut()
-        .unwrap();
+    let features = cargo_toml["dependencies"].as_table_mut().unwrap();
     features.remove("tauri-plugin-updater");
     // Write to files
     std::fs::write(

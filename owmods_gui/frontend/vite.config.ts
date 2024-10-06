@@ -16,12 +16,12 @@ export default defineConfig({
         strictPort: true,
         host: host || false,
         hmr: host
-          ? {
-              protocol: "ws",
-              host,
-              port: 1421,
-            }
-          : undefined,
+            ? {
+                  protocol: "ws",
+                  host,
+                  port: 1421
+              }
+            : undefined,
         watch: {
             ignored: ["owmods_gui/backend/target/**"]
         }

@@ -94,8 +94,6 @@ pub struct State {
     mods_in_progress: StatePart<Vec<String>>,
 }
 
-
-
 fn main() -> Result<(), Box<dyn Error>> {
     let config = Config::get(None).unwrap_or(Config::default(None)?);
     let gui_config = GuiConfig::get().unwrap_or_default();
@@ -117,7 +115,7 @@ fn main() -> Result<(), Box<dyn Error>> {
         })
         .plugin(tauri_plugin_single_instance::init(|_app, _argv, _cwd| {
             println!("New app instance opened, invoked URI handler.");
-          }))
+        }))
         .plugin(tauri_plugin_deep_link::init())
         .setup(move |app| {
             // Logger Setup
@@ -138,6 +136,9 @@ fn main() -> Result<(), Box<dyn Error>> {
 
             #[cfg(any(target_os = "linux", all(debug_assertions, windows)))]
             let res = app.deep_link().register_all();
+
+            #[cfg(not(any(target_os = "linux", all(debug_assertions, windows))))]
+            let res = Result::<(), anyhow::Error>::Ok(());
 
             if let Err(why) = res {
                 warn!("Failed to setup URI handler: {:?}", why);

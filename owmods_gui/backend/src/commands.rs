@@ -345,7 +345,10 @@ pub async fn install_mod(
                 current_mod.manifest.name
             ))
             .kind(MessageDialogKind::Info)
-            .buttons(MessageDialogButtons::OkCancelCustom("Yes".to_string(), "No".to_string()))
+            .buttons(MessageDialogButtons::OkCancelCustom(
+                "Yes".to_string(),
+                "No".to_string(),
+            ))
             .title("Reinstall?")
             .blocking_show();
     }
@@ -913,7 +916,10 @@ pub async fn db_has_issues(state: tauri::State<'_, State>, window: tauri::Window
                         owml.manifest.version
                     ))
                     .kind(MessageDialogKind::Info)
-                    .buttons(MessageDialogButtons::OkCancelCustom("Yes".to_string(), "No".to_string()))
+                    .buttons(MessageDialogButtons::OkCancelCustom(
+                        "Yes".to_string(),
+                        "No".to_string(),
+                    ))
                     .title("Update OWML?")
                     .blocking_show();
                 if answer {

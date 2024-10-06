@@ -11,7 +11,11 @@ pub const PROTOCOL_LISTENER_AMOUNT: usize = 2;
 pub fn prep_protocol(handle: tauri::AppHandle) {
     let handle_inner = handle.clone();
     handle.deep_link().on_open_url(move |request| {
-        let request = request.urls().first().map(|u| u.to_string()).unwrap_or_default();
+        let request = request
+            .urls()
+            .first()
+            .map(|u| u.to_string())
+            .unwrap_or_default();
         let protocol_payload = ProtocolPayload::parse(&request);
         match protocol_payload.verb {
             ProtocolVerb::Unknown => {

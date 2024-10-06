@@ -20,12 +20,12 @@
         "tauri": "cd ../backend && tauri"
     },
     "dependencies": {
-        "@emotion/react": "11.13.0",
+        "@emotion/react": "11.13.3",
         "@emotion/styled": "11.13.0",
-        "@fontsource/roboto": "5.0.14",
-        "@mui/icons-material": "5.16.6",
+        "@fontsource/roboto": "5.1.0",
+        "@mui/icons-material": "6.1.2",
         "@mui/lab": "5.0.0-alpha.173",
-        "@mui/material": "5.16.6",
+        "@mui/material": "6.1.2",
         "@tauri-apps/api": "2.0.1",
         "@tauri-apps/plugin-clipboard-manager": "2.0.0",
         "@tauri-apps/plugin-dialog": "2.0.0",
@@ -35,21 +35,21 @@
         "react": "18.3.1",
         "react-dom": "18.3.1",
         "react-error-boundary": "4.0.13",
-        "react-virtuoso": "4.9.0"
+        "react-virtuoso": "4.10.4"
     },
     "devDependencies": {
         "@tauri-apps/cli": "^2.0.1",
-        "@types/react": "18.3.3",
+        "@types/react": "18.3.11",
         "@types/react-dom": "18.3.0",
         "@typescript-eslint/eslint-plugin": "7.18.0",
         "@typescript-eslint/parser": "7.18.0",
-        "@vitejs/plugin-react": "4.3.1",
+        "@vitejs/plugin-react": "4.3.2",
         "eslint": "8.57.0",
         "eslint-plugin-react": "7.35.0",
         "eslint-plugin-react-hooks": "4.6.2",
         "prettier": "3.3.3",
-        "typescript": "5.5.4",
-        "vite": "5.4.0",
+        "typescript": "5.6.2",
+        "vite": "5.4.8",
         "vite-imagetools": "7.0.4"
     }
 }

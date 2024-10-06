@@ -45,7 +45,6 @@
         "minWidth": 600,
         "resizable": true,
         "dragDropEnabled": true,
-        "decorations": false,
         "title": "Outer Wilds Mod Manager",
         "width": 850
       }

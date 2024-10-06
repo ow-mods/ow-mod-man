@@ -11,7 +11,6 @@
   librsvg,
   webkitgtk_4_1,
   pkg-config,
-  openssl,
   wrapGAppsHook,
   makeDesktopItem,
   copyDesktopItems,
@@ -58,7 +57,6 @@ rustPlatform.buildRustPackage rec {
   ];
 
   buildInputs = [
-    openssl
     dbus
     libsoup_3
     glib

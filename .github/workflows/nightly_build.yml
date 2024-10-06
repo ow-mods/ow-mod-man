@@ -32,10 +32,11 @@ jobs:
               target/**/bundle/**/*.app
           - platform: "ubuntu-22.04"
             target: "x86_64-unknown-linux-gnu"
-            args: "appimage deb"
+            args: "appimage deb rpm"
             bundle-name: Linux
             bundle-path: |
               target/release/bundle/**/*.deb
+              target/release/bundle/**/*.rpm
               target/release/bundle/**/*.AppImage
           - platform: "windows-latest"
             target: "x86_64-pc-windows-msvc"
@@ -88,11 +89,6 @@ jobs:
 
       - name: Install Tauri CLI
         run: npm add -g @tauri-apps/cli
-
-      # - name: Disable Tauri Updater
-      #   if: matrix.platform == 'ubuntu-22.04'
-      #   run: |
-      #     cargo xtask gui_disable_updater
 
       - name: Build GUI
         run: tauri build --ci -b ${{ matrix.args }}

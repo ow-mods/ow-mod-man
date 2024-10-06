@@ -67,7 +67,7 @@
     "licenseFile": "../../LICENSE",
     "macOS": {},
     "resources": [],
-    "shortDescription": "",
+    "shortDescription": "A manager for Outer Wilds mods",
     "targets": "all",
     "windows": {
       "certificateThumbprint": null,

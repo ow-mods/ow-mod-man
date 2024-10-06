@@ -45,6 +45,10 @@ rustPlatform.buildRustPackage rec {
     lockFile = ../Cargo.lock;
   };
 
+  buildFeatures = [
+    "tauri/custom-protocol"
+  ];
+
   doCheck = false;
 
   nativeBuildInputs = [
@@ -69,7 +73,7 @@ rustPlatform.buildRustPackage rec {
 
   postPatch = let
     frontend = buildNpmPackage {
-      inherit version;
+      inherit version VITE_VERSION_SUFFIX;
       pname = "owmods_gui-ui";
 
       npmDepsHash = "sha256-ePluInAXh9mUAkyNCE7jWU4Dh90xdHcVf0TInjyaF2U=";
@@ -77,12 +81,10 @@ rustPlatform.buildRustPackage rec {
 
       packageJSON = ../owmods_gui/frontend/package.json;
       postBuild = ''
-        ls ..
         cp -r ../dist/ $out
       '';
       distPhase = "true";
       dontInstall = true;
-      VITE_VERSION_SUFFIX = "-nix";
       installInPlace = true;
       distDir = "../dist";
     };

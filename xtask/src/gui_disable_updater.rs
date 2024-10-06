@@ -12,14 +12,14 @@ pub fn disable_updater() -> Result<()> {
     // tauri.conf.json
     let tauri_conf = std::fs::read_to_string(GUI_TAURI_CONF_PATH)?;
     let mut tauri_conf: Value = from_str(&tauri_conf)?;
-    tauri_conf["tauri"]["updater"]["active"] = false.into();
+    tauri_conf["plugins"]["updater"]["active"] = false.into();
     // Cargo.toml
     let cargo_toml = std::fs::read_to_string(GUI_CARGO_TOML_PATH)?;
     let mut cargo_toml = cargo_toml.parse::<DocumentMut>()?;
-    let features = cargo_toml["dependencies"]["tauri"]["features"]
-        .as_array_mut()
+    let features = cargo_toml["dependencies"]
+        .as_table_mut()
         .unwrap();
-    features.retain(|f| f.as_str().unwrap() != "updater");
+    features.remove("tauri-plugin-updater");
     // Write to files
     std::fs::write(
         GUI_TAURI_CONF_PATH,

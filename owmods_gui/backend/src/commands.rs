@@ -5,7 +5,7 @@ use std::{
 };
 
 use anyhow::{anyhow, Context};
-use log::error;
+use log::{error, info};
 use owmods_core::{
     alerts::{fetch_alert, Alert},
     analytics::{send_analytics_event, AnalyticsEventName},
@@ -1079,13 +1079,19 @@ pub async fn register_drop_handler(window: tauri::Window) -> Result {
                 DragDropEvent::Drop { paths, position: _ } => {
                     if let Some(f) = paths.first() {
                         if f.extension().map(|e| e == "zip").unwrap_or(false) {
+                            info!(
+                                "Drop completed, attempting to invoke with owmods://install-zip/{}",
+                                f.display()
+                            );
                             handle.typed_emit_all(&Event::DragLeave(())).ok();
-                            handle
-                                .typed_emit_all(&Event::ProtocolInvoke(ProtocolPayload {
+                            let res =
+                                handle.typed_emit_all(&Event::ProtocolInvoke(ProtocolPayload {
                                     verb: ProtocolVerb::InstallZip,
                                     payload: f.to_str().unwrap().to_string(),
-                                }))
-                                .ok();
+                                }));
+                            if let Err(why) = res {
+                                error!("Failed to protocol invoke for ZIP drop: {why:?}");
+                            }
                         }
                     }
                 }

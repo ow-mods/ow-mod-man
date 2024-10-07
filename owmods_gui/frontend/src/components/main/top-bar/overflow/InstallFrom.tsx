@@ -203,7 +203,9 @@ const InstallFrom = memo(function InstallFrom({ onClick }: ModalProps) {
                     </Box>
                 </DialogContent>
                 <DialogActions>
-                    <Button onClick={onClose}>{getTranslation("CANCEL")}</Button>
+                    <Button color="neutral" onClick={onClose}>
+                        {getTranslation("CANCEL")}
+                    </Button>
                     <Button variant="contained" color="primary" onClick={onInstall}>
                         {getTranslation("INSTALL")}
                     </Button>

@@ -12,10 +12,18 @@ const LocalModsToggleButtons = memo(function LocalModsToolbar(props: LocalModsTo
 
     return (
         <ButtonGroup>
-            <Button startIcon={<DoneAllRounded />} onClick={() => props.onToggle(true)}>
+            <Button
+                color="neutral"
+                startIcon={<DoneAllRounded />}
+                onClick={() => props.onToggle(true)}
+            >
                 {getTranslation("ENABLE_ALL")}
             </Button>
-            <Button startIcon={<RemoveDoneRounded />} onClick={() => props.onToggle(false)}>
+            <Button
+                color="neutral"
+                startIcon={<RemoveDoneRounded />}
+                onClick={() => props.onToggle(false)}
+            >
                 {getTranslation("DISABLE_ALL")}
             </Button>
         </ButtonGroup>

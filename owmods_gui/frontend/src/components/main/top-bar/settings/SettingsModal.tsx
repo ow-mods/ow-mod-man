@@ -78,7 +78,9 @@ const SettingsModal = memo(function SettingsModal({ open, onClose }: SettingsMod
                 </StyledErrorBoundary>
             </DialogContent>
             <DialogActions>
-                <Button onClick={onCancel}>{getTranslation("CANCEL")}</Button>
+                <Button color="neutral" onClick={onCancel}>
+                    {getTranslation("CANCEL")}
+                </Button>
                 <Button color="primary" variant="contained" onClick={onSave}>
                     {getTranslation("SAVE")}
                 </Button>

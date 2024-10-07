@@ -139,7 +139,11 @@ const OwmlModal = memo(function OwmlModal() {
                 </Box>
             </DialogContent>
             <DialogActions>
-                {canCancel && <Button onClick={handleClose}>{getTranslation("CANCEL")}</Button>}
+                {canCancel && (
+                    <Button color="neutral" variant="outlined" onClick={handleClose}>
+                        {getTranslation("CANCEL")}
+                    </Button>
+                )}
                 <Button
                     disabled={installingOwml}
                     color="primary"

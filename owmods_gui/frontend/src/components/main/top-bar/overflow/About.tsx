@@ -104,7 +104,9 @@ const About = memo(function About({ onClick }: ModalProps) {
                     </DialogContentText>
                 </DialogContent>
                 <DialogActions>
-                    <Button onClick={onClose}>{getTranslation("DISMISS")}</Button>
+                    <Button color="neutral" onClick={onClose}>
+                        {getTranslation("DISMISS")}
+                    </Button>
                 </DialogActions>
             </Dialog>
         </>

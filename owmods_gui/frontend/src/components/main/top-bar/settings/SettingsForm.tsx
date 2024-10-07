@@ -280,6 +280,7 @@ const SettingsForm = forwardRef(function SettingsForm(props: SettingsFormProps, 
             />
             <Tooltip title={getTranslation("TOOLTIP_CLEAR_DB_ALERTS")}>
                 <Button
+                    color="neutral"
                     startIcon={<DeleteSweepRounded />}
                     onClick={() => handleConf("lastViewedDbAlert", null)}
                 >
@@ -288,6 +289,7 @@ const SettingsForm = forwardRef(function SettingsForm(props: SettingsFormProps, 
             </Tooltip>
             <Tooltip title={getTranslation("TOOLTIP_CLEAR_MOD_ALERTS")}>
                 <Button
+                    color="neutral"
                     startIcon={<FolderDeleteRounded />}
                     onClick={() => handleConf("viewedAlerts", [])}
                 >

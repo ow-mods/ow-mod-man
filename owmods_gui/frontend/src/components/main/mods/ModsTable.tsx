@@ -11,6 +11,7 @@ import {
     TableHead,
     TableProps,
     TableRow,
+    useMediaQuery,
     useTheme
 } from "@mui/material";
 import { ReactNode, forwardRef } from "react";
@@ -55,6 +56,8 @@ const ModsTable = forwardRef<TableVirtuosoHandle, ModsTableProps>(function ModsT
     const guiConfig = hooks.getGuiConfig("guiConfigReload")[1];
     const theme = useTheme();
 
+    const showImages = useMediaQuery("(min-width:800px)", {});
+
     return (
         <TableVirtuoso
             ref={ref}
@@ -64,7 +67,7 @@ const ModsTable = forwardRef<TableVirtuosoHandle, ModsTableProps>(function ModsT
             data={props.uniqueNames}
             fixedHeaderContent={() => (
                 <TableRow sx={{ background: theme.palette.grey[900] }}>
-                    {guiConfig?.hideModThumbnails || (
+                    {guiConfig?.hideModThumbnails || !showImages || (
                         <TableCell width="220px">
                             <Box display="flex" alignItems="center">
                                 <ImageRounded />

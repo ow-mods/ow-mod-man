@@ -77,6 +77,10 @@ impl Searchable for RemoteMod {
             self.description.clone(),
         ]
     }
+
+    fn break_tie(&self, other: &Self) -> std::cmp::Ordering {
+        self.download_count.cmp(&other.download_count).reverse()
+    }
 }
 
 /// A prerelease for a mod

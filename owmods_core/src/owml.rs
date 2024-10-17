@@ -88,14 +88,14 @@ impl OWMLConfig {
     ///
     #[cfg(not(windows))]
     pub fn default(config: &Config) -> Result<OWMLConfig> {
-        use anyhow::anyhow;
+        use anyhow::Context;
         use directories::UserDirs;
 
         const LINUX_GAME_PATH: &str = ".steam/steam/steamapps/common/Outer Wilds/";
 
         let path = Path::new(&config.owml_path).join(OWML_DEFAULT_CONFIG_NAME);
         let mut conf: OWMLConfig = deserialize_from_json(&path)?;
-        let dirs = UserDirs::new().ok_or_else(|| anyhow!("Can't get user data dir"))?;
+        let dirs = UserDirs::new().context("Can't get user data dir")?;
         conf.game_path = dirs
             .home_dir()
             .join(LINUX_GAME_PATH)

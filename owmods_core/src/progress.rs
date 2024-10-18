@@ -214,7 +214,7 @@ impl ProgressBar {
     ///
     /// - `success` - Whether the progress bar succeeded or failed
     /// - `msg` - The message of the progress bar, **this will be ignored if the progress bar failed,
-    /// and will instead use the failure message passed initially**
+    ///   and will instead use the failure message passed initially**
     pub fn finish(&mut self, success: bool, msg: &str) {
         self.complete = true;
         let msg = if success { msg } else { &self.failure_message };

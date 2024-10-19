@@ -1,4 +1,4 @@
-use anyhow::{anyhow, Result};
+use anyhow::{Context, Result};
 
 use crate::{
     config::Config,
@@ -55,7 +55,7 @@ pub fn open_shortcut(identifier: &str, conf: &Config, local_db: &LocalDatabase) 
                 UnsafeLocalMod::Invalid(m) => &m.mod_path,
                 UnsafeLocalMod::Valid(m) => &m.mod_path,
             })
-            .ok_or_else(|| anyhow!("Mod {} not found", identifier))?;
+            .with_context(|| format!("Mod {} not found", identifier))?;
         opener::open(path)?;
     } else {
         opener::open(target)?;
@@ -88,7 +88,7 @@ pub fn open_shortcut(identifier: &str, conf: &Config, local_db: &LocalDatabase) 
 pub fn open_readme(unique_name: &str, db: &RemoteDatabase) -> Result<()> {
     let remote_mod = db
         .get_mod(unique_name)
-        .ok_or_else(|| anyhow!("Mod {} not found", unique_name))?;
+        .with_context(|| format!("Mod {} not found", unique_name))?;
     let slug = &remote_mod.slug;
     opener::open(format!("{WEBSITE_URL}/mods/{slug}/"))?;
     Ok(())
@@ -118,7 +118,7 @@ pub fn open_readme(unique_name: &str, db: &RemoteDatabase) -> Result<()> {
 pub fn open_github(unique_name: &str, db: &RemoteDatabase) -> Result<()> {
     let remote_mod = db
         .get_mod(unique_name)
-        .ok_or_else(|| anyhow!("Mod {} not found", unique_name))?;
+        .with_context(|| format!("Mod {} not found", unique_name))?;
     let repo = &remote_mod.repo; // this is the entire link to the repo
     opener::open(repo)?;
     Ok(())

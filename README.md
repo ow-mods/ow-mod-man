@@ -23,11 +23,11 @@ This is the monorepo for the new <a href="https://www.mobiusdigitalgames.com/out
 | **Windows**  |      ✅        |
 |  **Linux**   |      ✅        |
 |   **Deck**   |      ✅        |
-|   **Mac**    |      ❌*       |
+|   **Mac**    |      ✅*       |
 
 You'll want to check out the [Help document](owmods_gui/HELP.md) for platform-specific instruction and caveats.
 
-\* Currently not native, but you can [check out this Reddit post](https://www.reddit.com/r/outerwilds/comments/1b9ysbm/outer_wilds_is_playable_on_macos_with_an_m1/) by u/FoxGray for a way to run it.
+\* Some caveats and additional steps may be required on Mac. see [the Mac section of the HELP document](owmods_gui/HELP.md##how-do-i-use-this-on-mac) for more info.
 
 ## Related Repos
 

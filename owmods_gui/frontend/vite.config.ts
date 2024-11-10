@@ -23,7 +23,7 @@ export default defineConfig({
               }
             : undefined,
         watch: {
-            ignored: ["owmods_gui/backend/target/**"]
+            ignored: ["owmods_gui/backend/**"]
         }
     },
     envPrefix: ["VITE_", "TAURI_ENV_"],

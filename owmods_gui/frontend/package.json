@@ -23,9 +23,9 @@
         "@emotion/styled": "11.13.0",
         "@fontsource/roboto": "5.1.0",
         "@mui/icons-material": "6.1.2",
-        "@mui/lab": "5.0.0-alpha.173",
+        "@mui/lab": "6.0.0-beta.10",
         "@mui/material": "6.1.2",
-        "@tauri-apps/api": "2.0.1",
+        "@tauri-apps/api": "2.0.2",
         "@tauri-apps/plugin-clipboard-manager": "2.0.0",
         "@tauri-apps/plugin-dialog": "2.0.0",
         "@tauri-apps/plugin-os": "2.0.0",
@@ -37,7 +37,7 @@
         "react-virtuoso": "4.10.4"
     },
     "devDependencies": {
-        "@tauri-apps/cli": "^2.0.1",
+        "@tauri-apps/cli": "^2.0.2",
         "@types/react": "18.3.11",
         "@types/react-dom": "18.3.0",
         "@typescript-eslint/eslint-plugin": "7.18.0",

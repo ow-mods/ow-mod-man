@@ -11,6 +11,7 @@ import {
     TableHead,
     TableProps,
     TableRow,
+    TableRowProps,
     useMediaQuery,
     useTheme
 } from "@mui/material";
@@ -39,12 +40,15 @@ const TableComp = (props: TableProps) => (
 const BodyComp = forwardRef<HTMLTableSectionElement, TableBodyProps>(function TBody(props, ref) {
     return <TableBody {...props} ref={ref} />;
 });
+const RowComp = forwardRef<HTMLTableRowElement, TableRowProps>(function TRow(props, ref) {
+    return <TableRow {...props} ref={ref} />;
+});
 
 const ModsTableComponents = {
     Scroller: ScrollerComp,
     Table: TableComp,
     TableHead: TableHead,
-    TableRow: TableRow,
+    TableRow: RowComp,
     TableBody: BodyComp
 };
 
@@ -67,21 +71,23 @@ const ModsTable = forwardRef<TableVirtuosoHandle, ModsTableProps>(function ModsT
             data={props.uniqueNames}
             fixedHeaderContent={() => (
                 <TableRow sx={{ background: theme.palette.grey[900] }}>
-                    {guiConfig?.hideModThumbnails || !showImages || (
-                        <TableCell width="220px">
-                            <Box display="flex" alignItems="center">
-                                <ImageRounded />
-                            </Box>
+                    <>
+                        {guiConfig?.hideModThumbnails || !showImages || (
+                            <TableCell width="220px">
+                                <Box display="flex" alignItems="center">
+                                    <ImageRounded />
+                                </Box>
+                            </TableCell>
+                        )}
+                        <TableCell>{getTranslation("NAME")}</TableCell>
+                        <TableCell width="100px">{getTranslation("DOWNLOAD_COUNT")}</TableCell>
+                        <TableCell width="110px" align="center">
+                            {getTranslation("VERSION")}
                         </TableCell>
-                    )}
-                    <TableCell>{getTranslation("NAME")}</TableCell>
-                    <TableCell width="100px">{getTranslation("DOWNLOAD_COUNT")}</TableCell>
-                    <TableCell width="110px" align="center">
-                        {getTranslation("VERSION")}
-                    </TableCell>
-                    <TableCell width={props.actionsSize} align="center">
-                        {getTranslation("ACTIONS")}
-                    </TableCell>
+                        <TableCell width={props.actionsSize} align="center">
+                            {getTranslation("ACTIONS")}
+                        </TableCell>
+                    </>
                 </TableRow>
             )}
             itemContent={(_, uniqueName) => props.renderRow(uniqueName)}

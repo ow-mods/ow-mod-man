@@ -90,9 +90,13 @@ To debug issues with mono set the `MONO_LOG_LEVEL` variable to `debug`. and look
 
 On steam deck, keep in mind the game won't launch if you click Launch Game from the manager while in game mode. You need to launch the game directly from the steam deck's game mode.
 
-### On Flatpak
+### On OWML Flatpak + Non-Flatpak Steam
 
 Also, ensure the game is located in `~/.steam/steam/steamapps/common/Outer Wilds`, otherwise the manager won't be able to find the game as it only has access to that folder.
+
+### On OWML Flatpak + Steam Flatpak
+
+Make sure you set the Game Path to `~/.var/app/com.valvesoftware.Steam/.local/share/Steam/steamapps/common/Outer Wilds/` and the OWML path to `~/.var/app/com.valvesoftware.Steam/.local/share/OuterWildsModManager/OWML`. You may have to make the `~/.var/app/com.valvesoftware.Steam/.local/share/OuterWildsModManager` directory in order for this to work.
 
 ## I made a mod! How do I submit it?
 

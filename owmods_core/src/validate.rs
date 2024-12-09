@@ -114,11 +114,7 @@ pub async fn fix_deps(
     queue.push_back(local_mod.clone());
 
     // Iterate over missing dependencies until no dependencies are left
-    loop {
-        if queue.is_empty() {
-            break;
-        }
-
+    while !queue.is_empty() {
         let mut missing: Vec<String> = vec![];
 
         while let Some(mod_to_check) = queue.pop_front() {

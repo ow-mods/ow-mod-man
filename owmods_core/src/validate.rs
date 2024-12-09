@@ -1,7 +1,8 @@
+use std::collections::VecDeque;
 use std::path::PathBuf;
 
 use anyhow::Result;
-use log::info;
+use log::{debug, info};
 use serde::Serialize;
 use typeshare::typeshare;
 
@@ -107,25 +108,48 @@ pub async fn fix_deps(
     db: &LocalDatabase,
     remote_db: &RemoteDatabase,
 ) -> Result<()> {
-    let mut missing: Vec<String> = vec![];
-    for error in local_mod.errors.iter() {
-        match error {
-            ModValidationError::DisabledDep(unique_name) => {
-                info!("Enabling {}", unique_name);
-                toggle_mod(unique_name, db, true, true)?;
-            }
-            ModValidationError::MissingDep(unique_name) => {
-                info!("Marking {} For Install", unique_name);
-                missing.push(unique_name.clone());
-            }
-            _ => {}
+    let mut all_missing_mods: Vec<String> = vec![];
+
+    let mut queue: VecDeque<LocalMod> = VecDeque::new();
+    queue.push_back(local_mod.clone());
+
+    // Iterate over missing dependencies until no dependencies are left
+    loop {
+        if queue.is_empty() {
+            break;
         }
+
+        let mut missing: Vec<String> = vec![];
+
+        while let Some(mod_to_check) = queue.pop_front() {
+            for error in check_mod(&mod_to_check, db) {
+                match error {
+                    ModValidationError::DisabledDep(unique_name) => {
+                        info!("Enabling {}", unique_name);
+                        toggle_mod(&*unique_name, db, true, true)?;
+                    }
+                    ModValidationError::MissingDep(unique_name) => {
+                        info!("Marking {} For Install", unique_name);
+                        missing.push(unique_name.clone());
+                    }
+                    _ => {}
+                }
+            }
+        }
+
+        all_missing_mods.extend(missing.clone());
+
+        if !missing.is_empty() {
+            info!("Installing {} Missing Dependencies", missing.len());
+        }
+
+        let newly_installed_mods = install_mods_parallel(missing.clone(), config, remote_db, db).await?;
+
+        queue.extend(newly_installed_mods);
     }
-    if !missing.is_empty() {
-        info!("Installing {} Missing Dependencies", missing.len());
-    }
-    install_mods_parallel(missing.clone(), config, remote_db, db).await?;
-    for missing_mod in missing {
+
+    info!("Finished Fixing Dependencies");
+    for missing_mod in all_missing_mods {
         send_analytics_event(AnalyticsEventName::ModRequiredInstall, &missing_mod, config).await;
     }
     Ok(())

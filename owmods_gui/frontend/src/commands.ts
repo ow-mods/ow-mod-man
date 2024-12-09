@@ -114,6 +114,7 @@ const makeInvoke = (key: Command, forceNoDisplayErr?: boolean) => {
 };
 
 const makeHook = (key: Command) => {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const name = commandInfo[key];
     return <E extends Event["name"]>(
         eventName: E | Event["name"][],

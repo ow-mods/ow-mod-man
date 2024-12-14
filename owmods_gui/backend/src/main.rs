@@ -20,7 +20,6 @@ use owmods_core::{
 };
 
 use anyhow::anyhow;
-use tauri_plugin_deep_link::DeepLinkExt;
 use time::macros::format_description;
 use tokio::sync::RwLock as TokioLock;
 
@@ -145,18 +144,7 @@ fn main() -> Result<(), Box<dyn Error>> {
 
             // Protocol Listener Setup
 
-            #[cfg(any(target_os = "linux", all(debug_assertions, windows)))]
-            let res = app.deep_link().register_all();
-
-            #[cfg(not(any(target_os = "linux", all(debug_assertions, windows))))]
-            let res = Result::<(), anyhow::Error>::Ok(());
-
-            if let Err(why) = res {
-                warn!("Failed to setup URI handler: {:?}", why);
-            } else {
-                protocol::prep_protocol(app.handle().clone());
-                debug!("Setup URI handler");
-            }
+            protocol::prep_protocol(app.handle().clone());
 
             // File System Watch Setup
 

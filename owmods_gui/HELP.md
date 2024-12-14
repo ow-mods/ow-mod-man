@@ -55,6 +55,8 @@ This may be due to an update from 0.14.2 to 0.15.0. The path for the procotol ha
 2. In `regedit`, delete `HKEY_LOCAL_MACHINE\Software\Classes\owmods` and `HKEY_CURRENT_USER\Software\classes\owmods`.
 3. Re-install the manager, the registry keys should now point to the right executable.
 
+On Linux you may need to delete a file in `~/.local/share/applications` called something along the lines of `outer-wilds-mod-manager-handler.desktop`. The old version used to make this desktop entry on launch but it is not needed anymore as the .desktop file in the package should be setup to handle the scheme for you.
+
 ## How do I use this on Mac?
 
 The manager can be used on MacOS with some caveats:

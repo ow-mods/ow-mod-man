@@ -123,6 +123,7 @@ impl Searchable for UnsafeLocalMod {
 
 #[cfg(test)]
 impl LocalMod {
+    /// Get a test LocalMod for use in unit tests
     pub fn get_test(num: u8) -> Self {
         let txt =
             include_str!("../../test_files/test_local_mod.json").replace("$num$", &num.to_string());

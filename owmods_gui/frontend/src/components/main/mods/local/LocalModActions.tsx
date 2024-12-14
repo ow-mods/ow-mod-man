@@ -32,7 +32,7 @@ const LocalModActions = memo(function LocalModTools(props: LocalModActionsProps)
     const theme = useTheme();
     const getTranslation = useGetTranslation();
     const guiConfig = hooks.getGuiConfig("guiConfigReload")[1];
-    const overflowRef = useRef<{ onClose: () => void }>();
+    const overflowRef = useRef<{ onClose: () => void }>({ onClose: () => {} });
 
     const isBusy = hooks.getModBusy("modBusy", { uniqueName: props.uniqueName })[1];
     // Disable the fix button if ANY mods are busy, this is to stop the user from clicking fix when a dep is installing

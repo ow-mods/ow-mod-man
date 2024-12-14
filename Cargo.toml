@@ -1,15 +1,8 @@
 [workspace]
-members = [
-  "owmods_core",
-  "owmods_cli",
-  "owmods_gui/backend",
-  "xtask"
-]
+members = ["owmods_core", "owmods_cli", "owmods_gui/backend", "xtask"]
 resolver = "2"
 
 [profile.release]
 panic = "abort"
-codegen-units = 1
 lto = true
-opt-level = "s"
 strip = true

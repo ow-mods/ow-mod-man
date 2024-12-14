@@ -34,3 +34,8 @@ tauri-plugin-os = "2.0.1"
 tauri-plugin-shell = "2.0.1"
 tauri-plugin-process = "2.0.1"
 tauri-plugin-clipboard-manager = "2.0.1"
+
+
+[features]
+default = ["custom-protocol"]
+custom-protocol = ["tauri/custom-protocol"]

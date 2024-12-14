@@ -1,11 +1,7 @@
 {
-  stdenv,
   lib,
   libsoup_3,
   dbus,
-  dpkg,
-  fetchurl,
-  autoPatchelfHook,
   glib,
   glib-networking,
   librsvg,
@@ -74,7 +70,7 @@ rustPlatform.buildRustPackage rec {
       inherit version VITE_VERSION_SUFFIX;
       pname = "owmods_gui-ui";
 
-      npmDepsHash = "sha256-Fg83G0/SOgbZ1SJLNEwpV2gH7ZqsX8LSbXG3FTHnD8c=";
+      npmDepsHash = "sha256-Gg8dgv/H0eRtrA82rMYXtOnNboJpTzGKGcAGbxwz2OA=";
       src = ../owmods_gui/frontend;
 
       packageJSON = ../owmods_gui/frontend/package.json;

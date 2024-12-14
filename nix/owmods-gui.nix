@@ -12,6 +12,7 @@
   copyDesktopItems,
   rustPlatform,
   buildNpmPackage,
+  importNpmLock,
   mono,
   wrapWithMono ? true,
 }:
@@ -66,22 +67,30 @@ rustPlatform.buildRustPackage rec {
   postFixup = lib.optionalString wrapWithMono "gappsWrapperArgs+=(--prefix PATH : '${mono}/bin')";
 
   postPatch = let
-    frontend = buildNpmPackage {
-      inherit version VITE_VERSION_SUFFIX;
-      pname = "owmods_gui-ui";
-
-      npmDepsHash = "sha256-Gg8dgv/H0eRtrA82rMYXtOnNboJpTzGKGcAGbxwz2OA=";
+    frontend = let
       src = ../owmods_gui/frontend;
+    in
+      buildNpmPackage {
+        inherit version VITE_VERSION_SUFFIX;
+        pname = "owmods_gui-ui";
 
-      packageJSON = ../owmods_gui/frontend/package.json;
-      postBuild = ''
-        cp -r ../dist/ $out
-      '';
-      distPhase = "true";
-      dontInstall = true;
-      installInPlace = true;
-      distDir = "../dist";
-    };
+        inherit src;
+
+        packageJSON = ../owmods_gui/frontend/package.json;
+        npmDeps = importNpmLock {
+          npmRoot = src;
+        };
+
+        npmConfigHook = importNpmLock.npmConfigHook;
+
+        postBuild = ''
+          cp -r ../dist/ $out
+        '';
+        distPhase = "true";
+        dontInstall = true;
+        installInPlace = true;
+        distDir = "../dist";
+      };
   in ''
     substituteInPlace owmods_gui/backend/tauri.conf.json \
     --replace '"frontendDist": "../dist"' '"frontendDist": "${frontend}"'

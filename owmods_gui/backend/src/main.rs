@@ -132,6 +132,17 @@ fn main() -> Result<(), Box<dyn Error>> {
                 .ok();
             set_boxed_logger(Box::new(logger)).map(|_| set_max_level(log::LevelFilter::Debug))?;
 
+            // Window State Setup
+            let res = app
+                .handle()
+                .plugin(tauri_plugin_window_state::Builder::default().build());
+
+            if let Err(why) = res {
+                warn!("Failed to setup window state plugin: {why:?}");
+            } else {
+                debug!("Setup window state");
+            }
+
             // Protocol Listener Setup
 
             #[cfg(any(target_os = "linux", all(debug_assertions, windows)))]

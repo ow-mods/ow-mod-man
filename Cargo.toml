@@ -3,6 +3,5 @@ members = ["owmods_core", "owmods_cli", "owmods_gui/backend", "xtask"]
 resolver = "2"
 
 [profile.release]
-panic = "abort"
 lto = true
 strip = true

@@ -17,7 +17,7 @@ export interface RemoteModActionsProps {
 
 const RemoteModActions = memo(function RemoteModToolbar(props: RemoteModActionsProps) {
     const getTranslation = useGetTranslation();
-    const overflowRef = useRef<{ onClose: () => void }>();
+    const overflowRef = useRef<{ onClose: () => void }>({ onClose: () => {} });
 
     return (
         <>

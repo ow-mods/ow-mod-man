@@ -127,7 +127,7 @@ export const getMuiTheme = (selectedTheme: Theme) => {
             mode: "dark",
             ...baseTheme,
             neutral: {
-                main: grey[300],
+                main: grey[400],
                 contrastText: "#1c1c1c"
             },
             error: {
@@ -194,6 +194,11 @@ export const getMuiTheme = (selectedTheme: Theme) => {
             MuiButton: {
                 defaultProps: {
                     variant: "outlined",
+                    color: "neutral"
+                }
+            },
+            MuiButtonBase: {
+                defaultProps: {
                     color: "neutral"
                 }
             },

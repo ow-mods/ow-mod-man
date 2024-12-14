@@ -1,7 +1,7 @@
 import { hooks } from "@commands";
 import { useGetTranslation } from "@hooks";
 import { DownloadingRounded } from "@mui/icons-material";
-import { Suspense, lazy, memo, useEffect, useMemo, useRef, useState } from "react";
+import { lazy, memo, Suspense, useEffect, useMemo, useRef, useState } from "react";
 import { AppIcon } from "../AppIcons";
 import { Box, CircularProgress, CircularProgressProps, Typography } from "@mui/material";
 import { ProgressBar } from "@types";
@@ -37,7 +37,7 @@ const DownloadsIcon = memo(function DownloadsIcon() {
     const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>();
     const [recentComplete, setRecentComplete] = useState<RecentComplete>("none");
     const [viewedDownloads, setViewedDownloads] = useState<number>(0);
-    const currentTimeout = useRef<Timeout | null>();
+    const currentTimeout = useRef<Timeout | null>(null);
     const downloads = hooks.getDownloads("progressUpdate")[1];
 
     const sortedDownloads = Object.values(downloads?.bars ?? {});

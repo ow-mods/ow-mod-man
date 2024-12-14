@@ -71,9 +71,7 @@ const Import = memo(function Import({ onClick }: ModalProps) {
                                     name: getTranslation("JSON_FILE"),
                                     extensions: ["json"]
                                 }
-                            ],
-                            directory: false,
-                            multiple: false
+                            ]
                         }}
                     />
                     <FormControlLabel
@@ -84,7 +82,9 @@ const Import = memo(function Import({ onClick }: ModalProps) {
                     />
                 </DialogContent>
                 <DialogActions>
-                    <Button onClick={onClose}>{getTranslation("CANCEL")}</Button>
+                    <Button color="neutral" onClick={onClose}>
+                        {getTranslation("CANCEL")}
+                    </Button>
                     <Button variant="contained" color="primary" onClick={onImport}>
                         {getTranslation("IMPORT")}
                     </Button>

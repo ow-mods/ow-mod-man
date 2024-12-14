@@ -44,7 +44,7 @@ const SettingsModalContent = memo(
 );
 
 const SettingsModal = memo(function SettingsModal({ open, onClose }: SettingsModalProps) {
-    const settingsFormRef = useRef<SettingsFormHandle>();
+    const settingsFormRef = useRef<SettingsFormHandle | null>(null);
     const getTranslation = useGetTranslation();
 
     const onSave = useCallback(() => {
@@ -59,7 +59,9 @@ const SettingsModal = memo(function SettingsModal({ open, onClose }: SettingsMod
 
     const onFix = useCallback(() => {
         commands.getDefaultConfigs().then((defaults) => {
-            commands.saveOwmlConfig({ owmlConfig: defaults[2] });
+            commands.saveOwmlConfig({
+                owmlConfig: defaults[2]
+            });
         });
     }, []);
 
@@ -78,7 +80,9 @@ const SettingsModal = memo(function SettingsModal({ open, onClose }: SettingsMod
                 </StyledErrorBoundary>
             </DialogContent>
             <DialogActions>
-                <Button onClick={onCancel}>{getTranslation("CANCEL")}</Button>
+                <Button color="neutral" onClick={onCancel}>
+                    {getTranslation("CANCEL")}
+                </Button>
                 <Button color="primary" variant="contained" onClick={onSave}>
                     {getTranslation("SAVE")}
                 </Button>

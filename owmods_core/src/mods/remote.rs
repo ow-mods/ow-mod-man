@@ -59,6 +59,7 @@ impl RemoteMod {
     }
 
     #[cfg(test)]
+    /// Get a test RemoteMod for use in tests
     pub fn get_test(num: u8) -> Self {
         serde_json::from_str(
             &include_str!("../../test_files/test_remote_mod.json")

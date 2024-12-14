@@ -68,8 +68,7 @@ fn _toggle_mod(local_mod: &LocalMod, enabled: bool) -> Result<bool> {
         return _toggle_mod(local_mod, enabled);
     }
 
-    let uses_prepatcher =
-        local_mod.manifest.patcher.is_some() && local_mod.manifest.unpatcher.is_none();
+    let uses_prepatcher = local_mod.manifest.patcher.is_some();
 
     Ok(!enabled && uses_prepatcher)
 }

@@ -99,7 +99,7 @@ where
     scores.iter().map(|(m, _)| *m).collect()
 }
 #[cfg(test)]
-pub mod tests {
+mod tests {
 
     use super::*;
 

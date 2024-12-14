@@ -1,8 +1,8 @@
 import { ThemeProvider } from "@emotion/react";
-import { CssBaseline, Box, CircularProgress } from "@mui/material";
+import { Box, CircularProgress, CssBaseline } from "@mui/material";
 import { TranslationContext } from "./TranslationContext";
 import { Language, Theme } from "@types";
-import { ReactNode, memo, useEffect } from "react";
+import { memo, ReactNode, useEffect } from "react";
 import StyledErrorBoundary from "./StyledErrorBoundary";
 import { getMuiTheme } from "../../theme";
 import rainbowCss from "../../rainbow.css?raw";

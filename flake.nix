@@ -23,8 +23,8 @@
     devShells = forAllSystems (system: {default = import ./nix/shell.nix {pkgs = pkgsFor system;};});
   };
 
-  nixConfig = {
-    extra-substituters = ["https://ow-mods.cachix.org"];
-    extra-trusted-public-keys = ["ow-mods.cachix.org-1:6RTOd1dSRibA2W0MpZHxzT0tw1RzyhKObTPKQJpcrZo="];
-  };
+  # nixConfig = {
+  #   extra-substituters = ["https://ow-mods.cachix.org"];
+  #   extra-trusted-public-keys = ["ow-mods.cachix.org-1:6RTOd1dSRibA2W0MpZHxzT0tw1RzyhKObTPKQJpcrZo="];
+  # };
 }

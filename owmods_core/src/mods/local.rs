@@ -123,6 +123,7 @@ impl Searchable for UnsafeLocalMod {
 
 #[cfg(test)]
 impl LocalMod {
+    /// Get a test LocalMod for use in unit tests
     pub fn get_test(num: u8) -> Self {
         let txt =
             include_str!("../../test_files/test_local_mod.json").replace("$num$", &num.to_string());
@@ -185,9 +186,6 @@ pub struct ModManifest {
     /// An exe that runs before the game starts, a prepatcher. This is used for mods that need to patch the game before it starts
     #[serde(skip_serializing_if = "Option::is_none")]
     pub patcher: Option<String>,
-    /// An exe that runs after the game starts, an unpatcher. This is used for mods that need to unpatch the game after being disabled
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub unpatcher: Option<String>,
     /// A link to donate to the mod. May only be for Patreon or PayPal. This is deprecated in favor of `donate_links`
     ///
     /// It's recommended you use [ModManifest::migrate_donation_link] to migrate this to `donate_links`

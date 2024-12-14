@@ -13,7 +13,7 @@ import {
     TextField,
     useTheme
 } from "@mui/material";
-import { dialog } from "@tauri-apps/api";
+import * as dialog from "@tauri-apps/plugin-dialog";
 import { memo, useCallback, useEffect, useState } from "react";
 import { listen } from "@events";
 
@@ -63,7 +63,7 @@ const OwmlModal = memo(function OwmlModal() {
                                 : "OWML_INSTALL_ERROR"
                         )}\n\n${e}`,
                         {
-                            type: "error",
+                            kind: "error",
                             title: getTranslation("FATAL_ERROR")
                         }
                     );
@@ -132,7 +132,6 @@ const OwmlModal = memo(function OwmlModal() {
                             onChange={setOwmlPath}
                             dialogOptions={{
                                 directory: true,
-                                multiple: false,
                                 title: getTranslation("LOCATE_OWML")
                             }}
                         />
@@ -140,7 +139,11 @@ const OwmlModal = memo(function OwmlModal() {
                 </Box>
             </DialogContent>
             <DialogActions>
-                {canCancel && <Button onClick={handleClose}>{getTranslation("CANCEL")}</Button>}
+                {canCancel && (
+                    <Button color="neutral" variant="outlined" onClick={handleClose}>
+                        {getTranslation("CANCEL")}
+                    </Button>
+                )}
                 <Button
                     disabled={installingOwml}
                     color="primary"

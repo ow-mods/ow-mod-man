@@ -4,35 +4,40 @@ import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import { imagetools } from "vite-imagetools";
 
+const host = process.env.TAURI_DEV_HOST;
+
 import path from "path";
 
 export default defineConfig({
     publicDir: false,
     clearScreen: false,
     server: {
-        strictPort: true
+        port: 1420,
+        strictPort: true,
+        host: host || false,
+        hmr: host
+            ? {
+                  protocol: "ws",
+                  host,
+                  port: 1421
+              }
+            : undefined,
+        watch: {
+            ignored: ["owmods_gui/backend/**"]
+        }
     },
-    envPrefix: [
-        "VITE_",
-        "TAURI_PLATFORM",
-        "TAURI_ARCH",
-        "TAURI_FAMILY",
-        "TAURI_PLATFORM_VERSION",
-        "TAURI_PLATFORM_TYPE",
-        "TAURI_DEBUG"
-    ],
-    plugins: [react(), imagetools()],
+    envPrefix: ["VITE_", "TAURI_ENV_"],
+    plugins: [react({ include: process.cwd() }), imagetools()],
     build: {
         rollupOptions: {
             input: {
-                main: path.resolve(__dirname, "index.html"),
-                logs: path.resolve(__dirname, "logs/index.html")
+                main: path.resolve(__dirname, "./index.html"),
+                logs: path.resolve(__dirname, "./logs/index.html")
             }
         },
         outDir: "../dist",
-        target: process.env.TAURI_PLATFORM == "windows" ? "chrome105" : "safari13",
-        minify: !process.env.TAURI_DEBUG ? "esbuild" : false,
-        sourcemap: !!process.env.TAURI_DEBUG
+        minify: !process.env.TAURI_ENV_DEBUG ? "esbuild" : false,
+        sourcemap: !!process.env.TAURI_ENV_DEBUG
     },
     resolve: {
         alias: [

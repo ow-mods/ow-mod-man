@@ -380,7 +380,8 @@ export enum Language {
     Chinese = "Chinese",
     Vietnamese = "Vietnamese",
     Wario = "Wario",
-    English = "English"
+    English = "English",
+    French = "French"
 }
 
 export enum Theme {

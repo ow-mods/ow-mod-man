@@ -28,7 +28,13 @@ zip = { version = "2.2.0", default-features = false, features = [
 ] }
 futures = "0.3.30"
 log = "0.4.21"
-tokio = { version = "1.37.0", features = ["net", "time", "process", "macros"] }
+tokio = { version = "1.37.0", features = [
+    "net",
+    "time",
+    "process",
+    "macros",
+    "sync",
+] }
 serde_repr = "0.1.19"
 uuid = { version = "1.8.0", features = ["v4", "fast-rng"] }
 typeshare = "1.0.3"

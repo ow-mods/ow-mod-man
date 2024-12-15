@@ -1,8 +1,10 @@
 use std::{
+    collections::HashSet,
     ffi::OsStr,
     fs::File,
     io::{BufReader, BufWriter, Read, Write},
     path::{Path, PathBuf},
+    sync::Arc,
     time::Duration,
 };
 
@@ -11,6 +13,7 @@ use anyhow::{anyhow, Context};
 use futures::{stream::FuturesUnordered, StreamExt};
 use log::{debug, info};
 use tempfile::TempDir;
+use tokio::sync::Mutex;
 use zip::ZipArchive;
 
 use crate::{
@@ -417,6 +420,67 @@ pub async fn install_mod_from_url(
     Ok(new_mod)
 }
 
+/// A utility for deduplicating mod installs, pass this to [install_mods_parallel] and
+/// [install_mod_from_db] to prevent duplicate downloads during installation.
+///
+#[derive(Default, Debug)]
+pub struct ModDeduper {
+    /// Mods that are actively being installed
+    active: HashSet<String>,
+    /// Active installation jobs that are running
+    jobs: usize,
+}
+
+impl ModDeduper {
+    /// Create a new deduper
+    pub fn new() -> Self {
+        Self::default()
+    }
+
+    /// Mark an installation job as started, the deduper will start trying to dedup
+    pub(crate) fn start_job(&mut self) {
+        self.jobs += 1;
+    }
+
+    /// Mark a job as completed, if this is the last job we'll clear the installed mods.
+    pub(crate) fn complete_job(&mut self) {
+        if self.jobs == 1 {
+            self.jobs = 0;
+            self.active.clear();
+        } else if self.jobs != 0 {
+            self.jobs -= 1;
+        }
+    }
+
+    /// Given a set of mods, return only the mods not currently being installed. Also adds the mods
+    /// to the deduper.
+    pub(crate) fn dedup(&mut self, mods: &[String]) -> Vec<String> {
+        mods.iter()
+            .filter(|unique_name| {
+                if !self.active.contains(*unique_name) {
+                    self.active.insert(unique_name.to_string());
+                    true
+                } else {
+                    false
+                }
+            })
+            .cloned()
+            .collect()
+    }
+}
+
+struct ModDeduperGuard(Arc<Mutex<ModDeduper>>);
+
+impl Drop for ModDeduperGuard {
+    fn drop(&mut self) {
+        let dedup = self.0.clone();
+        tokio::spawn(async move {
+            let mut dedup = dedup.lock().await;
+            dedup.complete_job();
+        });
+    }
+}
+
 /// Install a list of mods concurrently.
 /// This should be your preferred method when installing many mods.
 /// **Note that this does not send an analytics event**
@@ -458,8 +522,16 @@ pub async fn install_mods_parallel(
     local_db: &LocalDatabase,
 ) -> Result<Vec<LocalMod>> {
     let mut set = FuturesUnordered::new();
-    let mut installed: Vec<LocalMod> = vec![];
-    for name in unique_names.iter() {
+    let mut installed: Vec<LocalMod> = Vec::with_capacity(unique_names.len());
+    let to_install = {
+        let mut dedup = local_db.dedup.lock().await;
+        dedup.start_job();
+        (
+            dedup.dedup(&unique_names),
+            ModDeduperGuard(local_db.dedup.clone()),
+        )
+    };
+    for name in to_install.0.iter() {
         let remote_mod = remote_db
             .get_mod(name)
             .with_context(|| format!("Mod {} not found in database.", name))?;
@@ -476,6 +548,7 @@ pub async fn install_mods_parallel(
         let m = res?;
         installed.push(m);
     }
+    drop(to_install);
     Ok(installed)
 }
 
@@ -573,6 +646,13 @@ pub async fn install_mod_from_db(
     } else {
         remote_mod.download_url.clone()
     };
+
+    let dedup_lock = {
+        let mut dedup = local_db.dedup.lock().await;
+        dedup.start_job();
+        ModDeduperGuard(local_db.dedup.clone())
+    };
+
     let new_mod =
         install_mod_from_url(&target_url, Some(&remote_mod.unique_name), config, local_db).await?;
 
@@ -634,6 +714,8 @@ pub async fn install_mod_from_db(
             count += 1;
         }
     }
+
+    drop(dedup_lock);
 
     let mod_event = if prerelease {
         AnalyticsEventName::ModPrereleaseInstall

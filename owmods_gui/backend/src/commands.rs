@@ -117,8 +117,7 @@ pub async fn refresh_local_db(handle: tauri::AppHandle, state: tauri::State<'_, 
     let conf = state.config.read().await;
     {
         let mut db = state.local_db.write().await;
-        let local_db = LocalDatabase::fetch(&conf.owml_path)?;
-        *db = local_db;
+        *db = db.refetch(&conf.owml_path).await?;
     }
     handle.typed_emit_all(&Event::LocalRefresh(())).ok();
     sync_remote_and_local(&handle)?;

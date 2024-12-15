@@ -31,6 +31,7 @@ pub enum Language {
     #[default]
     #[serde(other)]
     English,
+    French
 }
 
 const fn _default_true() -> bool {

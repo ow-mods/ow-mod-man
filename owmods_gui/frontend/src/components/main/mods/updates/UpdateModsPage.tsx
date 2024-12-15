@@ -45,6 +45,7 @@ const UpdateModsPage = memo(function UpdateModsPage(props: UpdateModsPageProps) 
     const updateAllButton = useMemo(
         () => (
             <Button
+                color="neutral"
                 disabled={updateMods?.length === 0 || updatingAll}
                 onClick={onUpdateAll}
                 startIcon={<UpdateRounded />}

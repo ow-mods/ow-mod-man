@@ -8,7 +8,7 @@ pub type Result<T = ()> = std::result::Result<T, Error>;
 
 impl Clone for Error {
     fn clone(&self) -> Self {
-        Error(anyhow!(self.0.to_string()))
+        Error(anyhow!("{:?}", self.0))
     }
 }
 
@@ -35,6 +35,6 @@ impl Serialize for Error {
     where
         S: serde::Serializer,
     {
-        serializer.serialize_str(&self.0.to_string())
+        serializer.serialize_str(format!("{:?}", self.0).as_str())
     }
 }

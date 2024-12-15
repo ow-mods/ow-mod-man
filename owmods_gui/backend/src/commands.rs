@@ -4,8 +4,8 @@ use std::{
     path::PathBuf,
 };
 
-use anyhow::anyhow;
-use log::error;
+use anyhow::{anyhow, Context};
+use log::{error, info};
 use owmods_core::{
     alerts::{fetch_alert, Alert},
     analytics::{send_analytics_event, AnalyticsEventName},
@@ -32,23 +32,24 @@ use owmods_core::{
     validate::fix_deps,
 };
 use serde::Serialize;
-use tauri::FileDropEvent;
-use tauri::{api::dialog, async_runtime, AppHandle, Manager, WindowEvent};
+use tauri::{async_runtime, AppHandle, DragDropEvent, Manager, WindowEvent};
+use tauri_plugin_dialog::{DialogExt, MessageDialogButtons, MessageDialogKind};
 use tokio::{select, sync::mpsc, try_join};
 use typeshare::typeshare;
 
-use crate::events::{CustomEventEmitter, CustomEventEmitterAll, CustomEventTriggerGlobal, Event};
-use crate::game::LogData;
 use crate::RemoteDatabaseOption;
 use crate::{
     error::{Error, Result},
-    events::CustomEventListener,
+    events::{CustomEventEmitter, CustomEventEmitterAll, Event},
+    protocol::PROTOCOL_LISTENER_AMOUNT,
 };
+use crate::{events::CustomEventListener, game::LogData};
 use crate::{
     game::{make_log_window, show_warnings, GameMessage},
     gui_config::GuiConfig,
     LogPort, State,
 };
+//use crate::events::CustomEventTriggerGlobal;
 
 pub async fn mark_mod_busy(
     unique_name: &str,
@@ -90,7 +91,7 @@ pub async fn initial_setup(handle: tauri::AppHandle, state: tauri::State<'_, Sta
     })?;
     let event = Event::GuiConfigReload(gui_config.watch_fs);
     handle.typed_emit_all(&event).ok();
-    handle.typed_trigger_global(&event).ok();
+    // handle.typed_trigger_global(&event).ok();
     handle.typed_emit_all(&Event::ConfigReload(())).ok();
 
     Ok(())
@@ -116,8 +117,7 @@ pub async fn refresh_local_db(handle: tauri::AppHandle, state: tauri::State<'_, 
     let conf = state.config.read().await;
     {
         let mut db = state.local_db.write().await;
-        let local_db = LocalDatabase::fetch(&conf.owml_path)?;
-        *db = local_db;
+        *db = db.refetch(&conf.owml_path).await?;
     }
     handle.typed_emit_all(&Event::LocalRefresh(())).ok();
     sync_remote_and_local(&handle)?;
@@ -179,7 +179,7 @@ pub async fn get_local_mod(
     if unique_name == OWML_UNIQUE_NAME {
         let config = state.config.read().await;
         let owml = LocalDatabase::get_owml(&config.owml_path)
-            .ok_or_else(|| anyhow!("Couldn't Find OWML at path {}", &config.owml_path))?;
+            .with_context(|| format!("Couldn't Find OWML at path {}", &config.owml_path))?;
         Ok(Some(UnsafeLocalMod::Valid(Box::new(owml))))
     } else {
         Ok(state
@@ -210,9 +210,7 @@ pub async fn refresh_remote_db(handle: tauri::AppHandle, state: tauri::State<'_,
     };
 
     if first_load {
-        handle
-            .typed_trigger_global(&Event::RemoteInitialized(()))
-            .ok();
+        handle.typed_emit_all(&Event::RemoteInitialized(())).ok();
     }
 
     handle.typed_emit_all(&Event::RemoteRefresh(())).ok();
@@ -339,14 +337,19 @@ pub async fn install_mod(
     let conf = state.config.read().await.clone();
     let mut should_install = true;
     if let Some(current_mod) = local_db.get_mod(unique_name) {
-        should_install = dialog::blocking::confirm(
-            Some(&window),
-            "Reinstall?",
-            format!(
+        should_install = window
+            .dialog()
+            .message(format!(
                 "{} is already installed, reinstall it?",
                 current_mod.manifest.name
-            ),
-        );
+            ))
+            .kind(MessageDialogKind::Info)
+            .buttons(MessageDialogButtons::OkCancelCustom(
+                "Yes".to_string(),
+                "No".to_string(),
+            ))
+            .title("Reinstall?")
+            .blocking_show();
     }
     let res = if should_install {
         install_mod_from_db(
@@ -403,7 +406,7 @@ pub async fn uninstall_mod(
     let db = state.local_db.read().await;
     let local_mod = db
         .get_mod(unique_name)
-        .ok_or_else(|| anyhow!("Mod {} not found", unique_name))?;
+        .with_context(|| format!("Mod {} not found", unique_name))?;
     let warnings = remove_mod(local_mod, &db, false)?;
 
     Ok(warnings)
@@ -414,7 +417,7 @@ pub async fn uninstall_broken_mod(mod_path: &str, state: tauri::State<'_, State>
     let db = state.local_db.read().await;
     let local_mod = db
         .get_mod_unsafe(mod_path)
-        .ok_or_else(|| anyhow!("Mod {} not found", mod_path))?;
+        .with_context(|| format!("Mod {} not found", mod_path))?;
     match local_mod {
         UnsafeLocalMod::Invalid(m) => {
             remove_failed_mod(m)?;
@@ -479,7 +482,7 @@ pub async fn save_gui_config(
     }
     let event = Event::GuiConfigReload(watch_fs);
     handle.typed_emit_all(&event).ok();
-    handle.typed_trigger_global(&event).ok();
+    // handle.typed_trigger_global(&event).ok();
     Ok(())
 }
 
@@ -517,9 +520,7 @@ pub async fn install_owml(
     let config = state.config.read().await;
     let db = state.remote_db.read().await;
     let db = db.try_get()?;
-    let owml = db
-        .get_owml()
-        .ok_or_else(|| anyhow!("Error Installing OWML"))?;
+    let owml = db.get_owml().context("Error Installing OWML")?;
     download_and_install_owml(&config, owml, prerelease).await?;
     handle.typed_emit_all(&Event::OwmlConfigReload(())).ok();
     Ok(())
@@ -605,13 +606,11 @@ pub async fn update_mod(
     let remote_db = remote_db.try_get()?;
 
     let remote_mod = if unique_name == OWML_UNIQUE_NAME {
-        remote_db
-            .get_owml()
-            .ok_or_else(|| anyhow!("Can't find OWML"))?
+        remote_db.get_owml().context("Can't find OWML")?
     } else {
         remote_db
             .get_mod(unique_name)
-            .ok_or_else(|| anyhow!("Can't find mod {} in remote", unique_name))?
+            .with_context(|| format!("Can't find mod {} in remote", unique_name))?
     };
 
     let res = if unique_name == OWML_UNIQUE_NAME {
@@ -663,7 +662,7 @@ pub async fn update_all_mods(
             &config,
             remote_db
                 .get_owml()
-                .ok_or_else(|| anyhow!("Couldn't find OWML in database"))?,
+                .context("Couldn't find OWML in database")?,
             false,
         )
         .await?;
@@ -887,7 +886,7 @@ pub async fn fix_mod_deps(
     let remote_db = remote_db.try_get()?;
     let local_mod = local_db
         .get_mod(unique_name)
-        .ok_or_else(|| anyhow!("Can't find mod {}", unique_name))?;
+        .with_context(|| format!("Can't find mod {}", unique_name))?;
 
     mark_mod_busy(unique_name, true, true, &state, &handle).await;
     let res = fix_deps(local_mod, &config, &local_db, remote_db).await;
@@ -900,7 +899,8 @@ pub async fn fix_mod_deps(
 pub async fn db_has_issues(state: tauri::State<'_, State>, window: tauri::Window) -> Result<bool> {
     let local_db = state.local_db.read().await.clone();
     let config = state.config.read().await.clone();
-    let mut has_errors = local_db.active().any(|m| !m.errors.is_empty());
+    let mut has_errors =
+        local_db.active().any(|m| !m.errors.is_empty()) || local_db.invalid().count() > 0;
 
     let owml = LocalDatabase::get_owml(&config.owml_path);
     if let Some(owml) = owml {
@@ -908,19 +908,24 @@ pub async fn db_has_issues(state: tauri::State<'_, State>, window: tauri::Window
         if let Some(remote_db) = remote_db.get() {
             let (needs_update, remote_owml) = check_mod_needs_update(&owml, remote_db);
             if needs_update {
-                let answer = dialog::blocking::ask(
-                    Some(&window),
-                    "Update OWML",
-                    format!(
+                let answer = window
+                    .dialog()
+                    .message(format!(
                         "OWML is out of date, update it? (You have {} installed)",
                         owml.manifest.version
-                    ),
-                );
+                    ))
+                    .kind(MessageDialogKind::Info)
+                    .buttons(MessageDialogButtons::OkCancelCustom(
+                        "Yes".to_string(),
+                        "No".to_string(),
+                    ))
+                    .title("Update OWML?")
+                    .blocking_show();
                 if answer {
                     let handle = window.app_handle();
-                    mark_mod_busy(OWML_UNIQUE_NAME, true, true, &state, &handle).await;
+                    mark_mod_busy(OWML_UNIQUE_NAME, true, true, &state, handle).await;
                     download_and_install_owml(&config, remote_owml.unwrap(), false).await?;
-                    mark_mod_busy(OWML_UNIQUE_NAME, false, true, &state, &handle).await;
+                    mark_mod_busy(OWML_UNIQUE_NAME, false, true, &state, handle).await;
                     let event = Event::RequestReload("LOCAL".to_string());
                     handle.typed_emit_all(&event).unwrap();
                 } else {
@@ -966,9 +971,6 @@ pub async fn pop_protocol_url(
     handle: tauri::AppHandle,
     id: &str,
 ) -> Result {
-    /// Amount of listeners that need to be active before we can emit the event
-    const PROTOCOL_LISTENER_AMOUNT: usize = 2;
-
     let id = id.to_string();
 
     let mut protocol_listeners = state.protocol_listeners.write().await;
@@ -1053,7 +1055,7 @@ pub async fn has_disabled_deps(unique_name: &str, state: tauri::State<'_, State>
     let db = state.local_db.read().await;
     let local_mod = db
         .get_mod(unique_name)
-        .ok_or_else(|| anyhow!("Mod Not Found: {unique_name}"))?;
+        .context("Mod Not Found: {unique_name}")?;
     let mut flag = false;
     if let Some(deps) = &local_mod.manifest.dependencies {
         for dep in deps.iter() {
@@ -1069,31 +1071,37 @@ pub async fn has_disabled_deps(unique_name: &str, state: tauri::State<'_, State>
 
 #[tauri::command]
 pub async fn register_drop_handler(window: tauri::Window) -> Result {
-    let handle = window.app_handle();
+    let handle = window.app_handle().clone();
     window.on_window_event(move |e| {
-        if let WindowEvent::FileDrop(e) = e {
+        if let WindowEvent::DragDrop(e) = e {
             match e {
-                FileDropEvent::Dropped(f) => {
-                    if let Some(f) = f.first() {
+                DragDropEvent::Drop { paths, position: _ } => {
+                    if let Some(f) = paths.first() {
                         if f.extension().map(|e| e == "zip").unwrap_or(false) {
+                            info!(
+                                "Drop completed, attempting to invoke with owmods://install-zip/{}",
+                                f.display()
+                            );
                             handle.typed_emit_all(&Event::DragLeave(())).ok();
-                            handle
-                                .typed_emit_all(&Event::ProtocolInvoke(ProtocolPayload {
+                            let res =
+                                handle.typed_emit_all(&Event::ProtocolInvoke(ProtocolPayload {
                                     verb: ProtocolVerb::InstallZip,
                                     payload: f.to_str().unwrap().to_string(),
-                                }))
-                                .ok();
+                                }));
+                            if let Err(why) = res {
+                                error!("Failed to protocol invoke for ZIP drop: {why:?}");
+                            }
                         }
                     }
                 }
-                FileDropEvent::Hovered(f) => {
-                    if let Some(f) = f.first() {
+                DragDropEvent::Enter { paths, position: _ } => {
+                    if let Some(f) = paths.first() {
                         if f.extension().map(|e| e == "zip").unwrap_or(false) {
                             handle.typed_emit_all(&Event::DragEnter(())).ok();
                         }
                     }
                 }
-                FileDropEvent::Cancelled => {
+                DragDropEvent::Leave => {
                     handle.typed_emit_all(&Event::DragLeave(())).ok();
                 }
                 _ => {}

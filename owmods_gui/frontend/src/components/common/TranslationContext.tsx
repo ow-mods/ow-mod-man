@@ -26,6 +26,9 @@ export const TranslationMap: Record<Language, Translations> = {
 };
 
 export const TranslationNameMap = {
+    Vietnamese: "Tiếng Việt",
+    Japanese: "日本語",
+    Chinese: "汉语"
     //    BrazilianPortuguese: "Brazilian Portuguese"
 };
 

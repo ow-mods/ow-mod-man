@@ -1,22 +1,18 @@
 {
-  stdenv,
   lib,
-  libsoup,
+  libsoup_3,
   dbus,
-  dpkg,
-  fetchurl,
-  autoPatchelfHook,
   glib,
   glib-networking,
   librsvg,
-  webkitgtk,
+  webkitgtk_4_1,
   pkg-config,
-  openssl,
   wrapGAppsHook,
   makeDesktopItem,
   copyDesktopItems,
   rustPlatform,
   buildNpmPackage,
+  importNpmLock,
   mono,
   wrapWithMono ? true,
 }:
@@ -45,6 +41,10 @@ rustPlatform.buildRustPackage rec {
     lockFile = ../Cargo.lock;
   };
 
+  buildFeatures = [
+    "tauri/custom-protocol"
+  ];
+
   doCheck = false;
 
   nativeBuildInputs = [
@@ -54,13 +54,12 @@ rustPlatform.buildRustPackage rec {
   ];
 
   buildInputs = [
-    openssl
     dbus
-    libsoup
+    libsoup_3
     glib
     librsvg
     glib-networking
-    webkitgtk
+    webkitgtk_4_1
   ];
 
   buildAndTestSubdir = "owmods_gui/backend";
@@ -68,27 +67,33 @@ rustPlatform.buildRustPackage rec {
   postFixup = lib.optionalString wrapWithMono "gappsWrapperArgs+=(--prefix PATH : '${mono}/bin')";
 
   postPatch = let
-    frontend = buildNpmPackage {
-      inherit version;
-      pname = "owmods_gui-ui";
-
-      npmDepsHash = "sha256-akuXQeoQs1ooUJ0YW3mI+DueIfGgUz5uY88Wbt4xlEU=";
+    frontend = let
       src = ../owmods_gui/frontend;
+    in
+      buildNpmPackage {
+        inherit version VITE_VERSION_SUFFIX;
+        pname = "owmods_gui-ui";
 
-      packageJSON = ../owmods_gui/frontend/package.json;
-      postBuild = ''
-        ls ..
-        cp -r ../dist/ $out
-      '';
-      distPhase = "true";
-      dontInstall = true;
-      VITE_VERSION_SUFFIX = "-nix";
-      installInPlace = true;
-      distDir = "../dist";
-    };
+        inherit src;
+
+        packageJSON = ../owmods_gui/frontend/package.json;
+        npmDeps = importNpmLock {
+          npmRoot = src;
+        };
+
+        npmConfigHook = importNpmLock.npmConfigHook;
+
+        postBuild = ''
+          cp -r ../dist/ $out
+        '';
+        distPhase = "true";
+        dontInstall = true;
+        installInPlace = true;
+        distDir = "../dist";
+      };
   in ''
     substituteInPlace owmods_gui/backend/tauri.conf.json \
-    --replace '"distDir": "../dist"' '"distDir": "${frontend}"'
+    --replace '"frontendDist": "../dist"' '"frontendDist": "${frontend}"'
   '';
 
   postInstall = ''

@@ -98,6 +98,8 @@ fn main() -> Result<(), Box<dyn Error>> {
     let gui_config = GuiConfig::get().unwrap_or_default();
     let local_db = LocalDatabase::fetch(&config.owml_path).unwrap_or_default();
 
+    let log_file = gui_config.manager_logs;
+
     let url = std::env::args().nth(1).map(|s| ProtocolPayload::parse(&s));
 
     let res = tauri::Builder::default()
@@ -119,7 +121,7 @@ fn main() -> Result<(), Box<dyn Error>> {
         .setup(move |app| {
             // Logger Setup
 
-            let logger = Logger::new(app.handle().clone());
+            let logger = Logger::new(app.handle().clone(), log_file);
             logger
                 .write_log_to_file(
                     log::Level::Info,

@@ -22,7 +22,7 @@ use crate::{
 
 pub struct Logger {
     app: AppHandle,
-    writer: Arc<Mutex<BufWriter<File>>>,
+    writer: Option<Arc<Mutex<BufWriter<File>>>>,
 }
 
 #[typeshare]
@@ -36,39 +36,43 @@ struct LogPayload {
 }
 
 impl Logger {
-    pub fn new(app: AppHandle) -> Self {
-        let now = OffsetDateTime::now_utc();
-        let logs_path = get_app_path()
-            .expect("Couldn't Make Log File")
-            .join("logs")
-            .join(
-                now.format(format_description!("[year]-[month]-[day]"))
-                    .unwrap(),
-            )
-            .join(format!(
-                "{}.log",
-                now.format(format_description!("[hour]-[minute]-[second]"))
-                    .unwrap()
-            ));
-        create_dir_all(logs_path.parent().unwrap()).unwrap();
-        let file = File::create(logs_path).expect("Couldn't Make Log File");
-        let writer = BufWriter::new(file);
-        Self {
-            app,
-            writer: Arc::new(Mutex::new(writer)),
-        }
+    pub fn new(app: AppHandle, enable_file: bool) -> Self {
+        let writer = if enable_file {
+            let now = OffsetDateTime::now_utc();
+            let logs_path = get_app_path()
+                .expect("Couldn't Make Log File")
+                .join("logs")
+                .join(
+                    now.format(format_description!("[year]-[month]-[day]"))
+                        .unwrap(),
+                )
+                .join(format!(
+                    "{}.log",
+                    now.format(format_description!("[hour]-[minute]-[second]"))
+                        .unwrap()
+                ));
+            create_dir_all(logs_path.parent().unwrap()).unwrap();
+            let file = File::create(logs_path).expect("Couldn't Make Log File");
+            let writer = BufWriter::new(file);
+            Some(Arc::new(Mutex::new(writer)))
+        } else {
+            None
+        };
+        Self { app, writer }
     }
 
     pub fn write_log_to_file(&self, log_type: Level, message: &str) -> Result<()> {
-        let mut writer = self.writer.lock().unwrap();
-        let now = OffsetDateTime::now_local().unwrap_or(OffsetDateTime::now_utc());
-        let now = now
-            .format(format_description!("[hour]:[minute]:[second]"))
-            .unwrap_or("Failed to get time".to_string());
-        let message = format!("[{}][{}] {}", now, log_type, message);
-        println!("{}", message);
-        writeln!(writer, "{}", message)?;
-        writer.flush()?;
+        if let Some(writer) = &self.writer {
+            let mut writer = writer.lock().unwrap();
+            let now = OffsetDateTime::now_local().unwrap_or(OffsetDateTime::now_utc());
+            let now = now
+                .format(format_description!("[hour]:[minute]:[second]"))
+                .unwrap_or("Failed to get time".to_string());
+            let message = format!("[{}][{}] {}", now, log_type, message);
+            println!("{}", message);
+            writeln!(writer, "{}", message)?;
+            writer.flush()?;
+        }
         Ok(())
     }
 }

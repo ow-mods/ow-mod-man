@@ -126,6 +126,7 @@ export interface GuiConfig {
     watchFs: boolean;
     noWarning: boolean;
     logMultiWindow: boolean;
+    managerLogs: boolean;
     autoEnableDeps: boolean;
     autoDisableDeps: boolean;
     noLogServer: boolean;

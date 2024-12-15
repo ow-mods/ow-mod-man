@@ -141,6 +141,13 @@ const SettingsForm = forwardRef(function SettingsForm(props: SettingsFormProps, 
                 />
                 <SettingsCheck
                     onChange={handleGui}
+                    value={guiConfig.managerLogs}
+                    label={getTranslation("MANAGER_LOGS")}
+                    id="managerLogs"
+                    tooltip={getTranslation("TOOLTIP_MANAGER_LOGS")}
+                />
+                <SettingsCheck
+                    onChange={handleGui}
                     value={guiConfig.watchFs}
                     label={getTranslation("WATCH_FS")}
                     id="watchFs"

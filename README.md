@@ -54,5 +54,6 @@ You'll want to check out the [Help document](owmods_gui/HELP.md) for platform-sp
   - Chinese: [SmallGarfield](https://github.com/xiaojiafei520)
   - Vietnamese: [KNNFx](https://github.com/KNNFx)
   - Japanese: [orclecle](https://github.com/TRSasasusu)
+  - French: [xen-42](https://github.com/xen-42)
 
 And the support of the [Outer Wilds Modding Discord](https://discord.com/invite/wusTQYbYTc)

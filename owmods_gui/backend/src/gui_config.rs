@@ -28,6 +28,7 @@ pub enum Language {
     Chinese,
     Vietnamese,
     Wario,
+    French,
     #[default]
     #[serde(other)]
     English,

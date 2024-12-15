@@ -1,4 +1,4 @@
-use log::debug;
+use log::{debug, warn};
 use owmods_core::protocol::{ProtocolPayload, ProtocolVerb};
 use tauri::{async_runtime, Manager};
 use tauri_plugin_deep_link::DeepLinkExt;
@@ -19,7 +19,7 @@ pub fn prep_protocol(handle: tauri::AppHandle) {
         let protocol_payload = ProtocolPayload::parse(&request);
         match protocol_payload.verb {
             ProtocolVerb::Unknown => {
-                debug!("Unknown protocol verb: {}", request);
+                warn!("Unknown protocol verb: {}", request);
             }
             _ => {
                 debug!(

@@ -28,10 +28,10 @@ pub enum Language {
     Chinese,
     Vietnamese,
     Wario,
+    French,
     #[default]
     #[serde(other)]
     English,
-    French
 }
 
 const fn _default_true() -> bool {

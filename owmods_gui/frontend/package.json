@@ -34,8 +34,8 @@
     "devDependencies": {
         "@types/react": "18.3.17",
         "@types/react-dom": "18.3.5",
-        "@typescript-eslint/eslint-plugin": "8.18.0",
-        "@typescript-eslint/parser": "8.18.0",
+        "@typescript-eslint/eslint-plugin": "8.18.1",
+        "@typescript-eslint/parser": "8.18.1",
         "@vitejs/plugin-react": "4.3.4",
         "eslint": "8.57.0",
         "eslint-plugin-react": "7.37.2",

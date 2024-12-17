@@ -6,8 +6,8 @@ use std::{
     time::Duration,
 };
 
-use anyhow::anyhow;
 use anyhow::Result;
+use anyhow::{anyhow, Context};
 use futures::{stream::FuturesUnordered, StreamExt};
 use log::{debug, info};
 use tempfile::TempDir;
@@ -18,9 +18,11 @@ use crate::{
     config::Config,
     constants::OWML_UNIQUE_NAME,
     db::{LocalDatabase, RemoteDatabase},
-    file::{check_file_matches_paths, create_all_parents, fix_json},
-    mods::local::{get_paths_to_preserve, LocalMod, ModManifest},
-    mods::remote::RemoteMod,
+    file::{check_file_matches_paths, create_all_parents, fix_bom},
+    mods::{
+        local::{get_paths_to_preserve, LocalMod, ModManifest},
+        remote::RemoteMod,
+    },
     progress::{ProgressAction, ProgressBar, ProgressType},
     remove::remove_old_mod_files,
     toggle::generate_config,
@@ -89,7 +91,7 @@ fn get_manifest_path_from_zip(zip_path: &PathBuf) -> Result<(String, PathBuf)> {
                     zip_file.name().to_string(),
                     zip_file
                         .enclosed_name()
-                        .ok_or_else(|| anyhow!("Error reading zip file"))?
+                        .context("Error reading zip file")?
                         .to_path_buf(),
                 ));
             }
@@ -105,8 +107,7 @@ fn get_unique_name_from_zip(zip_path: &PathBuf) -> Result<String> {
     let mut manifest = archive.by_name(&manifest_name)?;
     let mut buf = String::new();
     manifest.read_to_string(&mut buf)?;
-    let txt = fix_json(&buf);
-    let manifest: ModManifest = serde_json::from_str(&txt)?;
+    let manifest: ModManifest = serde_json::from_str(fix_bom(&buf))?;
     Ok(manifest.unique_name)
 }
 
@@ -173,9 +174,7 @@ fn extract_mod_zip(
                 progress.inc(1);
                 let zip_file = archive.by_index(idx)?;
                 if zip_file.is_file() {
-                    let file_path = zip_file
-                        .enclosed_name()
-                        .ok_or_else(|| anyhow!("Can't Read Zip File"))?;
+                    let file_path = zip_file.enclosed_name().context("Can't Read Zip File")?;
                     if file_path.starts_with(parent_path) {
                         // Unwrap is safe bc we know it's a file and OsStr.to_str shouldn't fail
                         let file_name = file_path.file_name().unwrap().to_str().unwrap();
@@ -256,7 +255,7 @@ pub async fn download_and_install_owml(
         owml.prerelease
             .as_ref()
             .map(|p| &p.download_url)
-            .ok_or_else(|| anyhow!("No prerelease for OWML found"))
+            .context("No prerelease for OWML found")
     } else {
         Ok(&owml.download_url)
     }?;
@@ -463,7 +462,7 @@ pub async fn install_mods_parallel(
     for name in unique_names.iter() {
         let remote_mod = remote_db
             .get_mod(name)
-            .ok_or_else(|| anyhow!("Mod {} not found in database.", name))?;
+            .with_context(|| format!("Mod {} not found in database.", name))?;
 
         let task = install_mod_from_url(
             &remote_mod.download_url,
@@ -559,12 +558,12 @@ pub async fn install_mod_from_db(
 
     let remote_mod = remote_db
         .get_mod(unique_name)
-        .ok_or_else(|| anyhow!("Mod {} not found", unique_name))?;
+        .with_context(|| format!("Mod {} not found", unique_name))?;
     let target_url = if prerelease {
         let prerelease = remote_mod
             .prerelease
             .as_ref()
-            .ok_or_else(|| anyhow!("No prerelease for {} found", unique_name))?;
+            .with_context(|| format!("No prerelease for {} found", unique_name))?;
         let url = &prerelease.download_url;
         info!(
             "Using Prerelease {} for {}",

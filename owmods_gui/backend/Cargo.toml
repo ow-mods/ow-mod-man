@@ -9,13 +9,13 @@ license = "GPL-3.0-or-later"
 edition = "2021"
 
 [build-dependencies]
-tauri-build = { version = "1.5.3", features = [] }
+tauri-build = { version = "2.0.0", features = [] }
 
 [dependencies]
 owmods_core = { version = "0.14.2", path = "../../owmods_core" }
 serde_json = "1.0.120"
 serde = { version = "1.0.200", features = ["derive"] }
-tauri = { version = "1.7.1", features = [ "app-all", "process-exit", "clipboard-write-text",
+tauri = { version = "2.0.0", features = [ "app-all", "process-exit", "clipboard-write-text",
     "dialog-ask",
     "dialog-confirm",
     "dialog-message",
@@ -31,14 +31,14 @@ anyhow = "1.0.82"
 tokio = { version = "1.37.0", features = ["sync", "macros"] }
 log = { version = "0.4.21", features = ["std", "serde"] }
 typeshare = "1.0.3"
-notify = { version = "6.1.1", default-features = false, features = [
+notify = { version = "7.0.0", default-features = false, features = [
     "macos_kqueue",
 ] }
 regex = "1.10.4"
 time = { version = "0.3.36", features = ["macros", "local-offset", "formatting", "parsing"] }
-tauri-plugin-deep-link = "0.1.2"
+tauri-plugin-deep-link = "2.0.0"
 opener = "0.7.0"
-tauri-plugin-window-state = "0.1.1"
+tauri-plugin-window-state = "2.0.0"
 
 [features]
 default = ["custom-protocol"]

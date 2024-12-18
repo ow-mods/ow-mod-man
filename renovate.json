@@ -1,9 +1,17 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-  "baseBranches": ["dev"],
-  "schedule": ["at any time"],
-  "extends": ["config:base"],
-  "labels": ["dependencies"],
+  "baseBranches": [
+    "dev"
+  ],
+  "schedule": [
+    "at any time"
+  ],
+  "extends": [
+    "config:recommended"
+  ],
+  "labels": [
+    "dependencies"
+  ],
   "nix": {
     "enabled": true
   },
@@ -14,38 +22,68 @@
       "(^|/)action\\.ya?ml$"
     ]
   },
-  "ignoreDeps": ["eslint"],
+  "ignoreDeps": [
+    "eslint"
+  ],
   "cargo": {
     "enabled": true
   },
   "packageRules": [
     {
-      "matchUpdateTypes": ["minor", "patch", "pin", "digest"],
+      "matchUpdateTypes": [
+        "minor",
+        "patch",
+        "pin",
+        "digest"
+      ],
       "automerge": true
     },
     {
-      "matchPackagePatterns": "*",
-      "enabled": false
+      "enabled": false,
+      "matchPackageNames": [
+        "*"
+      ]
     },
     {
       "enabled": true,
-      "paths": ["nix/**", "flake.nix", "flake.lock"],
-      "labels": ["dependencies"],
-      "matchManagers": ["nix"],
+      "matchFileNames": [
+        "nix/**",
+        "flake.nix",
+        "flake.lock"
+      ],
+      "labels": [
+        "dependencies"
+      ],
+      "matchManagers": [
+        "nix"
+      ],
       "commitMessagePrefix": "[META/NIX]"
     },
     {
       "enabled": true,
-      "paths": [".github/workflows/**"],
-      "labels": ["dependencies"],
-      "matchManagers": ["github-actions"],
+      "matchFileNames": [
+        ".github/workflows/**"
+      ],
+      "labels": [
+        "dependencies"
+      ],
+      "matchManagers": [
+        "github-actions"
+      ],
       "commitMessagePrefix": "[META]"
     },
     {
       "enabled": true,
-      "paths": ["owmods_core/**"],
-      "labels": ["core", "dependencies"],
-      "matchManagers": ["cargo"],
+      "matchFileNames": [
+        "owmods_core/**"
+      ],
+      "labels": [
+        "core",
+        "dependencies"
+      ],
+      "matchManagers": [
+        "cargo"
+      ],
       "groupName": "Core",
       "groupSlug": "core",
       "commitMessagePrefix": "[CHORE]",
@@ -55,9 +93,16 @@
     },
     {
       "enabled": true,
-      "paths": ["owmods_cli/**"],
-      "labels": ["cli", "dependencies"],
-      "matchManagers": ["cargo"],
+      "matchFileNames": [
+        "owmods_cli/**"
+      ],
+      "labels": [
+        "cli",
+        "dependencies"
+      ],
+      "matchManagers": [
+        "cargo"
+      ],
       "groupName": "CLI",
       "groupSlug": "cli",
       "commitMessagePrefix": "[CHORE]",
@@ -67,9 +112,16 @@
     },
     {
       "enabled": true,
-      "paths": ["owmods_gui/backend/**"],
-      "labels": ["gui", "dependencies"],
-      "matchManagers": ["cargo"],
+      "matchFileNames": [
+        "owmods_gui/backend/**"
+      ],
+      "labels": [
+        "gui",
+        "dependencies"
+      ],
+      "matchManagers": [
+        "cargo"
+      ],
       "groupName": "GUI",
       "groupSlug": "gui",
       "commitMessagePrefix": "[CHORE]",
@@ -79,8 +131,13 @@
     },
     {
       "enabled": true,
-      "paths": ["owmods_gui/frontend/**"],
-      "labels": ["gui", "dependencies"],
+      "matchFileNames": [
+        "owmods_gui/frontend/**"
+      ],
+      "labels": [
+        "gui",
+        "dependencies"
+      ],
       "groupName": "GUI Frontend",
       "groupSlug": "js",
       "commitMessagePrefix": "[CHORE]",

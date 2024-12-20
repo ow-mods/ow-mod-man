@@ -2,7 +2,7 @@
 name = "owmods_gui"
 authors = ["Bwc9876 <bwc9876@outerwildsmods.com>"]
 description = "A GUI Tool To Manage OWML Mods"
-version = "0.14.2"
+version = "0.15.0"
 readme = "./README.md"
 repository = "https://github.com/ow-mods/ow-mod-man/"
 license = "GPL-3.0-or-later"
@@ -12,7 +12,7 @@ edition = "2021"
 tauri-build = { version = "2.0.1", features = [] }
 
 [dependencies]
-owmods_core = { version = "0.14.2", path = "../../owmods_core" }
+owmods_core = { version = "0.15.0", path = "../../owmods_core" }
 serde_json = "1.0"
 serde = { version = "1.0", features = ["derive"] }
 tauri = { version = "2.0.2", features = ["rustls-tls"] }

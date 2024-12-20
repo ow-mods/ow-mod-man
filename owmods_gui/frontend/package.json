@@ -1,7 +1,7 @@
 {
     "name": "owmods-gui-frontend",
     "private": true,
-    "version": "0.14.2",
+    "version": "0.15.0",
     "type": "module",
     "engines": {
         "npm": ">=10.0.0",

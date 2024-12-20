@@ -70,7 +70,7 @@ const fallback = (options: Omit<StyledErrorBoundaryProps, "children">) =>
                         </Typography>
                     </Box>
                     {options.onFix && (
-                        <Button fullWidth onClick={options.onFix}>
+                        <Button color="neutral" fullWidth onClick={options.onFix}>
                             {getTranslation(options.fixButtonKey ?? "FIX")}
                         </Button>
                     )}

@@ -1,8 +1,6 @@
 name: Create GUI Release
-
 on:
   workflow_dispatch:
-
 jobs:
   release:
     permissions:
@@ -11,55 +9,51 @@ jobs:
       fail-fast: false
       matrix:
         include:
-            - platform: 'macos-latest' # for Arm based macs (M1 and above).
-              target: 'aarch64-apple-darwin'
-              args: '--target aarch64-apple-darwin'
-            - platform: 'macos-latest' # for Intel based macs.
-              target: 'x86_64-apple-darwin'
-              args: '--target x86_64-apple-darwin'
-            - platform: 'ubuntu-22.04'
-              target: 'x86_64-unknown-linux-gnu'
-              args: ''
-            - platform: 'windows-latest'
-              target: 'x86_64-pc-windows-msvc'
-              args: ''
+          - platform: "macos-latest" # for Arm based macs (M1 and above).
+            target: "aarch64-apple-darwin"
+            args: "--target aarch64-apple-darwin"
+          - platform: "macos-latest" # for Intel based macs.
+            target: "x86_64-apple-darwin"
+            args: "--target x86_64-apple-darwin"
+          - platform: "ubuntu-22.04"
+            target: "x86_64-unknown-linux-gnu"
+            args: ""
+          - platform: "windows-latest"
+            target: "x86_64-pc-windows-msvc"
+            args: ""
     runs-on: ${{ matrix.platform }}
-
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-
       - name: Install dependencies (ubuntu only)
         if: matrix.platform == 'ubuntu-22.04'
         run: |
           sudo apt-get update
-          sudo apt-get install -y libgtk-3-dev libwebkit2gtk-4.0-dev librsvg2-dev
-
+          sudo apt install libwebkit2gtk-4.1-dev \
+            build-essential \
+            curl \
+            wget \
+            file \
+            libxdo-dev \
+            libssl-dev \
+            libayatana-appindicator3-dev \
+            librsvg2-dev
       - name: Setup Rust Toolchain
         uses: dtolnay/rust-toolchain@stable
         with:
           toolchain: stable
           target: ${{ matrix.target }}
-
       - name: Setup Rust Cache
         uses: Swatinem/rust-cache@v2
         with:
           shared-key: v1-gui-${{ matrix.platform }}-${{ matrix.target }}-rust-cache-${{ hashFiles('Cargo.lock') }}
-
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
           node-version-file: owmods_gui/frontend/package.json
-
       - name: Install Frontend Dependencies
         working-directory: owmods_gui/frontend
         run: npm install
-
-      - name: Disable Tauri Updater
-        if: matrix.platform == 'ubuntu-22.04'
-        run: |
-          cargo xtask gui_disable_updater
-
       - name: Build GUI
         uses: tauri-apps/tauri-action@dev
         env:

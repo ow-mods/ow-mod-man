@@ -98,7 +98,7 @@ fn main() -> Result<(), Box<dyn Error>> {
     let gui_config = GuiConfig::get().unwrap_or_default();
     let local_db = LocalDatabase::fetch(&config.owml_path).unwrap_or_default();
 
-    tauri_plugin_deep_link::prepare("com.bwc9876.owmods-gui");
+    let log_file = gui_config.manager_logs;
 
     let url = std::env::args().nth(1).map(|s| ProtocolPayload::parse(&s));
 
@@ -114,10 +114,14 @@ fn main() -> Result<(), Box<dyn Error>> {
             progress_bars: manage(ProgressBars::new()),
             mods_in_progress: manage(Vec::with_capacity(4)),
         })
+        .plugin(tauri_plugin_single_instance::init(|_app, _argv, _cwd| {
+            println!("New app instance opened, invoked URI handler.");
+        }))
+        .plugin(tauri_plugin_deep_link::init())
         .setup(move |app| {
             // Logger Setup
 
-            let logger = Logger::new(app.handle());
+            let logger = Logger::new(app.handle().clone(), log_file);
             logger
                 .write_log_to_file(
                     log::Level::Info,
@@ -129,23 +133,26 @@ fn main() -> Result<(), Box<dyn Error>> {
                 .ok();
             set_boxed_logger(Box::new(logger)).map(|_| set_max_level(log::LevelFilter::Debug))?;
 
-            // Protocol Listener Setup
-
-            let handle = app.handle();
-
-            let res = protocol::prep_protocol(handle);
+            // Window State Setup
+            let res = app
+                .handle()
+                .plugin(tauri_plugin_window_state::Builder::default().build());
 
             if let Err(why) = res {
-                warn!("Failed to setup URI handler: {:?}", why);
+                warn!("Failed to setup window state plugin: {why:?}");
             } else {
-                debug!("Setup URI handler");
+                debug!("Setup window state");
             }
+
+            // Protocol Listener Setup
+
+            protocol::prep_protocol(app.handle().clone());
 
             // File System Watch Setup
 
             let handle = app.handle();
 
-            let res = setup_fs_watch(handle);
+            let res = setup_fs_watch(handle.clone());
 
             if let Err(why) = res {
                 error!("Failed to setup file watching: {:?}", why);
@@ -153,6 +160,9 @@ fn main() -> Result<(), Box<dyn Error>> {
 
             Ok(())
         })
+        .plugin(tauri_plugin_dialog::init())
+        .plugin(tauri_plugin_os::init())
+        .plugin(tauri_plugin_shell::init())
         .invoke_handler(tauri::generate_handler![
             initial_setup,
             refresh_local_db,
@@ -210,7 +220,6 @@ fn main() -> Result<(), Box<dyn Error>> {
             force_log_update,
             show_log_folder
         ])
-        .plugin(tauri_plugin_window_state::Builder::default().build())
         .run(tauri::generate_context!());
 
     if let Err(why) = res {

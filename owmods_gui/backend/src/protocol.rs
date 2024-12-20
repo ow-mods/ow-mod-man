@@ -1,39 +1,25 @@
-use anyhow::Result;
-use log::debug;
+use log::{debug, warn};
 use owmods_core::protocol::{ProtocolPayload, ProtocolVerb};
 use tauri::{async_runtime, Manager};
+use tauri_plugin_deep_link::DeepLinkExt;
 
 use crate::events::{CustomEventEmitterAll, Event};
 
 /// Amount of listeners that need to be active before we can emit the protocol invoke event.
 pub const PROTOCOL_LISTENER_AMOUNT: usize = 2;
 
-#[cfg(not(target_os = "linux"))]
-fn register_or_listen<F>(uri: &str, handler: F) -> Result<()>
-where
-    F: FnMut(String) + Send + 'static,
-{
-    debug!("Registering protocol handler for {}", uri);
-    tauri_plugin_deep_link::register(uri, handler)?;
-    Ok(())
-}
-
-#[cfg(target_os = "linux")]
-fn register_or_listen<F>(_: &str, handler: F) -> Result<()>
-where
-    F: FnMut(String) + Send + 'static,
-{
-    debug!("Skipping protocol registration for Linux");
-    tauri_plugin_deep_link::listen(handler)?;
-    Ok(())
-}
-
-pub fn prep_protocol(handle: tauri::AppHandle) -> Result<()> {
-    register_or_listen("owmods", move |request| {
+pub fn prep_protocol(handle: tauri::AppHandle) {
+    let handle_inner = handle.clone();
+    handle.deep_link().on_open_url(move |request| {
+        let request = request
+            .urls()
+            .first()
+            .map(|u| u.to_string())
+            .unwrap_or_default();
         let protocol_payload = ProtocolPayload::parse(&request);
         match protocol_payload.verb {
             ProtocolVerb::Unknown => {
-                debug!("Unknown protocol verb: {}", request);
+                warn!("Unknown protocol verb: {}", request);
             }
             _ => {
                 debug!(
@@ -45,7 +31,7 @@ pub fn prep_protocol(handle: tauri::AppHandle) -> Result<()> {
                     // Meaning opposed to being able to be read like in main.rs, we have to ensure
                     // that the listeners are ready to receive the protocol payload and store it
                     // otherwise.
-                    let handle2 = handle.clone();
+                    let handle2 = handle_inner.clone();
                     async_runtime::spawn(async move {
                         let state = handle2.state::<crate::State>();
                         let listeners = state.protocol_listeners.read().await;
@@ -59,11 +45,11 @@ pub fn prep_protocol(handle: tauri::AppHandle) -> Result<()> {
                         }
                     });
                 } else {
-                    handle
+                    handle_inner
                         .typed_emit_all(&Event::ProtocolInvoke(protocol_payload))
                         .ok();
                 }
             }
         }
-    })
+    });
 }

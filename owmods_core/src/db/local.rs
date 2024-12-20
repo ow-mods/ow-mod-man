@@ -1,12 +1,15 @@
 use std::{
     collections::HashMap,
     path::{Path, PathBuf},
+    sync::Arc,
 };
 
 use anyhow::{Context, Result};
 use log::{debug, warn};
+use tokio::sync::Mutex;
 
 use crate::{
+    download::ModDeduper,
     file::deserialize_from_json,
     mods::local::{FailedMod, LocalMod, ModManifest, UnsafeLocalMod},
     search::search_list,
@@ -23,6 +26,8 @@ use super::{fix_version, RemoteDatabase};
 pub struct LocalDatabase {
     /// A hashmap of unique names to mods
     pub mods: HashMap<String, UnsafeLocalMod>,
+    /// Mod deduper, used when downloading mods to orchestrate efficient dependency installation
+    pub(crate) dedup: Arc<Mutex<ModDeduper>>,
 }
 
 impl LocalDatabase {
@@ -47,17 +52,29 @@ impl LocalDatabase {
     /// ```
     ///
     pub fn fetch(owml_path: &str) -> Result<Self> {
+        Self::fetch_with_dedup(owml_path, Arc::new(Mutex::new(ModDeduper::new())))
+    }
+
+    /// Fetch a new local db, using the specified deduper
+    pub fn fetch_with_dedup(owml_path: &str, dedup: Arc<Mutex<ModDeduper>>) -> Result<Self> {
         debug!("Begin construction of local db at {}", owml_path);
         let mods_path = PathBuf::from(owml_path).join("Mods");
         Ok(if mods_path.is_dir() {
             let mut new_db = Self {
                 mods: Self::get_local_mods(&mods_path)?,
+                dedup,
             };
             new_db.validate();
             new_db
         } else {
             Self::default()
         })
+    }
+
+    /// Refetch the local database, updating [LocalDatabase::mods] but keeping
+    /// [LocalDatabase::dedup]
+    pub async fn refetch(&self, owml_path: &str) -> Result<Self> {
+        Self::fetch_with_dedup(owml_path, self.dedup.clone())
     }
 
     /// Get a mod from the local database

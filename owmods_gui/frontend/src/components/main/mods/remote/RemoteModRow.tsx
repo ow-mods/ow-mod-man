@@ -2,7 +2,7 @@ import { memo, useCallback, useMemo } from "react";
 import ModRow from "../ModRow";
 import { commands, hooks } from "@commands";
 import { useGetTranslation } from "@hooks";
-import { dialog } from "@tauri-apps/api";
+import * as dialog from "@tauri-apps/plugin-dialog";
 import RemoteModActions from "./RemoteModActions";
 import { simpleOnError } from "../../../../errorHandling";
 import { RemoteMod } from "@types";

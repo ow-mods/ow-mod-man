@@ -5,7 +5,7 @@ use std::{
 };
 
 use anyhow::{anyhow, Context};
-use log::error;
+use log::{error, info};
 use owmods_core::{
     alerts::{fetch_alert, Alert},
     analytics::{send_analytics_event, AnalyticsEventName},
@@ -32,26 +32,24 @@ use owmods_core::{
     validate::fix_deps,
 };
 use serde::Serialize;
-use tauri::FileDropEvent;
-use tauri::{api::dialog, async_runtime, AppHandle, Manager, WindowEvent};
+use tauri::{async_runtime, AppHandle, DragDropEvent, Manager, WindowEvent};
+use tauri_plugin_dialog::{DialogExt, MessageDialogButtons, MessageDialogKind};
 use tokio::{select, sync::mpsc, try_join};
 use typeshare::typeshare;
 
-use crate::game::LogData;
 use crate::RemoteDatabaseOption;
 use crate::{
     error::{Error, Result},
-    events::CustomEventListener,
-};
-use crate::{
-    events::{CustomEventEmitter, CustomEventEmitterAll, CustomEventTriggerGlobal, Event},
+    events::{CustomEventEmitter, CustomEventEmitterAll, Event},
     protocol::PROTOCOL_LISTENER_AMOUNT,
 };
+use crate::{events::CustomEventListener, game::LogData};
 use crate::{
     game::{make_log_window, show_warnings, GameMessage},
     gui_config::GuiConfig,
     LogPort, State,
 };
+//use crate::events::CustomEventTriggerGlobal;
 
 pub async fn mark_mod_busy(
     unique_name: &str,
@@ -93,7 +91,7 @@ pub async fn initial_setup(handle: tauri::AppHandle, state: tauri::State<'_, Sta
     })?;
     let event = Event::GuiConfigReload(gui_config.watch_fs);
     handle.typed_emit_all(&event).ok();
-    handle.typed_trigger_global(&event).ok();
+    // handle.typed_trigger_global(&event).ok();
     handle.typed_emit_all(&Event::ConfigReload(())).ok();
 
     Ok(())
@@ -119,8 +117,7 @@ pub async fn refresh_local_db(handle: tauri::AppHandle, state: tauri::State<'_, 
     let conf = state.config.read().await;
     {
         let mut db = state.local_db.write().await;
-        let local_db = LocalDatabase::fetch(&conf.owml_path)?;
-        *db = local_db;
+        *db = db.refetch(&conf.owml_path).await?;
     }
     handle.typed_emit_all(&Event::LocalRefresh(())).ok();
     sync_remote_and_local(&handle)?;
@@ -213,9 +210,7 @@ pub async fn refresh_remote_db(handle: tauri::AppHandle, state: tauri::State<'_,
     };
 
     if first_load {
-        handle
-            .typed_trigger_global(&Event::RemoteInitialized(()))
-            .ok();
+        handle.typed_emit_all(&Event::RemoteInitialized(())).ok();
     }
 
     handle.typed_emit_all(&Event::RemoteRefresh(())).ok();
@@ -342,14 +337,19 @@ pub async fn install_mod(
     let conf = state.config.read().await.clone();
     let mut should_install = true;
     if let Some(current_mod) = local_db.get_mod(unique_name) {
-        should_install = dialog::blocking::confirm(
-            Some(&window),
-            "Reinstall?",
-            format!(
+        should_install = window
+            .dialog()
+            .message(format!(
                 "{} is already installed, reinstall it?",
                 current_mod.manifest.name
-            ),
-        );
+            ))
+            .kind(MessageDialogKind::Info)
+            .buttons(MessageDialogButtons::OkCancelCustom(
+                "Yes".to_string(),
+                "No".to_string(),
+            ))
+            .title("Reinstall?")
+            .blocking_show();
     }
     let res = if should_install {
         install_mod_from_db(
@@ -482,7 +482,7 @@ pub async fn save_gui_config(
     }
     let event = Event::GuiConfigReload(watch_fs);
     handle.typed_emit_all(&event).ok();
-    handle.typed_trigger_global(&event).ok();
+    // handle.typed_trigger_global(&event).ok();
     Ok(())
 }
 
@@ -908,19 +908,24 @@ pub async fn db_has_issues(state: tauri::State<'_, State>, window: tauri::Window
         if let Some(remote_db) = remote_db.get() {
             let (needs_update, remote_owml) = check_mod_needs_update(&owml, remote_db);
             if needs_update {
-                let answer = dialog::blocking::ask(
-                    Some(&window),
-                    "Update OWML",
-                    format!(
+                let answer = window
+                    .dialog()
+                    .message(format!(
                         "OWML is out of date, update it? (You have {} installed)",
                         owml.manifest.version
-                    ),
-                );
+                    ))
+                    .kind(MessageDialogKind::Info)
+                    .buttons(MessageDialogButtons::OkCancelCustom(
+                        "Yes".to_string(),
+                        "No".to_string(),
+                    ))
+                    .title("Update OWML?")
+                    .blocking_show();
                 if answer {
                     let handle = window.app_handle();
-                    mark_mod_busy(OWML_UNIQUE_NAME, true, true, &state, &handle).await;
+                    mark_mod_busy(OWML_UNIQUE_NAME, true, true, &state, handle).await;
                     download_and_install_owml(&config, remote_owml.unwrap(), false).await?;
-                    mark_mod_busy(OWML_UNIQUE_NAME, false, true, &state, &handle).await;
+                    mark_mod_busy(OWML_UNIQUE_NAME, false, true, &state, handle).await;
                     let event = Event::RequestReload("LOCAL".to_string());
                     handle.typed_emit_all(&event).unwrap();
                 } else {
@@ -1066,31 +1071,37 @@ pub async fn has_disabled_deps(unique_name: &str, state: tauri::State<'_, State>
 
 #[tauri::command]
 pub async fn register_drop_handler(window: tauri::Window) -> Result {
-    let handle = window.app_handle();
+    let handle = window.app_handle().clone();
     window.on_window_event(move |e| {
-        if let WindowEvent::FileDrop(e) = e {
+        if let WindowEvent::DragDrop(e) = e {
             match e {
-                FileDropEvent::Dropped(f) => {
-                    if let Some(f) = f.first() {
+                DragDropEvent::Drop { paths, position: _ } => {
+                    if let Some(f) = paths.first() {
                         if f.extension().map(|e| e == "zip").unwrap_or(false) {
+                            info!(
+                                "Drop completed, attempting to invoke with owmods://install-zip/{}",
+                                f.display()
+                            );
                             handle.typed_emit_all(&Event::DragLeave(())).ok();
-                            handle
-                                .typed_emit_all(&Event::ProtocolInvoke(ProtocolPayload {
+                            let res =
+                                handle.typed_emit_all(&Event::ProtocolInvoke(ProtocolPayload {
                                     verb: ProtocolVerb::InstallZip,
                                     payload: f.to_str().unwrap().to_string(),
-                                }))
-                                .ok();
+                                }));
+                            if let Err(why) = res {
+                                error!("Failed to protocol invoke for ZIP drop: {why:?}");
+                            }
                         }
                     }
                 }
-                FileDropEvent::Hovered(f) => {
-                    if let Some(f) = f.first() {
+                DragDropEvent::Enter { paths, position: _ } => {
+                    if let Some(f) = paths.first() {
                         if f.extension().map(|e| e == "zip").unwrap_or(false) {
                             handle.typed_emit_all(&Event::DragEnter(())).ok();
                         }
                     }
                 }
-                FileDropEvent::Cancelled => {
+                DragDropEvent::Leave => {
                     handle.typed_emit_all(&Event::DragLeave(())).ok();
                 }
                 _ => {}

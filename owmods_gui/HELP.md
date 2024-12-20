@@ -8,6 +8,7 @@ This file contains common questions for the manager.
   - [Table of Contents](#table-of-contents)
   - [How do I use this?](#how-do-i-use-this)
     - [The manager has encountered a fatal error, the system cannot find the file specified (Windows)](#the-manager-has-encountered-a-fatal-error-the-system-cannot-find-the-file-specified-windows)
+  - [Website buttons aren't working](#website-buttons-arent-working)
   - [How do I use this on Mac?](#how-do-i-use-this-on-mac)
   - [How do I use this on Linux?](#how-do-i-use-this-on-linux)
     - [Mod folder not found on Flatpak version of Steam](#mod-folder-not-found-on-flatpak-version-of-steam)
@@ -42,9 +43,19 @@ If you're getting an error message like this:
 The manager encountered a fatal error when starting: Runtime(CreateWebview(WebView2Error(WindowsError(Error { code: 0x80070002, message: The system cannot find the file specified. }))))
 ```
 
-This is a result of not having the [Microsoft Edge WebView2 Runtime](https://developer.microsoft.com/en-us/microsoft-edge/webview2/) installed. If you've used a "Window debloat" script, it's likely that this was removed, even though it's a *critical* component of Windows. To try and reinstall it, you can use the link above and download the evergreen bootstrapper.
+This is a result of not having the [Microsoft Edge WebView2 Runtime](https://developer.microsoft.com/en-us/microsoft-edge/webview2/) installed. If you've used a "Window debloat" script, it's likely that this was removed, even though it's a _critical_ component of Windows. To try and reinstall it, you can use the link above and download the evergreen bootstrapper.
 
 The manager's installer is supposed to install Webview2 for you, but depending on how your debloating script works, it may have left rouge registry keys that make the manager think it's already installed. If you're still having issues, try inspecting the registry keys mentioned in [this Webview2 article](https://learn.microsoft.com/en-us/microsoft-edge/webview2/concepts/distribution#detect-if-a-suitable-webview2-runtime-is-already-installed) to see if they're pointing to bad folders.
+
+## Website Buttons Aren't Working
+
+This may be due to an update from 0.14.2 to 0.15.0. The path for the procotol handler changed.
+
+1. Uninstall the manager entirely.
+2. In `regedit`, delete `HKEY_LOCAL_MACHINE\Software\Classes\owmods` and `HKEY_CURRENT_USER\Software\Classes\owmods`.
+3. Re-install the manager, the registry keys should now point to the right executable.
+
+On Linux you may need to delete a file in `~/.local/share/applications` called something along the lines of `outer-wilds-mod-manager-handler.desktop`. The old version used to make this desktop entry on launch but it is not needed anymore as the .desktop file in the package should be setup to handle the scheme for you.
 
 ## How do I use this on Mac?
 
@@ -84,7 +95,7 @@ The mod manager requires that the game is installed in `~/.steam/steam/steamapps
 When selecting game path **DO NOT** use the browse button, on Flatpak this tries to open a portal which
 won't work, you'll need to enter the path manually or copy it.
 
-Note that you won't be able to launch the game from the manager when in steam deck's game mode. But so long as you've *pressed* "Launch Game" at least once, you can launch the game directly and it will still be modded.
+Note that you won't be able to launch the game from the manager when in steam deck's game mode. But so long as you've _pressed_ "Launch Game" at least once, you can launch the game directly and it will still be modded.
 
 **You'll also need to change your controller layout to the "Mouse Only" template.**
 
@@ -109,9 +120,13 @@ To debug issues with mono set the `MONO_LOG_LEVEL` variable to `debug`. and look
 
 On steam deck, keep in mind the game won't launch if you click Launch Game from the manager while in game mode. You need to launch the game directly from the steam deck's game mode.
 
-### On Flatpak
+### On OWML Flatpak + Non-Flatpak Steam
 
 Also, ensure the game is located in `~/.steam/steam/steamapps/common/Outer Wilds`, otherwise the manager won't be able to find the game as it only has access to that folder.
+
+### On OWML Flatpak + Steam Flatpak
+
+Make sure you set the Game Path to `~/.var/app/com.valvesoftware.Steam/.local/share/Steam/steamapps/common/Outer Wilds/` and the OWML path to `~/.var/app/com.valvesoftware.Steam/.local/share/OuterWildsModManager/OWML`. You may have to make the `~/.var/app/com.valvesoftware.Steam/.local/share/OuterWildsModManager` directory in order for this to work.
 
 ## I made a mod! How do I submit it?
 

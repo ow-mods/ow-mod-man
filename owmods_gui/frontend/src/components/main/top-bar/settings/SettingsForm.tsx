@@ -1,16 +1,9 @@
-import {
-    ReactNode,
-    forwardRef,
-    useCallback,
-    useEffect,
-    useImperativeHandle,
-    useState
-} from "react";
+import { forwardRef, ReactNode, useCallback, useImperativeHandle, useState } from "react";
 import { Config, GuiConfig, Language, OWMLConfig, Theme } from "@types";
 import { useGetTranslation } from "@hooks";
 import { commands } from "@commands";
 import { TranslationNameMap } from "@components/common/TranslationContext";
-import { os } from "@tauri-apps/api";
+import * as os from "@tauri-apps/plugin-os";
 import { Box, Button, Tooltip, useTheme } from "@mui/material";
 import SettingsFolder from "./SettingsFolder";
 import SettingsSelect from "./SettingsSelect";
@@ -41,11 +34,7 @@ export interface SettingsRowProps {
     tooltip?: string;
 }
 
-let defaultShowLogServerOption = false;
-
-// Moved to out here due to #98
-// Should work 99% of the time but the state is there just in case
-os.platform().then((p) => (defaultShowLogServerOption = p === "win32"));
+const showLogServerOption = os.platform() === "windows";
 
 const SettingsForm = forwardRef(function SettingsForm(props: SettingsFormProps, ref) {
     const [config, setConfig] = useState<Config>(props.initialConfig);
@@ -53,12 +42,6 @@ const SettingsForm = forwardRef(function SettingsForm(props: SettingsFormProps, 
     const [guiConfig, setGuiConfig] = useState<GuiConfig>(props.initialGuiConfig);
     const getTranslation = useGetTranslation();
     const theme = useTheme();
-
-    const [showLogServerOption, setShowLogServerOption] = useState(defaultShowLogServerOption);
-
-    useEffect(() => {
-        os.platform().then((p) => setShowLogServerOption(p === "win32"));
-    }, []);
 
     useImperativeHandle(
         ref,
@@ -155,6 +138,13 @@ const SettingsForm = forwardRef(function SettingsForm(props: SettingsFormProps, 
                     label={getTranslation("RAINBOW")}
                     id="rainbow"
                     tooltip={getTranslation("TOOLTIP_RAINBOW")}
+                />
+                <SettingsCheck
+                    onChange={handleGui}
+                    value={guiConfig.managerLogs}
+                    label={getTranslation("MANAGER_LOGS")}
+                    id="managerLogs"
+                    tooltip={getTranslation("TOOLTIP_MANAGER_LOGS")}
                 />
                 <SettingsCheck
                     onChange={handleGui}
@@ -297,6 +287,7 @@ const SettingsForm = forwardRef(function SettingsForm(props: SettingsFormProps, 
             />
             <Tooltip title={getTranslation("TOOLTIP_CLEAR_DB_ALERTS")}>
                 <Button
+                    color="neutral"
                     startIcon={<DeleteSweepRounded />}
                     onClick={() => handleConf("lastViewedDbAlert", null)}
                 >
@@ -305,6 +296,7 @@ const SettingsForm = forwardRef(function SettingsForm(props: SettingsFormProps, 
             </Tooltip>
             <Tooltip title={getTranslation("TOOLTIP_CLEAR_MOD_ALERTS")}>
                 <Button
+                    color="neutral"
                     startIcon={<FolderDeleteRounded />}
                     onClick={() => handleConf("viewedAlerts", [])}
                 >

@@ -2,8 +2,8 @@ import { commands, hooks } from "@commands";
 import { withStyledErrorBoundary } from "@components/common/StyledErrorBoundary";
 import { useGetTranslation } from "@hooks";
 import { ErrorRounded, InfoRounded, LaunchRounded, WarningRounded } from "@mui/icons-material";
-import { Box, Button, Link, Palette, Typography, useTheme } from "@mui/material";
-import { shell } from "@tauri-apps/api";
+import { Box, Link, Button, Palette, Typography, useTheme } from "@mui/material";
+import * as shell from "@tauri-apps/plugin-shell";
 import { Alert } from "@types";
 import { memo, useCallback } from "react";
 

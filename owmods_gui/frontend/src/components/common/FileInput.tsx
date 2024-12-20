@@ -1,5 +1,5 @@
 import { useGetTranslation } from "@hooks";
-import { dialog } from "@tauri-apps/api";
+import * as dialog from "@tauri-apps/plugin-dialog";
 import { FolderRounded } from "@mui/icons-material";
 import { Box, TextField, Button, useTheme } from "@mui/material";
 
@@ -34,12 +34,20 @@ const FileInput = <T,>(openFunc: (options?: T) => Promise<string | string[] | nu
                     label={props.label}
                     sx={{ flexGrow: 1 }}
                 />
-                <Button variant="contained" onClick={onBrowse} startIcon={<FolderRounded />}>
+                <Button
+                    color="neutral"
+                    variant="contained"
+                    onClick={onBrowse}
+                    startIcon={<FolderRounded />}
+                >
                     {getTranslation("BROWSE")}
                 </Button>
             </Box>
         );
     };
 
-export const OpenFileInput = FileInput(dialog.open);
+export const OpenFileInput = FileInput(async (options?: dialog.OpenDialogOptions) => {
+    const res = await dialog.open(options);
+    return res ?? null;
+});
 export const SaveFileInput = FileInput(dialog.save);

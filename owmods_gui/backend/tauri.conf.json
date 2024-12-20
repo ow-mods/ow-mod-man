@@ -1,108 +1,84 @@
 {
-  "build": {
-    "beforeBuildCommand": "cd frontend && npm run build",
-    "beforeDevCommand": "cd frontend && npm run dev",
-    "devPath": "http://localhost:5173",
-    "distDir": "../dist"
-  },
-  "package": {
-    "productName": "Outer Wilds Mod Manager"
-  },
-  "tauri": {
-    "allowlist": {
-      "app": {
-        "all": true,
-        "hide": false,
-        "show": false
-      },
-      "clipboard": {
-        "writeText": true
-      },
-      "dialog": {
-        "ask": true,
-        "confirm": true,
-        "message": true,
-        "open": true,
-        "save": true
-      },
-      "os": {
-        "all": true
-      },
-      "process": {
-        "exit": true
-      },
-      "shell": {
-        "open": "(^https://(www\\.)?(github.com|outerwildsmods.com|paypal.me|patreon.com|buymeacoffee.com|cash.app|ko-fi.com)/)|(^https://(www\\.)?discord.gg/wusTQYbYTc$)"
-      },
-      "window": {
-        "setFocus": true,
-        "setTitle": true
-      }
+    "$schema": "https://schema.tauri.app/config/2.0.0",
+    "build": {
+        "beforeBuildCommand": "npm run build",
+        "beforeDevCommand": "npm run dev",
+        "devUrl": "http://localhost:1420",
+        "frontendDist": "../dist"
+    },
+    "productName": "Outer Wilds Mod Manager",
+    "identifier": "com.bwc9876.owmods-gui",
+    "plugins": {
+        "deep-link": {
+            "desktop": {
+                "schemes": ["owmods"]
+            }
+        },
+        "shell": {
+            "open": "(^https://(www\\.)?(github.com|outerwildsmods.com|paypal.me|patreon.com|buymeacoffee.com|cash.app|ko-fi.com)/)|(^https://(www\\.)?discord.gg/wusTQYbYTc$)"
+        },
+        "updater": {
+            "active": true,
+            "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IDkzRURBNzdENEVCREU1NDYKUldSRzViMU9mYWZ0azRoODZIdmVGWUZxVTNQRUVXU2hOTllqcGM4N2RRNjFEN2N3cnhXbW45V0sK",
+            "windows": {
+                "installMode": "basicUi"
+            },
+            "endpoints": [
+                "https://github.com/Bwc9876/ow-mod-man/releases/latest/download/latest.json",
+                "https://github.com/ow-mods/ow-mod-man/releases/latest/download/latest.json"
+            ]
+        }
+    },
+    "app": {
+        "security": {
+            "csp": "default-src 'self'; img-src 'self' https://ow-mods.github.io; style-src 'self' 'unsafe-inline'; font-src 'self' data:",
+            "dangerousDisableAssetCspModification": ["style-src", "font-src"]
+        },
+        "windows": [
+            {
+                "fullscreen": false,
+                "height": 750,
+                "minHeight": 400,
+                "minWidth": 600,
+                "resizable": true,
+                "dragDropEnabled": true,
+                "title": "Outer Wilds Mod Manager",
+                "width": 850
+            }
+        ]
     },
     "bundle": {
-      "active": true,
-      "category": "Game",
-      "copyright": "",
-      "externalBin": [],
-      "icon": [
-        "icons/32x32.png",
-        "icons/128x128.png",
-        "icons/128x128@2x.png",
-        "icons/icon.icns",
-        "icons/icon.ico"
-      ],
-      "identifier": "com.bwc9876.owmods-gui",
-      "longDescription": "A manager for Outer Wilds mods",
-      "macOS": {
-        "license": "../../LICENSE"
-      },
-      "resources": [],
-      "shortDescription": "",
-      "targets": "all",
-      "windows": {
-        "certificateThumbprint": null,
-        "digestAlgorithm": "sha256",
-        "nsis": {
-          "headerImage": "installer-images/nsis/Header.bmp",
-          "installMode": "both",
-          "installerIcon": "icons/icon.ico",
-          "license": "../../LICENSE",
-          "sidebarImage": "installer-images/nsis/Sidebar.bmp"
-        },
-        "timestampUrl": "",
-        "wix": {
-          "bannerPath": "installer-images/wix/TopBanner.png",
-          "dialogImagePath": "installer-images/wix/Background.png",
-          "license": "../../LICENSE"
+        "active": true,
+        "category": "Game",
+        "copyright": "",
+        "externalBin": [],
+        "icon": [
+            "icons/32x32.png",
+            "icons/128x128.png",
+            "icons/128x128@2x.png",
+            "icons/icon.icns",
+            "icons/icon.ico"
+        ],
+        "longDescription": "A manager for Outer Wilds mods",
+        "licenseFile": "../../LICENSE",
+        "macOS": {},
+        "resources": [],
+        "shortDescription": "A manager for Outer Wilds mods",
+        "targets": "all",
+        "windows": {
+            "certificateThumbprint": null,
+            "digestAlgorithm": "sha256",
+            "nsis": {
+                "headerImage": "installer-images/nsis/Header.bmp",
+                "installMode": "both",
+                "installerIcon": "icons/icon.ico",
+                "sidebarImage": "installer-images/nsis/Sidebar.bmp"
+            },
+            "timestampUrl": "",
+            "wix": {
+                "bannerPath": "installer-images/wix/TopBanner.png",
+                "dialogImagePath": "installer-images/wix/Background.png"
+            }
         }
-      }
-    },
-    "security": {
-      "csp": "default-src 'self'; img-src 'self' https://ow-mods.github.io; style-src 'self' 'unsafe-inline'; font-src 'self' data:",
-      "dangerousDisableAssetCspModification": ["style-src", "font-src"]
-    },
-    "updater": {
-      "active": true,
-      "dialog": true,
-      "endpoints": [
-        "https://github.com/Bwc9876/ow-mod-man/releases/latest/download/latest.json",
-        "https://github.com/ow-mods/ow-mod-man/releases/latest/download/latest.json"
-      ],
-      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IDkzRURBNzdENEVCREU1NDYKUldSRzViMU9mYWZ0azRoODZIdmVGWUZxVTNQRUVXU2hOTllqcGM4N2RRNjFEN2N3cnhXbW45V0sK",
-      "windows": {
-        "installMode": "basicUi"
-      }
-    },
-    "windows": [
-      {
-        "fullscreen": false,
-        "height": 750,
-        "minHeight": 400,
-        "minWidth": 600,
-        "resizable": true,
-        "title": "Outer Wilds Mod Manager",
-        "width": 850
-      }
-    ]
-  }
+    }
 }

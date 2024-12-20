@@ -7,9 +7,9 @@ pkgdesc="A GUI To Manage Outer Wilds Mods"
 arch=('x86_64' 'aarch64')
 url="https://github.com/ow-mods/ow-mod-man/tree/main/owmods_gui"
 license=('GPL3')
-depends=('mono' 'cairo' 'desktop-file-utils' 'gdk-pixbuf2' 'glib2' 'gtk3' 'hicolor-icon-theme' 'libsoup' 'pango' 'webkit2gtk')
+depends=('mono' 'cairo' 'desktop-file-utils' 'gdk-pixbuf2' 'glib2' 'gtk3' 'hicolor-icon-theme' 'libsoup' 'pango' 'webkit2gtk-4.1')
 options=('!strip' '!emptydirs')
-source=("${_appname}-${pkgver}-${arch}.deb::https://github.com/ow-mods/ow-mod-man/releases/download/gui_v${pkgver}/Outer Wilds Mod Manager_${pkgver}_amd64.deb")
+source=("${_appname}-${pkgver}-${arch}.deb::https://github.com/ow-mods/ow-mod-man/releases/download/gui_v${pkgver}/Outer%20Wilds%20Mod%20Manager_${pkgver}_amd64.deb")
 sha256sums=()
 
 package() {

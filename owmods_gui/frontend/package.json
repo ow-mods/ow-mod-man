@@ -15,8 +15,7 @@
         "lint": "tsc --noEmit && eslint --cache . --fix",
         "lint-dry": "tsc --noEmit && eslint .",
         "prettify": "prettier --write . --ignore-unknown",
-        "prettier-check": "prettier --check . --ignore-unknown",
-        "tauri": "cd ../backend && tauri"
+        "prettier-check": "prettier --check . --ignore-unknown"
     },
     "dependencies": {
         "@emotion/react": "11.14.0",

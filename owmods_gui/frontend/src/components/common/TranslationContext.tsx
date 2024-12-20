@@ -3,6 +3,7 @@ import japanese from "@assets/translations/japanese.json";
 import chinese from "@assets/translations/chinese.json";
 import vietnamese from "@assets/translations/vietnamese.json";
 import wario from "@assets/translations/wario.json";
+import portugueseBrazil from "@assets/translations/portugueseBrazil.json";
 import french from "@assets/translations/french.json";
 //import portugueseBr from "@assets/translations/portuguese-br.json";
 import { Language } from "@types";
@@ -22,13 +23,15 @@ export const TranslationMap: Record<Language, Translations> = {
     Chinese: chinese,
     Vietnamese: vietnamese,
     Wario: wario,
-    French: french
+    French: french,
+    BrazilianPortugues: portugueseBrazil
 };
 
 export const TranslationNameMap = {
     Vietnamese: "Tiếng Việt",
     Japanese: "日本語",
-    Chinese: "汉语"
+    Chinese: "汉语",
+    BrazilianPortugues: "Português Brasileiro"
     //    BrazilianPortuguese: "Brazilian Portuguese"
 };
 

@@ -104,8 +104,9 @@ export enum Language {
     Chinese = "Chinese",
     Vietnamese = "Vietnamese",
     Wario = "Wario",
-    English = "English",
-    French = "French"
+    French = "French",
+    BrazilianPortugues = "BrazilianPortugues",
+    English = "English"
 }
 
 export enum Theme {

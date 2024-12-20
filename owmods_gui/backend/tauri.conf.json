@@ -11,7 +11,9 @@
     "plugins": {
         "deep-link": {
             "desktop": {
-                "schemes": ["owmods"]
+                "schemes": [
+                    "owmods"
+                ]
             }
         },
         "shell": {
@@ -32,7 +34,10 @@
     "app": {
         "security": {
             "csp": "default-src 'self'; img-src 'self' https://ow-mods.github.io; style-src 'self' 'unsafe-inline'; font-src 'self' data:",
-            "dangerousDisableAssetCspModification": ["style-src", "font-src"]
+            "dangerousDisableAssetCspModification": [
+                "style-src",
+                "font-src"
+            ]
         },
         "windows": [
             {
@@ -52,6 +57,7 @@
         "category": "Game",
         "copyright": "",
         "externalBin": [],
+        "createUpdaterArtifacts": true,
         "icon": [
             "icons/32x32.png",
             "icons/128x128.png",

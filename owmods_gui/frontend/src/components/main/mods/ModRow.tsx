@@ -10,7 +10,7 @@ import {
     useMediaQuery,
     useTheme
 } from "@mui/material";
-import { ReactNode, memo, useMemo } from "react";
+import { memo, ReactNode, useMemo } from "react";
 import { ExtensionRounded } from "@mui/icons-material";
 import ModThumbnail from "./ModThumbnail";
 
@@ -170,7 +170,7 @@ const ModRow = memo(function GenericModRow(props: ModRowProps) {
                     </Typography>
                 </Box>
             </TableCell>
-            <TableCell sx={cellStyle} align="right">
+            <TableCell sx={cellStyle} align="left">
                 {props.isLoading || props.remoteIsLoading ? (
                     <Skeleton width={70} />
                 ) : (

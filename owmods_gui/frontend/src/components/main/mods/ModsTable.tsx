@@ -1,6 +1,7 @@
 import { hooks } from "@commands";
+import ODTooltip from "@components/common/ODTooltip";
 import { useGetTranslation } from "@hooks";
-import { ImageRounded } from "@mui/icons-material";
+import { Download as DownloadsIcon, ImageRounded } from "@mui/icons-material";
 import {
     Box,
     Paper,
@@ -15,7 +16,7 @@ import {
     useMediaQuery,
     useTheme
 } from "@mui/material";
-import { ReactNode, forwardRef } from "react";
+import { forwardRef, ReactNode } from "react";
 import {
     ScrollerProps,
     TableBodyProps,
@@ -80,8 +81,12 @@ const ModsTable = forwardRef<TableVirtuosoHandle, ModsTableProps>(function ModsT
                             </TableCell>
                         )}
                         <TableCell>{getTranslation("NAME")}</TableCell>
-                        <TableCell width="150px" align="right">
-                            {getTranslation("DOWNLOAD_COUNT")}
+                        <TableCell width="50px" align="right">
+                            <ODTooltip title={getTranslation("DOWNLOAD_COUNT")}>
+                                <Box display="flex" alignItems="center">
+                                    <DownloadsIcon />
+                                </Box>
+                            </ODTooltip>
                         </TableCell>
                         <TableCell width="110px" align="center">
                             {getTranslation("VERSION")}

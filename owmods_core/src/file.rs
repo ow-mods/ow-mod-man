@@ -1,10 +1,9 @@
 use std::{
-    fs::{create_dir_all, read_to_string, File},
-    io::{BufReader, BufWriter, Write},
+    fs::{create_dir_all, read_to_string},
     path::{Path, PathBuf},
 };
 
-use anyhow::{anyhow, Result};
+use anyhow::{anyhow, Context, Result};
 use directories::{BaseDirs, ProjectDirs};
 use serde::{Deserialize, Serialize};
 
@@ -49,10 +48,8 @@ pub fn deserialize_from_json<T>(file_path: &Path) -> Result<T>
 where
     for<'a> T: Deserialize<'a>,
 {
-    let file = File::open(file_path)?;
-    let buffer = BufReader::new(file);
-    let result = serde_json::from_reader(buffer)?;
-    Ok(result)
+    let text = read_to_string(file_path)?;
+    serde_json::from_str(fix_bom(&text)).context("Failed to parse JSON")
 }
 
 /// Utility function to serialize an object to a JSON file.
@@ -99,10 +96,8 @@ where
             create_dir_all(parent_path)?;
         }
     }
-    let file = File::create(out_path)?;
-    let buffer = BufWriter::new(file);
-    serde_json::to_writer_pretty(buffer, obj)?;
-    Ok(())
+    let text = serde_json::to_string_pretty(obj)?;
+    std::fs::write(out_path, text).context("Failed to write JSON")
 }
 
 /// Utility function to get the application directory in the user's files
@@ -146,25 +141,9 @@ pub fn get_app_path() -> Result<PathBuf> {
 /// If we can't get the user's app data dir (or equivalent on Linux.
 ///
 pub fn get_default_owml_path() -> Result<PathBuf> {
-    let base_dirs = BaseDirs::new().ok_or_else(|| anyhow!("Couldn't Get User App Data"))?;
+    let base_dirs = BaseDirs::new().context("Couldn't Get User App Data")?;
     let appdata_dir = base_dirs.data_dir();
     Ok(appdata_dir.join(OLD_MANAGER_FOLDER_NAME).join("OWML"))
-}
-
-/// Fix a string of JSON by removing the BOM
-pub fn fix_json(txt: &str) -> String {
-    fix_bom(txt).to_string()
-}
-
-/// Removes the BOM on a JSON file
-pub fn fix_json_file(path: &Path) -> Result<()> {
-    let txt_old = read_to_string(path)?;
-    let txt = fix_json(&txt_old);
-    if txt != txt_old {
-        let mut file = File::create(path)?;
-        write!(file, "{}", txt)?;
-    }
-    Ok(())
 }
 
 /// Check if a path matches any path in a series of other paths
@@ -188,7 +167,8 @@ pub fn create_all_parents(file_path: &Path) -> Result<()> {
     Ok(())
 }
 
-fn fix_bom(str: &str) -> &str {
+/// Removes the BOM from a string if it exists
+pub fn fix_bom(str: &str) -> &str {
     str.strip_prefix('\u{FEFF}').unwrap_or(str)
 }
 
@@ -196,20 +176,6 @@ fn fix_bom(str: &str) -> &str {
 mod tests {
 
     use super::*;
-
-    #[derive(Deserialize)]
-    struct TestStruct {
-        prop: bool,
-    }
-
-    // Simple test rn, if some mods ever use weird json we'll need to test for and fix that
-    #[test]
-    fn test_fix_json() {
-        let json = include_str!("../test_files/whacky_json.json");
-        let json = fix_json(json);
-        let obj: TestStruct = serde_json::from_str(&json).unwrap();
-        assert!(obj.prop)
-    }
 
     #[test]
     fn test_file_matches_path() {

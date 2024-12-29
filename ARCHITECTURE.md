@@ -96,6 +96,7 @@ Versions of the manager are published to the following sources
 
 - GitHub releases
   - .deb
+  - .rpm
   - .tar.gz
   - .AppImage
   - .msi (Wix)
@@ -129,6 +130,7 @@ It has a lot of stuff in it, basically, everything that isn't GUI or CLI specifi
 - It can install mods from a zip file, a URL, or the mods database
 - The mod manager only supports extracting zip files
 - It can recursively install mod dependencies (from the database only), and will automatically handle circular dependencies
+- When recursively installing, the manager attempts to "de-dup" installs, preventing a mod that's depended on by multiple mods from being installed more than once
 - It doesn't simply extract a mod's zip, it recursively searches for the manifest file in the zip and only extracts that file's siblings and children
 - OWML installs are handled specially, use downloads::download_and_install_owml to install OWML
 - Analytics are sent when a mod is installed, installed as a dependency, or updated. Note this only happens with `downloads::install_mod_from_db`.

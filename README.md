@@ -23,11 +23,11 @@ This is the monorepo for the new <a href="https://www.mobiusdigitalgames.com/out
 | **Windows**  |      ✅        |
 |  **Linux**   |      ✅        |
 |   **Deck**   |      ✅        |
-|   **Mac**    |      ❌*       |
+|   **Mac**    |      ✅*       |
 
 You'll want to check out the [Help document](owmods_gui/HELP.md) for platform-specific instruction and caveats.
 
-\* Currently not native, but you can [check out this Reddit post](https://www.reddit.com/r/outerwilds/comments/1b9ysbm/outer_wilds_is_playable_on_macos_with_an_m1/) by u/FoxGray for a way to run it.
+\* Some caveats and additional steps may be required on Mac. see [the Mac section of the HELP document](owmods_gui/HELP.md##how-do-i-use-this-on-mac) for more info.
 
 ## Related Repos
 
@@ -43,7 +43,7 @@ You'll want to check out the [Help document](owmods_gui/HELP.md) for platform-sp
   - [dgarroDC](https://github.com/dgarroDC)
   - [MegaPiggy](https://github.com/MegaPiggy)
 - Testing:
-  - [Locochoco](https://github.com/Locochoco)
+  - [Locochoco](https://github.com/Locochocov)
   - [JohnCorby](https://github.com/JohnCorby)
 - Help with Linux Support:
   - [JohnCorby](https://github.com/JohnCorby)
@@ -54,5 +54,7 @@ You'll want to check out the [Help document](owmods_gui/HELP.md) for platform-sp
   - Chinese: [SmallGarfield](https://github.com/xiaojiafei520)
   - Vietnamese: [KNNFx](https://github.com/KNNFx)
   - Japanese: [orclecle](https://github.com/TRSasasusu)
+  - French: [xen-42](https://github.com/xen-42)
+  - Brazilian Portuguese: [Locochoco](https://github.com/Locochocov)
 
 And the support of the [Outer Wilds Modding Discord](https://discord.com/invite/wusTQYbYTc)

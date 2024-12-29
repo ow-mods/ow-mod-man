@@ -1,5 +1,6 @@
 import { LoadState, useTauri } from "@hooks";
-import { dialog, invoke } from "@tauri-apps/api";
+import { invoke } from "@tauri-apps/api/core";
+import * as dialog from "@tauri-apps/plugin-dialog";
 import {
     Config,
     GuiConfig,
@@ -106,7 +107,7 @@ const makeInvoke = (key: Command, forceNoDisplayErr?: boolean) => {
         >;
         if (!(forceNoDisplayErr ?? false) && (displayErr ?? true)) {
             promise.catch((e) => {
-                dialog.message(e, { type: "error", title: `Error (${name})` });
+                dialog.message(e, { kind: "error", title: `Error (${name})` });
             });
         }
         return promise;
@@ -114,6 +115,7 @@ const makeInvoke = (key: Command, forceNoDisplayErr?: boolean) => {
 };
 
 const makeHook = (key: Command) => {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const name = commandInfo[key];
     return <E extends Event["name"]>(
         eventName: E | Event["name"][],

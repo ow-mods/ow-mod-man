@@ -1,21 +1,17 @@
-use std::{
-    fs::File,
-    io::{BufWriter, Write},
-    time::{Instant, SystemTime, UNIX_EPOCH},
-};
+use std::time::{Instant, SystemTime, UNIX_EPOCH};
 
-use anyhow::{anyhow, Result};
+use anyhow::Result;
 use log::error;
 use owmods_core::{
     alerts::get_warnings,
     config::Config,
     db::LocalDatabase,
-    file::{create_all_parents, get_app_path},
     search::matches_query,
     socket::{SocketMessage, SocketMessageType},
 };
 use serde::{Deserialize, Serialize};
-use tauri::{api::dialog, AppHandle, Window, WindowBuilder};
+use tauri::{AppHandle, WebviewWindow, WebviewWindowBuilder, Window};
+use tauri_plugin_dialog::{DialogExt, MessageDialogKind};
 use time::{macros::format_description, OffsetDateTime};
 use typeshare::typeshare;
 
@@ -56,7 +52,6 @@ pub struct LogData {
     port: LogPort,
     messages: Vec<GameMessage>,
     indices: Vec<usize>,
-    writer: BufWriter<File>,
     active_filter: Option<SocketMessageType>,
     active_search: String,
     app_handle: AppHandle,
@@ -72,32 +67,10 @@ impl LogData {
     const LOG_TIME_UNTIL_FORCED_EMIT_SEC: u64 = 1;
 
     pub fn new(port: LogPort, handle: &AppHandle) -> Result<Self> {
-        let now = OffsetDateTime::now_utc();
-        let logs_path = get_app_path()?
-            .join("game_logs")
-            .join(
-                now.format(format_description!("[year]-[month]-[day]"))
-                    .unwrap(),
-            )
-            .join(format!(
-                "{}_{port}.log",
-                now.format(format_description!("[hour]-[minute]-[second]"))
-                    .unwrap()
-            ));
-        create_all_parents(&logs_path)?;
-        let file = File::options()
-            .read(true)
-            .append(true)
-            .create(true)
-            .open(&logs_path)
-            .map_err(|e| anyhow!("Couldn't create log file: {:?}", e))?;
-        let writer = BufWriter::new(file);
-
         Ok(Self {
             port,
             messages: vec![],
             indices: vec![],
-            writer,
             active_filter: None,
             active_search: String::new(),
             app_handle: handle.clone(),
@@ -213,9 +186,6 @@ impl LogData {
 
     pub fn take_message(&mut self, msg: SocketMessage) {
         let msg = GameMessage::new(self.port, msg);
-        if let Err(why) = write_log(&mut self.writer, &msg.message) {
-            error!("Couldn't write to log file: {}", why);
-        }
         // Reset the message tracker every second
         if self.message_tracker.1.elapsed().as_secs_f32() > 1.0 {
             self.message_tracker = (0, Instant::now());
@@ -275,23 +245,15 @@ impl LogData {
     }
 }
 
-impl Drop for LogData {
-    fn drop(&mut self) {
-        if let Err(why) = self.writer.flush() {
-            error!("Couldn't flush log file: {}", why);
-        }
-    }
-}
-
-pub async fn make_log_window(handle: &AppHandle) -> Result<Window> {
+pub async fn make_log_window(handle: &AppHandle) -> Result<WebviewWindow> {
     let epoch = SystemTime::now()
         .duration_since(UNIX_EPOCH)
         .unwrap()
         .as_millis();
-    let log_window = WindowBuilder::new(
+    let log_window = WebviewWindowBuilder::new(
         handle,
         format!("game-{epoch}"),
-        tauri::WindowUrl::App("/logs/index.html".parse()?),
+        tauri::WebviewUrl::App("/logs/index.html".parse()?),
     );
     let window = log_window
         .center()
@@ -309,21 +271,15 @@ pub fn show_warnings(window: &Window, local_db: &LocalDatabase, config: &Config)
     );
     let mut config = config.clone();
     for (unique_name, warning) in warnings {
-        dialog::blocking::message(Some(window), &warning.title, &warning.body);
+        //::message(Some(window), &warning.title, &warning.body);
+        window
+            .dialog()
+            .message(&warning.body)
+            .parent(window)
+            .kind(MessageDialogKind::Warning)
+            .title(&warning.title)
+            .blocking_show();
         config.set_warning_shown(unique_name);
     }
     Ok(config)
-}
-
-pub fn write_log(writer: &mut BufWriter<File>, msg: &SocketMessage) -> Result<()> {
-    writeln!(
-        writer,
-        "[{}][{}][{:?}] {}",
-        msg.sender_name.as_ref().unwrap_or(&"Unknown".to_string()),
-        msg.sender_type.as_ref().unwrap_or(&"Unknown".to_string()),
-        msg.message_type,
-        msg.message
-    )?;
-    writer.flush()?;
-    Ok(())
 }

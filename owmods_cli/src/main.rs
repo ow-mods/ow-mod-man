@@ -1,6 +1,6 @@
 use std::{fmt::Write, path::PathBuf, process};
 
-use anyhow::{anyhow, Result};
+use anyhow::{Context, Result};
 use clap::{CommandFactory, Parser};
 use colored::Colorize;
 use log::{error, info, warn, LevelFilter};
@@ -96,7 +96,7 @@ async fn run_from_cli(cli: BaseCli) -> Result<()> {
                 let db = RemoteDatabase::fetch(&config.database_url).await?;
                 let owml = db
                     .get_owml()
-                    .ok_or_else(|| anyhow!("OWML not found, is the database URL correct?"))?;
+                    .context("OWML not found, is the database URL correct?")?;
                 download_and_install_owml(&config, owml, *prerelease).await?;
                 info!("Done! Happy Modding!");
             }

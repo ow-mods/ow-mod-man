@@ -1,6 +1,7 @@
 import { hooks } from "@commands";
+import ODTooltip from "@components/common/ODTooltip";
 import { useGetTranslation } from "@hooks";
-import { ImageRounded } from "@mui/icons-material";
+import { Download as DownloadsIcon, ImageRounded } from "@mui/icons-material";
 import {
     Box,
     Paper,
@@ -11,9 +12,11 @@ import {
     TableHead,
     TableProps,
     TableRow,
+    TableRowProps,
+    useMediaQuery,
     useTheme
 } from "@mui/material";
-import { ReactNode, forwardRef } from "react";
+import { forwardRef, ReactNode } from "react";
 import {
     ScrollerProps,
     TableBodyProps,
@@ -38,12 +41,15 @@ const TableComp = (props: TableProps) => (
 const BodyComp = forwardRef<HTMLTableSectionElement, TableBodyProps>(function TBody(props, ref) {
     return <TableBody {...props} ref={ref} />;
 });
+const RowComp = forwardRef<HTMLTableRowElement, TableRowProps>(function TRow(props, ref) {
+    return <TableRow {...props} ref={ref} />;
+});
 
 const ModsTableComponents = {
     Scroller: ScrollerComp,
     Table: TableComp,
     TableHead: TableHead,
-    TableRow: TableRow,
+    TableRow: RowComp,
     TableBody: BodyComp
 };
 
@@ -55,6 +61,8 @@ const ModsTable = forwardRef<TableVirtuosoHandle, ModsTableProps>(function ModsT
     const guiConfig = hooks.getGuiConfig("guiConfigReload")[1];
     const theme = useTheme();
 
+    const showImages = useMediaQuery("(min-width:800px)", {});
+
     return (
         <TableVirtuoso
             ref={ref}
@@ -64,21 +72,29 @@ const ModsTable = forwardRef<TableVirtuosoHandle, ModsTableProps>(function ModsT
             data={props.uniqueNames}
             fixedHeaderContent={() => (
                 <TableRow sx={{ background: theme.palette.grey[900] }}>
-                    {guiConfig?.hideModThumbnails || (
-                        <TableCell width="220px">
-                            <Box display="flex" alignItems="center">
-                                <ImageRounded />
-                            </Box>
+                    <>
+                        {guiConfig?.hideModThumbnails || !showImages || (
+                            <TableCell width="220px">
+                                <Box display="flex" alignItems="center">
+                                    <ImageRounded />
+                                </Box>
+                            </TableCell>
+                        )}
+                        <TableCell>{getTranslation("NAME")}</TableCell>
+                        <TableCell width="50px" align="right">
+                            <ODTooltip title={getTranslation("DOWNLOAD_COUNT")}>
+                                <Box display="flex" alignItems="center">
+                                    <DownloadsIcon />
+                                </Box>
+                            </ODTooltip>
                         </TableCell>
-                    )}
-                    <TableCell>{getTranslation("NAME")}</TableCell>
-                    <TableCell width="100px">{getTranslation("DOWNLOAD_COUNT")}</TableCell>
-                    <TableCell width="110px" align="center">
-                        {getTranslation("VERSION")}
-                    </TableCell>
-                    <TableCell width={props.actionsSize} align="center">
-                        {getTranslation("ACTIONS")}
-                    </TableCell>
+                        <TableCell width="110px" align="center">
+                            {getTranslation("VERSION")}
+                        </TableCell>
+                        <TableCell width={props.actionsSize} align="center">
+                            {getTranslation("ACTIONS")}
+                        </TableCell>
+                    </>
                 </TableRow>
             )}
             itemContent={(_, uniqueName) => props.renderRow(uniqueName)}

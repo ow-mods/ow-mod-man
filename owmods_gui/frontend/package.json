@@ -24,7 +24,7 @@
         "@mui/icons-material": "6.3.0",
         "@mui/lab": "6.0.0-beta.21",
         "@mui/material": "6.3.0",
-        "@tauri-apps/api": "2.1.1",
+        "@tauri-apps/api": "2.2.0",
         "@tauri-apps/plugin-clipboard-manager": "2.2.0",
         "@tauri-apps/plugin-dialog": "2.2.0",
         "@tauri-apps/plugin-os": "2.2.0",
@@ -52,7 +52,7 @@
         "globals": "^15.13.0",
         "prettier": "3.4.2",
         "typescript": "5.7.2",
-        "vite": "6.0.6",
+        "vite": "6.0.7",
         "vite-imagetools": "7.0.5"
     }
 }

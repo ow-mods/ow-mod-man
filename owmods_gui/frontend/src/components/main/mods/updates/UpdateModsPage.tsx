@@ -71,12 +71,7 @@ const UpdateModsPage = memo(function UpdateModsPage(props: UpdateModsPageProps) 
 
     return (
         <>
-            <audio
-                disableRemotePlayback
-                style={{ display: "none" }}
-                ref={updateAudioRef}
-                src={updateAudio}
-            />
+            <audio style={{ display: "none" }} ref={updateAudioRef} src={updateAudio} />
             <ModsPage
                 isLoading={status === "Loading" && updateMods === null}
                 actionsSize={130}

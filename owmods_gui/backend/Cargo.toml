@@ -20,7 +20,7 @@ anyhow = "1.0.75"
 tokio = { version = "1.40.0", features = ["sync", "macros"] }
 log = { version = "0.4.22", features = ["std", "serde"] }
 typeshare = "1.0.3"
-notify = { version = "7.0.0", default-features = false, features = [
+notify = { version = "8.0.0", default-features = false, features = [
     "macos_kqueue",
 ] }
 regex = "1.11.0"

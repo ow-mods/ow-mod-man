@@ -11,7 +11,7 @@ license = "GPL-3.0-or-later"
 [dependencies]
 owmods_core = { version = "0.15.0", path = "../owmods_core" }
 clap = { version = "4.5.4", features = ["derive"] }
-colored = "2.1.0"
+colored = "3.0.0"
 anyhow = "1.0.82"
 indicatif = { version = "0.17.8", features = ["improved_unicode"] }
 tokio = { version = "1.37.0", features = ["macros", "rt-multi-thread"] }

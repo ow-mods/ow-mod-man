@@ -3,7 +3,7 @@ use std::{
     path::PathBuf,
 };
 
-use anyhow::{Context, Result};
+use anyhow::Result;
 use glob::glob;
 
 use crate::{

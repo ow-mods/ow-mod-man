@@ -1,7 +1,7 @@
 import { hooks } from "@commands";
 import ODTooltip from "@components/common/ODTooltip";
 import { useGetTranslation } from "@hooks";
-import { Download as DownloadsIcon, ImageRounded } from "@mui/icons-material";
+import { DownloadRounded as DownloadsIcon, ImageRounded } from "@mui/icons-material";
 import {
     Box,
     Paper,

@@ -37,15 +37,17 @@ This file contains common questions for the manager.
 
 ### The manager has encountered a fatal error, the system cannot find the file specified (Windows)
 
-If you're getting an error message like this:
+If you're getting an error message like this (or the manager isn't doing anything at all):
 
 ```txt
 The manager encountered a fatal error when starting: Runtime(CreateWebview(WebView2Error(WindowsError(Error { code: 0x80070002, message: The system cannot find the file specified. }))))
 ```
 
-This is a result of not having the [Microsoft Edge WebView2 Runtime](https://developer.microsoft.com/en-us/microsoft-edge/webview2/) installed. If you've used a "Window debloat" script, it's likely that this was removed, even though it's a _critical_ component of Windows. To try and reinstall it, you can use the link above and download the evergreen bootstrapper.
+This is most likely a result of not having the [Microsoft Edge WebView2 Runtime](https://developer.microsoft.com/en-us/microsoft-edge/webview2/) installed. If you've used a "Window debloat" script, it's likely that this was removed, even though it's a component of Windows. To try and reinstall it, you can [download the evergreen bootstrapper](https://developer.microsoft.com/en-us/microsoft-edge/webview2/) and let it install.
 
-The manager's installer is supposed to install Webview2 for you, but depending on how your debloating script works, it may have left rouge registry keys that make the manager think it's already installed. If you're still having issues, try inspecting the registry keys mentioned in [this Webview2 article](https://learn.microsoft.com/en-us/microsoft-edge/webview2/concepts/distribution#detect-if-a-suitable-webview2-runtime-is-already-installed) to see if they're pointing to bad folders.
+The manager's installer is supposed to install Webview2 for you, but depending on how programs uninstall Webview2, it may have left bad registry keys that make the Webview2 bootstrapper think it's already installed. If you're still having issues, try inspecting the registry keys mentioned in [this Webview2 article](https://learn.microsoft.com/en-us/microsoft-edge/webview2/concepts/distribution?tabs=dotnetcsharp#detect-if-a-webview2-runtime-is-already-installed) to see if they're pointing to bad folders. Most likely the one in `HKEY_LOCAL_MACHINE` will be defined and the one in `HKEY_CURRENT_USER` won't, if so only inspect the one in `HKEY_LOCAL_MACHINE`.
+
+If either of these keys contain a path that's invalid set the subkey `pv` to `0.0.0.0` and run the Webview2 installer again, this should make it realize it's not installed.
 
 ## Website Buttons Aren't Working
 

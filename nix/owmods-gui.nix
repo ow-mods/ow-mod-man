@@ -64,7 +64,7 @@ rustPlatform.buildRustPackage rec {
 
   buildAndTestSubdir = "owmods_gui/backend";
 
-  postFixup = lib.optionalString wrapWithMono "gappsWrapperArgs+=(--prefix PATH : '${mono}/bin')";
+  preFixup = lib.optionalString wrapWithMono "gappsWrapperArgs+=(--prefix PATH : '${mono}/bin')";
 
   postPatch = let
     frontend = let

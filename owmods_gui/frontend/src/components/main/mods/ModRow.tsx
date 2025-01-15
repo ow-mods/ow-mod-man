@@ -112,7 +112,14 @@ const ModRow = memo(function GenericModRow(props: ModRowProps) {
                 </TableCell>
             )}
             <TableCell sx={cellStyle}>
-                <Typography display="flex" alignItems="center" variant="subtitle1" noWrap>
+                <Typography
+                    display="flex"
+                    alignItems="center"
+                    variant="subtitle1"
+                    maxWidth="100%"
+                    whiteSpace="nowrap"
+                    overflow="hidden"
+                >
                     {props.requiresDlc && (
                         <Box display="inline-block" mr={0.5}>
                             <ODTooltip title={getTranslation("REQUIRES_DLC")}>
@@ -126,13 +133,31 @@ const ModRow = memo(function GenericModRow(props: ModRowProps) {
                             </ODTooltip>
                         </Box>
                     )}
-                    <Box display="inline-block" mr={1}>
-                        <Typography fontWeight={theme.typography.fontWeightBold}>
+                    <Box overflow="hidden" display="inline-block" mr={1}>
+                        <Typography
+                            noWrap
+                            display="block"
+                            fontWeight={theme.typography.fontWeightBold}
+                        >
                             {props.isLoading ? <Skeleton width={300} /> : props.name}
                         </Typography>
                     </Box>
-                    <Box display="inline-block" mr={1}>
-                        <Typography noWrap variant="caption" color={theme.palette.text.disabled}>
+                    <Box
+                        flexShrink={1}
+                        flexBasis={0}
+                        flexGrow={1}
+                        maxWidth="min-content"
+                        overflow="hidden"
+                        display="inline-block"
+                        mr={1}
+                    >
+                        <Typography
+                            noWrap
+                            overflow="hidden"
+                            display="block"
+                            variant="caption"
+                            color={theme.palette.text.disabled}
+                        >
                             {props.isLoading ? (
                                 <></>
                             ) : (

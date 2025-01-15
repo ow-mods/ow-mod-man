@@ -3,7 +3,7 @@ use std::{
     path::PathBuf,
 };
 
-use anyhow::Result;
+use anyhow::{Context, Result};
 use glob::glob;
 
 use crate::{
@@ -80,8 +80,7 @@ pub fn remove_old_mod_files(local_mod: &LocalMod) -> Result<()> {
             .unwrap(),
     )?;
     let preserve_paths = get_paths_to_preserve(Some(local_mod));
-    for glob_match in glob_matches {
-        let path = glob_match?;
+    for path in glob_matches.filter_map(Result::ok) {
         let relative_path = path.strip_prefix(&local_mod.mod_path)?;
         if !check_file_matches_paths(relative_path, &preserve_paths) {
             if path.is_file() {

@@ -3,8 +3,9 @@ import { Config, GuiConfig, Language, OWMLConfig, Theme } from "@types";
 import { useGetTranslation } from "@hooks";
 import { commands } from "@commands";
 import { TranslationNameMap } from "@components/common/TranslationContext";
+import ODTooltip from "@components/common/ODTooltip";
 import * as os from "@tauri-apps/plugin-os";
-import { Box, Button, Tooltip, useTheme } from "@mui/material";
+import { Box, Button, useTheme } from "@mui/material";
 import SettingsFolder from "./SettingsFolder";
 import SettingsSelect from "./SettingsSelect";
 import SettingsText from "./SettingsText";
@@ -49,12 +50,18 @@ const SettingsForm = forwardRef(function SettingsForm(props: SettingsFormProps, 
             ({
                 save: () => {
                     const task = async () => {
-                        await commands.saveConfig({ config });
-                        await commands.saveGuiConfig({ guiConfig });
+                        await commands.saveConfig({
+                            config
+                        });
+                        await commands.saveGuiConfig({
+                            guiConfig
+                        });
                         if (config.owmlPath !== props.initialConfig.owmlPath) {
                             await commands.refreshLocalDb();
                         } else {
-                            await commands.saveOwmlConfig({ owmlConfig });
+                            await commands.saveOwmlConfig({
+                                owmlConfig
+                            });
                         }
                         if (config.databaseUrl !== props.initialConfig.databaseUrl) {
                             await commands.refreshRemoteDb();
@@ -285,7 +292,7 @@ const SettingsForm = forwardRef(function SettingsForm(props: SettingsFormProps, 
                 id="owmlPath"
                 tooltip={getTranslation("TOOLTIP_OWML_PATH")}
             />
-            <Tooltip title={getTranslation("TOOLTIP_CLEAR_DB_ALERTS")}>
+            <ODTooltip title={getTranslation("TOOLTIP_CLEAR_DB_ALERTS")}>
                 <Button
                     color="neutral"
                     startIcon={<DeleteSweepRounded />}
@@ -293,8 +300,8 @@ const SettingsForm = forwardRef(function SettingsForm(props: SettingsFormProps, 
                 >
                     {getTranslation("CLEAR_DB_ALERTS")}
                 </Button>
-            </Tooltip>
-            <Tooltip title={getTranslation("TOOLTIP_CLEAR_MOD_ALERTS")}>
+            </ODTooltip>
+            <ODTooltip title={getTranslation("TOOLTIP_CLEAR_MOD_ALERTS")}>
                 <Button
                     color="neutral"
                     startIcon={<FolderDeleteRounded />}
@@ -302,7 +309,7 @@ const SettingsForm = forwardRef(function SettingsForm(props: SettingsFormProps, 
                 >
                     {getTranslation("CLEAR_MOD_ALERTS")}
                 </Button>
-            </Tooltip>
+            </ODTooltip>
         </Box>
     );
 });

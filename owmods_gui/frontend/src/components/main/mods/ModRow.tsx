@@ -1,14 +1,6 @@
 import { useGetTranslation } from "@hooks";
-import {
-    Box,
-    Chip,
-    Skeleton,
-    TableCell,
-    Theme,
-    Tooltip,
-    Typography,
-    useTheme
-} from "@mui/material";
+import ODTooltip from "@components/common/ODTooltip";
+import { Box, Chip, Skeleton, TableCell, Theme, Typography, useTheme } from "@mui/material";
 import { memo, ReactNode, useMemo } from "react";
 import { ExtensionRounded } from "@mui/icons-material";
 import ModThumbnail from "./ModThumbnail";
@@ -123,7 +115,7 @@ const ModRow = memo(function GenericModRow(props: ModRowProps) {
                 <Typography display="flex" alignItems="center" variant="subtitle1" noWrap>
                     {props.requiresDlc && (
                         <Box display="inline-block" mr={0.5}>
-                            <Tooltip title={getTranslation("REQUIRES_DLC")}>
+                            <ODTooltip title={getTranslation("REQUIRES_DLC")}>
                                 <Typography>
                                     <ExtensionRounded
                                         sx={{
@@ -131,7 +123,7 @@ const ModRow = memo(function GenericModRow(props: ModRowProps) {
                                         }}
                                     />
                                 </Typography>
-                            </Tooltip>
+                            </ODTooltip>
                         </Box>
                     )}
                     <Box display="inline-block" mr={1}>

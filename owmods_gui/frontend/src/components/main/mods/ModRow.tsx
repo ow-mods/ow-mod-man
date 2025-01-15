@@ -7,7 +7,6 @@ import {
     Theme,
     Tooltip,
     Typography,
-    useMediaQuery,
     useTheme
 } from "@mui/material";
 import { memo, ReactNode, useMemo } from "react";
@@ -63,7 +62,7 @@ export interface ModRowProps {
     author: string;
     downloads: number;
     version: string;
-    hideThumbnail: boolean;
+    showThumbnail: boolean;
     slug?: string;
     alignActions?: "center" | "start" | "end";
     thumbnailUrl?: string;
@@ -106,11 +105,9 @@ const ModRow = memo(function GenericModRow(props: ModRowProps) {
         }
     }, [props.errorLevel, props.description]);
 
-    const showImages = useMediaQuery("(min-width:800px)", {});
-
     return (
         <>
-            {props.hideThumbnail || !showImages || (
+            {props.showThumbnail && (
                 <TableCell sx={{ paddingRight: 0, ...cellStyle }}>
                     <ModThumbnail
                         isLoading={props.isLoading}
@@ -128,7 +125,11 @@ const ModRow = memo(function GenericModRow(props: ModRowProps) {
                         <Box display="inline-block" mr={0.5}>
                             <Tooltip title={getTranslation("REQUIRES_DLC")}>
                                 <Typography>
-                                    <ExtensionRounded sx={{ fontSize: "1.2rem" }} />
+                                    <ExtensionRounded
+                                        sx={{
+                                            fontSize: "1.2rem"
+                                        }}
+                                    />
                                 </Typography>
                             </Tooltip>
                         </Box>
@@ -143,7 +144,9 @@ const ModRow = memo(function GenericModRow(props: ModRowProps) {
                             {props.isLoading ? (
                                 <></>
                             ) : (
-                                getTranslation("BY", { author: props.author })
+                                getTranslation("BY", {
+                                    author: props.author
+                                })
                             )}
                         </Typography>
                     </Box>

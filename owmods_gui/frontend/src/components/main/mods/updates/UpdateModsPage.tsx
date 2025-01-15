@@ -16,23 +16,13 @@ const UpdateModsPage = memo(function UpdateModsPage(props: UpdateModsPageProps) 
 
     const [updatingAll, setUpdatingAll] = useState(false);
 
-    const guiConfig = hooks.getGuiConfig("guiConfigReload")[1];
-
     const [status, updateMods] = hooks.getUpdatableMods(["localRefresh", "remoteRefresh"], {
         filter: props.filter
     });
 
-    const renderRow = useCallback(
-        (uniqueName: string) => {
-            return (
-                <UpdateModRow
-                    hideThumbnail={guiConfig?.hideModThumbnails ?? false}
-                    uniqueName={uniqueName}
-                />
-            );
-        },
-        [guiConfig?.hideModThumbnails]
-    );
+    const renderRow = useCallback((uniqueName: string, showThumbnail: boolean) => {
+        return <UpdateModRow showThumbnail={showThumbnail} uniqueName={uniqueName} />;
+    }, []);
 
     const onUpdateAll = useCallback(() => {
         setUpdatingAll(true);

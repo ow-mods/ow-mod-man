@@ -33,19 +33,16 @@ const LocalModsPage = memo(
         }, []);
 
         const renderRow = useCallback(
-            (uniqueName: string) => {
+            (uniqueName: string, showThumbnail: boolean) => {
                 return uniqueName === "~~SEPARATOR~~" ? (
-                    <TableCell colSpan={guiConfig?.hideModThumbnails ? 4 : 5}>
+                    <TableCell colSpan={showThumbnail ? 5 : 4}>
                         <Typography>{getTranslation("DISABLED_MODS")}</Typography>
                     </TableCell>
                 ) : (
-                    <LocalModRow
-                        hideThumbnail={guiConfig?.hideModThumbnails ?? false}
-                        uniqueName={uniqueName}
-                    />
+                    <LocalModRow showThumbnail={showThumbnail} uniqueName={uniqueName} />
                 );
             },
-            [getTranslation, guiConfig?.hideModThumbnails]
+            [getTranslation]
         );
 
         const toggleButtons = useMemo(

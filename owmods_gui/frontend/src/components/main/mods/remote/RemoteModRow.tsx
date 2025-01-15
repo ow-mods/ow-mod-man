@@ -9,7 +9,7 @@ import { RemoteMod } from "@types";
 
 export interface RemoteModRowProps {
     uniqueName: string;
-    hideThumbnail: boolean;
+    showThumbnail: boolean;
 }
 
 const RemoteModRow = memo(function RemoteModRow(props: RemoteModRowProps) {
@@ -104,7 +104,7 @@ const RemoteModRow = memo(function RemoteModRow(props: RemoteModRowProps) {
             downloads={remote?.downloadCount ?? -1}
             version={remote?.version ?? "0.0.0"}
             thumbnailUrl={remote?.thumbnail?.openGraph ?? remote?.thumbnail.main}
-            hideThumbnail={props.hideThumbnail}
+            showThumbnail={props.showThumbnail}
         >
             {modActions}
         </ModRow>

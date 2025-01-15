@@ -1,5 +1,5 @@
 import { Box, CircularProgress, Container, Paper, Typography } from "@mui/material";
-import { ReactNode, memo, useCallback, useRef } from "react";
+import { memo, ReactNode, useCallback, useRef } from "react";
 import ModsToolbar from "./ModsToolbar";
 import ModsTable from "./ModsTable";
 import { TableVirtuosoHandle } from "react-virtuoso";
@@ -15,7 +15,7 @@ export interface ModsPageProps {
     hideTags?: string[];
     onSelectedTagsChanged?: (newVal: string[]) => void;
     uniqueNames: string[];
-    renderRow: (uniqueName: string) => ReactNode;
+    renderRow: (uniqueName: string, showThumbnails: boolean) => ReactNode;
     children?: ReactNode;
 }
 

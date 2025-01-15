@@ -63,11 +63,8 @@ const RemoteModsPage = memo(
                 filter={props.filter}
                 onFilterChange={props.onFilterChanged}
                 uniqueNames={remoteMods ?? []}
-                renderRow={(uniqueName) => (
-                    <RemoteModRow
-                        hideThumbnail={guiConfig?.hideModThumbnails ?? false}
-                        uniqueName={uniqueName}
-                    />
+                renderRow={(uniqueName, showThumbnail) => (
+                    <RemoteModRow showThumbnail={showThumbnail} uniqueName={uniqueName} />
                 )}
                 selectedTags={tags}
                 hideTags={guiConfig?.hideDlc ? ["requires-dlc"] : []}

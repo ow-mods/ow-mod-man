@@ -28,7 +28,7 @@ import {
 export interface ModsTableProps {
     uniqueNames: string[];
     actionsSize: number;
-    renderRow: (uniqueName: string) => ReactNode;
+    renderRow: (uniqueName: string, hideModThumbnails: boolean) => ReactNode;
     addToToolbar?: ReactNode;
 }
 
@@ -61,7 +61,9 @@ const ModsTable = forwardRef<TableVirtuosoHandle, ModsTableProps>(function ModsT
     const guiConfig = hooks.getGuiConfig("guiConfigReload")[1];
     const theme = useTheme();
 
-    const showImages = useMediaQuery("(min-width:800px)", {});
+    const imagesEnabled = !(guiConfig?.hideModThumbnails ?? false);
+    const enoughWidth = useMediaQuery("(min-width:800px)", {});
+    const showImages = imagesEnabled && enoughWidth;
 
     return (
         <TableVirtuoso
@@ -73,7 +75,7 @@ const ModsTable = forwardRef<TableVirtuosoHandle, ModsTableProps>(function ModsT
             fixedHeaderContent={() => (
                 <TableRow sx={{ background: theme.palette.grey[900] }}>
                     <>
-                        {guiConfig?.hideModThumbnails || !showImages || (
+                        {showImages && (
                             <TableCell width="220px">
                                 <Box display="flex" alignItems="center">
                                     <ImageRounded />
@@ -97,7 +99,7 @@ const ModsTable = forwardRef<TableVirtuosoHandle, ModsTableProps>(function ModsT
                     </>
                 </TableRow>
             )}
-            itemContent={(_, uniqueName) => props.renderRow(uniqueName)}
+            itemContent={(_, uniqueName) => props.renderRow(uniqueName, showImages)}
         />
     );
 });

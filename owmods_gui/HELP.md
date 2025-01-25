@@ -11,6 +11,7 @@ This file contains common questions for the manager.
   - [Website buttons aren't working](#website-buttons-arent-working)
   - [How do I use this on Mac?](#how-do-i-use-this-on-mac)
   - [How do I use this on Linux?](#how-do-i-use-this-on-linux)
+    - [Manager window is blank](#manager-window-is-blank)
     - [Mod folder not found on Flatpak version of Steam](#mod-folder-not-found-on-flatpak-version-of-steam)
     - [What About Steam Deck?](#what-about-steam-deck)
   - [How do I uninstall it?](#how-do-i-uninstall-it)
@@ -78,6 +79,17 @@ or come chat with us on [the Discord server](https://discord.com/invite/wusTQYbY
 ## How do I use this on Linux?
 
 Using the manager on Linux should be easy, **proton and wine are not required**. The manager requires [Mono](https://www.mono-project.com) 6 to be installed and available on the PATH. If you're using the Flatpak, AUR, or Nix versions, Mono will be installed and set up automatically.
+
+### Manager Window Blank
+
+This can be due to an issue with webkit2gtk using accelerated compositing. To disable this set the `WEBKIT_DISABLE_COMPOSITING_MODE` environment variable to `1`. If you're on the Flatpak version of the manager this can be done with [the FlatSeal application](https://flathub.org/apps/com.github.tchx84.Flatseal), use it to edit the manager's flatpak to set the variable.
+
+If you're on other distros/package formats you can try editing the `.desktop` file of the manager like so:
+
+```diff
+- Exec=outer-wilds-mod-manager %u
++ Exec=WEBKIT_DISABLE_COMPOSITING_MODE=1 outer-wilds-mod-manager %u
+```
 
 ### Mod folder not found on Flatpak version of Steam
 

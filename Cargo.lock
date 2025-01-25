@@ -3132,7 +3132,7 @@ dependencies = [
 
 [[package]]
 name = "owmods_cli"
-version = "0.15.0"
+version = "0.15.1"
 dependencies = [
  "anyhow",
  "clap",
@@ -3148,7 +3148,7 @@ dependencies = [
 
 [[package]]
 name = "owmods_core"
-version = "0.15.0"
+version = "0.15.1"
 dependencies = [
  "anyhow",
  "directories",
@@ -3174,7 +3174,7 @@ dependencies = [
 
 [[package]]
 name = "owmods_gui"
-version = "0.15.0"
+version = "0.15.1"
 dependencies = [
  "anyhow",
  "log",
@@ -6415,7 +6415,7 @@ dependencies = [
 
 [[package]]
 name = "xtask"
-version = "0.15.0"
+version = "0.15.1"
 dependencies = [
  "anyhow",
  "clap",

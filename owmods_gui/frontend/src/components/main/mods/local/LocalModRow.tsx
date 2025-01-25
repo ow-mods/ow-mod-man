@@ -5,6 +5,7 @@ import { useGetTranslation, useUnifiedMod } from "@hooks";
 import * as dialog from "@tauri-apps/plugin-dialog";
 import LocalModActions from "./LocalModActions";
 import { LocalMod, RemoteMod, UnsafeLocalMod } from "@types";
+import { simpleOnError } from "../../../../errorHandling";
 
 const getErrorLevel = (mod?: UnsafeLocalMod): "err" | "warn" | undefined => {
     if (mod?.loadState === "invalid") {
@@ -63,7 +64,7 @@ const canFix = (mod?: UnsafeLocalMod): boolean => {
 
 export interface LocalModRowProps {
     uniqueName: string;
-    hideThumbnail: boolean;
+    showThumbnail: boolean;
 }
 
 const LocalModRow = memo(function LocalModRow(props: LocalModRowProps) {
@@ -106,6 +107,14 @@ const LocalModRow = memo(function LocalModRow(props: LocalModRowProps) {
         () => commands.openModGithub({ uniqueName: props.uniqueName }),
         [props.uniqueName]
     );
+    const onReinstall = useCallback(() => {
+        commands
+            .installMod({ uniqueName: props.uniqueName })
+            .then(() => {
+                commands.refreshLocalDb().catch(simpleOnError);
+            })
+            .catch(simpleOnError);
+    }, [props.uniqueName]);
     const onToggle = useCallback(
         (newVal: boolean) => {
             const task = async () => {
@@ -183,6 +192,7 @@ const LocalModRow = memo(function LocalModRow(props: LocalModRowProps) {
                 onFolder={onFolder}
                 onUninstall={onUninstall}
                 onGithub={onGithub}
+                onReinstall={onReinstall}
             />
         ),
         [
@@ -197,7 +207,8 @@ const LocalModRow = memo(function LocalModRow(props: LocalModRowProps) {
             onFix,
             onFolder,
             onUninstall,
-            onGithub
+            onGithub,
+            onReinstall
         ]
     );
 
@@ -211,7 +222,7 @@ const LocalModRow = memo(function LocalModRow(props: LocalModRowProps) {
             thumbnailClasses={enabled ? "" : "disabled"}
             author={author}
             version={version}
-            hideThumbnail={props.hideThumbnail}
+            showThumbnail={props.showThumbnail}
             requiresDlc={remote?.tags?.includes("requires-dlc") ?? false}
             isOutdated={outdated}
             isLoading={status1 === "Loading" && local === null}

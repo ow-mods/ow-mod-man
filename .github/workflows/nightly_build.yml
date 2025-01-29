@@ -30,11 +30,19 @@ jobs:
           - platform: "ubuntu-22.04"
             target: "x86_64-unknown-linux-gnu"
             args: "appimage deb rpm"
-            bundle-name: Linux
+            bundle-name: Linux-x86_64
             bundle-path: |
               target/release/bundle/**/*.deb
               target/release/bundle/**/*.rpm
               target/release/bundle/**/*.AppImage
+          # - platform: "ubuntu-22.04-arm"
+          #   target: "aarch64-unknown-linux-gnu"
+          #   args: "appimage deb rpm"
+          #   bundle-name: Linux-aarch64
+          #   bundle-path: |
+          #     target/release/bundle/**/*.deb
+          #     target/release/bundle/**/*.rpm
+          #     target/release/bundle/**/*.AppImage
           - platform: "windows-latest"
             target: "x86_64-pc-windows-msvc"
             args: "msi nsis"
@@ -52,7 +60,7 @@ jobs:
           sed -i.old -e 's/"createUpdaterArtifacts": "v1Compatible"/"createUpdaterArtifacts": false/' owmods_gui/backend/tauri.conf.json
         shell: bash
       - name: Install dependencies (ubuntu only)
-        if: matrix.platform == 'ubuntu-22.04'
+        if: startsWith(matrix.platform, 'ubuntu')
         run: |
           sudo apt update
           sudo apt install libwebkit2gtk-4.1-dev \

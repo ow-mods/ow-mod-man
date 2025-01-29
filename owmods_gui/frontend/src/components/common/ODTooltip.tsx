@@ -10,7 +10,11 @@ const ODTooltip = ({ children, ...rest }: TooltipProps) => {
             onMouseEnter={() => !renderTooltip && setRenderTooltip(true)}
         >
             {!renderTooltip && children}
-            {renderTooltip && <Tooltip {...rest}>{children}</Tooltip>}
+            {renderTooltip && (
+                <Tooltip disableInteractive enterDelay={350} {...rest}>
+                    {children}
+                </Tooltip>
+            )}
         </div>
     );
 };

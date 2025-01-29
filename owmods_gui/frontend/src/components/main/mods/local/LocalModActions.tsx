@@ -1,9 +1,10 @@
 import {
-    DescriptionRounded,
-    FolderRounded,
-    GitHub,
+    ConstructionRounded,
     DeleteRounded,
-    ConstructionRounded
+    DescriptionRounded,
+    DownloadRounded,
+    FolderRounded,
+    GitHub
 } from "@mui/icons-material";
 import { Checkbox, useTheme } from "@mui/material";
 import { memo, useRef } from "react";
@@ -26,13 +27,16 @@ export interface LocalModActionsProps {
     onFix: () => void;
     onGithub: () => void;
     onUninstall: () => void;
+    onReinstall: () => void;
 }
 
 const LocalModActions = memo(function LocalModTools(props: LocalModActionsProps) {
     const theme = useTheme();
     const getTranslation = useGetTranslation();
     const guiConfig = hooks.getGuiConfig("guiConfigReload")[1];
-    const overflowRef = useRef<{ onClose: () => void }>({ onClose: () => {} });
+    const overflowRef = useRef<{ onClose: () => void }>({
+        onClose: () => {}
+    });
 
     const isBusy = hooks.getModBusy("modBusy", { uniqueName: props.uniqueName })[1];
     // Disable the fix button if ANY mods are busy, this is to stop the user from clicking fix when a dep is installing
@@ -82,12 +86,21 @@ const LocalModActions = memo(function LocalModTools(props: LocalModActionsProps)
                     onClose={overflowRef.current?.onClose}
                 />
                 {props.hasRemote && (
-                    <ModActionOverflowItem
-                        label={getTranslation("OPEN_GITHUB")}
-                        icon={<GitHub />}
-                        onClick={props.onGithub}
-                        onClose={overflowRef.current?.onClose}
-                    />
+                    <>
+                        <ModActionOverflowItem
+                            label={getTranslation("OPEN_GITHUB")}
+                            icon={<GitHub />}
+                            onClick={props.onGithub}
+                            onClose={overflowRef.current?.onClose}
+                        />
+                        <ModActionOverflowItem
+                            label={getTranslation("REINSTALL")}
+                            icon={<DownloadRounded />}
+                            disabled={isBusy ?? true}
+                            onClick={props.onReinstall}
+                            onClose={overflowRef.current?.onClose}
+                        />
+                    </>
                 )}
                 <ModActionOverflowItem
                     label={getTranslation("UNINSTALL")}

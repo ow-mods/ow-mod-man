@@ -11,6 +11,7 @@ This file contains common questions for the manager.
   - [Website buttons aren't working](#website-buttons-arent-working)
   - [How do I use this on Mac?](#how-do-i-use-this-on-mac)
   - [How do I use this on Linux?](#how-do-i-use-this-on-linux)
+    - [Manager window is blank](#manager-window-is-blank)
     - [Mod folder not found on Flatpak version of Steam](#mod-folder-not-found-on-flatpak-version-of-steam)
     - [What About Steam Deck?](#what-about-steam-deck)
   - [How do I uninstall it?](#how-do-i-uninstall-it)
@@ -37,15 +38,17 @@ This file contains common questions for the manager.
 
 ### The manager has encountered a fatal error, the system cannot find the file specified (Windows)
 
-If you're getting an error message like this:
+If you're getting an error message like this (or the manager isn't doing anything at all):
 
 ```txt
 The manager encountered a fatal error when starting: Runtime(CreateWebview(WebView2Error(WindowsError(Error { code: 0x80070002, message: The system cannot find the file specified. }))))
 ```
 
-This is a result of not having the [Microsoft Edge WebView2 Runtime](https://developer.microsoft.com/en-us/microsoft-edge/webview2/) installed. If you've used a "Window debloat" script, it's likely that this was removed, even though it's a _critical_ component of Windows. To try and reinstall it, you can use the link above and download the evergreen bootstrapper.
+This is most likely a result of not having the [Microsoft Edge WebView2 Runtime](https://developer.microsoft.com/en-us/microsoft-edge/webview2/) installed. If you've used a "Window debloat" script, it's likely that this was removed, even though it's a component of Windows. To try and reinstall it, you can [download the evergreen bootstrapper](https://developer.microsoft.com/en-us/microsoft-edge/webview2/) and let it install.
 
-The manager's installer is supposed to install Webview2 for you, but depending on how your debloating script works, it may have left rouge registry keys that make the manager think it's already installed. If you're still having issues, try inspecting the registry keys mentioned in [this Webview2 article](https://learn.microsoft.com/en-us/microsoft-edge/webview2/concepts/distribution#detect-if-a-suitable-webview2-runtime-is-already-installed) to see if they're pointing to bad folders.
+The manager's installer is supposed to install Webview2 for you, but depending on how programs uninstall Webview2, it may have left bad registry keys that make the Webview2 bootstrapper think it's already installed. If you're still having issues, try inspecting the registry keys mentioned in [this Webview2 article](https://learn.microsoft.com/en-us/microsoft-edge/webview2/concepts/distribution?tabs=dotnetcsharp#detect-if-a-webview2-runtime-is-already-installed) to see if they're pointing to bad folders. Most likely the one in `HKEY_LOCAL_MACHINE` will be defined and the one in `HKEY_CURRENT_USER` won't, if so only inspect the one in `HKEY_LOCAL_MACHINE`.
+
+If either of these keys contain a path that's invalid set the subkey `pv` to `0.0.0.0` and run the Webview2 installer again, this should make it realize it's not installed.
 
 ## Website Buttons Aren't Working
 
@@ -76,6 +79,17 @@ or come chat with us on [the Discord server](https://discord.com/invite/wusTQYbY
 ## How do I use this on Linux?
 
 Using the manager on Linux should be easy, **proton and wine are not required**. The manager requires [Mono](https://www.mono-project.com) 6 to be installed and available on the PATH. If you're using the Flatpak, AUR, or Nix versions, Mono will be installed and set up automatically.
+
+### Manager Window Blank
+
+This can be due to an issue with webkit2gtk using accelerated compositing. To disable this set the `WEBKIT_DISABLE_COMPOSITING_MODE` environment variable to `1`. If you're on the Flatpak version of the manager this can be done with [the FlatSeal application](https://flathub.org/apps/com.github.tchx84.Flatseal), use it to edit the manager's flatpak to set the variable.
+
+If you're on other distros/package formats you can try editing the `.desktop` file of the manager like so:
+
+```diff
+- Exec=outer-wilds-mod-manager %u
++ Exec=WEBKIT_DISABLE_COMPOSITING_MODE=1 outer-wilds-mod-manager %u
+```
 
 ### Mod folder not found on Flatpak version of Steam
 

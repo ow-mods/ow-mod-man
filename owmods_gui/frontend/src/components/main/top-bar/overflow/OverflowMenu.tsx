@@ -1,4 +1,5 @@
 import { commands } from "@commands";
+import ODTooltip from "@components/common/ODTooltip";
 import { emit } from "@events";
 import { useGetTranslation } from "@hooks";
 import {
@@ -9,11 +10,11 @@ import {
     MoreHorizRounded,
     ReceiptRounded
 } from "@mui/icons-material";
-import { ListItemIcon, ListItemText, MenuItem, Tooltip } from "@mui/material";
+import { ListItemIcon, ListItemText, MenuItem } from "@mui/material";
 import IconButton from "@mui/material/IconButton";
 import Menu from "@mui/material/Menu";
 import * as shell from "@tauri-apps/plugin-shell";
-import { useState, MouseEvent, useCallback, lazy, Suspense } from "react";
+import { lazy, MouseEvent, Suspense, useCallback, useState } from "react";
 
 const About = lazy(() => import("./About"));
 const Import = lazy(() => import("./Import"));
@@ -58,7 +59,7 @@ const OverflowMenu = () => {
 
     return (
         <>
-            <Tooltip title={getTranslation("MORE")}>
+            <ODTooltip title={getTranslation("MORE")}>
                 <IconButton
                     edge="end"
                     color="inherit"
@@ -70,7 +71,7 @@ const OverflowMenu = () => {
                 >
                     <MoreHorizRounded />
                 </IconButton>
-            </Tooltip>
+            </ODTooltip>
             <Menu
                 id="overflow-menu"
                 anchorEl={anchorEl}

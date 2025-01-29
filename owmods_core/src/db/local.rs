@@ -284,7 +284,7 @@ impl LocalDatabase {
             m.manifest
                 .dependencies
                 .as_ref()
-                .map_or(false, |deps| deps.contains(unique_name))
+                .is_some_and(|deps| deps.contains(unique_name))
         })
     }
 

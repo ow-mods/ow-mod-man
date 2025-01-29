@@ -1,9 +1,10 @@
-import { Box, IconButton, Tooltip, useTheme } from "@mui/material";
+import { Box, IconButton, useTheme } from "@mui/material";
 import { ReactNode } from "react";
 import OverflowMenu from "./overflow/OverflowMenu";
 import ReloadIcon from "./ReloadIcon";
 import SettingsIcon from "./settings/SettingsIcon";
 import DownloadsIcon from "./downloads/DownloadsIcon";
+import ODTooltip from "@components/common/ODTooltip";
 
 interface AppIconProps {
     label: string;
@@ -27,7 +28,7 @@ export const AppIcon = (props: AppIconProps) => {
     if (props.disabled) {
         return comp;
     } else {
-        return <Tooltip title={props.label}>{comp}</Tooltip>;
+        return <ODTooltip title={props.label}>{comp}</ODTooltip>;
     }
 };
 

@@ -18,7 +18,7 @@
 }:
 rustPlatform.buildRustPackage rec {
   pname = "owmods-gui";
-  version = "0.15.0";
+  version = "0.15.1";
 
   VITE_VERSION_SUFFIX = "-nix";
 
@@ -64,7 +64,7 @@ rustPlatform.buildRustPackage rec {
 
   buildAndTestSubdir = "owmods_gui/backend";
 
-  postFixup = lib.optionalString wrapWithMono "gappsWrapperArgs+=(--prefix PATH : '${mono}/bin')";
+  preFixup = lib.optionalString wrapWithMono "gappsWrapperArgs+=(--prefix PATH : '${mono}/bin')";
 
   postPatch = let
     frontend = let

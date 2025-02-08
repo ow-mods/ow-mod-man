@@ -34,7 +34,7 @@
         "react": "19.0.0",
         "react-dom": "19.0.0",
         "react-error-boundary": "5.0.0",
-        "react-virtuoso": "4.12.4"
+        "react-virtuoso": "4.12.5"
     },
     "devDependencies": {
         "@eslint/compat": "^1.2.4",

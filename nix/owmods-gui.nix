@@ -110,7 +110,7 @@ rustPlatform.buildRustPackage rec {
       exec = "outer-wilds-mod-manager %u";
       icon = "outer-wilds-mod-manager";
       desktopName = "Outer Wilds Mod Manager";
-      categories = ["Game"];
+      categories = ["Game","Utility"];
       comment = meta.description;
       mimeTypes = ["x-scheme-handler/owmods"];
     })

@@ -42,7 +42,7 @@ lazy_static = "1.4.0"
 tempfile = "3.10.1"
 unicode-normalization = "0.1.23"
 regex = "1.10.4"
-versions = "6.2.0"
+versions = "7.0.0"
 
 [dev-dependencies]
 tokio-test = "0.4.4"

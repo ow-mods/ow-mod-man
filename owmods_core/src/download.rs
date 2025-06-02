@@ -32,7 +32,7 @@ use crate::{
 };
 
 fn get_end_of_url(url: &str) -> &str {
-    url.split('/').last().unwrap_or(url)
+    url.split('/').next_back().unwrap_or(url)
 }
 
 async fn download_zip(url: &str, unique_name: Option<&str>, target_path: &Path) -> Result<()> {

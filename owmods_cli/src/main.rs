@@ -183,7 +183,7 @@ async fn run_from_cli(cli: BaseCli) -> Result<()> {
                 info!("{}", &output);
             }
         },
-        Commands::Tags {} => {
+        Commands::Tags => {
             let db = RemoteDatabase::fetch(&config.database_url).await?;
             for tag in db.get_tags() {
                 info!("- {tag}");

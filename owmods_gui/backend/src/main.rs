@@ -234,10 +234,7 @@ fn main() -> Result<(), Box<dyn Error>> {
         let log_path = app_path.join(format!("crash_log_{timestamp_str}.txt"));
         let mut file = File::create(&log_path)?;
         file.write_all(
-            format!(
-                "The manager encountered a fatal error when starting: {why:?}"
-            )
-            .as_bytes(),
+            format!("The manager encountered a fatal error when starting: {why:?}").as_bytes(),
         )?;
         drop(file);
         opener::open(&log_path)?;

@@ -108,9 +108,7 @@ pub async fn send_analytics_event(
         match resp {
             Ok(resp) => {
                 if resp.status().is_success() {
-                    debug!(
-                        "Successfully Sent Analytics Event {event_name:?} for {unique_name}"
-                    );
+                    debug!("Successfully Sent Analytics Event {event_name:?} for {unique_name}");
                 } else {
                     warn!(
                         "Couldn't Send Analytics Event For {}! {}",
@@ -120,16 +118,12 @@ pub async fn send_analytics_event(
                 }
             }
             Err(why) => {
-                let err_text = format!(
-                    "Couldn't Send Analytics Event For {unique_name}! {why:?}"
-                )
-                .replace(api_key, "***");
+                let err_text = format!("Couldn't Send Analytics Event For {unique_name}! {why:?}")
+                    .replace(api_key, "***");
                 warn!("{err_text}");
             }
         }
     } else {
-        debug!(
-            "Skipping Analytics As The ANALYTICS_API_KEY Is Null ({event_name:?})"
-        );
+        debug!("Skipping Analytics As The ANALYTICS_API_KEY Is Null ({event_name:?})");
     }
 }

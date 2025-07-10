@@ -14,8 +14,7 @@ rustPlatform.buildRustPackage rec {
   version = "0.15.1";
 
   # Prevent unneeded rebuilds
-  src =
-    with lib.fileset;
+  src = with lib.fileset;
     toSource {
       root = ../../.;
       fileset = unions [
@@ -35,10 +34,12 @@ rustPlatform.buildRustPackage rec {
 
   doCheck = false;
 
-  nativeBuildInputs = [
-    pkg-config
-    installShellFiles
-  ] ++ lib.optional wrapWithMono makeWrapper;
+  nativeBuildInputs =
+    [
+      pkg-config
+      installShellFiles
+    ]
+    ++ lib.optional wrapWithMono makeWrapper;
 
   buildInputs = [
     openssl

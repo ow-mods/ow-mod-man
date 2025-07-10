@@ -202,7 +202,7 @@ pub async fn refresh_remote_db(handle: tauri::AppHandle, state: tauri::State<'_,
         *remote_db = match new_db {
             Ok(db) => RemoteDatabaseOption::Connected(Box::new(db)),
             Err(err) => {
-                error!("Error Loading Remote Database: {}", err);
+                error!("Error Loading Remote Database: {err}");
                 RemoteDatabaseOption::Error(err.into())
             }
         };
@@ -391,7 +391,7 @@ pub async fn install_zip(
 ) -> Result {
     let conf = state.config.read().await.clone();
     let db = state.local_db.read().await.clone();
-    println!("Installing {}", path);
+    println!("Installing {path}");
     install_mod_from_zip(&PathBuf::from(path), &conf, &db)?;
 
     Ok(())
@@ -406,7 +406,7 @@ pub async fn uninstall_mod(
     let db = state.local_db.read().await;
     let local_mod = db
         .get_mod(unique_name)
-        .with_context(|| format!("Mod {} not found", unique_name))?;
+        .with_context(|| format!("Mod {unique_name} not found"))?;
     let warnings = remove_mod(local_mod, &db, false)?;
 
     Ok(warnings)
@@ -417,7 +417,7 @@ pub async fn uninstall_broken_mod(mod_path: &str, state: tauri::State<'_, State>
     let db = state.local_db.read().await;
     let local_mod = db
         .get_mod_unsafe(mod_path)
-        .with_context(|| format!("Mod {} not found", mod_path))?;
+        .with_context(|| format!("Mod {mod_path} not found"))?;
     match local_mod {
         UnsafeLocalMod::Invalid(m) => {
             remove_failed_mod(m)?;
@@ -610,7 +610,7 @@ pub async fn update_mod(
     } else {
         remote_db
             .get_mod(unique_name)
-            .with_context(|| format!("Can't find mod {} in remote", unique_name))?
+            .with_context(|| format!("Can't find mod {unique_name} in remote"))?
     };
 
     let res = if unique_name == OWML_UNIQUE_NAME {
@@ -852,7 +852,7 @@ pub async fn export_mods(path: String, state: tauri::State<'_, State>) -> Result
     let output = owmods_core::io::export_mods(&local_db)?;
     let file = File::create(&path).map_err(|e| anyhow!("Error Saving File: {:?}", e))?;
     let mut writer = BufWriter::new(file);
-    write!(&mut writer, "{}", output).map_err(|e| anyhow!("Error Saving File: {:?}", e))?;
+    write!(&mut writer, "{output}").map_err(|e| anyhow!("Error Saving File: {:?}", e))?;
     opener::open(path).ok();
     Ok(())
 }
@@ -886,7 +886,7 @@ pub async fn fix_mod_deps(
     let remote_db = remote_db.try_get()?;
     let local_mod = local_db
         .get_mod(unique_name)
-        .with_context(|| format!("Can't find mod {}", unique_name))?;
+        .with_context(|| format!("Can't find mod {unique_name}"))?;
 
     mark_mod_busy(unique_name, true, true, &state, &handle).await;
     let res = fix_deps(local_mod, &config, &local_db, remote_db).await;
@@ -1120,7 +1120,7 @@ pub async fn get_db_tags(state: tauri::State<'_, State>) -> Result<Vec<String>> 
 
 #[tauri::command]
 pub async fn log_error(err: &str) -> Result {
-    error!("Error Received From Frontend: {}", err);
+    error!("Error Received From Frontend: {err}");
     Ok(())
 }
 

@@ -103,14 +103,13 @@ pub async fn send_analytics_event(
         let url = format!("https://www.google-analytics.com/mp/collect?measurement_id={MEASUREMENT_ID}&api_secret={api_key}");
         let client = Client::new();
         let payload = AnalyticsPayload::new(&event_name, unique_name);
-        debug!("Sending {:?}", payload);
+        debug!("Sending {payload:?}");
         let resp = client.post(url).json(&payload).send().await;
         match resp {
             Ok(resp) => {
                 if resp.status().is_success() {
                     debug!(
-                        "Successfully Sent Analytics Event {:?} for {}",
-                        event_name, unique_name
+                        "Successfully Sent Analytics Event {event_name:?} for {unique_name}"
                     );
                 } else {
                     warn!(
@@ -122,17 +121,15 @@ pub async fn send_analytics_event(
             }
             Err(why) => {
                 let err_text = format!(
-                    "Couldn't Send Analytics Event For {}! {:?}",
-                    unique_name, why
+                    "Couldn't Send Analytics Event For {unique_name}! {why:?}"
                 )
                 .replace(api_key, "***");
-                warn!("{}", err_text);
+                warn!("{err_text}");
             }
         }
     } else {
         debug!(
-            "Skipping Analytics As The ANALYTICS_API_KEY Is Null ({:?})",
-            event_name
+            "Skipping Analytics As The ANALYTICS_API_KEY Is Null ({event_name:?})"
         );
     }
 }

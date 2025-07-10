@@ -68,9 +68,9 @@ impl Logger {
             let now = now
                 .format(format_description!("[hour]:[minute]:[second]"))
                 .unwrap_or("Failed to get time".to_string());
-            let message = format!("[{}][{}] {}", now, log_type, message);
-            println!("{}", message);
-            writeln!(writer, "{}", message)?;
+            let message = format!("[{now}][{log_type}] {message}");
+            println!("{message}");
+            writeln!(writer, "{message}")?;
             writer.flush()?;
         }
         Ok(())
@@ -101,7 +101,7 @@ impl log::Log for Logger {
                         }
                     }
                     Err(why) => {
-                        warn!("Failed to parse progress payload: {}", why);
+                        warn!("Failed to parse progress payload: {why}");
                     }
                 }
             });
@@ -112,7 +112,7 @@ impl log::Log for Logger {
             let message = format!("{}", record.args());
             self.write_log_to_file(record.level(), &message)
                 .unwrap_or_else(|e| {
-                    println!("FAILED TO WRITE LOG: {:?}", e);
+                    println!("FAILED TO WRITE LOG: {e:?}");
                 });
             Ok(())
         } else {

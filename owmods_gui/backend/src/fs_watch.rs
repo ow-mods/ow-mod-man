@@ -81,13 +81,13 @@ pub fn setup_fs_watch(handle: AppHandle) -> Result<()> {
                         // GUI
                         let res = gui_watcher.watch(&gui_path, RecursiveMode::NonRecursive);
                         if let Err(why) = res {
-                            error!("Error starting GUI settings watcher: {:?}", why);
+                            error!("Error starting GUI settings watcher: {why:?}");
                         }
 
                         // SETTINGS
                         let res = settings_watcher.watch(&config_path, RecursiveMode::NonRecursive);
                         if let Err(why) = res {
-                            error!("Error starting Settings watcher: {:?}", why);
+                            error!("Error starting Settings watcher: {why:?}");
                         }
 
                         // LOCAL DB
@@ -105,10 +105,10 @@ pub fn setup_fs_watch(handle: AppHandle) -> Result<()> {
                             let res2 =
                                 local_db_watcher.watch(&manifest_path, RecursiveMode::NonRecursive);
                             if let Err(why) = res {
-                                error!("Error starting Mods watcher: {:?}", why);
+                                error!("Error starting Mods watcher: {why:?}");
                             }
                             if let Err(why) = res2 {
-                                error!("Error starting Mods watcher: {:?}", why);
+                                error!("Error starting Mods watcher: {why:?}");
                             }
                         });
                     } else if *watch_enabled {
@@ -116,13 +116,13 @@ pub fn setup_fs_watch(handle: AppHandle) -> Result<()> {
                         // GUI
                         let res = gui_watcher.unwatch(&gui_path);
                         if let Err(why) = res {
-                            error!("Error stopping GUI watcher: {:?}", why);
+                            error!("Error stopping GUI watcher: {why:?}");
                         }
 
                         // SETTINGS
                         let res = settings_watcher.unwatch(&config_path);
                         if let Err(why) = res {
-                            error!("Error stopping Settings watcher: {:?}", why);
+                            error!("Error stopping Settings watcher: {why:?}");
                         }
 
                         // LOCAL DB
@@ -139,10 +139,10 @@ pub fn setup_fs_watch(handle: AppHandle) -> Result<()> {
                             let res = local_db_watcher.unwatch(&mods_path);
                             let res2 = local_db_watcher.unwatch(&manifest_path);
                             if let Err(why) = res {
-                                error!("Error stopping Mods watcher: {:?}", why);
+                                error!("Error stopping Mods watcher: {why:?}");
                             }
                             if let Err(why) = res2 {
-                                error!("Error stopping Mods watcher: {:?}", why);
+                                error!("Error stopping Mods watcher: {why:?}");
                             }
                         });
                     }

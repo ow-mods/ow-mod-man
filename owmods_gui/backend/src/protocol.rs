@@ -19,7 +19,7 @@ pub fn prep_protocol(handle: tauri::AppHandle) {
         let protocol_payload = ProtocolPayload::parse(&request);
         match protocol_payload.verb {
             ProtocolVerb::Unknown => {
-                warn!("Unknown protocol verb: {}", request);
+                warn!("Unknown protocol verb: {request}");
             }
             _ => {
                 debug!(

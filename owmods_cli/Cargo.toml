@@ -13,7 +13,7 @@ owmods_core = { version = "0.15.1", path = "../owmods_core" }
 clap = { version = "4.5.39", features = ["derive"] }
 colored = "3.0.0"
 anyhow = "1.0.98"
-indicatif = { version = "0.17.11", features = ["improved_unicode"] }
+indicatif = { version = "0.18.0", features = ["improved_unicode"] }
 tokio = { version = "1.45.1", features = ["macros", "rt-multi-thread"] }
 log = { version = "0.4.27", features = ["std"] }
 clap_complete = "4.5.52"

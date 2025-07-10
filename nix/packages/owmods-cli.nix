@@ -2,7 +2,7 @@
   lib,
   pkg-config,
   openssl,
-  libsoup,
+  libsoup_3,
   installShellFiles,
   rustPlatform,
   makeWrapper,
@@ -14,36 +14,35 @@ rustPlatform.buildRustPackage rec {
   version = "0.15.1";
 
   # Prevent unneeded rebuilds
-  src = with lib.fileset;
+  src =
+    with lib.fileset;
     toSource {
-      root = ../.;
+      root = ../../.;
       fileset = unions [
-        ../.cargo
-        ../owmods_gui
-        ../owmods_cli
-        ../owmods_core
-        ../xtask
-        ../Cargo.toml
-        ../Cargo.lock
+        ../../.cargo
+        ../../owmods_gui
+        ../../owmods_cli
+        ../../owmods_core
+        ../../xtask
+        ../../Cargo.toml
+        ../../Cargo.lock
       ];
     };
 
   cargoLock = {
-    lockFile = ../Cargo.lock;
+    lockFile = ../../Cargo.lock;
   };
 
   doCheck = false;
 
-  nativeBuildInputs =
-    [
-      pkg-config
-      installShellFiles
-    ]
-    ++ lib.optional wrapWithMono makeWrapper;
+  nativeBuildInputs = [
+    pkg-config
+    installShellFiles
+  ] ++ lib.optional wrapWithMono makeWrapper;
 
   buildInputs = [
     openssl
-    libsoup
+    libsoup_3
   ];
 
   buildAndTestSubdir = "owmods_cli";
@@ -63,6 +62,9 @@ rustPlatform.buildRustPackage rec {
     changelog = "https://github.com/ow-mods/ow-mod-man/releases/tag/cli_v${version}";
     mainProgram = "owmods";
     license = licenses.gpl3;
-    maintainers = with maintainers; [bwc9876 locochoco];
+    maintainers = with maintainers; [
+      bwc9876
+      locochoco
+    ];
   };
 }

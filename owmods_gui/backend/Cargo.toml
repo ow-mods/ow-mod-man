@@ -21,7 +21,7 @@ tokio = { version = "1.45.1", features = ["sync", "macros"] }
 log = { version = "0.4.27", features = ["std", "serde"] }
 typeshare = "1.0.4"
 notify = { version = "8.0.0", default-features = false, features = [
-    "macos_kqueue",
+    "macos_fsevent",
 ] }
 regex = "1.11.1"
 time = { version = "0.3.41", features = ["macros", "local-offset"] }

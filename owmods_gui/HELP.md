@@ -11,7 +11,8 @@ This file contains common questions for the manager.
   - [Website buttons aren't working](#website-buttons-arent-working)
   - [How do I use this on Mac?](#how-do-i-use-this-on-mac)
   - [How do I use this on Linux?](#how-do-i-use-this-on-linux)
-    - [Manager window is blank](#manager-window-is-blank)
+    - [Manager window is blank](#manager-window-blank)
+    - [Manager doesn't launch on Wayland](#manager-doesnt-launch-on-wayland)
     - [Mod folder not found on Flatpak version of Steam](#mod-folder-not-found-on-flatpak-version-of-steam)
     - [What About Steam Deck?](#what-about-steam-deck)
   - [How do I uninstall it?](#how-do-i-uninstall-it)
@@ -91,6 +92,16 @@ If you're on other distros/package formats you can try editing the `.desktop` fi
 + Exec=WEBKIT_DISABLE_COMPOSITING_MODE=1 outer-wilds-mod-manager %u
 ```
 
+### Manager Doesn't Launch on Wayland
+
+If you're getting an error like:
+
+```
+Error 71 (Protocol error) dispatching to Wayland display.
+```
+
+And you're on a Nvidia card, try setting the `__NV_DISABLE_EXPLICIT_SYNC` environment variable to `1`. You can follow the same instructions in "[Manager window is blank](#manager-window-blank)" to set this environment variable.
+
 ### Mod folder not found on Flatpak version of Steam
 
 This is an issue with sharing the manager's folder with Steam, as OWML will be running from within Steam's flatpak container it won't be able to access the mods folder. See [this issue](https://github.com/ow-mods/ow-mod-man/issues/501) for details. tl;dr:
@@ -111,7 +122,7 @@ won't work, you'll need to enter the path manually or copy it.
 
 Note that you won't be able to launch the game from the manager when in steam deck's game mode. But so long as you've _pressed_ "Launch Game" at least once, you can launch the game directly and it will still be modded.
 
-**You'll also need to change your controller layout to the "Mouse Only" template.**
+**To use the manager in Game Mode, you'll also need to change your controller layout to the "Mouse Only" template.**
 
 ## How do I uninstall it?
 
@@ -159,7 +170,7 @@ Depending on which package you want to contribute to, please refer to the follow
 - [The CONTRIBUTING for the GUI](https://github.com/ow-mods/ow-mod-man/blob/main/owmods_gui/CONTRIBUTING.md)
 - [The CONTRIBUTING for the CLI](https://github.com/ow-mods/ow-mod-man/blob/main/owmods_cli/CONTRIBUTING.md)
 
-You can also take a look at [The Architecture Doc](https://github.com/ow-mods/ow-mod-man/blob/main/ARCHITECTURE.md) for more info above the manager's behavior.
+You can also take a look at [The Architecture Doc](https://github.com/ow-mods/ow-mod-man/blob/main/ARCHITECTURE.md) for more info about the manager's behavior.
 
 ## My issue isn't listed here
 

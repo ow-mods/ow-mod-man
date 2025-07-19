@@ -72,7 +72,7 @@ impl RemoteDatabase {
     /// ```
     ///
     pub async fn fetch(url: &str) -> Result<RemoteDatabase> {
-        debug!("Fetching Remote DB At {}", url);
+        debug!("Fetching Remote DB At {url}");
         let resp = reqwest::get(url).await?;
         let raw_db: RawRemoteDatabase = resp.json().await?;
         debug!("Success, Constructing Remote Mod Map");
@@ -104,7 +104,7 @@ impl RemoteDatabase {
     /// ```
     ///
     pub fn fetch_blocking(url: &str) -> Result<RemoteDatabase> {
-        debug!("Fetching Remote DB At {} (Blocking)", url);
+        debug!("Fetching Remote DB At {url} (Blocking)");
         let resp = reqwest::blocking::get(url)?;
         let raw_db: RawRemoteDatabase = resp.json()?;
         debug!("Success, Constructing Remote Mod Map");

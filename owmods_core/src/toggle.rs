@@ -95,7 +95,7 @@ pub fn toggle_mod(
 
     let local_mod = local_db
         .get_mod(unique_name)
-        .with_context(|| format!("Mod {} not found in local database.", unique_name))?;
+        .with_context(|| format!("Mod {unique_name} not found in local database."))?;
     let show_warning = _toggle_mod(local_mod, enabled)?;
 
     if show_warning {
@@ -153,7 +153,7 @@ pub fn toggle_mod(
                         show_warnings_for.push(dep_mod.manifest.unique_name.clone());
                     }
                 } else {
-                    warn!("Dependency {} Was Not Found, Ignoring.", dep);
+                    warn!("Dependency {dep} Was Not Found, Ignoring.");
                 }
             }
         }

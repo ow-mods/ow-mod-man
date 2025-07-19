@@ -18,7 +18,7 @@ The core library for the Outer Wilds Mod Manager.<br/>
 [![CI RS](https://github.com/ow-mods/ow-mod-man/actions/workflows/ci_rs.yml/badge.svg?branch=main)](https://github.com/ow-mods/ow-mod-man/actions/workflows/ci_rs.yml)
 [![Release](https://github.com/ow-mods/ow-mod-man/actions/workflows/release_core.yml/badge.svg)](https://github.com/ow-mods/ow-mod-man/actions/workflows/release_core.yml)
 
-The core library for the [Outer Wilds Mod Manager](https://github.com/ow-mods/ow-mod-man), this package is responsible for basically everything from fetching the db to downloading mods to validating local mods to launching the game.  
+The core library for the [Outer Wilds Mod Manager](https://github.com/ow-mods/ow-mod-man), this package is responsible for basically everything from fetching the db to downloading mods to validating local mods to launching the game.
 
 ## Usage
 

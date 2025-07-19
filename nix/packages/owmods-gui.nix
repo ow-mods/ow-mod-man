@@ -25,20 +25,20 @@ rustPlatform.buildRustPackage rec {
   # Prevent unneeded rebuilds
   src = with lib.fileset;
     toSource {
-      root = ../.;
+      root = ../../.;
       fileset = unions [
-        ../.cargo
-        ../owmods_gui
-        ../owmods_cli
-        ../owmods_core
-        ../xtask
-        ../Cargo.toml
-        ../Cargo.lock
+        ../../.cargo
+        ../../owmods_gui
+        ../../owmods_cli
+        ../../owmods_core
+        ../../xtask
+        ../../Cargo.toml
+        ../../Cargo.lock
       ];
     };
 
   cargoLock = {
-    lockFile = ../Cargo.lock;
+    lockFile = ../../Cargo.lock;
   };
 
   buildFeatures = [
@@ -68,7 +68,7 @@ rustPlatform.buildRustPackage rec {
 
   postPatch = let
     frontend = let
-      src = ../owmods_gui/frontend;
+      src = ../../owmods_gui/frontend;
     in
       buildNpmPackage {
         inherit version VITE_VERSION_SUFFIX;
@@ -76,7 +76,7 @@ rustPlatform.buildRustPackage rec {
 
         inherit src;
 
-        packageJSON = ../owmods_gui/frontend/package.json;
+        packageJSON = ../../owmods_gui/frontend/package.json;
         npmDeps = importNpmLock {
           npmRoot = src;
         };

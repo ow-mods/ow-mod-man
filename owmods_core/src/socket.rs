@@ -118,7 +118,7 @@ impl LogServer {
     /// If we can't bind to the given port
     ///
     pub async fn new(port: u16) -> Result<Self> {
-        let address = format!("127.0.0.1:{}", port);
+        let address = format!("127.0.0.1:{port}");
         let listener = TcpListener::bind(&address).await?;
         // Get the actual port we bound to in case the user passed port 0
         let port = listener.local_addr()?.port();
@@ -168,7 +168,7 @@ impl LogServer {
                     Self::yield_log(
                         tx,
                         SocketMessage::make_internal(
-                            &format!("Invalid Log From Game Received: {:?}", why),
+                            &format!("Invalid Log From Game Received: {why:?}"),
                             SocketMessageType::Error,
                         ),
                     )
@@ -323,7 +323,7 @@ mod tests {
 
     impl MockGame {
         pub async fn new(port: u16) -> Self {
-            let stream = TcpStream::connect(format!("127.0.0.1:{}", port))
+            let stream = TcpStream::connect(format!("127.0.0.1:{port}"))
                 .await
                 .unwrap();
             Self { stream }

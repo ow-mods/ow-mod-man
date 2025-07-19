@@ -11,6 +11,6 @@ pub fn generate_gui_pkg_build() -> Result<()> {
     let out_dir = get_out_dir()?.join("gui").join("pkgbuild");
     create_dir_all(&out_dir)?;
     let mut file = File::create(out_dir.join("PKGBUILD"))?;
-    write!(file, "{}", pkgbuild)?;
+    write!(file, "{pkgbuild}")?;
     Ok(())
 }

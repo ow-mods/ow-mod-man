@@ -37,8 +37,8 @@ pub fn generate_completions() -> Result<()> {
     let shells: Vec<Shell> = vec![Shell::Zsh, Shell::Bash, Shell::Fish];
     for shell in shells {
         let mut cmd = BaseCli::command();
-        let shell_name = format!("{:?}", shell).to_ascii_lowercase();
-        let mut file = File::create(out_dir.join(format!("owmods.{}", shell_name)))?;
+        let shell_name = format!("{shell:?}").to_ascii_lowercase();
+        let mut file = File::create(out_dir.join(format!("owmods.{shell_name}")))?;
         clap_complete::generate(shell, &mut cmd, "owmods", &mut file);
     }
     Ok(())
@@ -50,12 +50,12 @@ pub fn generate_cli_pkg_build() -> Result<()> {
     let out_dir = get_out_dir()?.join("cli").join("pkgbuild");
     create_dir_all(&out_dir)?;
     let mut file = File::create(out_dir.join("PKGBUILD"))?;
-    write!(file, "{}", pkgbuild)?;
+    write!(file, "{pkgbuild}")?;
     Ok(())
 }
 
 pub fn print_version() -> Result<()> {
     let version = get_pkg_version(include_str!("../../owmods_cli/Cargo.toml"));
-    println!("{}", version);
+    println!("{version}");
     Ok(())
 }

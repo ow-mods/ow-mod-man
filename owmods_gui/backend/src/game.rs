@@ -82,7 +82,7 @@ impl LogData {
     fn emit_update(&self) {
         let res = self.app_handle.typed_emit_all(&Event::LogUpdate(self.port));
         if let Err(why) = res {
-            error!("Couldn't Emit Game Log: {}", why)
+            error!("Couldn't Emit Game Log: {why}")
         }
     }
 
@@ -94,7 +94,7 @@ impl LogData {
                     line,
                 }));
         if let Err(why) = res {
-            error!("Couldn't Emit Game Log Count: {}", why)
+            error!("Couldn't Emit Game Log Count: {why}")
         }
     }
 
@@ -103,7 +103,7 @@ impl LogData {
             .app_handle
             .typed_emit_all(&Event::LogFatal(msg.clone()));
         if let Err(why) = res {
-            error!("Couldn't Emit Fatal Alert: {}", why)
+            error!("Couldn't Emit Fatal Alert: {why}")
         }
     }
 
@@ -115,7 +115,7 @@ impl LogData {
                 behind,
             }));
         if let Err(why) = res {
-            error!("Couldn't Emit Logs Behind: {}", why)
+            error!("Couldn't Emit Logs Behind: {why}")
         }
     }
 

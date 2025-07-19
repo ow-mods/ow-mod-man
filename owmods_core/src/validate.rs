@@ -111,11 +111,11 @@ pub async fn fix_deps(
     for error in local_mod.errors.iter() {
         match error {
             ModValidationError::DisabledDep(unique_name) => {
-                info!("Enabling {}", unique_name);
+                info!("Enabling {unique_name}");
                 toggle_mod(unique_name, db, true, true)?;
             }
             ModValidationError::MissingDep(unique_name) => {
-                info!("Marking {} For Install", unique_name);
+                info!("Marking {unique_name} For Install");
                 missing.push(unique_name.clone());
             }
             _ => {}

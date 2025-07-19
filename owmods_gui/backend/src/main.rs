@@ -155,7 +155,7 @@ fn main() -> Result<(), Box<dyn Error>> {
             let res = setup_fs_watch(handle.clone());
 
             if let Err(why) = res {
-                error!("Failed to setup file watching: {:?}", why);
+                error!("Failed to setup file watching: {why:?}");
             }
 
             Ok(())
@@ -223,7 +223,7 @@ fn main() -> Result<(), Box<dyn Error>> {
         .run(tauri::generate_context!());
 
     if let Err(why) = res {
-        eprintln!("Error: {:?}", why);
+        eprintln!("Error: {why:?}");
         let app_path = get_app_path()?;
         let now = time::OffsetDateTime::now_utc();
         let timestamp_str = now
@@ -231,14 +231,10 @@ fn main() -> Result<(), Box<dyn Error>> {
                 "[year]-[month]-[day]_[hour]-[minute]-[second]"
             ))
             .unwrap();
-        let log_path = app_path.join(format!("crash_log_{}.txt", timestamp_str));
+        let log_path = app_path.join(format!("crash_log_{timestamp_str}.txt"));
         let mut file = File::create(&log_path)?;
         file.write_all(
-            format!(
-                "The manager encountered a fatal error when starting: {:?}",
-                why
-            )
-            .as_bytes(),
+            format!("The manager encountered a fatal error when starting: {why:?}").as_bytes(),
         )?;
         drop(file);
         opener::open(&log_path)?;

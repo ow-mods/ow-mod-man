@@ -3,28 +3,35 @@
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
+    flakelight.url = "github:nix-community/flakelight";
+    rust-overlay = {
+      url = "github:oxalica/rust-overlay";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
-  outputs = {
-    self,
-    nixpkgs,
-  }: let
-    forAllSystems = nixpkgs.lib.genAttrs nixpkgs.lib.systems.flakeExposed;
-    pkgsFor = system:
-      (import nixpkgs) {
-        inherit system;
-        overlays = [self.overlays.default];
+  outputs = {flakelight, ...} @ inputs:
+    flakelight ./. {
+      inherit inputs;
+
+      withOverlays = [inputs.rust-overlay.overlays.default];
+
+      flakelight.builtinFormatters = false;
+      formatters = pkgs: let
+        prettier = "${pkgs.prettier}/bin/prettier --write .";
+        alejandra = "${pkgs.alejandra}/bin/alejandra .";
+        rustfmt = "${pkgs.rustfmt}/bin/rustfmt";
+        just = "${pkgs.just}/bin/just --fmt --unstable";
+      in {
+        "justfile" = just;
+        "*.nix" = alejandra;
+        "*.js" = prettier;
+        "*.ts" = prettier;
+        "*.jsx" = prettier;
+        "*.tsx" = prettier;
+        "*.md" = prettier;
+        "*.json" = prettier;
+        "*.rs" = rustfmt;
       };
-  in {
-    packages = forAllSystems (system: with pkgsFor system; {inherit owmods-cli owmods-gui;});
-    overlays.default = import ./nix/overlay.nix;
-
-    formatter = forAllSystems (system: (pkgsFor system).alejandra);
-    devShells = forAllSystems (system: {default = import ./nix/shell.nix {pkgs = pkgsFor system;};});
-  };
-
-  # nixConfig = {
-  #   extra-substituters = ["https://ow-mods.cachix.org"];
-  #   extra-trusted-public-keys = ["ow-mods.cachix.org-1:6RTOd1dSRibA2W0MpZHxzT0tw1RzyhKObTPKQJpcrZo="];
-  # };
+    };
 }

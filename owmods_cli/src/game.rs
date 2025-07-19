@@ -45,13 +45,13 @@ fn handle_game_log(message: &SocketMessage) {
         | SocketMessageType::Info
         | SocketMessageType::Success
         | SocketMessageType::Quit => {
-            info!("{}", out_message)
+            info!("{out_message}")
         }
         SocketMessageType::Error | SocketMessageType::Fatal => {
-            error!("{}", out_message)
+            error!("{out_message}")
         }
-        SocketMessageType::Warning => warn!("{}", out_message),
-        SocketMessageType::Debug => debug!("{}", out_message),
+        SocketMessageType::Warning => warn!("{out_message}"),
+        SocketMessageType::Debug => debug!("{out_message}"),
     }
 }
 
@@ -81,7 +81,7 @@ pub async fn start_game(
     let mut config = config.clone();
 
     for (unique_name, warning) in warnings {
-        let start_banner = format!("====== Warning For {} ======", unique_name);
+        let start_banner = format!("====== Warning For {unique_name} ======");
         let end_banner = "=".repeat(start_banner.len());
         warn!(
             "{}\n{}\n\n{}\n{}\nPress Enter To Continue...",

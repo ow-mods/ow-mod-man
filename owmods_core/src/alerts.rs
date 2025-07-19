@@ -34,7 +34,7 @@ impl Alert {
         let mut hasher = DefaultHasher::new();
         self.hash(&mut hasher);
         let num = hasher.finish();
-        format!("{:x}", num)
+        format!("{num:x}")
     }
 }
 
@@ -68,7 +68,7 @@ impl Alert {
 /// ```
 ///
 pub async fn fetch_alert(url: &str) -> Result<Alert> {
-    debug!("Fetching Alert At: {}", url);
+    debug!("Fetching Alert At: {url}");
     let req = reqwest::get(url).await?.error_for_status();
     // If we get a 404 or anything that's not an actual networking issue simply return a disabled result
     if let Ok(alert) = req {

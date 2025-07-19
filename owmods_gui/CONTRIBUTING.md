@@ -76,9 +76,9 @@ To use an event, you must first define it in `owmods_gui/src/events.rs` and then
 Then, you can use the event in the frontend by importing `emit` or `listen` from `owmods_gui/frontend/events.ts` and using it like so:
 
 ```ts
-import { emit } from './events.ts';
+import { emit } from "./events.ts";
 
-emit('event-name', { data: 'some data' });
+emit("event-name", { data: "some data" });
 ```
 
 In the backend you can use typed variants of the normal AppHandle methods to emit events. Just make sure you have the `CustomEvent*` traits in scope.
@@ -114,10 +114,10 @@ Now, edit `owmods_gui/frontend/src/commands.ts` and add the command to the `Comm
 
 ```ts
 const commands = {
-    // ...
-    myCommand: $<CommandInfo<{myName: string}, number>>("my_command"), // the name of the command must match the name in the backend
-    // ...
-}
+  // ...
+  myCommand: $<CommandInfo<{ myName: string }, number>>("my_command"), // the name of the command must match the name in the backend
+  // ...
+};
 ```
 
 `CommandInfo` is a generic type that takes the type of the command's arguments and the type of the command's return value.
@@ -130,7 +130,7 @@ Now you can use the commands in two ways:
 
 ```ts
 commands.myCommand({ myName: "some name" }).then((result) => {
-    // do something with the result
+  // do something with the result
 });
 
 // or, in a React component
@@ -144,5 +144,5 @@ It also returns a tuple, where the first element is the status of the command, a
 
 If an error occurs in the command:
 
-- commands.* will show a message dialog with the error (pass false as a second argument to disable this)
-- hooks.* will throw it to the nearest error boundary
+- commands.\* will show a message dialog with the error (pass false as a second argument to disable this)
+- hooks.\* will throw it to the nearest error boundary

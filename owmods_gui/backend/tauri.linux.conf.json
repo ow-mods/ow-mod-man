@@ -1,7 +1,7 @@
 {
-    "plugins": {
-        "updater": {
-            "active": false
-        }
+  "plugins": {
+    "updater": {
+      "active": false
     }
+  }
 }

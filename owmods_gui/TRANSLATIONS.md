@@ -14,7 +14,7 @@ Translations are fairly straightforward, they're represented by a JSON object wh
 
 ```json
 {
-    "APP_NAME": "Outer Wilds Mod Manager"
+  "APP_NAME": "Outer Wilds Mod Manager"
 }
 ```
 
@@ -30,19 +30,19 @@ For example the `VERSION` key has one variable named `version` that the manager 
 
 ```json
 {
-    "VERSION": "Version: $version$"
+  "VERSION": "Version: $version$"
 }
 ```
 
 At runtime, `$version$` will be replaced with `1.2.3` or whatever the current version is. To get an idea for what variables a key can have see `english.json`.
 
-### The _ Key
+### The \_ Key
 
 The `_` key is a bit special, this key is used in the event that a translation for a given key cannot be found. It will be passed the variable `$fallback$` which will have the English translation as a fallback. It will also have `$key$`, which will be the key we were trying to translate, useful for debugging. Try to put some sort of message in this key so the user knows to report it in the event a key is missing. For example in English:
 
 ```json
 {
-    "_": "Missing $key$: $fallback$"
+  "_": "Missing $key$: $fallback$"
 }
 ```
 

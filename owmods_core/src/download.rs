@@ -648,10 +648,10 @@ pub async fn install_mod_from_db(
     };
 
     // Should we send `ModInstall` to analytics for direct dependencies?
-    let root_mod_is_symbolic = remote_mod.tags.as_ref().is_some_and(|t| {
-        // TODO: Name is subject to change, change it bc Ixrec HATES ME!
-        t.iter().any(|t| t == "symbolic")
-    });
+    let root_mod_is_symbolic = remote_mod
+        .tags
+        .as_ref()
+        .is_some_and(|t| t.iter().any(|t| t == "pack"));
 
     let dedup_lock = {
         let mut dedup = local_db.dedup.lock().await;

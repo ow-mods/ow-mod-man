@@ -86,7 +86,8 @@ impl AnalyticsPayload {
 /// // Time saver is the best mod!
 /// let config = Config::get(None).unwrap();
 /// loop {
-///     send_analytics_event(AnalyticsEventName::ModInstall, "Bwc9876.TimeSaver", &config).await;
+///     send_analytics_event(AnalyticsEventName::ModInstall, "Bwc9876.TimeSaver",
+///     !config.send_analytics).await;
 /// }
 /// # });
 ///

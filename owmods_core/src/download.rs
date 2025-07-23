@@ -510,7 +510,7 @@ impl Drop for ModDeduperGuard {
 ///
 /// for installed_mod in installed {
 ///     println!("Installed {}", installed_mod.manifest.name);
-///     send_analytics_event(AnalyticsEventName::ModInstall, &installed_mod.manifest.unique_name, &config).await;
+///     send_analytics_event(AnalyticsEventName::ModInstall, &installed_mod.manifest.unique_name, !config.send_analytics).await;
 /// }
 /// # });
 /// ```

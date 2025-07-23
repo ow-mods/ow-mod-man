@@ -17,7 +17,7 @@ use tokio::sync::Mutex;
 use zip::ZipArchive;
 
 use crate::{
-    analytics::{send_analytics_event, AnalyticsEventName},
+    analytics::{send_analytics_deferred, AnalyticsEventName},
     config::Config,
     constants::OWML_UNIQUE_NAME,
     db::{LocalDatabase, RemoteDatabase},
@@ -276,7 +276,7 @@ pub async fn download_and_install_owml(
 
     temp_dir.close()?;
 
-    send_analytics_event(
+    send_analytics_deferred(
         AnalyticsEventName::ModRequiredInstall,
         OWML_UNIQUE_NAME,
         config,
@@ -647,6 +647,12 @@ pub async fn install_mod_from_db(
         remote_mod.download_url.clone()
     };
 
+    // Should we send `ModInstall` to analytics for direct dependencies?
+    let root_mod_is_symbolic = remote_mod.tags.as_ref().is_some_and(|t| {
+        // TODO: Name is subject to change, change it bc Ixrec HATES ME!
+        t.iter().any(|t| t == "symbolic")
+    });
+
     let dedup_lock = {
         let mut dedup = local_db.dedup.lock().await;
         dedup.start_job();
@@ -693,12 +699,14 @@ pub async fn install_mod_from_db(
                 .iter()
                 .filter(|m| &m.manifest.unique_name != unique_name)
             {
-                send_analytics_event(
-                    AnalyticsEventName::ModRequiredInstall,
-                    &installed_mod.manifest.unique_name,
-                    config,
-                )
-                .await;
+                let event = if count == 1 && root_mod_is_symbolic {
+                    // Direct dependencies of symbolic mods should be counted as normal
+                    // installs
+                    AnalyticsEventName::ModInstall
+                } else {
+                    AnalyticsEventName::ModRequiredInstall
+                };
+                send_analytics_deferred(event, &installed_mod.manifest.unique_name, config).await;
             }
             installed.append(
                 &mut newly_installed
@@ -729,7 +737,7 @@ pub async fn install_mod_from_db(
         AnalyticsEventName::ModInstall
     };
 
-    send_analytics_event(mod_event, unique_name, config).await;
+    send_analytics_deferred(mod_event, unique_name, config).await;
     Ok(new_mod)
 }
 

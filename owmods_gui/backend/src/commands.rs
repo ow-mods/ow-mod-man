@@ -8,7 +8,7 @@ use anyhow::{anyhow, Context};
 use log::{error, info};
 use owmods_core::{
     alerts::{fetch_alert, Alert},
-    analytics::{send_analytics_event, AnalyticsEventName},
+    analytics::{send_analytics_deferred, AnalyticsEventName},
     config::Config,
     constants::OWML_UNIQUE_NAME,
     db::{LocalDatabase, RemoteDatabase},
@@ -677,7 +677,7 @@ pub async fn update_all_mods(
                 .get_mod(&updated_mod.manifest.unique_name)
                 .unwrap(),
         )?; // Unwrap is safe because any mod in this list must have a remote counterpart
-        send_analytics_event(
+        send_analytics_deferred(
             AnalyticsEventName::ModUpdate,
             &updated_mod.manifest.unique_name,
             &config,

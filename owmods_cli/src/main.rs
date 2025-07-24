@@ -42,7 +42,7 @@ async fn run_from_cli(cli: BaseCli) -> Result<()> {
 
     if let Some(analytics) = cli.analytics {
         if analytics != config.send_analytics {
-            info!("Setting send_analytics to {}", analytics);
+            info!("Setting send_analytics to {analytics}");
             config.send_analytics = analytics;
             config.save()?;
         }
@@ -183,7 +183,7 @@ async fn run_from_cli(cli: BaseCli) -> Result<()> {
                 info!("{}", &output);
             }
         },
-        Commands::Tags {} => {
+        Commands::Tags => {
             let db = RemoteDatabase::fetch(&config.database_url).await?;
             for tag in db.get_tags() {
                 info!("- {tag}");
@@ -219,7 +219,7 @@ async fn run_from_cli(cli: BaseCli) -> Result<()> {
             let installed = local_mod.is_some();
             let has_remote = remote_mod.is_some();
             if (!installed) && (!has_remote) {
-                info!("Mod not found in local or remote db: {}", unique_name);
+                info!("Mod not found in local or remote db: {unique_name}");
             } else {
                 let name = if installed {
                     &local_mod.unwrap().manifest.name
@@ -231,9 +231,9 @@ async fn run_from_cli(cli: BaseCli) -> Result<()> {
                 } else {
                     remote_mod.unwrap().get_author()
                 };
-                info!("========== {} ==========", unique_name);
-                info!("Name: {}", name);
-                info!("Author(s): {}", author);
+                info!("========== {unique_name} ==========");
+                info!("Name: {name}");
+                info!("Author(s): {author}");
                 info!("Installed: {}", yes_no(installed));
                 if installed {
                     let local_mod = local_mod.unwrap();
@@ -241,7 +241,7 @@ async fn run_from_cli(cli: BaseCli) -> Result<()> {
                     info!("Enabled: {}", yes_no(local_mod.enabled));
                     info!("Installed Version: {}", local_mod.manifest.version);
                     if let Some(owml_version) = &local_mod.manifest.owml_version {
-                        info!("Expected OWML Version: {}", owml_version);
+                        info!("Expected OWML Version: {owml_version}");
                     }
                     if let Some(deps) = &local_mod.manifest.dependencies {
                         info!("Dependencies:{}", format_list(deps));
@@ -260,7 +260,7 @@ async fn run_from_cli(cli: BaseCli) -> Result<()> {
                     info!("GitHub Repo URL: {}", remote_mod.repo);
                     info!("Downloads: {}", remote_mod.download_count);
                     if let Some(parent) = &remote_mod.parent {
-                        info!("Parent Mod: {}", parent);
+                        info!("Parent Mod: {parent}");
                     }
                     if let Some(tags) = &remote_mod.tags {
                         info!("Tags: {}", format_list(tags));
@@ -290,7 +290,7 @@ async fn run_from_cli(cli: BaseCli) -> Result<()> {
                 warn!("Or use `owmods setup` to reinstall it");
                 flag = false;
             } else if *overwrite && local_mod.is_some() {
-                warn!("Overriding {}", unique_name);
+                warn!("Overriding {unique_name}");
             } else if let Some(local_mod) = local_db.get_mod(unique_name) {
                 error!(
                     "{} is already installed at {}, use -o to overwrite",
@@ -313,7 +313,7 @@ async fn run_from_cli(cli: BaseCli) -> Result<()> {
         }
         Commands::InstallUrl { url } => {
             let local_db = LocalDatabase::fetch(&config.owml_path)?;
-            info!("Installing From {}", url);
+            info!("Installing From {url}");
             let new_mod = install_mod_from_url(url, None, &config, &local_db).await?;
             info!("Installed {}!", new_mod.manifest.name);
         }
@@ -354,7 +354,7 @@ async fn run_from_cli(cli: BaseCli) -> Result<()> {
                     }
                     info!("Done");
                 } else {
-                    error!("Mod {} Is Not Installed", unique_name);
+                    error!("Mod {unique_name} Is Not Installed");
                 }
             }
         }
@@ -436,17 +436,17 @@ async fn run_from_cli(cli: BaseCli) -> Result<()> {
             start_game(&local_db, &config, port, *new_window).await?;
         }
         Commands::Open { identifier } => {
-            info!("Opening {}", identifier);
+            info!("Opening {identifier}");
             let local_db = LocalDatabase::fetch(&config.owml_path)?;
             open_shortcut(identifier, &config, &local_db)?;
         }
         Commands::Readme { unique_name } => {
-            info!("Opening README for {}", unique_name);
+            info!("Opening README for {unique_name}");
             let remote_db = RemoteDatabase::fetch(&config.database_url).await?;
             open_readme(unique_name, &remote_db)?;
         }
         Commands::Github { unique_name } => {
-            info!("Opening GitHub repo for {}", unique_name);
+            info!("Opening GitHub repo for {unique_name}");
             let remote_db = RemoteDatabase::fetch(&config.database_url).await?;
             open_github(unique_name, &remote_db)?;
         }
@@ -556,7 +556,7 @@ async fn run_from_cli(cli: BaseCli) -> Result<()> {
                 } else {
                     serde_json::to_string_pretty(&mods)?
                 };
-                println!("{}", serialized);
+                println!("{serialized}");
             }
             "remote" => {
                 let db = RemoteDatabase::fetch(&config.database_url).await?;
@@ -566,7 +566,7 @@ async fn run_from_cli(cli: BaseCli) -> Result<()> {
                 } else {
                     serde_json::to_string_pretty(&mods)?
                 };
-                println!("{}", serialized);
+                println!("{serialized}");
             }
             _ => {
                 let remote_db = RemoteDatabase::fetch(&config.database_url).await?;
@@ -576,7 +576,7 @@ async fn run_from_cli(cli: BaseCli) -> Result<()> {
                 } else {
                     serde_json::to_string_pretty(&remote_mod)?
                 };
-                println!("{}", serialized);
+                println!("{serialized}");
             }
         },
     }
@@ -614,7 +614,7 @@ async fn main() {
         match res {
             Ok(_) => {}
             Err(e) => {
-                error!("{:?}", e);
+                error!("{e:?}");
                 process::exit(1);
             }
         };

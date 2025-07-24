@@ -2,39 +2,39 @@
 name = "owmods_gui"
 authors = ["Bwc9876 <bwc9876@outerwildsmods.com>"]
 description = "A GUI Tool To Manage OWML Mods"
-version = "0.15.1"
+version = "0.15.2"
 readme = "./README.md"
 repository = "https://github.com/ow-mods/ow-mod-man/"
 license = "GPL-3.0-or-later"
 edition = "2021"
 
 [build-dependencies]
-tauri-build = { version = "2.0.1", features = [] }
+tauri-build = { version = "2.3.0", features = [] }
 
 [dependencies]
-owmods_core = { version = "0.15.1", path = "../../owmods_core" }
+owmods_core = { version = "0.15.2", path = "../../owmods_core" }
 serde_json = "1.0"
 serde = { version = "1.0", features = ["derive"] }
-tauri = { version = "2.0.2", features = ["rustls-tls"] }
-anyhow = "1.0.75"
-tokio = { version = "1.40.0", features = ["sync", "macros"] }
-log = { version = "0.4.22", features = ["std", "serde"] }
-typeshare = "1.0.3"
-notify = { version = "8.0.0", default-features = false, features = [
+tauri = { version = "2.6.2", features = ["rustls-tls"] }
+anyhow = "1.0.98"
+tokio = { version = "1.46.1", features = ["sync", "macros"] }
+log = { version = "0.4.27", features = ["std", "serde"] }
+typeshare = "1.0.4"
+notify = { version = "8.1.0", default-features = false, features = [
     "macos_kqueue",
 ] }
-regex = "1.11.0"
-time = { version = "0.3.36", features = ["macros", "local-offset"] }
-opener = "0.7.2"
-tauri-plugin-deep-link = "2.0.1"
-tauri-plugin-single-instance = { version = "2.0.1", features = ["deep-link"] }
-tauri-plugin-dialog = "2.0.1"
-tauri-plugin-updater = "2.0.2"
-tauri-plugin-os = "2.0.1"
-tauri-plugin-shell = "2.0.1"
-tauri-plugin-process = "2.0.1"
-tauri-plugin-clipboard-manager = "2.0.1"
-tauri-plugin-window-state = "2.2.0"
+regex = "1.11.1"
+time = { version = "0.3.41", features = ["macros", "local-offset"] }
+opener = "0.8.2"
+tauri-plugin-deep-link = "2.4.0"
+tauri-plugin-single-instance = { version = "2.3.0", features = ["deep-link"] }
+tauri-plugin-dialog = "2.3.0"
+tauri-plugin-updater = "2.9.0"
+tauri-plugin-os = "2.3.0"
+tauri-plugin-shell = "2.3.0"
+tauri-plugin-process = "2.3.0"
+tauri-plugin-clipboard-manager = "2.3.0"
+tauri-plugin-window-state = "2.3.0"
 
 
 [features]

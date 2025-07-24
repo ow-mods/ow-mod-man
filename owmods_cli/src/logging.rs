@@ -104,7 +104,7 @@ impl log::Log for Logger {
                     ProgressPayload::Msg(payload) => self.set_message(payload),
                     ProgressPayload::Finish(payload) => self.finish(payload),
                 },
-                Err(why) => warn!("Failed to parse progress payload: {}", why),
+                Err(why) => warn!("Failed to parse progress payload: {why}"),
             };
         } else if self.enabled(record.metadata()) && record.target().starts_with("owmods") {
             let args = format!("{}", record.args());
@@ -115,7 +115,7 @@ impl log::Log for Logger {
                 Level::Debug => args.bright_black(),
                 Level::Trace => args.bright_black(),
             };
-            println!("{}", msg);
+            println!("{msg}");
         }
     }
 
@@ -131,12 +131,11 @@ pub fn log_mod_validation_errors(local_mod: &UnsafeLocalMod, local_db: &LocalDat
             ModValidationError::MissingDLL(path) => match path {
                 Some(path) => {
                     warn!(
-                        "The DLL specified in {}'s manifest.json ({}) appears to be missing",
-                        name, path
+                        "The DLL specified in {name}'s manifest.json ({path}) appears to be missing"
                     )
                 }
                 None => {
-                    warn!("{} has no DLL specified", name)
+                    warn!("{name} has no DLL specified")
                 }
             },
             ModValidationError::DisabledDep(unique_name) => {
@@ -145,14 +144,12 @@ pub fn log_mod_validation_errors(local_mod: &UnsafeLocalMod, local_db: &LocalDat
                     .map(|m| &m.manifest.name)
                     .unwrap_or(unique_name);
                 error!(
-                    "{} requires {}, but it's disabled! (run \"owmods check --fix-deps\" to auto-fix)",
-                    name, dep_name
+                    "{name} requires {dep_name}, but it's disabled! (run \"owmods check --fix-deps\" to auto-fix)"
                 );
             }
             ModValidationError::MissingDep(unique_name) => {
                 error!(
-                    "{} requires {}, but it's missing! (run \"owmods check --fix-deps\" to auto-fix)",
-                    name, unique_name
+                    "{name} requires {unique_name}, but it's missing! (run \"owmods check --fix-deps\" to auto-fix)"
                 );
             }
             ModValidationError::ConflictingMod(unique_name) => {
@@ -160,21 +157,19 @@ pub fn log_mod_validation_errors(local_mod: &UnsafeLocalMod, local_db: &LocalDat
                     .get_mod(unique_name)
                     .map(|m| &m.manifest.name)
                     .unwrap_or(unique_name);
-                warn!("{} conflicts with {}!", name, conflict_name);
+                warn!("{name} conflicts with {conflict_name}!");
             }
             ModValidationError::InvalidManifest(why) => {
-                error!("Could not load manifest for {}: {}", name, why);
+                error!("Could not load manifest for {name}: {why}");
             }
             ModValidationError::DuplicateMod(other_path) => {
                 error!(
-                    "Mod at {} was already loaded from {}, this may indicate duplicate mods",
-                    name, other_path
+                    "Mod at {name} was already loaded from {other_path}, this may indicate duplicate mods"
                 );
             }
             ModValidationError::Outdated(new_version) => {
                 error!(
-                    "{} is outdated, consider updating it (latest version is v{})",
-                    name, new_version
+                    "{name} is outdated, consider updating it (latest version is v{new_version})"
                 )
             }
         }

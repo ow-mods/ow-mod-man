@@ -18,12 +18,12 @@ This is the monorepo for the new <a href="https://www.mobiusdigitalgames.com/out
 
 ## Platform Support
 
-| **Platform** | **Supported**  |
-| :----------: |  :-----------: |
-| **Windows**  |      ✅        |
-|  **Linux**   |      ✅        |
-|   **Deck**   |      ✅        |
-|   **Mac**    |      ✅*       |
+| **Platform** | **Supported** |
+| :----------: | :-----------: |
+| **Windows**  |      ✅       |
+|  **Linux**   |      ✅       |
+|   **Deck**   |      ✅       |
+|   **Mac**    |     ✅\*      |
 
 You'll want to check out the [Help document](owmods_gui/HELP.md) for platform-specific instruction and caveats.
 

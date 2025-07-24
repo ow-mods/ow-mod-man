@@ -17,7 +17,7 @@ use tokio::sync::Mutex;
 use zip::ZipArchive;
 
 use crate::{
-    analytics::{send_analytics_event, AnalyticsEventName},
+    analytics::{send_analytics_deferred, AnalyticsEventName},
     config::Config,
     constants::OWML_UNIQUE_NAME,
     db::{LocalDatabase, RemoteDatabase},
@@ -32,7 +32,7 @@ use crate::{
 };
 
 fn get_end_of_url(url: &str) -> &str {
-    url.split('/').last().unwrap_or(url)
+    url.split('/').next_back().unwrap_or(url)
 }
 
 async fn download_zip(url: &str, unique_name: Option<&str>, target_path: &Path) -> Result<()> {
@@ -60,8 +60,8 @@ async fn download_zip(url: &str, unique_name: Option<&str>, target_path: &Path) 
         target_path.to_str().unwrap(),
         unique_name,
         file_size.try_into().unwrap_or(u32::MAX), // Fallback for HUGE files, means files >4GB will get progress reported incorrectly
-        &format!("Downloading {}", zip_name),
-        &format!("Failed to download {}", zip_name),
+        &format!("Downloading {zip_name}"),
+        &format!("Failed to download {zip_name}"),
         progress_type,
         ProgressAction::Download,
     );
@@ -71,7 +71,7 @@ async fn download_zip(url: &str, unique_name: Option<&str>, target_path: &Path) 
         stream.write_all(&chunk)?;
     }
 
-    progress.finish(true, &format!("Downloaded {}", zip_name));
+    progress.finish(true, &format!("Downloaded {zip_name}"));
 
     Ok(())
 }
@@ -165,8 +165,8 @@ fn extract_mod_zip(
             .as_ref()
             .map(|a| a.len().try_into().unwrap_or(0))
             .unwrap_or(0),
-        &format!("Extracting {}", zip_name),
-        &format!("Failed To Extract {}", zip_name),
+        &format!("Extracting {zip_name}"),
+        &format!("Failed To Extract {zip_name}"),
         ProgressType::Definite,
         ProgressAction::Extract,
     );
@@ -181,7 +181,7 @@ fn extract_mod_zip(
                     if file_path.starts_with(parent_path) {
                         // Unwrap is safe bc we know it's a file and OsStr.to_str shouldn't fail
                         let file_name = file_path.file_name().unwrap().to_str().unwrap();
-                        progress.set_msg(&format!("Extracting {}", file_name));
+                        progress.set_msg(&format!("Extracting {file_name}"));
                         // Unwrap is safe bc we just checked if it starts with the parent path
                         let rel_path = file_path.strip_prefix(parent_path).unwrap();
                         if !check_file_matches_paths(rel_path, &exclude_paths) {
@@ -276,7 +276,7 @@ pub async fn download_and_install_owml(
 
     temp_dir.close()?;
 
-    send_analytics_event(
+    send_analytics_deferred(
         AnalyticsEventName::ModRequiredInstall,
         OWML_UNIQUE_NAME,
         config,
@@ -410,7 +410,7 @@ pub async fn install_mod_from_url(
     let zip_name = get_end_of_url(url).replace(".zip", "");
 
     let temp_dir = TempDir::new()?;
-    let download_path = temp_dir.path().join(format!("{}.zip", zip_name));
+    let download_path = temp_dir.path().join(format!("{zip_name}.zip"));
 
     download_zip(url, unique_name, &download_path).await?;
     let new_mod = install_mod_from_zip(&download_path, config, local_db)?;
@@ -510,7 +510,7 @@ impl Drop for ModDeduperGuard {
 ///
 /// for installed_mod in installed {
 ///     println!("Installed {}", installed_mod.manifest.name);
-///     send_analytics_event(AnalyticsEventName::ModInstall, &installed_mod.manifest.unique_name, &config).await;
+///     send_analytics_event(AnalyticsEventName::ModInstall, &installed_mod.manifest.unique_name, !config.send_analytics).await;
 /// }
 /// # });
 /// ```
@@ -534,7 +534,7 @@ pub async fn install_mods_parallel(
     for name in to_install.0.iter() {
         let remote_mod = remote_db
             .get_mod(name)
-            .with_context(|| format!("Mod {} not found in database.", name))?;
+            .with_context(|| format!("Mod {name} not found in database."))?;
 
         let task = install_mod_from_url(
             &remote_mod.download_url,
@@ -631,12 +631,12 @@ pub async fn install_mod_from_db(
 
     let remote_mod = remote_db
         .get_mod(unique_name)
-        .with_context(|| format!("Mod {} not found", unique_name))?;
+        .with_context(|| format!("Mod {unique_name} not found"))?;
     let target_url = if prerelease {
         let prerelease = remote_mod
             .prerelease
             .as_ref()
-            .with_context(|| format!("No prerelease for {} found", unique_name))?;
+            .with_context(|| format!("No prerelease for {unique_name} found"))?;
         let url = &prerelease.download_url;
         info!(
             "Using Prerelease {} for {}",
@@ -646,6 +646,12 @@ pub async fn install_mod_from_db(
     } else {
         remote_mod.download_url.clone()
     };
+
+    // Should we send `ModInstall` to analytics for direct dependencies?
+    let root_mod_is_symbolic = remote_mod
+        .tags
+        .as_ref()
+        .is_some_and(|t| t.iter().any(|t| t == "pack"));
 
     let dedup_lock = {
         let mut dedup = local_db.dedup.lock().await;
@@ -693,12 +699,14 @@ pub async fn install_mod_from_db(
                 .iter()
                 .filter(|m| &m.manifest.unique_name != unique_name)
             {
-                send_analytics_event(
-                    AnalyticsEventName::ModRequiredInstall,
-                    &installed_mod.manifest.unique_name,
-                    config,
-                )
-                .await;
+                let event = if count == 1 && root_mod_is_symbolic {
+                    // Direct dependencies of symbolic mods should be counted as normal
+                    // installs
+                    AnalyticsEventName::ModInstall
+                } else {
+                    AnalyticsEventName::ModRequiredInstall
+                };
+                send_analytics_deferred(event, &installed_mod.manifest.unique_name, config).await;
             }
             installed.append(
                 &mut newly_installed
@@ -729,7 +737,7 @@ pub async fn install_mod_from_db(
         AnalyticsEventName::ModInstall
     };
 
-    send_analytics_event(mod_event, unique_name, config).await;
+    send_analytics_deferred(mod_event, unique_name, config).await;
     Ok(new_mod)
 }
 

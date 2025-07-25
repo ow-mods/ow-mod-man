@@ -53,7 +53,7 @@ const AppAlert = memo(function AppAlert() {
         commands.dismissAlert({ alert: alert! });
     }, [alert]);
 
-    if (alert === null || !alert.enabled) {
+    if (alert === null || alert.message?.startsWith("<0.15.3:") || !alert.enabled) {
         return <></>;
     }
 

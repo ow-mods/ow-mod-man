@@ -18,6 +18,8 @@ use owmods_core::{
     progress::bars::ProgressBars,
     protocol::ProtocolPayload,
 };
+use tauri::AppHandle;
+use tauri_plugin_updater::UpdaterExt;
 
 use anyhow::anyhow;
 use time::macros::format_description;
@@ -93,6 +95,39 @@ pub struct State {
     mods_in_progress: StatePart<Vec<String>>,
 }
 
+async fn update(app: AppHandle) -> tauri_plugin_updater::Result<()> {
+    log::debug!("Checking for Manager Updates");
+    if let Some(update) = app.updater()?.check().await? {
+        let mut bytes: usize = 0;
+        let mut last_debounce: usize = 0;
+        log::info!("Manager Update Found! (${})", update.version);
+        update
+            .download_and_install(
+                |recv, tot| {
+                    bytes = bytes.saturating_add(recv);
+                    let debounce = bytes / 1000000;
+                    if last_debounce != debounce {
+                        last_debounce = debounce;
+                        log::debug!(
+                            "Download Update ({}/{})",
+                            bytes / 1000,
+                            tot.unwrap_or(u64::MAX) / 1000
+                        );
+                    }
+                },
+                || {
+                    log::debug!("Download complete! Installing");
+                },
+            )
+            .await?;
+        log::info!("Manager Update Complete");
+        Ok(())
+    } else {
+        log::debug!("No Manager Updates");
+        Ok(())
+    }
+}
+
 fn main() -> Result<(), Box<dyn Error>> {
     let config = Config::get(None).unwrap_or(Config::default(None)?);
     let gui_config = GuiConfig::get().unwrap_or_default();
@@ -143,6 +178,18 @@ fn main() -> Result<(), Box<dyn Error>> {
             } else {
                 debug!("Setup window state");
             }
+
+            // Update Setup
+            let update_handle = app.handle().clone();
+
+            tauri::async_runtime::spawn(async {
+                update_handle
+                    .plugin(tauri_plugin_updater::Builder::new().build())
+                    .unwrap();
+                if let Err(why) = update(update_handle).await {
+                    warn!("Failed to update: {why:?}");
+                }
+            });
 
             // Protocol Listener Setup
 

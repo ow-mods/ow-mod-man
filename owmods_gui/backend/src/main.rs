@@ -96,10 +96,34 @@ pub struct State {
 }
 
 async fn update(app: AppHandle) -> tauri_plugin_updater::Result<()> {
+    log::debug!("Checking for Manager Updates");
     if let Some(update) = app.updater()?.check().await? {
-        update.download_and_install(|_, _| {}, || {}).await?;
-        app.restart();
+        let mut bytes: usize = 0;
+        let mut last_debounce: usize = 0;
+        log::info!("Manager Update Found! (${})", update.version);
+        update
+            .download_and_install(
+                |recv, tot| {
+                    bytes = bytes.saturating_add(recv);
+                    let debounce = bytes / 1000000;
+                    if last_debounce != debounce {
+                        last_debounce = debounce;
+                        log::debug!(
+                            "Download Update ({}/{})",
+                            bytes / 1000,
+                            tot.unwrap_or(u64::MAX) / 1000
+                        );
+                    }
+                },
+                || {
+                    log::debug!("Download complete! Installing");
+                },
+            )
+            .await?;
+        log::info!("Manager Update Complete");
+        Ok(())
     } else {
+        log::debug!("No Manager Updates");
         Ok(())
     }
 }
@@ -158,7 +182,6 @@ fn main() -> Result<(), Box<dyn Error>> {
             // Update Setup
             let update_handle = app.handle().clone();
 
-            #[cfg(desktop)]
             tauri::async_runtime::spawn(async {
                 update_handle
                     .plugin(tauri_plugin_updater::Builder::new().build())

@@ -168,10 +168,10 @@ impl ProgressBar {
         let json = serde_json::to_string(&payload);
         match json {
             Ok(json) => {
-                info!(target: "progress", "{}", json);
+                info!(target: "progress", "{json}");
             }
             Err(why) => {
-                warn!(target: "progress", "Failed to serialize progress bar event: {:?}", why);
+                warn!(target: "progress", "Failed to serialize progress bar event: {why:?}");
             }
         }
     }

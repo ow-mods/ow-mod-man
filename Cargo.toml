@@ -1,6 +1,6 @@
 [workspace]
 members = ["owmods_core", "owmods_cli", "owmods_gui/backend", "xtask"]
-resolver = "2"
+resolver = "3"
 
 [profile.release]
 lto = true

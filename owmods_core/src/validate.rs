@@ -6,7 +6,7 @@ use serde::Serialize;
 use typeshare::typeshare;
 
 use crate::{
-    analytics::{send_analytics_event, AnalyticsEventName},
+    analytics::{send_analytics_deferred, AnalyticsEventName},
     config::Config,
     db::{LocalDatabase, RemoteDatabase},
     download::install_mods_parallel,
@@ -111,11 +111,11 @@ pub async fn fix_deps(
     for error in local_mod.errors.iter() {
         match error {
             ModValidationError::DisabledDep(unique_name) => {
-                info!("Enabling {}", unique_name);
+                info!("Enabling {unique_name}");
                 toggle_mod(unique_name, db, true, true)?;
             }
             ModValidationError::MissingDep(unique_name) => {
-                info!("Marking {} For Install", unique_name);
+                info!("Marking {unique_name} For Install");
                 missing.push(unique_name.clone());
             }
             _ => {}
@@ -126,7 +126,7 @@ pub async fn fix_deps(
     }
     install_mods_parallel(missing.clone(), config, remote_db, db).await?;
     for missing_mod in missing {
-        send_analytics_event(AnalyticsEventName::ModRequiredInstall, &missing_mod, config).await;
+        send_analytics_deferred(AnalyticsEventName::ModRequiredInstall, &missing_mod, config).await;
     }
     Ok(())
 }

@@ -18,7 +18,6 @@
       "open": "(^https://(www\\.)?(github.com|outerwildsmods.com|paypal.me|patreon.com|buymeacoffee.com|cash.app|ko-fi.com)/)|(^https://(www\\.)?discord.gg/wusTQYbYTc$)"
     },
     "updater": {
-      "active": true,
       "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IDkzRURBNzdENEVCREU1NDYKUldSRzViMU9mYWZ0azRoODZIdmVGWUZxVTNQRUVXU2hOTllqcGM4N2RRNjFEN2N3cnhXbW45V0sK",
       "windows": {
         "installMode": "basicUi"

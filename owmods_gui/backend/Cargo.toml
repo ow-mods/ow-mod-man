@@ -28,13 +28,13 @@ time = { version = "0.3.41", features = ["macros", "local-offset"] }
 opener = "0.8.2"
 tauri-plugin-deep-link = "2.4.0"
 tauri-plugin-single-instance = { version = "2.3.0", features = ["deep-link"] }
-tauri-plugin-dialog = "2.3.0"
+tauri-plugin-dialog = "2.3.1"
 tauri-plugin-updater = "2.9.0"
 tauri-plugin-os = "2.3.0"
 tauri-plugin-shell = "2.3.0"
 tauri-plugin-process = "2.3.0"
 tauri-plugin-clipboard-manager = "2.3.0"
-tauri-plugin-window-state = "2.3.0"
+tauri-plugin-window-state = "2.4.0"
 
 
 [features]

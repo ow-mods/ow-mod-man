@@ -18,6 +18,8 @@ use owmods_core::{
     progress::bars::ProgressBars,
     protocol::ProtocolPayload,
 };
+use tauri::AppHandle;
+use tauri_plugin_updater::UpdaterExt;
 
 use anyhow::anyhow;
 use time::macros::format_description;
@@ -93,6 +95,15 @@ pub struct State {
     mods_in_progress: StatePart<Vec<String>>,
 }
 
+async fn update(app: AppHandle) -> tauri_plugin_updater::Result<()> {
+    if let Some(update) = app.updater()?.check().await? {
+        update.download_and_install(|_, _| {}, || {}).await?;
+        app.restart();
+    } else {
+        Ok(())
+    }
+}
+
 fn main() -> Result<(), Box<dyn Error>> {
     let config = Config::get(None).unwrap_or(Config::default(None)?);
     let gui_config = GuiConfig::get().unwrap_or_default();
@@ -143,6 +154,19 @@ fn main() -> Result<(), Box<dyn Error>> {
             } else {
                 debug!("Setup window state");
             }
+
+            // Update Setup
+            let update_handle = app.handle().clone();
+
+            #[cfg(desktop)]
+            tauri::async_runtime::spawn(async {
+                update_handle
+                    .plugin(tauri_plugin_updater::Builder::new().build())
+                    .unwrap();
+                if let Err(why) = update(update_handle).await {
+                    warn!("Failed to update: {why:?}");
+                }
+            });
 
             // Protocol Listener Setup
 

@@ -89,7 +89,7 @@ If you're on other distros/package formats you can try editing the `.desktop` fi
 
 ```diff
 - Exec=outer-wilds-mod-manager %u
-+ Exec=WEBKIT_DISABLE_COMPOSITING_MODE=1 outer-wilds-mod-manager %u
++ Exec=env WEBKIT_DISABLE_COMPOSITING_MODE=1 outer-wilds-mod-manager %u
 ```
 
 ### Manager Doesn't Launch on Wayland

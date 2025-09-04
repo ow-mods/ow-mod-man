@@ -82,7 +82,7 @@ jobs:
         with:
           shared-key: v1-gui-${{ matrix.platform }}-${{ matrix.target }}-rust-cache-${{ hashFiles('Cargo.lock') }}
       - name: Setup Node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v5
         with:
           node-version-file: owmods_gui/frontend/package.json
           cache: npm

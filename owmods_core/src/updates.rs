@@ -105,13 +105,13 @@ pub async fn update_all(
 
     let mut owml_updated = false;
 
-    if owml.is_some() {
-        let (update, remote_owml) = check_mod_needs_update(owml.as_ref().unwrap(), remote_db);
+    if let Some(ref owml) = owml {
+        let (update, remote_owml) = check_mod_needs_update(owml, remote_db);
         if update {
             owml_updated = true;
             info!(
                 "OWML: {} -> {}",
-                owml.as_ref().unwrap().manifest.version,
+                owml.manifest.version,
                 remote_owml.unwrap().version
             );
             download_and_install_owml(config, remote_owml.unwrap(), false).await?;

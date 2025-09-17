@@ -24,7 +24,7 @@ jobs:
     runs-on: ${{ matrix.platform }}
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
       - name: Install dependencies (ubuntu only)
         if: matrix.platform == 'ubuntu-22.04'
         run: |
@@ -48,7 +48,7 @@ jobs:
         with:
           shared-key: v1-gui-${{ matrix.platform }}-${{ matrix.target }}-rust-cache-${{ hashFiles('Cargo.lock') }}
       - name: Setup Node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v5
         with:
           node-version-file: owmods_gui/frontend/package.json
       - name: Install Frontend Dependencies

@@ -86,16 +86,17 @@ impl AnalyticsPayload {
 /// // Time saver is the best mod!
 /// let config = Config::get(None).unwrap();
 /// loop {
-///     send_analytics_event(AnalyticsEventName::ModInstall, "Bwc9876.TimeSaver", &config).await;
+///     send_analytics_event(AnalyticsEventName::ModInstall, "Bwc9876.TimeSaver",
+///     !config.send_analytics).await;
 /// }
 /// # });
 ///
 pub async fn send_analytics_event(
     event_name: AnalyticsEventName,
     unique_name: &str,
-    config: &Config,
+    is_disabled: bool,
 ) {
-    if !config.send_analytics {
+    if is_disabled {
         debug!("Skipping Analytics As It's Disabled");
         return;
     }
@@ -103,15 +104,12 @@ pub async fn send_analytics_event(
         let url = format!("https://www.google-analytics.com/mp/collect?measurement_id={MEASUREMENT_ID}&api_secret={api_key}");
         let client = Client::new();
         let payload = AnalyticsPayload::new(&event_name, unique_name);
-        debug!("Sending {:?}", payload);
+        debug!("Sending {payload:?}");
         let resp = client.post(url).json(&payload).send().await;
         match resp {
             Ok(resp) => {
                 if resp.status().is_success() {
-                    debug!(
-                        "Successfully Sent Analytics Event {:?} for {}",
-                        event_name, unique_name
-                    );
+                    debug!("Successfully Sent Analytics Event {event_name:?} for {unique_name}");
                 } else {
                     warn!(
                         "Couldn't Send Analytics Event For {}! {}",
@@ -121,18 +119,26 @@ pub async fn send_analytics_event(
                 }
             }
             Err(why) => {
-                let err_text = format!(
-                    "Couldn't Send Analytics Event For {}! {:?}",
-                    unique_name, why
-                )
-                .replace(api_key, "***");
-                warn!("{}", err_text);
+                let err_text = format!("Couldn't Send Analytics Event For {unique_name}! {why:?}")
+                    .replace(api_key, "***");
+                warn!("{err_text}");
             }
         }
     } else {
-        debug!(
-            "Skipping Analytics As The ANALYTICS_API_KEY Is Null ({:?})",
-            event_name
-        );
+        debug!("Skipping Analytics As The ANALYTICS_API_KEY Is Null ({event_name:?})");
     }
+}
+
+/// Send an analytics event, but don't wait for it to complete.
+pub async fn send_analytics_deferred(
+    event: AnalyticsEventName,
+    unique_name: impl Into<String>,
+    config: &Config,
+) {
+    let unique_name = unique_name.into();
+    let should_skip = !config.send_analytics;
+
+    tokio::spawn(async move {
+        send_analytics_event(event, &unique_name, should_skip).await;
+    });
 }

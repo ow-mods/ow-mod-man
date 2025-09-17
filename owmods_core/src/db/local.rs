@@ -57,7 +57,7 @@ impl LocalDatabase {
 
     /// Fetch a new local db, using the specified deduper
     pub fn fetch_with_dedup(owml_path: &str, dedup: Arc<Mutex<ModDeduper>>) -> Result<Self> {
-        debug!("Begin construction of local db at {}", owml_path);
+        debug!("Begin construction of local db at {owml_path}");
         let mods_path = PathBuf::from(owml_path).join("Mods");
         Ok(if mods_path.is_dir() {
             let mut new_db = Self {
@@ -454,7 +454,7 @@ impl LocalDatabase {
                 Err(why) => {
                     let err =
                         format!("{:?}", why.context("Failed to load mod")).replace("\n\n", "\n");
-                    warn!("{:?}\n(Mod path: {})", err, path);
+                    warn!("{err:?}\n(Mod path: {path})");
                     let failed_mod = FailedMod {
                         mod_path: path.to_string(),
                         display_path,

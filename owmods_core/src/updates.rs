@@ -5,7 +5,7 @@ use log::{info, warn};
 use versions::Versioning;
 
 use crate::{
-    analytics::{send_analytics_event, AnalyticsEventName},
+    analytics::{send_analytics_deferred, AnalyticsEventName},
     config::Config,
     constants::OWML_UNIQUE_NAME,
     db::{LocalDatabase, RemoteDatabase},
@@ -105,13 +105,13 @@ pub async fn update_all(
 
     let mut owml_updated = false;
 
-    if owml.is_some() {
-        let (update, remote_owml) = check_mod_needs_update(owml.as_ref().unwrap(), remote_db);
+    if let Some(ref owml) = owml {
+        let (update, remote_owml) = check_mod_needs_update(owml, remote_db);
         if update {
             owml_updated = true;
             info!(
                 "OWML: {} -> {}",
-                owml.as_ref().unwrap().manifest.version,
+                owml.manifest.version,
                 remote_owml.unwrap().version
             );
             download_and_install_owml(config, remote_owml.unwrap(), false).await?;
@@ -131,7 +131,7 @@ pub async fn update_all(
                         .get_mod(&updated_mod.manifest.unique_name)
                         .unwrap(),
                 )?; // Unwrap is safe because any mod in this list must have a remote counterpart
-                send_analytics_event(
+                send_analytics_deferred(
                     AnalyticsEventName::ModUpdate,
                     &updated_mod.manifest.unique_name,
                     config,

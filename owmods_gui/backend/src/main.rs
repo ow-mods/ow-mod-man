@@ -18,6 +18,8 @@ use owmods_core::{
     progress::bars::ProgressBars,
     protocol::ProtocolPayload,
 };
+use tauri::AppHandle;
+use tauri_plugin_updater::UpdaterExt;
 
 use anyhow::anyhow;
 use time::macros::format_description;
@@ -93,6 +95,39 @@ pub struct State {
     mods_in_progress: StatePart<Vec<String>>,
 }
 
+async fn update(app: AppHandle) -> tauri_plugin_updater::Result<()> {
+    log::debug!("Checking for Manager Updates");
+    if let Some(update) = app.updater()?.check().await? {
+        let mut bytes: usize = 0;
+        let mut last_debounce: usize = 0;
+        log::info!("Manager Update Found! (${})", update.version);
+        update
+            .download_and_install(
+                |recv, tot| {
+                    bytes = bytes.saturating_add(recv);
+                    let debounce = bytes / 1000000;
+                    if last_debounce != debounce {
+                        last_debounce = debounce;
+                        log::debug!(
+                            "Download Update ({}/{})",
+                            bytes / 1000,
+                            tot.unwrap_or(u64::MAX) / 1000
+                        );
+                    }
+                },
+                || {
+                    log::debug!("Download complete! Installing");
+                },
+            )
+            .await?;
+        log::info!("Manager Update Complete");
+        Ok(())
+    } else {
+        log::debug!("No Manager Updates");
+        Ok(())
+    }
+}
+
 fn main() -> Result<(), Box<dyn Error>> {
     let config = Config::get(None).unwrap_or(Config::default(None)?);
     let gui_config = GuiConfig::get().unwrap_or_default();
@@ -144,6 +179,18 @@ fn main() -> Result<(), Box<dyn Error>> {
                 debug!("Setup window state");
             }
 
+            // Update Setup
+            let update_handle = app.handle().clone();
+
+            tauri::async_runtime::spawn(async {
+                update_handle
+                    .plugin(tauri_plugin_updater::Builder::new().build())
+                    .unwrap();
+                if let Err(why) = update(update_handle).await {
+                    warn!("Failed to update: {why:?}");
+                }
+            });
+
             // Protocol Listener Setup
 
             protocol::prep_protocol(app.handle().clone());
@@ -155,7 +202,7 @@ fn main() -> Result<(), Box<dyn Error>> {
             let res = setup_fs_watch(handle.clone());
 
             if let Err(why) = res {
-                error!("Failed to setup file watching: {:?}", why);
+                error!("Failed to setup file watching: {why:?}");
             }
 
             Ok(())
@@ -223,7 +270,7 @@ fn main() -> Result<(), Box<dyn Error>> {
         .run(tauri::generate_context!());
 
     if let Err(why) = res {
-        eprintln!("Error: {:?}", why);
+        eprintln!("Error: {why:?}");
         let app_path = get_app_path()?;
         let now = time::OffsetDateTime::now_utc();
         let timestamp_str = now
@@ -231,14 +278,10 @@ fn main() -> Result<(), Box<dyn Error>> {
                 "[year]-[month]-[day]_[hour]-[minute]-[second]"
             ))
             .unwrap();
-        let log_path = app_path.join(format!("crash_log_{}.txt", timestamp_str));
+        let log_path = app_path.join(format!("crash_log_{timestamp_str}.txt"));
         let mut file = File::create(&log_path)?;
         file.write_all(
-            format!(
-                "The manager encountered a fatal error when starting: {:?}",
-                why
-            )
-            .as_bytes(),
+            format!("The manager encountered a fatal error when starting: {why:?}").as_bytes(),
         )?;
         drop(file);
         opener::open(&log_path)?;

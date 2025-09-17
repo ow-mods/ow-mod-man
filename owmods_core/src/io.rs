@@ -3,7 +3,7 @@ use std::path::Path;
 use anyhow::Result;
 
 use crate::{
-    analytics::{send_analytics_event, AnalyticsEventName},
+    analytics::{send_analytics_deferred, AnalyticsEventName},
     config::Config,
     db::{LocalDatabase, RemoteDatabase},
     download::install_mods_parallel,
@@ -138,7 +138,7 @@ pub async fn import_mods(
     install_mods_parallel(needed_install.clone(), config, remote_db, local_db).await?;
 
     for unique_name in needed_install {
-        send_analytics_event(AnalyticsEventName::ModInstall, &unique_name, config).await;
+        send_analytics_deferred(AnalyticsEventName::ModInstall, &unique_name, config).await;
     }
 
     Ok(())

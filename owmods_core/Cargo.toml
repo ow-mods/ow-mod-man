@@ -11,34 +11,35 @@ repository = "https://github.com/ow-mods/ow-mod-man/"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-serde = { version = "1.0.219", features = ["derive"] }
-serde_json = "1.0.140"
-opener = "0.8.2"
+serde = { version = "1.0.225", features = ["derive"] }
+serde_json = "1.0.145"
+opener = "0.8.3"
 directories = "6.0.0"
-reqwest = { version = "0.12.22", default-features = false, features = [
+reqwest = { version = "0.12.23", default-features = false, features = [
     "blocking",
     "json",
 ] }
-glob = "0.3.2"
-anyhow = "1.0.98"
-zip = { version = "4.3.0", default-features = false, features = [
+glob = "0.3.3"
+anyhow = "1.0.99"
+zip = { version = "5.1.1", default-features = false, features = [
     "deflate",
     "zstd",
 ] }
 futures = "0.3.31"
-log = "0.4.27"
-tokio = { version = "1.46.1", features = [
+log = "0.4.28"
+tokio = { version = "1.47.1", features = [
     "net",
     "time",
     "process",
     "macros",
     "sync",
+    "io-util",
 ] }
 serde_repr = "0.1.20"
-uuid = { version = "1.17.0", features = ["v4", "fast-rng"] }
+uuid = { version = "1.18.1", features = ["v4", "fast-rng"] }
 typeshare = "1.0.4"
 lazy_static = "1.5.0"
-tempfile = "3.20.0"
+tempfile = "3.22.0"
 unicode-normalization = "0.1.24"
 regex = "1.11.1"
 versions = "7.0.0"

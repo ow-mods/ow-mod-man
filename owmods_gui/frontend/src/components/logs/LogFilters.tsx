@@ -24,7 +24,6 @@ const LogFilters = memo(function LogFilter(props: LogFilterProps) {
             <Box maxWidth="30%">
                 <FilterInput
                     value={props.activeSearch}
-                    watchValue={false}
                     onChange={(v) => props.setActiveSearch(v)}
                     label={getTranslation("SEARCH_LOGS")}
                 />

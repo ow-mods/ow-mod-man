@@ -19,6 +19,10 @@ const RemoteModActions = memo(function RemoteModToolbar(props: RemoteModActionsP
     const getTranslation = useGetTranslation();
     const overflowRef = useRef<{ onClose: () => void }>({ onClose: () => {} });
 
+    const onClose = () => {
+      overflowRef.current?.onClose?.();
+    };
+
     return (
         <>
             <ModDownloadIcon
@@ -32,13 +36,13 @@ const RemoteModActions = memo(function RemoteModToolbar(props: RemoteModActionsP
                     label={getTranslation("OPEN_README")}
                     icon={<DescriptionRounded />}
                     onClick={props.onReadme}
-                    onClose={overflowRef.current?.onClose}
+                    onClose={onClose}
                 />
                 <ModActionOverflowItem
                     label={getTranslation("OPEN_GITHUB")}
                     icon={<GitHub />}
                     onClick={props.onGithub}
-                    onClose={overflowRef.current?.onClose}
+                    onClose={onClose}
                 />
                 {props.showPrerelease && (
                     <ModActionOverflowItem
@@ -46,7 +50,7 @@ const RemoteModActions = memo(function RemoteModToolbar(props: RemoteModActionsP
                         icon={<ScienceRounded />}
                         onClick={props.onPrerelease}
                         disabled={props.busy ?? false}
-                        onClose={overflowRef.current?.onClose}
+                        onClose={onClose}
                     />
                 )}
             </ModActionOverflow>

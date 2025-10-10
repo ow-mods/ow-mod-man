@@ -26,8 +26,8 @@ const RemoteModRow = memo(function RemoteModRow(props: RemoteModRowProps) {
 
     const prereleaseLabel = hasPrerelease
         ? getTranslation("USE_PRERELEASE", {
-            version: remote?.prerelease?.version ?? ""
-        })
+              version: remote?.prerelease?.version ?? ""
+          })
         : "";
 
     const onInstall = useCallback(() => {

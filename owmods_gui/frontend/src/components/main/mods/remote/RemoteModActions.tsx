@@ -20,7 +20,7 @@ const RemoteModActions = memo(function RemoteModToolbar(props: RemoteModActionsP
     const overflowRef = useRef<{ onClose: () => void }>({ onClose: () => {} });
 
     const onClose = () => {
-      overflowRef.current?.onClose?.();
+        overflowRef.current?.onClose?.();
     };
 
     return (

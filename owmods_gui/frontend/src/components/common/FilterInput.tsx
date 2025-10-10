@@ -18,7 +18,7 @@ const FilterInput: React.FunctionComponent<FilterInputProps> = ({
 }) => {
     const [filterText, setFilterText] = useState(value);
     const debouncedFilterText = useDebounce(filterText, 200);
-    
+
     useEffect(() => {
         onChange(debouncedFilterText);
     }, [debouncedFilterText, onChange]);

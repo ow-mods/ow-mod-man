@@ -4,7 +4,7 @@
     gobject-introspection
     rust-bin.stable.latest.default
     cargo-tauri
-    nodejs
+    nodejs_24
     at-spi2-atk
     atkmm
     cairo

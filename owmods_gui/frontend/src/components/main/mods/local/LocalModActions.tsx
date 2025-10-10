@@ -38,6 +38,10 @@ const LocalModActions = memo(function LocalModTools(props: LocalModActionsProps)
         onClose: () => {}
     });
 
+    const onClose = () => {
+        overflowRef.current?.onClose?.();
+    };
+
     const isBusy = hooks.getModBusy("modBusy", { uniqueName: props.uniqueName })[1];
     // Disable the fix button if ANY mods are busy, this is to stop the user from clicking fix when a dep is installing
     const isAnyBusy = (hooks.getBusyMods("modBusy")[1] ?? []).length !== 0;
@@ -76,14 +80,14 @@ const LocalModActions = memo(function LocalModTools(props: LocalModActionsProps)
                         disabled={!props.hasRemote}
                         icon={<DescriptionRounded />}
                         onClick={props.onReadme}
-                        onClose={overflowRef.current?.onClose}
+                        onClose={onClose}
                     />
                 )}
                 <ModActionOverflowItem
                     label={getTranslation("SHOW_FOLDER")}
                     icon={<FolderRounded />}
                     onClick={props.onFolder}
-                    onClose={overflowRef.current?.onClose}
+                    onClose={onClose}
                 />
                 {props.hasRemote && (
                     <>
@@ -91,14 +95,14 @@ const LocalModActions = memo(function LocalModTools(props: LocalModActionsProps)
                             label={getTranslation("OPEN_GITHUB")}
                             icon={<GitHub />}
                             onClick={props.onGithub}
-                            onClose={overflowRef.current?.onClose}
+                            onClose={onClose}
                         />
                         <ModActionOverflowItem
                             label={getTranslation("REINSTALL")}
                             icon={<DownloadRounded />}
                             disabled={isBusy ?? true}
                             onClick={props.onReinstall}
-                            onClose={overflowRef.current?.onClose}
+                            onClose={onClose}
                         />
                     </>
                 )}
@@ -106,7 +110,7 @@ const LocalModActions = memo(function LocalModTools(props: LocalModActionsProps)
                     label={getTranslation("UNINSTALL")}
                     icon={<DeleteRounded />}
                     onClick={props.onUninstall}
-                    onClose={overflowRef.current?.onClose}
+                    onClose={onClose}
                 />
             </ModActionOverflow>
         </>

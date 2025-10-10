@@ -5,7 +5,6 @@ import { useDebounce } from "@hooks";
 
 export interface FilterInputProps {
     value: string;
-    watchValue?: boolean;
     label: string;
     onChange: (value: string) => void;
     [rest: string | number | symbol]: unknown;
@@ -13,19 +12,12 @@ export interface FilterInputProps {
 
 const FilterInput: React.FunctionComponent<FilterInputProps> = ({
     value,
-    watchValue,
     onChange,
     label,
     ...rest
 }) => {
     const [filterText, setFilterText] = useState(value);
     const debouncedFilterText = useDebounce(filterText, 200);
-
-    useEffect(() => {
-        if (watchValue ?? true) {
-            setFilterText(value);
-        }
-    }, [value, watchValue]);
 
     useEffect(() => {
         onChange(debouncedFilterText);

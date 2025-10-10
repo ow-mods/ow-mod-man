@@ -70,7 +70,7 @@ const DownloadsIcon = memo(function DownloadsIcon() {
     const current = activeDownloads[0];
 
     useEffect(() => {
-        const unsubscribe = listen("progressBatchFinish", (hasError) => {
+        return listen("progressBatchFinish", (hasError) => {
             if (currentTimeout.current) {
                 clearTimeout(currentTimeout.current);
             }
@@ -79,11 +79,9 @@ const DownloadsIcon = memo(function DownloadsIcon() {
                 setRecentComplete("none");
             }, 750 * 3); // Animation lasts 700ms and happens 3 times
         });
-        return unsubscribe;
     }, []);
 
     useEffect(() => {
-        if (len !== 0) setRecentComplete("none");
         if (currentTimeout.current) {
             clearTimeout(currentTimeout.current);
         }

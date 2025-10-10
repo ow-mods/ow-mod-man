@@ -1,4 +1,4 @@
-import { memo, useCallback, useMemo } from "react";
+import { memo, useCallback } from "react";
 import ModRow from "../ModRow";
 import { commands, hooks } from "@commands";
 import { useGetTranslation } from "@hooks";
@@ -39,7 +39,7 @@ const RemoteModRow = memo(function RemoteModRow(props: RemoteModRowProps) {
             .catch(simpleOnError);
     }, [props.uniqueName]);
 
-    const onPrerelease = useCallback(() => {
+    const onPrerelease = () => {
         const task = async () => {
             const result = await dialog.ask(getTranslation("PRERELEASE_WARNING"), {
                 title: prereleaseLabel
@@ -54,7 +54,7 @@ const RemoteModRow = memo(function RemoteModRow(props: RemoteModRowProps) {
             }
         };
         task();
-    }, [getTranslation, prereleaseLabel, props.uniqueName]);
+    };
 
     const onReadme = useCallback(() => {
         commands.openModReadme({ uniqueName: props.uniqueName }).catch(simpleOnError);
@@ -63,31 +63,6 @@ const RemoteModRow = memo(function RemoteModRow(props: RemoteModRowProps) {
     const onGithub = useCallback(() => {
         commands.openModGithub({ uniqueName: props.uniqueName }).catch(simpleOnError);
     }, [props.uniqueName]);
-
-    const modActions = useMemo(
-        () => (
-            <RemoteModActions
-                uniqueName={props.uniqueName}
-                busy={busy ?? false}
-                showPrerelease={hasPrerelease}
-                prereleaseLabel={prereleaseLabel}
-                onInstall={onInstall}
-                onPrerelease={onPrerelease}
-                onReadme={onReadme}
-                onGithub={onGithub}
-            />
-        ),
-        [
-            busy,
-            onInstall,
-            onPrerelease,
-            onReadme,
-            onGithub,
-            prereleaseLabel,
-            props.uniqueName,
-            hasPrerelease
-        ]
-    );
 
     const isLoading =
         remoteOpt?.type === "loading" || (status === "Loading" && (remote ?? null) === null);
@@ -106,7 +81,16 @@ const RemoteModRow = memo(function RemoteModRow(props: RemoteModRowProps) {
             thumbnailUrl={remote?.thumbnail?.openGraph ?? remote?.thumbnail.main}
             showThumbnail={props.showThumbnail}
         >
-            {modActions}
+            <RemoteModActions
+                uniqueName={props.uniqueName}
+                busy={busy ?? false}
+                showPrerelease={hasPrerelease}
+                prereleaseLabel={prereleaseLabel}
+                onInstall={onInstall}
+                onPrerelease={onPrerelease}
+                onReadme={onReadme}
+                onGithub={onGithub}
+            />
         </ModRow>
     );
 });

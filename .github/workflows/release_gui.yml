@@ -48,7 +48,7 @@ jobs:
         with:
           shared-key: v1-gui-${{ matrix.platform }}-${{ matrix.target }}-rust-cache-${{ hashFiles('Cargo.lock') }}
       - name: Setup Node
-        uses: actions/setup-node@v5
+        uses: actions/setup-node@v6
         with:
           node-version-file: owmods_gui/frontend/package.json
       - name: Install Frontend Dependencies

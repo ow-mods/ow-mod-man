@@ -99,7 +99,7 @@ jobs:
           VITE_COMMIT: ${{ github.sha }}
           VITE_VERSION_SUFFIX: -nightly
       - name: Upload GUI
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: GUI-Nightly-${{ matrix.bundle-name }}
           path: ${{ matrix.bundle-path }}

@@ -50,7 +50,7 @@
         "eslint-plugin-react": "7.37.5",
         "eslint-plugin-react-hooks": "7.0.1",
         "globals": "^16.4.0",
-        "prettier": "3.7.3",
+        "prettier": "3.7.4",
         "typescript": "^5.9.2",
         "vite": "^7.1.11",
         "vite-imagetools": "^9.0.0"

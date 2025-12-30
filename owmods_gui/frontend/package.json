@@ -33,7 +33,7 @@
         "@tauri-apps/plugin-window-state": "^2.2.2",
         "react": "^19.1.1",
         "react-dom": "^19.1.1",
-        "react-error-boundary": "6.0.0",
+        "react-error-boundary": "6.0.1",
         "react-virtuoso": "^4.14.0"
     },
     "devDependencies": {

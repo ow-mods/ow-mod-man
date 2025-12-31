@@ -54,7 +54,7 @@ jobs:
     runs-on: ${{ matrix.platform }}
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
       - name: Disable Updater Bundles
         run: |
           sed -i.old -e 's/"createUpdaterArtifacts": "v1Compatible"/"createUpdaterArtifacts": false/' owmods_gui/backend/tauri.conf.json

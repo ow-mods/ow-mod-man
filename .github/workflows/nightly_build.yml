@@ -27,7 +27,7 @@ jobs:
             bundle-path: |
               target/**/bundle/**/*.dmg
               target/**/bundle/**/*.app
-          - platform: "ubuntu-22.04"
+          - platform: "ubuntu-latest"
             target: "x86_64-unknown-linux-gnu"
             args: "appimage deb rpm"
             bundle-name: Linux-x86_64
@@ -35,7 +35,7 @@ jobs:
               target/release/bundle/**/*.deb
               target/release/bundle/**/*.rpm
               target/release/bundle/**/*.AppImage
-          # - platform: "ubuntu-22.04-arm"
+          # - platform: "ubuntu-latest-arm"
           #   target: "aarch64-unknown-linux-gnu"
           #   args: "appimage deb rpm"
           #   bundle-name: Linux-aarch64

@@ -10,7 +10,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        platform: [ubuntu-22.04, windows-latest]
+        platform: [ubuntu-latest, windows-latest]
     runs-on: ${{ matrix.platform }}
 
     steps:
@@ -28,7 +28,7 @@ jobs:
           shared-key: v1-cli-${{ runner.os }}-rust-cache-${{ hashFiles('Cargo.lock') }}
 
       - name: Install Deb Generator
-        if: matrix.platform == 'ubuntu-22.04'
+        if: startsWith(matrix.platform, 'ubuntu')
         run: cargo install cargo-deb
 
       - name: Build CLI
@@ -44,23 +44,23 @@ jobs:
           ANALYTICS_API_KEY: ${{ secrets.ANALYTICS_API_KEY }}
 
       - name: Generate Dist Folder
-        if: matrix.platform == 'ubuntu-22.04'
+        if: startsWith(matrix.platform, 'ubuntu')
         run: cargo xtask dist_cli
         env:
           ANALYTICS_API_KEY: ${{ secrets.ANALYTICS_API_KEY }}
 
       - name: Archive Dist Files
-        if: matrix.platform == 'ubuntu-22.04'
+        if: startsWith(matrix.platform, 'ubuntu')
         run: tar --zstd -cfowmods.tar.zst -C target/release owmods  -C ../../dist/cli/ man completions
 
       - name: Generate Deb File
-        if: matrix.platform == 'ubuntu-22.04'
+        if: startsWith(matrix.platform, 'ubuntu')
         run: cargo deb -p owmods_cli -o owmods_cli_${{ steps.get_version.outputs.version }}_amd64.deb
         env:
           ANALYTICS_API_KEY: ${{ secrets.ANALYTICS_API_KEY }}
 
       - name: Upload CLI (Ubuntu)
-        if: matrix.platform == 'ubuntu-22.04'
+        if: startsWith(matrix.platform, 'ubuntu')
         uses: softprops/action-gh-release@v2
         with:
           name: Outer Wilds Mod Manager CLI Version ${{ steps.get_version.outputs.version }}
@@ -74,7 +74,7 @@ jobs:
             target/release/owmods
 
       - name: Upload CLI (Windows)
-        if: matrix.platform == 'windows-latest'
+        if: startsWith(matrix.platform, 'windows')
         uses: softprops/action-gh-release@v2
         with:
           name: Outer Wilds Mod Manager CLI Version ${{ steps.get_version.outputs.version }}

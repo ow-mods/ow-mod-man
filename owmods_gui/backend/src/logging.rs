@@ -119,12 +119,8 @@ impl log::Log for Logger {
             Ok(())
         };
 
-        if result.is_err() {
-            println!(
-                "Error Logging: {:?}\nORIGINAL LOG: {}",
-                result.unwrap_err(),
-                record.args()
-            );
+        if let Err(why) = result {
+            println!("Error Logging: {why:?}\nORIGINAL LOG: {}", record.args());
         }
     }
 

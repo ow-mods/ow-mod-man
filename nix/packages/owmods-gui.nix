@@ -7,7 +7,7 @@
   librsvg,
   webkitgtk_4_1,
   pkg-config,
-  wrapGAppsHook,
+  wrapGAppsHook3,
   makeDesktopItem,
   copyDesktopItems,
   rustPlatform,
@@ -50,7 +50,7 @@ rustPlatform.buildRustPackage rec {
   nativeBuildInputs = [
     pkg-config
     copyDesktopItems
-    wrapGAppsHook
+    wrapGAppsHook3
   ];
 
   buildInputs = [

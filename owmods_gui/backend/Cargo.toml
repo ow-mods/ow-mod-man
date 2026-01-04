@@ -15,26 +15,26 @@ tauri-build = { version = "2.4.1", features = [] }
 owmods_core = { version = "0.15.4", path = "../../owmods_core" }
 serde_json = "1.0"
 serde = { version = "1.0", features = ["derive"] }
-tauri = { version = "2.8.5", features = ["rustls-tls"] }
+tauri = { version = "2.9.5", features = ["rustls-tls"] }
 anyhow = "1.0.100"
-tokio = { version = "1.48.0", features = ["sync", "macros"] }
-log = { version = "0.4.28", features = ["std", "serde"] }
-typeshare = "1.0.4"
+tokio = { version = "1.49.0", features = ["sync", "macros"] }
+log = { version = "0.4.29", features = ["std", "serde"] }
+typeshare = "1.0.5"
 notify = { version = "8.2.0", default-features = false, features = [
     "macos_kqueue",
 ] }
 regex = "1.12.2"
 time = { version = "0.3.44", features = ["macros", "local-offset"] }
 opener = "0.8.3"
-tauri-plugin-deep-link = "2.4.3"
-tauri-plugin-single-instance = { version = "2.3.4", features = ["deep-link"] }
-tauri-plugin-dialog = "2.4.0"
+tauri-plugin-deep-link = "2.4.5"
+tauri-plugin-single-instance = { version = "2.3.6", features = ["deep-link"] }
+tauri-plugin-dialog = "2.4.2"
 tauri-plugin-updater = "2.9.0"
-tauri-plugin-os = "2.3.1"
-tauri-plugin-shell = "2.3.1"
-tauri-plugin-process = "2.3.0"
-tauri-plugin-clipboard-manager = "2.3.0"
-tauri-plugin-window-state = "2.4.0"
+tauri-plugin-os = "2.3.2"
+tauri-plugin-shell = "2.3.3"
+tauri-plugin-process = "2.3.1"
+tauri-plugin-clipboard-manager = "2.3.2"
+tauri-plugin-window-state = "2.4.1"
 
 
 [features]

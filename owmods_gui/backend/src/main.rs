@@ -99,6 +99,13 @@ async fn update(app: tauri::AppHandle) -> error::Result {
     use tauri_plugin_dialog::{MessageDialogButtons, MessageDialogKind, MessageDialogResult, DialogExt};
     use tauri_plugin_updater::UpdaterExt;
 
+    let skip = std::env::var("OWMM_NO_UPDATES").is_ok_and(|s| s == "1");
+
+    if skip {
+        log::debug!("Skipping updater");
+        return Ok(());
+    }
+
     app.plugin(tauri_plugin_updater::Builder::new().build())
         .context("While adding plugin")?;
 

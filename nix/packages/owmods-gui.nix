@@ -108,7 +108,7 @@ rustPlatform.buildRustPackage rec {
   desktopItems = [
     (makeDesktopItem {
       name = "outer-wilds-mod-manager";
-      exec = "outer-wilds-mod-manager %u";
+      exec = "outer-wilds-mod-manager %U";
       icon = "outer-wilds-mod-manager";
       desktopName = "Outer Wilds Mod Manager";
       categories = ["Game"];

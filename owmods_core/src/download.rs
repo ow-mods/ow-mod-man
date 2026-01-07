@@ -1,3 +1,4 @@
+use log::warn;
 use std::{
     collections::HashSet,
     ffi::OsStr,
@@ -48,18 +49,31 @@ async fn download_zip(url: &str, unique_name: Option<&str>, target_path: &Path) 
     let mut stream = File::create(target_path)?;
     let mut download = request.send().await?.error_for_status()?;
 
-    let file_size = download.content_length().unwrap_or(0);
+    let content_length = download
+        .headers()
+        .get("Content-Length")
+        .ok_or(anyhow!("Response missing Content-Length header"))
+        .and_then(|v| {
+            v.to_str()
+                .context("Failed to decode Content-Length")?
+                .parse::<u32>()
+                .context("Failed to parse Content-Length")
+        });
 
-    let progress_type = if file_size > 0 {
-        ProgressType::Definite
-    } else {
-        ProgressType::Indefinite
+    let (progress_type, progress_max) = match content_length {
+        Ok(max) => (ProgressType::Definite, max),
+        Err(why) => {
+            warn!("Failed to get content length for download: {why:?}");
+            // If we can't get the length or it's to large, just use the max value for
+            // the progress bar and make it indefinite.
+            (ProgressType::Indefinite, u32::MAX)
+        }
     };
 
     let mut progress = ProgressBar::new(
         target_path.to_str().unwrap(),
         unique_name,
-        file_size.try_into().unwrap_or(u32::MAX), // Fallback for HUGE files, means files >4GB will get progress reported incorrectly
+        progress_max,
         &format!("Downloading {zip_name}"),
         &format!("Failed to download {zip_name}"),
         progress_type,

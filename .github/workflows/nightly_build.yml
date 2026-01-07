@@ -27,7 +27,7 @@ jobs:
             bundle-path: |
               target/**/bundle/**/*.dmg
               target/**/bundle/**/*.app
-          - platform: "ubuntu-22.04"
+          - platform: "ubuntu-latest"
             target: "x86_64-unknown-linux-gnu"
             args: "appimage deb rpm"
             bundle-name: Linux-x86_64
@@ -35,7 +35,7 @@ jobs:
               target/release/bundle/**/*.deb
               target/release/bundle/**/*.rpm
               target/release/bundle/**/*.AppImage
-          # - platform: "ubuntu-22.04-arm"
+          # - platform: "ubuntu-latest-arm"
           #   target: "aarch64-unknown-linux-gnu"
           #   args: "appimage deb rpm"
           #   bundle-name: Linux-aarch64
@@ -54,7 +54,7 @@ jobs:
     runs-on: ${{ matrix.platform }}
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
       - name: Disable Updater Bundles
         run: |
           sed -i.old -e 's/"createUpdaterArtifacts": "v1Compatible"/"createUpdaterArtifacts": false/' owmods_gui/backend/tauri.conf.json
@@ -82,7 +82,7 @@ jobs:
         with:
           shared-key: v1-gui-${{ matrix.platform }}-${{ matrix.target }}-rust-cache-${{ hashFiles('Cargo.lock') }}
       - name: Setup Node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version-file: owmods_gui/frontend/package.json
           cache: npm
@@ -99,7 +99,7 @@ jobs:
           VITE_COMMIT: ${{ github.sha }}
           VITE_VERSION_SUFFIX: -nightly
       - name: Upload GUI
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: GUI-Nightly-${{ matrix.bundle-name }}
           path: ${{ matrix.bundle-path }}

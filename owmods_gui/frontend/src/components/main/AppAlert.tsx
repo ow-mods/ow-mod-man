@@ -5,7 +5,7 @@ import { ErrorRounded, InfoRounded, LaunchRounded, WarningRounded } from "@mui/i
 import { Box, Link, Button, Palette, Typography, useTheme } from "@mui/material";
 import * as shell from "@tauri-apps/plugin-shell";
 import { Alert } from "@types";
-import { memo, useCallback } from "react";
+import { memo } from "react";
 
 type AlertSeverity = "warning" | "error" | "info";
 
@@ -45,13 +45,13 @@ const AppAlert = memo(function AppAlert() {
 
     const severity = (alert?.severity ?? "info") as AlertSeverity;
 
-    const onClick = useCallback(() => {
+    const onClick = () => {
         shell.open(alert?.url ?? "");
-    }, [alert?.url]);
+    };
 
-    const onDismiss = useCallback(() => {
+    const onDismiss = () => {
         commands.dismissAlert({ alert: alert! });
-    }, [alert]);
+    };
 
     if (alert === null || alert.message?.startsWith("<0.15.3:") || !alert.enabled) {
         return <></>;

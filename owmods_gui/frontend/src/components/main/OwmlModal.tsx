@@ -27,11 +27,13 @@ const OwmlModal = memo(function OwmlModal() {
     const [canCancel, setCanCancel] = useState(false);
     const [installingOwml, setInstallingOwml] = useState(false);
 
-    if (import.meta.env.DEV) {
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-ignore
-        window._DEBUG_OPEN_SETUP = () => setOpen(true);
-    }
+    useEffect(() => {
+        if (import.meta.env.DEV) {
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            // @ts-ignore
+            window._DEBUG_OPEN_SETUP = () => setOpen(true);
+        }
+    });
 
     const [setupMethod, setSetupMethod] = useState<SetupType>("INSTALL_OWML");
     const [owmlPath, setOwmlPath] = useState("");

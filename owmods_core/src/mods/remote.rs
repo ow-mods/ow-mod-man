@@ -71,12 +71,21 @@ impl RemoteMod {
 
 impl Searchable for RemoteMod {
     fn get_values(&self) -> Vec<String> {
-        vec![
-            self.name.clone(),
-            self.unique_name.clone(),
-            self.get_author().clone(),
-            self.description.clone(),
-        ]
+        let tags_iter = self
+            .tags
+            .as_ref()
+            .map(|v| v.iter().cloned())
+            .unwrap_or_default();
+        Vec::from_iter(
+            [
+                self.name.clone(),
+                self.unique_name.clone(),
+                self.get_author().clone(),
+                self.description.clone(),
+            ]
+            .into_iter()
+            .chain(tags_iter),
+        )
     }
 
     fn break_tie(&self, other: &Self) -> std::cmp::Ordering {

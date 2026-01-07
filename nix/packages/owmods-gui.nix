@@ -7,7 +7,7 @@
   librsvg,
   webkitgtk_4_1,
   pkg-config,
-  wrapGAppsHook,
+  wrapGAppsHook3,
   makeDesktopItem,
   copyDesktopItems,
   rustPlatform,
@@ -18,7 +18,7 @@
 }:
 rustPlatform.buildRustPackage rec {
   pname = "owmods-gui";
-  version = "0.15.3";
+  version = "0.15.4";
 
   VITE_VERSION_SUFFIX = "-nix";
 
@@ -41,8 +41,9 @@ rustPlatform.buildRustPackage rec {
     lockFile = ../../Cargo.lock;
   };
 
+	buildNoDefaultFeatures = true;
   buildFeatures = [
-    "tauri/custom-protocol"
+    "custom-protocol"
   ];
 
   doCheck = false;
@@ -50,7 +51,7 @@ rustPlatform.buildRustPackage rec {
   nativeBuildInputs = [
     pkg-config
     copyDesktopItems
-    wrapGAppsHook
+    wrapGAppsHook3
   ];
 
   buildInputs = [

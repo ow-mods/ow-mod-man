@@ -65,6 +65,14 @@
     "resources": [],
     "shortDescription": "A manager for Outer Wilds mods",
     "targets": "all",
+		"linux": {
+			"deb": {
+				"desktopTemplate": "template.desktop"
+			},
+			"rpm": {
+				"desktopTemplate": "template.desktop"
+			}
+		},
     "windows": {
       "certificateThumbprint": null,
       "digestAlgorithm": "sha256",

@@ -29,7 +29,7 @@ opener = "0.8.3"
 tauri-plugin-deep-link = "2.4.5"
 tauri-plugin-single-instance = { version = "2.3.6", features = ["deep-link"] }
 tauri-plugin-dialog = "2.4.2"
-tauri-plugin-updater = "2.9.0"
+tauri-plugin-updater = { version = "2.9.0", optional = true }
 tauri-plugin-os = "2.3.2"
 tauri-plugin-shell = "2.3.3"
 tauri-plugin-process = "2.3.1"
@@ -38,5 +38,6 @@ tauri-plugin-window-state = "2.4.1"
 
 
 [features]
-default = ["custom-protocol"]
+default = ["custom-protocol", "updater"]
 custom-protocol = ["tauri/custom-protocol"]
+updater = ["dep:tauri-plugin-updater"]

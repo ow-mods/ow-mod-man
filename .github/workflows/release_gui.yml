@@ -55,7 +55,7 @@ jobs:
         working-directory: owmods_gui/frontend
         run: npm install
       - name: Build GUI
-        uses: tauri-apps/tauri-action@dev
+        uses: tauri-apps/tauri-action@action-0.6.1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_PRIVATE_KEY }}
@@ -64,7 +64,7 @@ jobs:
           VITE_COMMIT: ${{ github.sha }}
         with:
           tagName: gui_v__VERSION__
-          includeUpdaterJson: true
+          uploadUpdaterJson: true
           releaseName: "Outer Wilds Mod Manager GUI Version __VERSION__"
           releaseBody: "See the assets to download and install this version."
           releaseDraft: true

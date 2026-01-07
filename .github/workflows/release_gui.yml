@@ -55,7 +55,7 @@ jobs:
         working-directory: owmods_gui/frontend
         run: npm install
       - name: Build GUI
-        uses: tauri-apps/tauri-action@action-0.6.1
+        uses: tauri-apps/tauri-action@action-v0.6.1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_PRIVATE_KEY }}

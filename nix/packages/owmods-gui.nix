@@ -41,8 +41,9 @@ rustPlatform.buildRustPackage rec {
     lockFile = ../../Cargo.lock;
   };
 
+	buildNoDefaultFeatures = true;
   buildFeatures = [
-    "tauri/custom-protocol"
+    "custom-protocol"
   ];
 
   doCheck = false;

@@ -3138,7 +3138,7 @@ dependencies = [
 
 [[package]]
 name = "owmods_gui"
-version = "0.15.4"
+version = "0.15.2"
 dependencies = [
  "anyhow",
  "log",

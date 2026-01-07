@@ -18,8 +18,6 @@ use owmods_core::{
     progress::bars::ProgressBars,
     protocol::ProtocolPayload,
 };
-use tauri::AppHandle;
-use tauri_plugin_updater::UpdaterExt;
 
 use anyhow::anyhow;
 use time::macros::format_description;
@@ -95,12 +93,48 @@ pub struct State {
     mods_in_progress: StatePart<Vec<String>>,
 }
 
-async fn update(app: AppHandle) -> tauri_plugin_updater::Result<()> {
+#[cfg(feature = "updater")]
+async fn update(app: tauri::AppHandle) -> error::Result {
+    use anyhow::Context;
+    use tauri_plugin_dialog::{MessageDialogButtons, MessageDialogKind, MessageDialogResult, DialogExt};
+    use tauri_plugin_updater::UpdaterExt;
+
+    app.plugin(tauri_plugin_updater::Builder::new().build())
+        .context("While adding plugin")?;
+
     log::debug!("Checking for Manager Updates");
-    if let Some(update) = app.updater()?.check().await? {
+    if let Some(update) = app
+        .updater()
+        .context("App plugin not found")?
+        .check()
+        .await
+        .context("While checking for updates")?
+    {
+        log::info!("Manager Update Found! ({})", update.version);
+
+        let msg = format!("An update for the manager is available ({}). Would you like to download and install the update?", update.version);
+
+        let (tx, rx) = tokio::sync::oneshot::channel::<MessageDialogResult>();
+
+        app.dialog()
+            .message(msg)
+            .kind(MessageDialogKind::Info)
+            .buttons(MessageDialogButtons::YesNo)
+            .title("Update available")
+            .show_with_result(|res| {
+                if let Err(why) = tx.send(res) {
+                    warn!("Failed to accept dialog result for updater: {why:?}");
+                }
+            });
+
+        let res = rx.await.context("While prompting user about the update")?;
+        
+        if let MessageDialogResult::No = res {
+            return Ok(());
+        }
+
         let mut bytes: usize = 0;
         let mut last_debounce: usize = 0;
-        log::info!("Manager Update Found! (${})", update.version);
         update
             .download_and_install(
                 |recv, tot| {
@@ -119,8 +153,10 @@ async fn update(app: AppHandle) -> tauri_plugin_updater::Result<()> {
                     log::debug!("Download complete! Installing");
                 },
             )
-            .await?;
+            .await
+            .context("While downloading/installing the update")?;
         log::info!("Manager Update Complete");
+
         Ok(())
     } else {
         log::debug!("No Manager Updates");
@@ -179,17 +215,17 @@ fn main() -> Result<(), Box<dyn Error>> {
                 debug!("Setup window state");
             }
 
-            // Update Setup
-            let update_handle = app.handle().clone();
+            #[cfg(feature = "updater")]
+            {
+                // Update Setup
+                let update_handle = app.handle().clone();
 
-            tauri::async_runtime::spawn(async {
-                update_handle
-                    .plugin(tauri_plugin_updater::Builder::new().build())
-                    .unwrap();
-                if let Err(why) = update(update_handle).await {
-                    warn!("Failed to update: {why:?}");
-                }
-            });
+                tauri::async_runtime::spawn(async {
+                    if let Err(why) = update(update_handle).await {
+                        warn!("Failed to update: {why:?}");
+                    }
+                });
+            }
 
             // Protocol Listener Setup
 

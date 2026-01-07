@@ -64,7 +64,7 @@ jobs:
           VITE_COMMIT: ${{ github.sha }}
         with:
           tagName: gui_v__VERSION__
-          uploadUpdaterJson: true
+          includeUpdaterJson: true
           releaseName: "Outer Wilds Mod Manager GUI Version __VERSION__"
           releaseBody: "See the assets to download and install this version."
           releaseDraft: true

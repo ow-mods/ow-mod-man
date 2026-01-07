@@ -96,7 +96,9 @@ pub struct State {
 #[cfg(feature = "updater")]
 async fn update(app: tauri::AppHandle) -> error::Result {
     use anyhow::Context;
-    use tauri_plugin_dialog::{MessageDialogButtons, MessageDialogKind, MessageDialogResult, DialogExt};
+    use tauri_plugin_dialog::{
+        DialogExt, MessageDialogButtons, MessageDialogKind, MessageDialogResult,
+    };
     use tauri_plugin_updater::UpdaterExt;
 
     let skip = std::env::var("OWMM_NO_UPDATES").is_ok_and(|s| s == "1");
@@ -135,7 +137,7 @@ async fn update(app: tauri::AppHandle) -> error::Result {
             });
 
         let res = rx.await.context("While prompting user about the update")?;
-        
+
         if let MessageDialogResult::No = res {
             return Ok(());
         }

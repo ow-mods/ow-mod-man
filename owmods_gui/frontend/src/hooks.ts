@@ -86,22 +86,6 @@ export const useGetTranslation = () => {
     );
 };
 
-export function useDebounce<TValue>(value: TValue, delayMs: number): TValue {
-    const [debouncedValue, setDebouncedValue] = useState<TValue>(value);
-
-    useEffect(() => {
-        const handler = setTimeout(() => {
-            setDebouncedValue(value);
-        }, delayMs);
-
-        return () => {
-            clearTimeout(handler);
-        };
-    }, [value, delayMs]);
-
-    return debouncedValue;
-}
-
 export interface UnifiedMod {
     name: string;
     slug?: string;

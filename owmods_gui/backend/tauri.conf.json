@@ -85,7 +85,8 @@
       "timestampUrl": "",
       "wix": {
         "bannerPath": "installer-images/wix/TopBanner.png",
-        "dialogImagePath": "installer-images/wix/Background.png"
+        "dialogImagePath": "installer-images/wix/Background.png",
+				"upgradeCode": "f701b028-0db4-5332-ae05-d28683855bc3"
       }
     }
   }

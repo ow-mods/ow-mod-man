@@ -3,7 +3,7 @@ use std::{fmt::Write, path::PathBuf, process};
 use anyhow::{Context, Result};
 use clap::{CommandFactory, Parser};
 use colored::Colorize;
-use log::{error, info, warn, LevelFilter};
+use log::{LevelFilter, error, info, warn};
 use owmods_core::{
     alerts::fetch_alert,
     config::Config,
@@ -32,7 +32,7 @@ mod logging;
 
 use cli::{BaseCli, Commands, ModListTypes};
 use game::{start_game, start_just_logs};
-use logging::{log_mod_validation_errors, show_pre_patcher_warning, Logger};
+use logging::{Logger, log_mod_validation_errors, show_pre_patcher_warning};
 
 async fn run_from_cli(cli: BaseCli) -> Result<()> {
     let r = cli.recursive;
@@ -40,12 +40,12 @@ async fn run_from_cli(cli: BaseCli) -> Result<()> {
 
     let mut config = Config::get(None)?;
 
-    if let Some(analytics) = cli.analytics {
-        if analytics != config.send_analytics {
-            info!("Setting send_analytics to {analytics}");
-            config.send_analytics = analytics;
-            config.save()?;
-        }
+    if let Some(analytics) = cli.analytics
+        && analytics != config.send_analytics
+    {
+        info!("Setting send_analytics to {analytics}");
+        config.send_analytics = analytics;
+        config.save()?;
     }
 
     let ran_setup = matches!(
@@ -64,7 +64,10 @@ async fn run_from_cli(cli: BaseCli) -> Result<()> {
         info!(
             "Welcome to the Outer Wild Mods CLI! In order to continue you'll need to setup OWML.",
         );
-        info!("To do this, run `owmods setup /path/to/owml`. Or, run with no path to auto-install it to {}.", config.owml_path);
+        info!(
+            "To do this, run `owmods setup /path/to/owml`. Or, run with no path to auto-install it to {}.",
+            config.owml_path
+        );
         info!("This message will display until a valid OWML path is set or OWML is installed");
         return Ok(());
     }
@@ -470,7 +473,9 @@ async fn run_from_cli(cli: BaseCli) -> Result<()> {
                 log_mod_validation_errors(local_mod, &local_db);
             }
             if flag {
-                error!("Issues found, run with -f to fix dependency issues, or disable conflicting mods");
+                error!(
+                    "Issues found, run with -f to fix dependency issues, or disable conflicting mods"
+                );
             } else {
                 info!("No issues found!");
             }
@@ -504,7 +509,9 @@ async fn run_from_cli(cli: BaseCli) -> Result<()> {
                     .await?;
                 }
                 ProtocolVerb::InstallURL | ProtocolVerb::InstallZip => {
-                    warn!("WARNING: This will install a mod from a potentially untrusted source, continue? (yes/no)");
+                    warn!(
+                        "WARNING: This will install a mod from a potentially untrusted source, continue? (yes/no)"
+                    );
                     let mut answer = String::new();
                     std::io::stdin().read_line(&mut answer)?;
                     answer = answer.trim().to_ascii_lowercase();

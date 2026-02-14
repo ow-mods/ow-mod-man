@@ -121,7 +121,10 @@ async fn update(app: tauri::AppHandle) -> error::Result {
     {
         log::info!("Manager Update Found! ({})", update.version);
 
-        let msg = format!("An update for the manager is available ({}). Would you like to download and install the update?", update.version);
+        let msg = format!(
+            "An update for the manager is available ({}). Would you like to download and install the update?",
+            update.version
+        );
 
         let (tx, rx) = tokio::sync::oneshot::channel::<MessageDialogResult>();
 

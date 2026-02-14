@@ -18,7 +18,7 @@
 }:
 rustPlatform.buildRustPackage rec {
   pname = "owmods-gui";
-  version = "0.15.4";
+  version = "0.15.5";
 
   VITE_VERSION_SUFFIX = "-nix";
 

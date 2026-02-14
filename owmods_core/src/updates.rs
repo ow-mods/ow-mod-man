@@ -5,7 +5,7 @@ use log::{info, warn};
 use versions::Versioning;
 
 use crate::{
-    analytics::{send_analytics_deferred, AnalyticsEventName},
+    analytics::{AnalyticsEventName, send_analytics_deferred},
     config::Config,
     constants::OWML_UNIQUE_NAME,
     db::{LocalDatabase, RemoteDatabase},

@@ -1,4 +1,4 @@
-use std::io::{stdin, Read};
+use std::io::{Read, stdin};
 
 use anyhow::Result;
 use log::{debug, error, info, warn};

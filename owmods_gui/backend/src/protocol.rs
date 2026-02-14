@@ -1,6 +1,6 @@
 use log::{debug, warn};
 use owmods_core::protocol::{ProtocolPayload, ProtocolVerb};
-use tauri::{async_runtime, Manager};
+use tauri::{Manager, async_runtime};
 use tauri_plugin_deep_link::DeepLinkExt;
 
 use crate::events::{CustomEventEmitterAll, Event};

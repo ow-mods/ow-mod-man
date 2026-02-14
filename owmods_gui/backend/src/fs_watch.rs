@@ -10,9 +10,9 @@ use owmods_core::config::Config;
 use tauri::{AppHandle, Listener, Manager};
 
 use crate::{
+    State,
     events::{CustomEventEmitterAll, Event as CustomEvent},
     gui_config::GuiConfig,
-    State,
 };
 
 fn check_res(res: Result<Event, notify::Error>) -> bool {

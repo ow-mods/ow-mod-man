@@ -9,7 +9,7 @@ use glob::glob;
 use crate::{
     db::LocalDatabase,
     file::check_file_matches_paths,
-    mods::local::{FailedMod, LocalMod, get_paths_to_preserve},
+    mods::local::{get_paths_to_preserve, FailedMod, LocalMod},
 };
 
 /// Uninstall a mod

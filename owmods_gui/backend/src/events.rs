@@ -1,10 +1,10 @@
-use anyhow::{Result, anyhow};
+use anyhow::{anyhow, Result};
 use owmods_core::protocol::ProtocolPayload;
 use serde::{Deserialize, Serialize};
 use tauri::{AppHandle, Emitter, Listener, Window};
 use typeshare::typeshare;
 
-use crate::{LogPort, game::GameMessage};
+use crate::{game::GameMessage, LogPort};
 
 pub const INVOKE_URI: &str = "owmods://events/invoke";
 

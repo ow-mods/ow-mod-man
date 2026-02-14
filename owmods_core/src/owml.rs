@@ -194,7 +194,7 @@ mod tests {
 
     use std::fs;
 
-    use crate::test_utils::{TestContext, get_test_file};
+    use crate::test_utils::{get_test_file, TestContext};
 
     use super::*;
 
@@ -226,13 +226,12 @@ mod tests {
         let owml_conf: OWMLConfig =
             serde_json::from_str(include_str!("../test_files/OWML.Config.json")).unwrap();
         owml_conf.save(&ctx.config).unwrap();
-        assert!(
-            ctx.temp_dir
-                .path()
-                .join("OWML")
-                .join("OWML.Config.json")
-                .is_file()
-        );
+        assert!(ctx
+            .temp_dir
+            .path()
+            .join("OWML")
+            .join("OWML.Config.json")
+            .is_file());
     }
 
     #[test]
@@ -252,12 +251,11 @@ mod tests {
         setup_default_conf(&ctx);
         let conf = OWMLConfig::get(&ctx.config).unwrap();
         assert!(conf.debug_mode);
-        assert!(
-            ctx.temp_dir
-                .path()
-                .join("OWML")
-                .join("OWML.Config.json")
-                .is_file()
-        );
+        assert!(ctx
+            .temp_dir
+            .path()
+            .join("OWML")
+            .join("OWML.Config.json")
+            .is_file());
     }
 }

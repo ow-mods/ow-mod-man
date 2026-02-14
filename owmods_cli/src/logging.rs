@@ -6,7 +6,7 @@ use std::{
 
 use colored::Colorize;
 use indicatif::{MultiProgress, ProgressBar, ProgressStyle};
-use log::{Level, error, warn};
+use log::{error, warn, Level};
 use owmods_core::{
     db::LocalDatabase,
     mods::local::UnsafeLocalMod,

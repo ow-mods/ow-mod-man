@@ -49,11 +49,16 @@ const FilterInput: React.FunctionComponent<FilterInputProps> = memo(function Fil
                 ),
                 endAdornment: value !== "" && (
                     <InputAdornment position="end">
-                        <IconButton onClick={() => {
-                            onChange("");
-                            if (currTimeout.current) { clearTimeout(currTimeout.current); }
-                            setTemp(null);
-                        }} size="small">
+                        <IconButton
+                            onClick={() => {
+                                onChange("");
+                                if (currTimeout.current) {
+                                    clearTimeout(currTimeout.current);
+                                }
+                                setTemp(null);
+                            }}
+                            size="small"
+                        >
                             <CloseIcon fontSize="small" />
                         </IconButton>
                     </InputAdornment>

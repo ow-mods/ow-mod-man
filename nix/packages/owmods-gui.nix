@@ -41,7 +41,7 @@ rustPlatform.buildRustPackage rec {
     lockFile = ../../Cargo.lock;
   };
 
-	buildNoDefaultFeatures = true;
+  buildNoDefaultFeatures = true;
   buildFeatures = [
     "custom-protocol"
   ];

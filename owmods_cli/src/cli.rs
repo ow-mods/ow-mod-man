@@ -195,6 +195,8 @@ pub enum Commands {
         )]
         port: u16,
     },
+    #[command(about = "Open the OWML Logs folder")]
+    Logs,
     #[command(about = "Quickly open something")]
     Open {
         #[arg(help = "db, owml, owml_docs, website, or a mod's unique name", value_hint = ValueHint::Other)]

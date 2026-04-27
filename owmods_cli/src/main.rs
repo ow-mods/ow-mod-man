@@ -18,7 +18,7 @@ use owmods_core::{
         local::{LocalMod, UnsafeLocalMod},
         remote::RemoteMod,
     },
-    open::{open_github, open_readme, open_shortcut},
+    open::{open_github, open_owml_logs, open_readme, open_shortcut},
     protocol::{ProtocolPayload, ProtocolVerb},
     remove::{remove_failed_mod, remove_mod},
     toggle::toggle_mod,
@@ -438,6 +438,10 @@ async fn run_from_cli(cli: BaseCli) -> Result<()> {
             }
             let port = if no_server { None } else { Some(port) };
             start_game(&local_db, &config, port, *new_window).await?;
+        }
+        Commands::Logs => {
+            info!("Opening the OWML Logs folder, {}/Logs", config.owml_path);
+            open_owml_logs(&config)?;
         }
         Commands::Open { identifier } => {
             info!("Opening {identifier}");

@@ -40,12 +40,14 @@
         "@eslint/compat": "^2.0.5",
         "@eslint/eslintrc": "^3.3.5",
         "@eslint/js": "^9.39.4",
+        "@rolldown/plugin-babel": "^0.2.3",
         "@tauri-apps/cli": "^2.10.1",
         "@types/react": "^19.2.14",
         "@types/react-dom": "^19.2.3",
         "@typescript-eslint/eslint-plugin": "^8.59.0",
         "@typescript-eslint/parser": "^8.59.0",
         "@vitejs/plugin-react": "^6.0.1",
+        "babel-plugin-react-compiler": "^1.0.0",
         "eslint": "^9.39.4",
         "eslint-plugin-react": "7.37.5",
         "eslint-plugin-react-hooks": "^7.1.1",
@@ -53,6 +55,7 @@
         "prettier": "^3.8.3",
         "typescript": "^6.0.3",
         "vite": "^8.0.10",
-        "vite-imagetools": "^10.0.0"
+        "vite-imagetools": "^10.0.0",
+        "yaml": "^2.8.3"
     }
 }

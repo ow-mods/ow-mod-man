@@ -38,14 +38,23 @@ const DownloadsPopover = memo(function DownloadsPopover(props: DownloadsPopoverP
             }}
         >
             <Box
-                display="flex"
-                flexDirection="column"
-                width="50vw"
-                gap={theme.spacing(1)}
-                padding={theme.spacing(1)}
+                sx={{
+                    display: "flex",
+                    flexDirection: "column",
+                    width: "50vw",
+                    gap: theme.spacing(1),
+                    padding: theme.spacing(1)
+                }}
             >
                 {props.downloads.length === 0 ? (
-                    <Box height="10vh" display="flex" alignItems="center" justifyContent="center">
+                    <Box
+                        sx={{
+                            height: "10vh",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center"
+                        }}
+                    >
                         <Typography variant="subtitle1">
                             {getTranslation("NO_DOWNLOADS")}
                         </Typography>

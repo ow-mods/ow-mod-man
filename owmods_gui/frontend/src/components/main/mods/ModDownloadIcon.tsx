@@ -22,7 +22,12 @@ const ModDownloadIcon = memo(function ModDownloadIcon(props: ModDownloadIconProp
     const percent = bar ? (bar.progress / bar.len) * 100 : 0;
 
     return busy ? (
-        <Box display="flex" alignItems="center">
+        <Box
+            sx={{
+                display: "flex",
+                alignItems: "center"
+            }}
+        >
             <CircularProgress
                 sx={{
                     background: theme.palette.background.default,

@@ -14,8 +14,20 @@ const DownloadRow = memo(function DownloadRow(props: ProgressBar) {
     return (
         <Card>
             <CardContent>
-                <Typography marginBottom={theme.spacing(1)}>{props.message}</Typography>
-                <Box display="flex" alignItems="center" gap={theme.spacing(1)}>
+                <Typography
+                    sx={{
+                        marginBottom: theme.spacing(1)
+                    }}
+                >
+                    {props.message}
+                </Typography>
+                <Box
+                    sx={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: theme.spacing(1)
+                    }}
+                >
                     {done ? (
                         props.success ? (
                             <CheckCircleRounded fontSize="small" color="primary" />
@@ -23,12 +35,21 @@ const DownloadRow = memo(function DownloadRow(props: ProgressBar) {
                             <ErrorRounded fontSize="small" color="error" />
                         )
                     ) : (
-                        <Typography variant="caption" whiteSpace="nowrap">
+                        <Typography
+                            variant="caption"
+                            sx={{
+                                whiteSpace: "nowrap"
+                            }}
+                        >
                             {props.progressType === "Definite" ? `${Math.round(percent)}%` : "—%"}
                         </Typography>
                     )}
 
-                    <Box width="100%">
+                    <Box
+                        sx={{
+                            width: "100%"
+                        }}
+                    >
                         <LinearProgress
                             variant={variant}
                             value={variant === "indeterminate" ? undefined : percent}

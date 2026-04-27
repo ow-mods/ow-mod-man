@@ -139,7 +139,13 @@ const InstallFrom = memo(function InstallFrom({ onClick }: ModalProps) {
             <Dialog fullWidth open={open} onClose={onClose}>
                 <DialogTitle>{getTranslation("INSTALL_FROM")}</DialogTitle>
                 <DialogContent dividers>
-                    <Box display="flex" flexDirection="column" gap={theme.spacing(2)}>
+                    <Box
+                        sx={{
+                            display: "flex",
+                            flexDirection: "column",
+                            gap: theme.spacing(2)
+                        }}
+                    >
                         <FormControl>
                             <InputLabel id="install-from-source-selector">
                                 {getTranslation("INSTALL_FROM")}
@@ -193,7 +199,13 @@ const InstallFrom = memo(function InstallFrom({ onClick }: ModalProps) {
                                 label={getTranslation("USE_PRERELEASE_CHECKBOX")}
                             />
                         ) : (
-                            <Box display="flex" alignItems="center" gap={theme.spacing(2)}>
+                            <Box
+                                sx={{
+                                    display: "flex",
+                                    alignItems: "center",
+                                    gap: theme.spacing(2)
+                                }}
+                            >
                                 <WarningRounded color="warning" fontSize="large" />
                                 <DialogContentText>
                                     {getTranslation("INSTALL_WARNING")}

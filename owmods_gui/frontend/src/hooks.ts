@@ -48,6 +48,7 @@ export const useTauri = <T, E extends Event["name"]>(
 
     useEffect(() => {
         if (status === "Done") {
+            // eslint-disable-next-line react-hooks/set-state-in-effect
             setStatus("Loading");
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps

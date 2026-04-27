@@ -21,14 +21,24 @@ const LogFilters = memo(function LogFilter(props: LogFilterProps) {
 
     return (
         <>
-            <Box maxWidth="30%">
+            <Box
+                sx={{
+                    maxWidth: "30%"
+                }}
+            >
                 <FilterInput
                     value={props.activeSearch}
                     onChange={(v) => props.setActiveSearch(v)}
                     label={getTranslation("SEARCH_LOGS")}
                 />
             </Box>
-            <Box paddingLeft={theme.spacing(2)} flexGrow={1} maxWidth="30%">
+            <Box
+                sx={{
+                    paddingLeft: theme.spacing(2),
+                    flexGrow: 1,
+                    maxWidth: "30%"
+                }}
+            >
                 <FormControl size="small" fullWidth>
                     <InputLabel id={labelId}>{getTranslation("FILTER")}</InputLabel>
                     <Select

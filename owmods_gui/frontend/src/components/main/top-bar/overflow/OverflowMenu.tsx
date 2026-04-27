@@ -78,8 +78,10 @@ const OverflowMenu = () => {
                 open={open}
                 keepMounted
                 onClose={onClose}
-                MenuListProps={{
-                    "aria-labelledby": "overflow-button"
+                slotProps={{
+                    list: {
+                        "aria-labelledby": "overflow-button"
+                    }
                 }}
             >
                 <Suspense>

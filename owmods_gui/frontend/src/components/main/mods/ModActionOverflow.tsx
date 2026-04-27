@@ -88,8 +88,10 @@ const ModActionOverflow = forwardRef(function ModActionOverflow(
                 anchorEl={anchorEl}
                 open={open}
                 onClose={onClose}
-                MenuListProps={{
-                    "aria-labelledby": overflowButtonId
+                slotProps={{
+                    list: {
+                        "aria-labelledby": overflowButtonId
+                    }
                 }}
             >
                 {props.children}

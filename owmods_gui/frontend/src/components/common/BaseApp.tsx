@@ -32,18 +32,26 @@ const BaseApp = memo(function BaseApp(props: BaseAppProps) {
             <CssBaseline>
                 {props.isLoading ? (
                     <Box
-                        width="100%"
-                        height="100%"
-                        display="flex"
-                        alignItems="center"
-                        justifyContent="center"
+                        sx={{
+                            width: "100%",
+                            height: "100%",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center"
+                        }}
                     >
                         <CircularProgress color="neutral" />
                     </Box>
                 ) : (
                     <TranslationContext.Provider value={props.language!}>
                         <StyledErrorBoundary center>
-                            <Box display="flex" flexDirection="column" height="100%">
+                            <Box
+                                sx={{
+                                    display: "flex",
+                                    flexDirection: "column",
+                                    height: "100%"
+                                }}
+                            >
                                 {props.children}
                             </Box>
                         </StyledErrorBoundary>

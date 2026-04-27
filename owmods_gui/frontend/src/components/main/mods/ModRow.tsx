@@ -113,15 +113,22 @@ const ModRow = memo(function GenericModRow(props: ModRowProps) {
             )}
             <TableCell sx={cellStyle}>
                 <Typography
-                    display="flex"
-                    alignItems="center"
                     variant="subtitle1"
-                    maxWidth="100%"
-                    whiteSpace="nowrap"
-                    overflow="hidden"
+                    sx={{
+                        display: "flex",
+                        alignItems: "center",
+                        maxWidth: "100%",
+                        whiteSpace: "nowrap",
+                        overflow: "hidden"
+                    }}
                 >
                     {props.requiresDlc && (
-                        <Box display="inline-block" mr={0.5}>
+                        <Box
+                            sx={{
+                                display: "inline-block",
+                                mr: 0.5
+                            }}
+                        >
                             <ODTooltip title={getTranslation("REQUIRES_DLC")}>
                                 <Typography>
                                     <ExtensionRounded
@@ -133,30 +140,42 @@ const ModRow = memo(function GenericModRow(props: ModRowProps) {
                             </ODTooltip>
                         </Box>
                     )}
-                    <Box overflow="hidden" display="inline-block" mr={1}>
+                    <Box
+                        sx={{
+                            overflow: "hidden",
+                            display: "inline-block",
+                            mr: 1
+                        }}
+                    >
                         <Typography
                             noWrap
-                            display="block"
-                            fontWeight={theme.typography.fontWeightBold}
+                            sx={{
+                                display: "block",
+                                fontWeight: theme.typography.fontWeightBold
+                            }}
                         >
                             {props.isLoading ? <Skeleton width={300} /> : props.name}
                         </Typography>
                     </Box>
                     <Box
-                        flexShrink={1}
-                        flexBasis={0}
-                        flexGrow={1}
-                        maxWidth="min-content"
-                        overflow="hidden"
-                        display="inline-block"
-                        mr={1}
+                        sx={{
+                            flexShrink: 1,
+                            flexBasis: 0,
+                            flexGrow: 1,
+                            maxWidth: "min-content",
+                            overflow: "hidden",
+                            display: "inline-block",
+                            mr: 1
+                        }}
                     >
                         <Typography
                             noWrap
-                            overflow="hidden"
-                            display="block"
                             variant="caption"
                             color={theme.palette.text.disabled}
+                            sx={{
+                                overflow: "hidden",
+                                display: "block"
+                            }}
                         >
                             {props.isLoading ? (
                                 <></>
@@ -222,10 +241,12 @@ const ModRow = memo(function GenericModRow(props: ModRowProps) {
             </TableCell>
             <TableCell sx={cellStyle} align="right">
                 <Box
-                    display="flex"
-                    flexDirection="row"
-                    alignContent="center"
-                    justifyContent={props.alignActions ?? "center"}
+                    sx={{
+                        display: "flex",
+                        flexDirection: "row",
+                        alignContent: "center",
+                        justifyContent: props.alignActions ?? "center"
+                    }}
                 >
                     {props.children}
                 </Box>

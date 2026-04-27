@@ -25,7 +25,12 @@ const FileInput = <T,>(openFunc: (options?: T) => Promise<string | string[] | nu
         };
 
         return (
-            <Box display="flex" gap={theme.spacing(2)}>
+            <Box
+                sx={{
+                    display: "flex",
+                    gap: theme.spacing(2)
+                }}
+            >
                 <TextField
                     variant="outlined"
                     value={props.value}

@@ -41,28 +41,30 @@ const FilterInput: React.FunctionComponent<FilterInputProps> = memo(function Fil
             placeholder={label}
             variant="outlined"
             {...rest}
-            InputProps={{
-                startAdornment: (
-                    <InputAdornment position="start">
-                        <SearchIcon />
-                    </InputAdornment>
-                ),
-                endAdornment: value !== "" && (
-                    <InputAdornment position="end">
-                        <IconButton
-                            onClick={() => {
-                                onChange("");
-                                if (currTimeout.current) {
-                                    clearTimeout(currTimeout.current);
-                                }
-                                setTemp(null);
-                            }}
-                            size="small"
-                        >
-                            <CloseIcon fontSize="small" />
-                        </IconButton>
-                    </InputAdornment>
-                )
+            slotProps={{
+                input: {
+                    startAdornment: (
+                        <InputAdornment position="start">
+                            <SearchIcon />
+                        </InputAdornment>
+                    ),
+                    endAdornment: value !== "" && (
+                        <InputAdornment position="end">
+                            <IconButton
+                                onClick={() => {
+                                    onChange("");
+                                    if (currTimeout.current) {
+                                        clearTimeout(currTimeout.current);
+                                    }
+                                    setTemp(null);
+                                }}
+                                size="small"
+                            >
+                                <CloseIcon fontSize="small" />
+                            </IconButton>
+                        </InputAdornment>
+                    )
+                }
             }}
         />
     );

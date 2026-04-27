@@ -94,8 +94,17 @@ const DownloadsIcon = memo(function DownloadsIcon() {
 
     return (
         <>
-            <Box display="flex" position="relative">
-                <Box zIndex={100}>
+            <Box
+                sx={{
+                    display: "flex",
+                    position: "relative"
+                }}
+            >
+                <Box
+                    sx={{
+                        zIndex: 100
+                    }}
+                >
                     <AppIcon onClick={handleClick} label={getTranslation("DOWNLOADS")}>
                         <DownloadingRounded
                             className={recentCompleteClassMap[recentComplete]}
@@ -107,16 +116,26 @@ const DownloadsIcon = memo(function DownloadsIcon() {
                     <Typography
                         color={iconColor}
                         className={recentCompleteClassMap[recentComplete]}
-                        position="absolute"
-                        right="-10px"
                         variant="subtitle2"
-                        bottom="8px"
+                        sx={{
+                            position: "absolute",
+                            right: "-10px",
+                            bottom: "8px"
+                        }}
                     >
                         {len === 0 ? completeDownloads.toString() : len.toString()}
                     </Typography>
                 )}
                 {len !== 0 && current && (
-                    <Box width={30} position="absolute" bottom="-2px" right="0" left="5px">
+                    <Box
+                        sx={{
+                            width: 30,
+                            position: "absolute",
+                            bottom: "-2px",
+                            right: "0",
+                            left: "5px"
+                        }}
+                    >
                         <CircularProgress
                             size={30}
                             color="secondary"

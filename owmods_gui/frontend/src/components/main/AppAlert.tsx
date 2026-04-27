@@ -59,17 +59,19 @@ const AppAlert = memo(function AppAlert() {
 
     return (
         <Box
-            padding={1}
             sx={{
+                padding: 1,
                 backgroundColor: getColor(theme.palette, severity)
             }}
         >
             <Typography
-                display="flex"
-                gap={theme.spacing(0.5)}
-                justifyContent="center"
-                alignItems="center"
                 variant="body2"
+                sx={{
+                    display: "flex",
+                    gap: theme.spacing(0.5),
+                    justifyContent: "center",
+                    alignItems: "center"
+                }}
             >
                 <AlertIcon severity={severity} /> {alert.message}
                 {alert.url && (
@@ -83,7 +85,14 @@ const AppAlert = memo(function AppAlert() {
                         {alert.urlLabel ?? "More Info"}
                     </Button>
                 )}
-                <Link marginLeft={1} color="inherit" href="#" onClick={onDismiss}>
+                <Link
+                    color="inherit"
+                    href="#"
+                    onClick={onDismiss}
+                    sx={{
+                        marginLeft: 1
+                    }}
+                >
                     {getTranslation("DISMISS")}
                 </Link>
             </Typography>

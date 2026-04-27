@@ -55,17 +55,35 @@ const fallback = (options: Omit<StyledErrorBoundaryProps, "children">) =>
                     maxWidth: "60%"
                 }}
             >
-                <Box gap={2} display="flex" justifyContent="center" flexDirection="column">
+                <Box
+                    sx={{
+                        gap: 2,
+                        display: "flex",
+                        justifyContent: "center",
+                        flexDirection: "column"
+                    }}
+                >
                     <Box
-                        gap={1}
-                        color={theme.palette.error.light}
-                        display="flex"
-                        flexDirection="row"
+                        sx={{
+                            gap: 1,
+                            color: theme.palette.error.light,
+                            display: "flex",
+                            flexDirection: "row"
+                        }}
                     >
                         <ErrorRounded /> {getTranslation(options.errorKey ?? "FATAL_ERROR")}
                     </Box>
-                    <Box bgcolor={theme.palette.grey[900]}>
-                        <Typography padding={3} variant="body2">
+                    <Box
+                        sx={{
+                            bgcolor: theme.palette.grey[900]
+                        }}
+                    >
+                        <Typography
+                            variant="body2"
+                            sx={{
+                                padding: 3
+                            }}
+                        >
                             {errorString ? errorString : getTranslation("UNKNOWN_ERROR")}
                         </Typography>
                     </Box>
@@ -80,12 +98,14 @@ const fallback = (options: Omit<StyledErrorBoundaryProps, "children">) =>
 
         return options.center ? (
             <Box
-                display="flex"
-                width="100%"
-                height="100%"
-                alignItems="center"
-                justifyContent="center"
-                padding={5}
+                sx={{
+                    display: "flex",
+                    width: "100%",
+                    height: "100%",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    padding: 5
+                }}
             >
                 {text}
             </Box>

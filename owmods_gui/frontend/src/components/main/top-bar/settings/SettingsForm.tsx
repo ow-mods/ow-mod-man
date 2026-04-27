@@ -69,6 +69,7 @@ const SettingsForm = forwardRef(function SettingsForm(props: SettingsFormProps, 
                     };
                     task().catch(simpleOnError);
                 },
+
                 reset: () => {
                     setConfig(props.initialConfig);
                     setGuiConfig(props.initialGuiConfig);
@@ -111,9 +112,21 @@ const SettingsForm = forwardRef(function SettingsForm(props: SettingsFormProps, 
     const colTemplate = `repeat(auto-fit, minmax(${theme.spacing(40)}, 1fr))`;
 
     return (
-        <Box display="flex" flexDirection="column" gap={2}>
+        <Box
+            sx={{
+                display: "flex",
+                flexDirection: "column",
+                gap: 2
+            }}
+        >
             <SettingsHeader text={getTranslation("GUI_SETTINGS")} onReset={() => onReset(1)} />
-            <Box display="flex" flexDirection="row" gap={2}>
+            <Box
+                sx={{
+                    display: "flex",
+                    flexDirection: "row",
+                    gap: 2
+                }}
+            >
                 <SettingsSelect
                     onChange={handleGui}
                     value={guiConfig.language}
@@ -133,11 +146,13 @@ const SettingsForm = forwardRef(function SettingsForm(props: SettingsFormProps, 
                 />
             </Box>
             <Box
-                rowGap={1}
-                columnGap={2}
-                gridTemplateColumns={colTemplate}
-                gridAutoFlow="dense"
-                display="grid"
+                sx={{
+                    rowGap: 1,
+                    columnGap: 2,
+                    gridTemplateColumns: colTemplate,
+                    gridAutoFlow: "dense",
+                    display: "grid"
+                }}
             >
                 <SettingsCheck
                     onChange={handleGui}
@@ -235,11 +250,13 @@ const SettingsForm = forwardRef(function SettingsForm(props: SettingsFormProps, 
                 tooltip={getTranslation("TOOLTIP_GAME_PATH")}
             />
             <Box
-                rowGap={1}
-                columnGap={2}
-                gridTemplateColumns={colTemplate}
-                gridAutoFlow="dense"
-                display="grid"
+                sx={{
+                    rowGap: 1,
+                    columnGap: 2,
+                    gridTemplateColumns: colTemplate,
+                    gridAutoFlow: "dense",
+                    display: "grid"
+                }}
             >
                 <SettingsCheck
                     onChange={handleOwml}

@@ -9,15 +9,15 @@ license = "GPL-3.0-or-later"
 edition = "2024"
 
 [build-dependencies]
-tauri-build = { version = "2.5.5", features = [] }
+tauri-build = { version = "2.5.6", features = [] }
 
 [dependencies]
 owmods_core = { version = "0.15.5", path = "../../owmods_core" }
 serde_json = "1.0"
 serde = { version = "1.0", features = ["derive"] }
-tauri = { version = "2.10.2", features = ["rustls-tls"] }
-anyhow = "1.0.101"
-tokio = { version = "1.49.0", features = ["sync", "macros"] }
+tauri = { version = "2.10.3", features = ["rustls-tls"] }
+anyhow = "1.0.102"
+tokio = { version = "1.52.1", features = ["sync", "macros"] }
 log = { version = "0.4.29", features = ["std", "serde"] }
 typeshare = "1.0.5"
 notify = { version = "8.2.0", default-features = false, features = [
@@ -28,8 +28,8 @@ time = { version = "0.3.47", features = ["macros", "local-offset"] }
 opener = "0.8.4"
 tauri-plugin-deep-link = "2.4.7"
 tauri-plugin-single-instance = { version = "2.4.0", features = ["deep-link"] }
-tauri-plugin-dialog = "2.6.0"
-tauri-plugin-updater = { version = "2.10.0", optional = true }
+tauri-plugin-dialog = "2.7.0"
+tauri-plugin-updater = { version = "2.10.1", optional = true }
 tauri-plugin-os = "2.3.2"
 tauri-plugin-shell = "2.3.5"
 tauri-plugin-process = "2.3.1"

@@ -57,7 +57,14 @@ const ModsPage = memo(function ModsPage(props: ModsPageProps) {
             </ModsToolbar>
             {props.isLoading ? (
                 <Paper sx={{ flexGrow: 1, height: "100%" }}>
-                    <Box height="100%" display="flex" alignItems="center" justifyContent="center">
+                    <Box
+                        sx={{
+                            height: "100%",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center"
+                        }}
+                    >
                         <CircularProgress color="secondary" />
                     </Box>
                 </Paper>
@@ -65,7 +72,14 @@ const ModsPage = memo(function ModsPage(props: ModsPageProps) {
                 <ModsTable ref={virtuosoRef} {...props} />
             ) : (
                 <Paper sx={{ flexGrow: 1, height: "100%" }}>
-                    <Box height="100%" display="flex" alignItems="center" justifyContent="center">
+                    <Box
+                        sx={{
+                            height: "100%",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center"
+                        }}
+                    >
                         <Typography variant="subtitle1">
                             {props.filter === "" && (props.selectedTags ?? []).length === 0
                                 ? props.noModsText

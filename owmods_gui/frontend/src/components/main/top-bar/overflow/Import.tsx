@@ -56,7 +56,11 @@ const Import = memo(function Import({ onClick }: ModalProps) {
             <Dialog open={open} onClose={onClose}>
                 <DialogTitle>{getTranslation("IMPORT_MODS")}</DialogTitle>
                 <DialogContent dividers>
-                    <DialogContentText marginBottom={theme.spacing(1)}>
+                    <DialogContentText
+                        sx={{
+                            marginBottom: theme.spacing(1)
+                        }}
+                    >
                         {getTranslation("IMPORT_MODS_EXPLANATION")}
                     </DialogContentText>
                     <OpenFileInput

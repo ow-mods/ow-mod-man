@@ -30,7 +30,14 @@ const ModThumbnail = memo(function ModThumbnail(props: ModThumbnailProps) {
     const leftBorderRadius = progress === 0 ? rightBorderRadius : 0;
 
     return (
-        <Box position="relative" display="flex" alignItems="center" justifyContent="center">
+        <Box
+            sx={{
+                position: "relative",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center"
+            }}
+        >
             {busy && (
                 <div
                     className="mod-thumb-cover"

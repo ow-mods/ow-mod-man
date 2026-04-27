@@ -14,7 +14,13 @@ export interface ModActionIconProps {
 const ModActionIcon = memo(function ModActionButton(props: ModActionIconProps) {
     return (
         <ODTooltip title={props.label}>
-            <Box height="100%" display="flex" alignItems="center">
+            <Box
+                sx={{
+                    height: "100%",
+                    display: "flex",
+                    alignItems: "center"
+                }}
+            >
                 <IconButton
                     disabled={props.disabled}
                     color={props.color}

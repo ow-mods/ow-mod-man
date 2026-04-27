@@ -2,7 +2,9 @@
   packages = with pkgs; [
     pkg-config
     gobject-introspection
-    rust-bin.stable.latest.default
+    (rust-bin.stable.latest.default.override {
+      extensions = ["rust-src"];
+    })
     cargo-tauri
     nodejs_24
     at-spi2-atk

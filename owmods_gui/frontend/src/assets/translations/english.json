@@ -104,6 +104,7 @@
     "OPEN_WEBSITE": "Browse Mods Website",
     "OUTDATED": "Outdated",
     "OWML_INSTALL_ERROR": "There was an error downloading OWML, please check your network connection and try again.",
+    "OWML_LOGS": "OWML Logs",
     "OWML_NO_PRERELEASE": "There is no prerelease for OWML available",
     "OWML_PATH": "OWML Path",
     "OWML_SETTINGS": "OWML Settings",

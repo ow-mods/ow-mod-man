@@ -313,7 +313,8 @@ fn main() -> Result<(), Box<dyn Error>> {
             get_db_tags,
             open_mod_github,
             force_log_update,
-            show_log_folder
+            show_log_folder,
+            open_owml_logs_folder,
         ])
         .run(tauri::generate_context!());
 

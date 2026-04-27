@@ -22,7 +22,7 @@ use owmods_core::{
         local::{LocalMod, UnsafeLocalMod},
         remote::RemoteMod,
     },
-    open::{open_github, open_readme, open_shortcut},
+    open::{open_github, open_owml_logs, open_readme, open_shortcut},
     owml::OWMLConfig,
     progress::bars::{ProgressBar, ProgressBars},
     protocol::{ProtocolPayload, ProtocolVerb},
@@ -435,6 +435,14 @@ pub async fn open_mod_readme(unique_name: &str, state: tauri::State<'_, State>) 
     let db = state.remote_db.read().await;
     let db = db.try_get()?;
     open_readme(unique_name, db)?;
+    Ok(())
+}
+
+
+#[tauri::command]
+pub async fn open_owml_logs_folder(state: tauri::State<'_, State>) -> Result {
+    let config = state.config.read().await;
+    open_owml_logs(&config).context("Failed to open OWML logs")?;
     Ok(())
 }
 

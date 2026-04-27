@@ -6,6 +6,7 @@ import {
     BuildRounded,
     FavoriteRounded,
     FolderOpenRounded,
+    GamepadRounded,
     HelpRounded,
     MoreHorizRounded,
     ReceiptRounded
@@ -44,6 +45,11 @@ const OverflowMenu = () => {
 
     const onOpenOwml = useCallback(() => {
         commands.openOwml();
+        onClose();
+    }, [onClose]);
+
+    const onOpenOwmlLogs = useCallback(() => {
+        commands.openOwmlLogsFolder();
         onClose();
     }, [onClose]);
 
@@ -100,6 +106,12 @@ const OverflowMenu = () => {
                         <BuildRounded fontSize="small" />
                     </ListItemIcon>
                     <ListItemText>{getTranslation("EDIT_OWML")}</ListItemText>
+                </MenuItem>
+                <MenuItem onClick={onOpenOwmlLogs}>
+                    <ListItemIcon>
+                        <GamepadRounded fontSize="small" />
+                    </ListItemIcon>
+                    <ListItemText>{getTranslation("OWML_LOGS")}</ListItemText>
                 </MenuItem>
                 <MenuItem onClick={onLogs}>
                     <ListItemIcon>

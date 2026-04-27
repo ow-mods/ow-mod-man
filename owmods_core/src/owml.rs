@@ -42,6 +42,9 @@ pub struct OWMLConfig {
     pub prepatched_mods: Vec<String>,
     /// The port to use for sending logs to
     pub socket_port: u16,
+    /// Don't do a popup when the game is out of date
+    #[serde(default = "_default_false")]
+    pub disable_version_popup: bool,
     #[typeshare(skip)]
     #[serde(flatten)]
     extra: Map<String, Value>,

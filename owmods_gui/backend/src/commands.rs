@@ -237,7 +237,7 @@ pub async fn get_remote_mods(
                 .filter(|m| m.unique_name != OWML_UNIQUE_NAME)
                 .collect();
             if filter.is_empty() {
-                mods.sort_by(|a, b| b.download_count.cmp(&a.download_count));
+                mods.sort_by_key(|m| m.download_count);
             } else {
                 mods = remote_db.search(filter);
             }
@@ -437,7 +437,6 @@ pub async fn open_mod_readme(unique_name: &str, state: tauri::State<'_, State>) 
     open_readme(unique_name, db)?;
     Ok(())
 }
-
 
 #[tauri::command]
 pub async fn open_owml_logs_folder(state: tauri::State<'_, State>) -> Result {

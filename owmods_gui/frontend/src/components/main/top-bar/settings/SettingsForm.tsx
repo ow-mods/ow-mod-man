@@ -279,6 +279,13 @@ const SettingsForm = forwardRef(function SettingsForm(props: SettingsFormProps, 
                     id="incrementalGC"
                     tooltip={getTranslation("TOOLTIP_INCREMENTAL_GC")}
                 />
+                <SettingsCheck
+                    onChange={handleOwml}
+                    value={owmlConfig.disableVersionPopup}
+                    label={getTranslation("DISABLE_VERSION_POPUP")}
+                    id="disableVersionPopup"
+                    tooltip={getTranslation("TOOLTIP_DISABLE_VERSION_POPUP")}
+                />
             </Box>
             <SettingsHeader text={getTranslation("GENERAL_SETTINGS")} onReset={() => onReset(0)} />
             <SettingsCheck

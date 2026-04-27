@@ -82,7 +82,8 @@ async fn run_from_cli(cli: BaseCli) -> Result<()> {
         } => {
             if let Some(owml_path) = owml_path {
                 let mut new_config = config.clone();
-                new_config.owml_path = owml_path.to_str().unwrap().to_string();
+                let path  = owml_path.canonicalize().context("Failed to resolve OWML path")?.to_str().unwrap().to_string();
+                new_config.owml_path = path;
                 if new_config.check_owml() {
                     info!("Path to OWML is valid! Updating config...");
                     new_config.save()?;

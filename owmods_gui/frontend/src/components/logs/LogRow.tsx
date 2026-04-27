@@ -109,8 +109,8 @@ const InnerLogRow = memo(function LogRow(props: LogRowProps) {
                             </>
                         ) : (
                             <Typography
-                                color={getColor(theme.palette, messageType)}
                                 sx={{
+                                    color: getColor(theme.palette, messageType),
                                     whiteSpace: "pre-wrap",
                                     minWidth: 0
                                 }}

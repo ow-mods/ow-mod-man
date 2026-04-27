@@ -1,6 +1,6 @@
 use std::path::Path;
 
-use anyhow::{Context, Result};
+use anyhow::{Context, Result, bail};
 
 use crate::{
     config::Config,
@@ -132,6 +132,6 @@ pub fn open_owml_logs(config: &Config) -> Result<()> {
     if path.exists() {
         opener::open(path).context("Failed to open OWML logs folder")
     } else {
-        Ok(())
+        bail!("No Logs from OWML yet");
     }
 }

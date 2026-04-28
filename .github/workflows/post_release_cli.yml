@@ -33,7 +33,7 @@ jobs:
         run: cargo xtask cli_pkg_build
 
       - name: Publish AUR package
-        uses: KSXGitHub/github-actions-deploy-aur@v4
+        uses: KSXGitHub/github-actions-deploy-aur@v4.1.3
         with:
           pkgname: owmods-cli-bin
           updpkgsums: true

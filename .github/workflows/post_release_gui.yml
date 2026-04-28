@@ -28,7 +28,7 @@ jobs:
         run: cargo xtask gui_pkg_build
 
       - name: Publish AUR package
-        uses: KSXGitHub/github-actions-deploy-aur@v4
+        uses: KSXGitHub/github-actions-deploy-aur@v4.1.3
         with:
           pkgname: owmods-gui-bin
           updpkgsums: true

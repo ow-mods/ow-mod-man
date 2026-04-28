@@ -238,6 +238,7 @@ pub async fn get_remote_mods(
                 .collect();
             if filter.is_empty() {
                 mods.sort_by_key(|m| m.download_count);
+                mods.reverse();
             } else {
                 mods = remote_db.search(filter);
             }

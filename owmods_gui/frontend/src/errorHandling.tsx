@@ -7,7 +7,7 @@ export const simpleOnError = (err: string) => {
     });
 };
 
-export const onError = (err: Error, info: ErrorInfo) => {
+export const onError = (err: unknown, info: ErrorInfo) => {
     commands.logError({
         err: `${err?.toString() ?? "null"}\nAt: ${info.componentStack}`
     });

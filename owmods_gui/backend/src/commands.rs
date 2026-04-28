@@ -4,11 +4,11 @@ use std::{
     path::PathBuf,
 };
 
-use anyhow::{anyhow, Context};
+use anyhow::{Context, anyhow};
 use log::{error, info};
 use owmods_core::{
-    alerts::{fetch_alert, Alert},
-    analytics::{send_analytics_deferred, AnalyticsEventName},
+    alerts::{Alert, fetch_alert},
+    analytics::{AnalyticsEventName, send_analytics_deferred},
     config::Config,
     constants::OWML_UNIQUE_NAME,
     db::{LocalDatabase, RemoteDatabase},
@@ -22,7 +22,7 @@ use owmods_core::{
         local::{LocalMod, UnsafeLocalMod},
         remote::RemoteMod,
     },
-    open::{open_github, open_readme, open_shortcut},
+    open::{open_github, open_owml_logs, open_readme, open_shortcut},
     owml::OWMLConfig,
     progress::bars::{ProgressBar, ProgressBars},
     protocol::{ProtocolPayload, ProtocolVerb},
@@ -32,23 +32,23 @@ use owmods_core::{
     validate::fix_deps,
 };
 use serde::Serialize;
-use tauri::{async_runtime, AppHandle, DragDropEvent, Manager, WindowEvent};
+use tauri::{AppHandle, DragDropEvent, Manager, WindowEvent, async_runtime};
 use tauri_plugin_dialog::{DialogExt, MessageDialogButtons, MessageDialogKind};
 use tokio::{select, sync::mpsc, try_join};
 use typeshare::typeshare;
 
 use crate::RemoteDatabaseOption;
 use crate::{
+    LogPort, State,
+    game::{GameMessage, make_log_window, show_warnings},
+    gui_config::GuiConfig,
+};
+use crate::{
     error::{Error, Result},
     events::{CustomEventEmitter, CustomEventEmitterAll, Event},
     protocol::PROTOCOL_LISTENER_AMOUNT,
 };
 use crate::{events::CustomEventListener, game::LogData};
-use crate::{
-    game::{make_log_window, show_warnings, GameMessage},
-    gui_config::GuiConfig,
-    LogPort, State,
-};
 //use crate::events::CustomEventTriggerGlobal;
 
 pub async fn mark_mod_busy(
@@ -162,10 +162,11 @@ pub async fn get_local_mods(
         .collect();
 
     // Only way to get a separator in the list is to insert a fake mod
-    if filter.is_empty() && first_disabled_index.map(|i| i > 0).unwrap_or(false) {
-        if let Some(index) = first_disabled_index {
-            unique_names.insert(index, "~~SEPARATOR~~".to_string());
-        }
+    if filter.is_empty()
+        && first_disabled_index.map(|i| i > 0).unwrap_or(false)
+        && let Some(index) = first_disabled_index
+    {
+        unique_names.insert(index, "~~SEPARATOR~~".to_string());
     }
 
     Ok(unique_names)
@@ -236,7 +237,7 @@ pub async fn get_remote_mods(
                 .filter(|m| m.unique_name != OWML_UNIQUE_NAME)
                 .collect();
             if filter.is_empty() {
-                mods.sort_by(|a, b| b.download_count.cmp(&a.download_count));
+                mods.sort_by_key(|m| m.download_count);
             } else {
                 mods = remote_db.search(filter);
             }
@@ -434,6 +435,13 @@ pub async fn open_mod_readme(unique_name: &str, state: tauri::State<'_, State>) 
     let db = state.remote_db.read().await;
     let db = db.try_get()?;
     open_readme(unique_name, db)?;
+    Ok(())
+}
+
+#[tauri::command]
+pub async fn open_owml_logs_folder(state: tauri::State<'_, State>) -> Result {
+    let config = state.config.read().await;
+    open_owml_logs(&config).context("Failed to open OWML logs")?;
     Ok(())
 }
 
@@ -1059,10 +1067,10 @@ pub async fn has_disabled_deps(unique_name: &str, state: tauri::State<'_, State>
     let mut flag = false;
     if let Some(deps) = &local_mod.manifest.dependencies {
         for dep in deps.iter() {
-            if let Some(dep) = db.get_mod(dep) {
-                if !dep.enabled {
-                    flag = true;
-                }
+            if let Some(dep) = db.get_mod(dep)
+                && !dep.enabled
+            {
+                flag = true;
             }
         }
     }
@@ -1076,29 +1084,28 @@ pub async fn register_drop_handler(window: tauri::Window) -> Result {
         if let WindowEvent::DragDrop(e) = e {
             match e {
                 DragDropEvent::Drop { paths, position: _ } => {
-                    if let Some(f) = paths.first() {
-                        if f.extension().map(|e| e == "zip").unwrap_or(false) {
-                            info!(
-                                "Drop completed, attempting to invoke with owmods://install-zip/{}",
-                                f.display()
-                            );
-                            handle.typed_emit_all(&Event::DragLeave(())).ok();
-                            let res =
-                                handle.typed_emit_all(&Event::ProtocolInvoke(ProtocolPayload {
-                                    verb: ProtocolVerb::InstallZip,
-                                    payload: f.to_str().unwrap().to_string(),
-                                }));
-                            if let Err(why) = res {
-                                error!("Failed to protocol invoke for ZIP drop: {why:?}");
-                            }
+                    if let Some(f) = paths.first()
+                        && f.extension().map(|e| e == "zip").unwrap_or(false)
+                    {
+                        info!(
+                            "Drop completed, attempting to invoke with owmods://install-zip/{}",
+                            f.display()
+                        );
+                        handle.typed_emit_all(&Event::DragLeave(())).ok();
+                        let res = handle.typed_emit_all(&Event::ProtocolInvoke(ProtocolPayload {
+                            verb: ProtocolVerb::InstallZip,
+                            payload: f.to_str().unwrap().to_string(),
+                        }));
+                        if let Err(why) = res {
+                            error!("Failed to protocol invoke for ZIP drop: {why:?}");
                         }
                     }
                 }
                 DragDropEvent::Enter { paths, position: _ } => {
-                    if let Some(f) = paths.first() {
-                        if f.extension().map(|e| e == "zip").unwrap_or(false) {
-                            handle.typed_emit_all(&Event::DragEnter(())).ok();
-                        }
+                    if let Some(f) = paths.first()
+                        && f.extension().map(|e| e == "zip").unwrap_or(false)
+                    {
+                        handle.typed_emit_all(&Event::DragEnter(())).ok();
                     }
                 }
                 DragDropEvent::Leave => {

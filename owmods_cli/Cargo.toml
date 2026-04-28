@@ -2,27 +2,27 @@
 name = "owmods_cli"
 authors = ["Bwc9876 <bwc9876@outerwildsmods.com>"]
 description = "A CLI Tool To Manage OWML Mods"
-version = "0.15.4"
-edition = "2021"
+version = "0.15.5"
+edition = "2024"
 readme = "./README.md"
 repository = "https://github.com/ow-mods/ow-mod-man/"
 license = "GPL-3.0-or-later"
 
 [dependencies]
-owmods_core = { version = "0.15.4", path = "../owmods_core" }
-clap = { version = "4.5.54", features = ["derive"] }
-colored = "3.0.0"
-anyhow = "1.0.100"
-indicatif = { version = "0.18.3", features = ["improved_unicode"] }
-tokio = { version = "1.49.0", features = ["macros", "rt-multi-thread"] }
+owmods_core = { version = "0.15.5", path = "../owmods_core" }
+clap = { version = "4.6.1", features = ["derive"] }
+colored = "3.1.1"
+anyhow = "1.0.102"
+indicatif = { version = "0.18.4", features = ["improved_unicode"] }
+tokio = { version = "1.52.1", features = ["macros", "rt-multi-thread"] }
 log = { version = "0.4.29", features = ["std"] }
-clap_complete = "4.5.64"
+clap_complete = "4.6.3"
 serde_json = "1.0.149"
 
 [build-dependencies]
-clap = { version = "4.5.54", features = ["derive"] }
-clap_complete = "4.5.64"
-clap_mangen = "0.2.31"
+clap = { version = "4.6.1", features = ["derive"] }
+clap_complete = "4.6.3"
+clap_mangen = "0.3.0"
 
 [[bin]]
 name = "owmods"

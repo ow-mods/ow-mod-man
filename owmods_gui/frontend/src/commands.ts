@@ -94,7 +94,8 @@ const commandInfo = {
     getDbTags: $<GetCommand<string[]>>("get_db_tags"),
     logError: $<ActionCommand<{ err: string }>>("log_error"),
     forceLogUpdate: $<ActionCommand<{ port: number }>>("force_log_update"),
-    showLogsFolder: $<EmptyCommand>("show_log_folder")
+    showLogsFolder: $<EmptyCommand>("show_log_folder"),
+    openOwmlLogsFolder: $<EmptyCommand>("open_owml_logs_folder")
 };
 
 type Command = keyof typeof commandInfo;

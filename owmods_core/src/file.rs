@@ -3,7 +3,7 @@ use std::{
     path::{Path, PathBuf},
 };
 
-use anyhow::{anyhow, Context, Result};
+use anyhow::{Context, Result, anyhow};
 use directories::{BaseDirs, ProjectDirs};
 use serde::{Deserialize, Serialize};
 
@@ -91,10 +91,8 @@ pub fn serialize_to_json<T>(obj: &T, out_path: &Path, create_parents: bool) -> R
 where
     T: Serialize,
 {
-    if create_parents {
-        if let Some(parent_path) = out_path.parent() {
-            create_dir_all(parent_path)?;
-        }
+    if create_parents && let Some(parent_path) = out_path.parent() {
+        create_dir_all(parent_path)?;
     }
     let text = serde_json::to_string_pretty(obj)?;
     std::fs::write(out_path, text).context("Failed to write JSON")

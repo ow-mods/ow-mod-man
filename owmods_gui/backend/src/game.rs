@@ -12,12 +12,12 @@ use owmods_core::{
 use serde::{Deserialize, Serialize};
 use tauri::{AppHandle, WebviewWindow, WebviewWindowBuilder, Window};
 use tauri_plugin_dialog::{DialogExt, MessageDialogKind};
-use time::{macros::format_description, OffsetDateTime};
+use time::{OffsetDateTime, macros::format_description};
 use typeshare::typeshare;
 
 use crate::{
-    events::{CustomEventEmitterAll, Event, LogLineCountUpdatePayload, LogsBehindPayload},
     LogPort,
+    events::{CustomEventEmitterAll, Event, LogLineCountUpdatePayload, LogsBehindPayload},
 };
 
 #[typeshare]
@@ -191,22 +191,22 @@ impl LogData {
             self.message_tracker = (0, Instant::now());
         }
         self.message_tracker.0 = self.message_tracker.0.saturating_add(1);
-        if let Some(last) = self.messages.last_mut() {
-            if last.message == msg.message {
-                last.amount = last.amount.saturating_add(1);
-                // If we're getting logs too fast, queue up an emit so the UI isn't sent a bazillion updates
-                if self.message_tracker.0 >= Self::LOG_LIMIT_PER_SECOND {
-                    if self.queued_emits.is_empty() {
-                        self.emit_behind(true);
-                    }
-                    self.queued_emits.push(Some(self.get_count()));
-                    self.queued_emits.push(None);
-                } else {
-                    self.emit_count_update(self.get_count());
-                    self.emit_update();
+        if let Some(last) = self.messages.last_mut()
+            && last.message == msg.message
+        {
+            last.amount = last.amount.saturating_add(1);
+            // If we're getting logs too fast, queue up an emit so the UI isn't sent a bazillion updates
+            if self.message_tracker.0 >= Self::LOG_LIMIT_PER_SECOND {
+                if self.queued_emits.is_empty() {
+                    self.emit_behind(true);
                 }
-                return;
+                self.queued_emits.push(Some(self.get_count()));
+                self.queued_emits.push(None);
+            } else {
+                self.emit_count_update(self.get_count());
+                self.emit_update();
             }
+            return;
         }
         if msg.message.message_type == SocketMessageType::Fatal {
             self.emit_fatal_alert(&msg);

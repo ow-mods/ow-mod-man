@@ -26,8 +26,19 @@ const SettingsHeader = memo(function SettingsHeader(props: SettingsHeaderProps) 
     const theme = useTheme();
 
     return (
-        <Box display="flex" gap={theme.spacing(2)}>
-            <Typography flexGrow={1} variant="h5" marginTop={theme.spacing(1)}>
+        <Box
+            sx={{
+                display: "flex",
+                gap: theme.spacing(2)
+            }}
+        >
+            <Typography
+                variant="h5"
+                sx={{
+                    flexGrow: 1,
+                    marginTop: theme.spacing(1)
+                }}
+            >
                 {props.text}
             </Typography>
             <ResetButton onClick={props.onReset} />

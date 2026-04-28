@@ -6,6 +6,7 @@ import {
     BuildRounded,
     FavoriteRounded,
     FolderOpenRounded,
+    GamepadRounded,
     HelpRounded,
     MoreHorizRounded,
     ReceiptRounded
@@ -47,6 +48,11 @@ const OverflowMenu = () => {
         onClose();
     }, [onClose]);
 
+    const onOpenOwmlLogs = useCallback(() => {
+        commands.openOwmlLogsFolder();
+        onClose();
+    }, [onClose]);
+
     const onLogs = useCallback(() => {
         commands.showLogsFolder();
         onClose();
@@ -78,8 +84,10 @@ const OverflowMenu = () => {
                 open={open}
                 keepMounted
                 onClose={onClose}
-                MenuListProps={{
-                    "aria-labelledby": "overflow-button"
+                slotProps={{
+                    list: {
+                        "aria-labelledby": "overflow-button"
+                    }
                 }}
             >
                 <Suspense>
@@ -98,6 +106,12 @@ const OverflowMenu = () => {
                         <BuildRounded fontSize="small" />
                     </ListItemIcon>
                     <ListItemText>{getTranslation("EDIT_OWML")}</ListItemText>
+                </MenuItem>
+                <MenuItem onClick={onOpenOwmlLogs}>
+                    <ListItemIcon>
+                        <GamepadRounded fontSize="small" />
+                    </ListItemIcon>
+                    <ListItemText>{getTranslation("OWML_LOGS")}</ListItemText>
                 </MenuItem>
                 <MenuItem onClick={onLogs}>
                     <ListItemIcon>

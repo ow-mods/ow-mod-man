@@ -1,4 +1,6 @@
-use anyhow::{Context, Result};
+use std::path::Path;
+
+use anyhow::{Context, Result, bail};
 
 use crate::{
     config::Config,
@@ -122,4 +124,14 @@ pub fn open_github(unique_name: &str, db: &RemoteDatabase) -> Result<()> {
     let repo = &remote_mod.repo; // this is the entire link to the repo
     opener::open(repo)?;
     Ok(())
+}
+
+/// Open OWML `Logs` folder
+pub fn open_owml_logs(config: &Config) -> Result<()> {
+    let path = Path::new(&config.owml_path).join("Logs");
+    if path.exists() {
+        opener::open(path).context("Failed to open OWML logs folder")
+    } else {
+        bail!("No Logs from OWML yet");
+    }
 }

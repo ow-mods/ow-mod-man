@@ -26,18 +26,20 @@ const ModFallbackThumbnail = memo(function ModFallbackThumbnail(props: ModFallba
     return (
         <div style={{ margin: 0, padding: 0, position: "relative" }}>
             <Box
-                height="100%"
-                width="100%"
-                zIndex={1}
-                display="flex"
-                alignItems="center"
-                justifyContent="center"
-                position="absolute"
-                right={0}
-                left={0}
-                padding={1}
-                fontWeight="bold"
-                textAlign="center"
+                sx={{
+                    height: "100%",
+                    width: "100%",
+                    zIndex: 1,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    position: "absolute",
+                    right: 0,
+                    left: 0,
+                    padding: 1,
+                    fontWeight: "bold",
+                    textAlign: "center"
+                }}
             >
                 <p>{props.modName}</p>
             </Box>

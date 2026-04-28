@@ -36,7 +36,7 @@ export default defineConfig({
             }
         },
         outDir: "../dist",
-        minify: !process.env.TAURI_ENV_DEBUG ? "esbuild" : false,
+        minify: !process.env.TAURI_ENV_DEBUG,
         sourcemap: !!process.env.TAURI_ENV_DEBUG
     },
     resolve: {

@@ -28,7 +28,13 @@ const SettingsModalContent = memo(
 
         return status.includes("Loading") &&
             (config === null || guiConfig === null || owmlConfig === null) ? (
-            <Box display="flex" alignItems="center" justifyContent="center">
+            <Box
+                sx={{
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center"
+                }}
+            >
                 <CircularProgress color="neutral" />
             </Box>
         ) : (

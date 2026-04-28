@@ -90,7 +90,7 @@ Versions of the manager are published to the following sources
   - .tar.gz
   - .exe
 - [AUR](https://aur.archlinux.org/packages/owmods-cli-bin/)
-- [NixOS flake](nix/)
+- [Nix flake](nix/)
 
 ### GUI
 
@@ -101,8 +101,10 @@ Versions of the manager are published to the following sources
   - .AppImage
   - .msi (Wix)
   - .exe (NSIS)
+- [Winget (.msi)](https://github.com/microsoft/winget-pkgs/pull/328845)
 - [AUR](https://aur.archlinux.org/packages/owmods-gui-bin/)
-- [NixOS flake](nix/)
+- [Nix flake](nix/)
+- [Nixpkgs](https://search.nixos.org/packages?channel=unstable&size=500&query=owmods)
 - [Flathub](https://flathub.org/apps/com.outerwildsmods.owmods_gui)
 
 ## Core Package

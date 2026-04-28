@@ -15,11 +15,11 @@ use crate::{
     search::search_list,
     toggle::get_mod_enabled,
     updates::check_mod_needs_update,
-    validate::{check_mod, ModValidationError},
+    validate::{ModValidationError, check_mod},
 };
 
 use super::combined_search::LocalModWithRemoteSearchData;
-use super::{fix_version, RemoteDatabase};
+use super::{RemoteDatabase, fix_version};
 
 /// Represents the local (on the local PC) database of mods.
 #[derive(Debug, Default, Clone)]

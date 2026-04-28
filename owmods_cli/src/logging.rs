@@ -6,7 +6,7 @@ use std::{
 
 use colored::Colorize;
 use indicatif::{MultiProgress, ProgressBar, ProgressStyle};
-use log::{error, warn, Level};
+use log::{Level, error, warn};
 use owmods_core::{
     db::LocalDatabase,
     mods::local::UnsafeLocalMod,
@@ -177,5 +177,7 @@ pub fn log_mod_validation_errors(local_mod: &UnsafeLocalMod, local_db: &LocalDat
 }
 
 pub fn show_pre_patcher_warning(mod_name: &str) {
-    warn!("========\n{mod_name} possibly modified game files.\nIn order to disable it completely, use the \"verify game files\" option in Steam / Epic.\nCheck {mod_name}'s readme for more information.\n========");
+    warn!(
+        "========\n{mod_name} possibly modified game files.\nIn order to disable it completely, use the \"verify game files\" option in Steam / Epic.\nCheck {mod_name}'s readme for more information.\n========"
+    );
 }

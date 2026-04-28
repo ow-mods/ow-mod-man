@@ -27,7 +27,13 @@ const Pane = memo(function Pane(props: {
     children: ReactNode;
 }) {
     return (
-        <Box width="100%" minHeight="0" display={props.show ? "flex" : "none"}>
+        <Box
+            sx={{
+                width: "100%",
+                minHeight: "0",
+                display: props.show ? "flex" : "none"
+            }}
+        >
             <StyledErrorBoundary
                 resetEvent={props.resetEvent}
                 errorKey={props.errKey ?? "PAGE_ERROR"}
@@ -94,7 +100,12 @@ const InnerMainApp = memo(function InnerMainApp() {
                 <TopBar />
                 <AppAlert />
                 <AppTabs onChange={onTabChange} />
-                <Box display="flex" flexGrow={1}>
+                <Box
+                    sx={{
+                        display: "flex",
+                        flexGrow: 1
+                    }}
+                >
                     <Pane resetEvent="localRefresh" show={selectedTab === "local"}>
                         {localModsPage}
                     </Pane>

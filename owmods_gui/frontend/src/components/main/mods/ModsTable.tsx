@@ -77,7 +77,12 @@ const ModsTable = forwardRef<TableVirtuosoHandle, ModsTableProps>(function ModsT
                     <>
                         {showImages && (
                             <TableCell width="220px">
-                                <Box display="flex" alignItems="center">
+                                <Box
+                                    sx={{
+                                        display: "flex",
+                                        alignItems: "center"
+                                    }}
+                                >
                                     <ImageRounded />
                                 </Box>
                             </TableCell>
@@ -85,7 +90,12 @@ const ModsTable = forwardRef<TableVirtuosoHandle, ModsTableProps>(function ModsT
                         <TableCell>{getTranslation("NAME")}</TableCell>
                         <TableCell width="50px" align="right">
                             <ODTooltip title={getTranslation("DOWNLOAD_COUNT")}>
-                                <Box display="flex" alignItems="center">
+                                <Box
+                                    sx={{
+                                        display: "flex",
+                                        alignItems: "center"
+                                    }}
+                                >
                                     <DownloadsIcon />
                                 </Box>
                             </ODTooltip>

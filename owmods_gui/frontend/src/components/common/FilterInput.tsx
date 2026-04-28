@@ -1,7 +1,6 @@
-import React, { useState, useEffect } from "react";
+import React, { memo, useRef, useState } from "react";
 import { InputAdornment, IconButton, TextField } from "@mui/material";
 import { Close as CloseIcon, Search as SearchIcon } from "@mui/icons-material";
-import { useDebounce } from "@hooks";
 
 export interface FilterInputProps {
     value: string;
@@ -10,23 +9,25 @@ export interface FilterInputProps {
     [rest: string | number | symbol]: unknown;
 }
 
-const FilterInput: React.FunctionComponent<FilterInputProps> = ({
+const FilterInput: React.FunctionComponent<FilterInputProps> = memo(function FilterInput({
     value,
     onChange,
     label,
     ...rest
-}) => {
-    const [filterText, setFilterText] = useState(value);
-    const debouncedFilterText = useDebounce(filterText, 200);
+}: FilterInputProps) {
+    const [tempFilter, setTemp] = useState<string | null>(null);
+    const currTimeout = useRef<number | null>(null);
 
-    useEffect(() => {
-        onChange(debouncedFilterText);
-    }, [debouncedFilterText, onChange]);
-
-    // Instantly reflect changes on clear, don't debounce
-    const onClear = () => {
-        setFilterText("");
-        onChange("");
+    const setText = (newText: string) => {
+        setTemp(newText);
+        if (currTimeout.current) {
+            clearTimeout(currTimeout.current);
+            currTimeout.current = null;
+        }
+        currTimeout.current = setTimeout(() => {
+            onChange(newText);
+            setTemp(null);
+        }, 200);
     };
 
     return (
@@ -34,28 +35,39 @@ const FilterInput: React.FunctionComponent<FilterInputProps> = ({
             margin="none"
             size="small"
             onChange={({ currentTarget }) => {
-                setFilterText(currentTarget.value);
+                setText(currentTarget.value);
             }}
-            value={filterText}
+            value={tempFilter ?? value}
             placeholder={label}
             variant="outlined"
             {...rest}
-            InputProps={{
-                startAdornment: (
-                    <InputAdornment position="start">
-                        <SearchIcon />
-                    </InputAdornment>
-                ),
-                endAdornment: filterText !== "" && (
-                    <InputAdornment position="end">
-                        <IconButton onClick={onClear} size="small">
-                            <CloseIcon fontSize="small" />
-                        </IconButton>
-                    </InputAdornment>
-                )
+            slotProps={{
+                input: {
+                    startAdornment: (
+                        <InputAdornment position="start">
+                            <SearchIcon />
+                        </InputAdornment>
+                    ),
+                    endAdornment: value !== "" && (
+                        <InputAdornment position="end">
+                            <IconButton
+                                onClick={() => {
+                                    onChange("");
+                                    if (currTimeout.current) {
+                                        clearTimeout(currTimeout.current);
+                                    }
+                                    setTemp(null);
+                                }}
+                                size="small"
+                            >
+                                <CloseIcon fontSize="small" />
+                            </IconButton>
+                        </InputAdornment>
+                    )
+                }
             }}
         />
     );
-};
+});
 
 export default FilterInput;

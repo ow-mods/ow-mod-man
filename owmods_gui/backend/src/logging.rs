@@ -6,18 +6,18 @@ use std::{
 
 use crate::format_description;
 use anyhow::Result;
-use log::{warn, Level, STATIC_MAX_LEVEL};
+use log::{Level, STATIC_MAX_LEVEL, warn};
 use owmods_core::file::get_app_path;
 use owmods_core::progress::ProgressPayload;
 use serde::Serialize;
 use std::fs::create_dir_all;
-use tauri::{async_runtime, AppHandle, Manager};
+use tauri::{AppHandle, Manager, async_runtime};
 use time::OffsetDateTime;
 use typeshare::typeshare;
 
 use crate::{
-    events::{CustomEventEmitterAll, Event},
     State,
+    events::{CustomEventEmitterAll, Event},
 };
 
 pub struct Logger {

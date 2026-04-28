@@ -6,7 +6,7 @@ use serde::Serialize;
 use typeshare::typeshare;
 
 use crate::{
-    analytics::{send_analytics_deferred, AnalyticsEventName},
+    analytics::{AnalyticsEventName, send_analytics_deferred},
     config::Config,
     db::{LocalDatabase, RemoteDatabase},
     download::install_mods_parallel,

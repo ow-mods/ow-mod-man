@@ -45,18 +45,23 @@ const ModsTagsChips = memo(function ModsTagsChips(props: ModsTagsChipsProps) {
     }, []);
 
     return (
-        <Stack direction="row" gap={1}>
+        <Stack
+            direction="row"
+            sx={{
+                gap: 1
+            }}
+        >
             <Stack
                 className="scroll-shadows"
+                direction="row"
+                ref={scrollRef}
                 sx={{
+                    gap: 1,
                     minHeight: "25px",
                     overflowX: "auto",
                     scrollbarWidth: "none",
                     "::-webkit-scrollbar": { display: "none" }
                 }}
-                direction="row"
-                ref={scrollRef}
-                gap={1}
             >
                 {availableTags.map((t) => (
                     <Chip
@@ -74,7 +79,6 @@ const ModsTagsChips = memo(function ModsTagsChips(props: ModsTagsChipsProps) {
                     />
                 ))}
             </Stack>
-
             {selectedTags.length !== 0 && (
                 <Chip
                     icon={<DeleteRounded />}

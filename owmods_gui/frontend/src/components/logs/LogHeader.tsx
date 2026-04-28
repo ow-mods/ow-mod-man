@@ -21,7 +21,14 @@ const Counter = memo(function BehindWarning(props: { isBehind: boolean; count: n
     const getTranslation = useGetTranslation();
 
     const Content = (
-        <Box display="flex" alignItems="center" justifyContent="flex-end" gap={1}>
+        <Box
+            sx={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "flex-end",
+                gap: 1
+            }}
+        >
             {props.isBehind && <WarningAmberRounded />}
             {getTranslation("LOG_COUNT", { count: props.count.toString() })}
         </Box>
@@ -29,10 +36,12 @@ const Counter = memo(function BehindWarning(props: { isBehind: boolean; count: n
 
     return (
         <Typography
-            textAlign="right"
-            flexGrow={1}
             variant="subtitle1"
             color={props.isBehind ? theme.palette.warning.main : undefined}
+            sx={{
+                textAlign: "right",
+                flexGrow: 1
+            }}
         >
             {props.isBehind ? (
                 <ODTooltip title={getTranslation("LOG_BEHIND")}>{Content}</ODTooltip>
@@ -56,7 +65,11 @@ const LogHeader = memo(function LogHeader(props: LogHeaderProps) {
                     setActiveSearch={props.setActiveSearch}
                 />
                 <Counter isBehind={props.isBehind} count={props.logsLen} />
-                <Box paddingLeft={2}>
+                <Box
+                    sx={{
+                        paddingLeft: 2
+                    }}
+                >
                     <ODTooltip title={getTranslation("CLEAR_LOGS")}>
                         <IconButton onClick={props.onClear}>
                             <DeleteSweepRounded />

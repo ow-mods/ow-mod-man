@@ -3,7 +3,7 @@ use std::path::Path;
 use anyhow::Result;
 
 use crate::{
-    analytics::{send_analytics_deferred, AnalyticsEventName},
+    analytics::{AnalyticsEventName, send_analytics_deferred},
     config::Config,
     db::{LocalDatabase, RemoteDatabase},
     download::install_mods_parallel,
@@ -149,7 +149,7 @@ mod tests {
 
     use std::{fs, path::PathBuf};
 
-    use crate::test_utils::{get_test_file, TestContext};
+    use crate::test_utils::{TestContext, get_test_file};
 
     use super::*;
 

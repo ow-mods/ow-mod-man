@@ -10,21 +10,21 @@ use std::{
 };
 
 use anyhow::Result;
-use anyhow::{anyhow, Context};
-use futures::{stream::FuturesUnordered, StreamExt};
+use anyhow::{Context, anyhow};
+use futures::{StreamExt, stream::FuturesUnordered};
 use log::{debug, info};
 use tempfile::TempDir;
 use tokio::sync::Mutex;
 use zip::ZipArchive;
 
 use crate::{
-    analytics::{send_analytics_deferred, AnalyticsEventName},
+    analytics::{AnalyticsEventName, send_analytics_deferred},
     config::Config,
     constants::OWML_UNIQUE_NAME,
     db::{LocalDatabase, RemoteDatabase},
     file::{check_file_matches_paths, create_all_parents, fix_bom},
     mods::{
-        local::{get_paths_to_preserve, LocalMod, ModManifest},
+        local::{LocalMod, ModManifest, get_paths_to_preserve},
         remote::RemoteMod,
     },
     progress::{ProgressAction, ProgressBar, ProgressType},
@@ -676,8 +676,7 @@ pub async fn install_mod_from_db(
     let new_mod =
         install_mod_from_url(&target_url, Some(&remote_mod.unique_name), config, local_db).await?;
 
-    if recursive && new_mod.manifest.dependencies.is_some() {
-        let mut to_install = new_mod.manifest.dependencies.as_ref().unwrap().clone();
+    if recursive && let Some(mut to_install) = new_mod.manifest.dependencies.as_ref().cloned() {
         let mut installed: Vec<String> = local_db
             .valid()
             .filter_map(|m| {
@@ -760,7 +759,7 @@ mod tests {
     use super::*;
     use crate::{
         file::serialize_to_json,
-        test_utils::{get_test_file, make_test_dir, TestContext},
+        test_utils::{TestContext, get_test_file, make_test_dir},
     };
     use std::fs::read_to_string;
 

@@ -48,6 +48,7 @@ export const useTauri = <T, E extends Event["name"]>(
 
     useEffect(() => {
         if (status === "Done") {
+            // eslint-disable-next-line react-hooks/set-state-in-effect
             setStatus("Loading");
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -85,22 +86,6 @@ export const useGetTranslation = () => {
         [context]
     );
 };
-
-export function useDebounce<TValue>(value: TValue, delayMs: number): TValue {
-    const [debouncedValue, setDebouncedValue] = useState<TValue>(value);
-
-    useEffect(() => {
-        const handler = setTimeout(() => {
-            setDebouncedValue(value);
-        }, delayMs);
-
-        return () => {
-            clearTimeout(handler);
-        };
-    }, [value, delayMs]);
-
-    return debouncedValue;
-}
 
 export interface UnifiedMod {
     name: string;

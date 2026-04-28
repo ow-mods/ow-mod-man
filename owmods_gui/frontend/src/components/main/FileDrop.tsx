@@ -42,12 +42,14 @@ const FileDrop = memo(function FileDrop() {
     return (
         <Modal open={isShown}>
             <Box
-                sx={{ pointerEvents: "none" }}
-                display="flex"
-                alignItems="center"
-                justifyContent="center"
-                flexDirection="column"
-                height="100%"
+                sx={{
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    flexDirection: "column",
+                    height: "100%",
+                    pointerEvents: "none"
+                }}
             >
                 <FileOpenRounded fontSize="large" />
                 <h2>{getTranslation("FILE_DROP_MESSAGE")}</h2>

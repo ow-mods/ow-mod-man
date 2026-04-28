@@ -79,9 +79,11 @@ const InnerLogRow = memo(function LogRow(props: LogRowProps) {
                     >
                         <Typography
                             className="senderName"
-                            textOverflow="ellipsis"
-                            width="100%"
-                            overflow="hidden"
+                            sx={{
+                                textOverflow: "ellipsis",
+                                width: "100%",
+                                overflow: "hidden"
+                            }}
                         >
                             {logLine?.message.senderName ?? "Unknown"}
                         </Typography>
@@ -89,8 +91,17 @@ const InnerLogRow = memo(function LogRow(props: LogRowProps) {
                 )}
             </TableCell>
             <TableCell sx={cellStyle}>
-                <Box display="flex">
-                    <Box flexGrow={1} sx={{ wordBreak: "break-all" }}>
+                <Box
+                    sx={{
+                        display: "flex"
+                    }}
+                >
+                    <Box
+                        sx={{
+                            flexGrow: 1,
+                            wordBreak: "break-all"
+                        }}
+                    >
                         {status === "Loading" && logLine === null ? (
                             <>
                                 <Skeleton width={150} />
@@ -98,9 +109,11 @@ const InnerLogRow = memo(function LogRow(props: LogRowProps) {
                             </>
                         ) : (
                             <Typography
-                                whiteSpace="pre-wrap"
-                                minWidth={0}
-                                color={getColor(theme.palette, messageType)}
+                                sx={{
+                                    color: getColor(theme.palette, messageType),
+                                    whiteSpace: "pre-wrap",
+                                    minWidth: 0
+                                }}
                             >
                                 {messageLines.map((line, i) => (
                                     <Fragment key={`${i}-${line}`}>
@@ -112,7 +125,11 @@ const InnerLogRow = memo(function LogRow(props: LogRowProps) {
                         )}{" "}
                     </Box>
                     {(logLine?.amount ?? 1) > 1 && (
-                        <Box justifySelf="end">
+                        <Box
+                            sx={{
+                                justifySelf: "end"
+                            }}
+                        >
                             <Chip
                                 color={logLine?.amount === 4294967295 ? "error" : "default"}
                                 size="small"

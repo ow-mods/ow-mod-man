@@ -75,12 +75,23 @@ const About = memo(function About({ onClick }: ModalProps) {
             <Dialog fullWidth maxWidth="sm" open={open} onClose={onClose}>
                 <DialogTitle>{getTranslation("ABOUT")}</DialogTitle>
                 <DialogContent dividers>
-                    <Box width="100%" display="flex" justifyContent="center">
+                    <Box
+                        sx={{
+                            width: "100%",
+                            display: "flex",
+                            justifyContent: "center"
+                        }}
+                    >
                         <img width="256" height="256" src={logo} />
                     </Box>
                     <DialogContentText align="center">
                         <h1 style={{ margin: 0 }}>{getTranslation("APP_TITLE")}</h1>
-                        <Box justifyContent="center" display="flex">
+                        <Box
+                            sx={{
+                                justifyContent: "center",
+                                display: "flex"
+                            }}
+                        >
                             <ODTooltip title={getTranslation("GITHUB")}>
                                 <IconButton onClick={onGithub}>
                                     <GitHub />

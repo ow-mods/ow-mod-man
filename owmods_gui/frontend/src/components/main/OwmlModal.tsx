@@ -111,7 +111,13 @@ const OwmlModal = memo(function OwmlModal() {
         <Dialog onClose={canCancel ? handleClose : undefined} open={open}>
             <DialogTitle>{getTranslation("SETUP")}</DialogTitle>
             <DialogContent dividers>
-                <Box display="flex" flexDirection="column" gap={theme.spacing(1)}>
+                <Box
+                    sx={{
+                        display: "flex",
+                        flexDirection: "column",
+                        gap: theme.spacing(1)
+                    }}
+                >
                     <DialogContentText>{getTranslation("OWML_SETUP_MESSAGE")}</DialogContentText>
                     <TextField
                         variant="outlined"

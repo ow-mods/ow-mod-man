@@ -36,7 +36,12 @@ const AppIcons = () => {
     const theme = useTheme();
 
     return (
-        <Box display="flex" gap={theme.spacing(2)}>
+        <Box
+            sx={{
+                display: "flex",
+                gap: theme.spacing(2)
+            }}
+        >
             <SettingsIcon />
             <ReloadIcon />
             <DownloadsIcon />

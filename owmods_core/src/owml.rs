@@ -42,6 +42,9 @@ pub struct OWMLConfig {
     pub prepatched_mods: Vec<String>,
     /// The port to use for sending logs to
     pub socket_port: u16,
+    /// Don't do a popup when the game is out of date
+    #[serde(default = "_default_false")]
+    pub disable_version_popup: bool,
     #[typeshare(skip)]
     #[serde(flatten)]
     extra: Map<String, Value>,
@@ -194,7 +197,7 @@ mod tests {
 
     use std::fs;
 
-    use crate::test_utils::{get_test_file, TestContext};
+    use crate::test_utils::{TestContext, get_test_file};
 
     use super::*;
 
@@ -226,12 +229,13 @@ mod tests {
         let owml_conf: OWMLConfig =
             serde_json::from_str(include_str!("../test_files/OWML.Config.json")).unwrap();
         owml_conf.save(&ctx.config).unwrap();
-        assert!(ctx
-            .temp_dir
-            .path()
-            .join("OWML")
-            .join("OWML.Config.json")
-            .is_file());
+        assert!(
+            ctx.temp_dir
+                .path()
+                .join("OWML")
+                .join("OWML.Config.json")
+                .is_file()
+        );
     }
 
     #[test]
@@ -251,11 +255,12 @@ mod tests {
         setup_default_conf(&ctx);
         let conf = OWMLConfig::get(&ctx.config).unwrap();
         assert!(conf.debug_mode);
-        assert!(ctx
-            .temp_dir
-            .path()
-            .join("OWML")
-            .join("OWML.Config.json")
-            .is_file());
+        assert!(
+            ctx.temp_dir
+                .path()
+                .join("OWML")
+                .join("OWML.Config.json")
+                .is_file()
+        );
     }
 }

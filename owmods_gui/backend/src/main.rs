@@ -121,7 +121,10 @@ async fn update(app: tauri::AppHandle) -> error::Result {
     {
         log::info!("Manager Update Found! ({})", update.version);
 
-        let msg = format!("An update for the manager is available ({}). Would you like to download and install the update?", update.version);
+        let msg = format!(
+            "An update for the manager is available ({}). Would you like to download and install the update?",
+            update.version
+        );
 
         let (tx, rx) = tokio::sync::oneshot::channel::<MessageDialogResult>();
 
@@ -255,6 +258,7 @@ fn main() -> Result<(), Box<dyn Error>> {
         .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_os::init())
         .plugin(tauri_plugin_shell::init())
+        .plugin(tauri_plugin_clipboard_manager::init())
         .invoke_handler(tauri::generate_handler![
             initial_setup,
             refresh_local_db,
@@ -310,7 +314,8 @@ fn main() -> Result<(), Box<dyn Error>> {
             get_db_tags,
             open_mod_github,
             force_log_update,
-            show_log_folder
+            show_log_folder,
+            open_owml_logs_folder,
         ])
         .run(tauri::generate_context!());
 

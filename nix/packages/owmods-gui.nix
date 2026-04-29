@@ -11,120 +11,138 @@
   makeDesktopItem,
   copyDesktopItems,
   rustPlatform,
+  makeBinaryWrapper,
   buildNpmPackage,
   importNpmLock,
+  stdenv,
   mono,
   wrapWithMono ? true,
-}:
-rustPlatform.buildRustPackage rec {
-  pname = "owmods-gui";
+}: let
   version = "0.15.6";
+  frontend = let
+    src = ../../owmods_gui/frontend;
+  in
+    buildNpmPackage {
+      inherit src version;
+      VITE_VERSION_SUFFIX = "-nix";
+      pname = "owmods_gui-ui";
 
-  VITE_VERSION_SUFFIX = "-nix";
+      packageJSON = ../../owmods_gui/frontend/package.json;
+      npmDeps = importNpmLock {
+        npmRoot = src;
+      };
 
-  # Prevent unneeded rebuilds
-  src = with lib.fileset;
-    toSource {
-      root = ../../.;
-      fileset = unions [
-        ../../.cargo
-        ../../owmods_gui
-        ../../owmods_cli
-        ../../owmods_core
-        ../../xtask
-        ../../Cargo.toml
-        ../../Cargo.lock
-      ];
+      npmConfigHook = importNpmLock.npmConfigHook;
+
+      postBuild = ''
+        cp -r ../dist/ $out
+      '';
+      distPhase = "true";
+      dontInstall = true;
+      installInPlace = true;
+      distDir = "../dist";
+    };
+in
+  rustPlatform.buildRustPackage rec {
+    pname = "owmods-gui";
+    inherit version;
+
+    # Prevent unneeded rebuilds
+    src = with lib.fileset;
+      toSource {
+        root = ../../.;
+        fileset = unions [
+          ../../.cargo
+          ../../owmods_gui
+          ../../owmods_cli
+          ../../owmods_core
+          ../../xtask
+          ../../Cargo.toml
+          ../../Cargo.lock
+        ];
+      };
+
+    cargoLock = {
+      lockFile = ../../Cargo.lock;
     };
 
-  cargoLock = {
-    lockFile = ../../Cargo.lock;
-  };
+    buildNoDefaultFeatures = true;
+    buildFeatures = [
+      "custom-protocol"
+    ];
 
-  buildNoDefaultFeatures = true;
-  buildFeatures = [
-    "custom-protocol"
-  ];
+    doCheck = false;
 
-  doCheck = false;
+    nativeBuildInputs =
+      lib.optionals stdenv.hostPlatform.isLinux [
+        pkg-config
+        copyDesktopItems
+        wrapGAppsHook3
+      ]
+      ++ lib.optionals stdenv.hostPlatform.isDarwin [
+        makeBinaryWrapper
+      ];
 
-  nativeBuildInputs = [
-    pkg-config
-    copyDesktopItems
-    wrapGAppsHook3
-  ];
+    buildInputs = lib.optionals stdenv.hostPlatform.isLinux [
+      dbus
+      libsoup_3
+      glib
+      librsvg
+      glib-networking
+      webkitgtk_4_1
+    ];
 
-  buildInputs = [
-    dbus
-    libsoup_3
-    glib
-    librsvg
-    glib-networking
-    webkitgtk_4_1
-  ];
+    buildAndTestSubdir = "owmods_gui/backend";
 
-  buildAndTestSubdir = "owmods_gui/backend";
+    preFixup = lib.optionalString (
+      stdenv.hostPlatform.isLinux && wrapWithMono
+    ) "gappsWrapperArgs+=(--prefix PATH : '${mono}/bin')";
 
-  preFixup = lib.optionalString wrapWithMono "gappsWrapperArgs+=(--prefix PATH : '${mono}/bin')";
+    postPatch = ''
+      substituteInPlace owmods_gui/backend/tauri.conf.json \
+      --replace '"frontendDist": "../dist"' '"frontendDist": "${frontend}"'
+    '';
 
-  postPatch = let
-    frontend = let
-      src = ../../owmods_gui/frontend;
-    in
-      buildNpmPackage {
-        inherit version VITE_VERSION_SUFFIX;
-        pname = "owmods_gui-ui";
+    postInstall =
+      lib.optionalString stdenv.hostPlatform.isLinux ''
+        install -DT owmods_gui/backend/icons/128x128@2x.png $out/share/icons/hicolor/256x256@2/apps/outer-wilds-mod-manager.png
+        install -DT owmods_gui/backend/icons/128x128.png $out/share/icons/hicolor/128x128/apps/outer-wilds-mod-manager.png
+        install -DT owmods_gui/backend/icons/32x32.png $out/share/icons/hicolor/32x32/apps/outer-wilds-mod-manager.png
 
-        inherit src;
+        mv $out/bin/owmods_gui $out/bin/outer-wilds-mod-manager
+      ''
+      + lib.optionalString stdenv.hostPlatform.isDarwin ''
+        mkdir -p "$out/bin"
+        makeWrapper "$out/Applications/Outer Wilds Mod Manager.app/Contents/MacOS/Outer Wilds Mod Manager" "$out/bin/outer-wilds-mod-manager" ${lib.optionalString wrapWithMono "--set MONO_BINARY ${lib.getExe mono}"}
+      '';
 
-        packageJSON = ../../owmods_gui/frontend/package.json;
-        npmDeps = importNpmLock {
-          npmRoot = src;
-        };
+    desktopItems = [
+      (makeDesktopItem {
+        name = "outer-wilds-mod-manager";
+        exec = "outer-wilds-mod-manager %u";
+        icon = "outer-wilds-mod-manager";
+        desktopName = "Outer Wilds Mod Manager";
+        categories = ["Game"];
+        comment = "Graphical Outer Wilds Mod Manager";
+        mimeTypes = ["x-scheme-handler/owmods"];
+      })
+    ];
 
-        npmConfigHook = importNpmLock.npmConfigHook;
+    passthru = {
+      inherit frontend;
+    };
 
-        postBuild = ''
-          cp -r ../dist/ $out
-        '';
-        distPhase = "true";
-        dontInstall = true;
-        installInPlace = true;
-        distDir = "../dist";
-      };
-  in ''
-    substituteInPlace owmods_gui/backend/tauri.conf.json \
-    --replace '"frontendDist": "../dist"' '"frontendDist": "${frontend}"'
-  '';
-
-  postInstall = ''
-    install -DT owmods_gui/backend/icons/128x128@2x.png $out/share/icons/hicolor/256x256@2/apps/outer-wilds-mod-manager.png
-    install -DT owmods_gui/backend/icons/128x128.png $out/share/icons/hicolor/128x128/apps/outer-wilds-mod-manager.png
-    install -DT owmods_gui/backend/icons/32x32.png $out/share/icons/hicolor/32x32/apps/outer-wilds-mod-manager.png
-
-    mv $out/bin/owmods_gui $out/bin/outer-wilds-mod-manager
-  '';
-
-  desktopItems = [
-    (makeDesktopItem {
-      name = "outer-wilds-mod-manager";
-      exec = "outer-wilds-mod-manager %u";
-      icon = "outer-wilds-mod-manager";
-      desktopName = "Outer Wilds Mod Manager";
-      categories = ["Game"];
-      comment = meta.description;
-      mimeTypes = ["x-scheme-handler/owmods"];
-    })
-  ];
-
-  meta = with lib; {
-    description = "GUI version of the mod manager for Outer Wilds Mod Loader";
-    homepage = "https://github.com/ow-mods/ow-mod-man/tree/main/owmods_gui";
-    downloadPage = "https://github.com/ow-mods/ow-mod-man/releases/tag/gui_v${version}";
-    changelog = "https://github.com/ow-mods/ow-mod-man/releases/tag/gui_v${version}";
-    mainProgram = "outer-wilds-mod-manager";
-    platforms = platforms.linux;
-    license = licenses.gpl3;
-    maintainers = with maintainers; [bwc9876 locochoco];
-  };
-}
+    meta = with lib; {
+      description = "GUI version of the mod manager for Outer Wilds Mod Loader";
+      homepage = "https://github.com/ow-mods/ow-mod-man/tree/main/owmods_gui";
+      downloadPage = "https://github.com/ow-mods/ow-mod-man/releases/tag/gui_v${version}";
+      changelog = "https://github.com/ow-mods/ow-mod-man/releases/tag/gui_v${version}";
+      mainProgram = "outer-wilds-mod-manager";
+      platforms = platforms.linux ++ platforms.darwin;
+      license = licenses.gpl3;
+      maintainers = with maintainers; [
+        bwc9876
+        locochoco
+      ];
+    };
+  }

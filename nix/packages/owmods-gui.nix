@@ -1,4 +1,5 @@
 {
+  jq,
   lib,
   libsoup_3,
   dbus,
@@ -8,12 +9,11 @@
   webkitgtk_4_1,
   pkg-config,
   wrapGAppsHook3,
-  makeDesktopItem,
-  copyDesktopItems,
   rustPlatform,
   makeBinaryWrapper,
   buildNpmPackage,
   importNpmLock,
+  cargo-tauri,
   stdenv,
   mono,
   wrapWithMono ? true,
@@ -74,9 +74,11 @@ in
     doCheck = false;
 
     nativeBuildInputs =
-      lib.optionals stdenv.hostPlatform.isLinux [
+      [
+        cargo-tauri.hook
+      ]
+      ++ lib.optionals stdenv.hostPlatform.isLinux [
         pkg-config
-        copyDesktopItems
         wrapGAppsHook3
       ]
       ++ lib.optionals stdenv.hostPlatform.isDarwin [
@@ -99,34 +101,15 @@ in
     ) "gappsWrapperArgs+=(--prefix PATH : '${mono}/bin')";
 
     postPatch = ''
-      substituteInPlace owmods_gui/backend/tauri.conf.json \
-      --replace '"frontendDist": "../dist"' '"frontendDist": "${frontend}"'
+      ${lib.getExe jq} \
+        'del(.plugins.tauri.updater) | .build.frontendDist = "${frontend}" | del(.build.beforeBuildCommand) | .bundle.createUpdaterArtifacts = false' owmods_gui/backend/tauri.conf.json > owmods_gui/backend/new.tauri.conf.json;
+      mv owmods_gui/backend/new.tauri.conf.json owmods_gui/backend/tauri.conf.json
     '';
 
-    postInstall =
-      lib.optionalString stdenv.hostPlatform.isLinux ''
-        install -DT owmods_gui/backend/icons/128x128@2x.png $out/share/icons/hicolor/256x256@2/apps/outer-wilds-mod-manager.png
-        install -DT owmods_gui/backend/icons/128x128.png $out/share/icons/hicolor/128x128/apps/outer-wilds-mod-manager.png
-        install -DT owmods_gui/backend/icons/32x32.png $out/share/icons/hicolor/32x32/apps/outer-wilds-mod-manager.png
-
-        mv $out/bin/owmods_gui $out/bin/outer-wilds-mod-manager
-      ''
-      + lib.optionalString stdenv.hostPlatform.isDarwin ''
-        mkdir -p "$out/bin"
-        makeWrapper "$out/Applications/Outer Wilds Mod Manager.app/Contents/MacOS/Outer Wilds Mod Manager" "$out/bin/outer-wilds-mod-manager" ${lib.optionalString wrapWithMono "--set MONO_BINARY ${lib.getExe mono}"}
-      '';
-
-    desktopItems = [
-      (makeDesktopItem {
-        name = "outer-wilds-mod-manager";
-        exec = "outer-wilds-mod-manager %u";
-        icon = "outer-wilds-mod-manager";
-        desktopName = "Outer Wilds Mod Manager";
-        categories = ["Game"];
-        comment = "Graphical Outer Wilds Mod Manager";
-        mimeTypes = ["x-scheme-handler/owmods"];
-      })
-    ];
+    postInstall = lib.optionalString stdenv.hostPlatform.isDarwin ''
+      mkdir -p "$out/bin"
+      makeWrapper "$out/Applications/Outer Wilds Mod Manager.app/Contents/MacOS/Outer Wilds Mod Manager" "$out/bin/owmods_gui" ${lib.optionalString wrapWithMono "--set MONO_BINARY ${lib.getExe mono}"}
+    '';
 
     passthru = {
       inherit frontend;

@@ -108,7 +108,7 @@ in
 
     postInstall = lib.optionalString stdenv.hostPlatform.isDarwin ''
       mkdir -p "$out/bin"
-      makeWrapper "$out/Applications/Outer Wilds Mod Manager.app/Contents/MacOS/Outer Wilds Mod Manager" "$out/bin/owmods_gui" ${lib.optionalString wrapWithMono "--set MONO_BINARY ${lib.getExe mono}"}
+      makeWrapper "$out/Applications/Outer Wilds Mod Manager.app/Contents/MacOS/owmods_gui" "$out/bin/owmods_gui" ${lib.optionalString wrapWithMono "--set MONO_BINARY ${lib.getExe mono}"}
     '';
 
     passthru = {

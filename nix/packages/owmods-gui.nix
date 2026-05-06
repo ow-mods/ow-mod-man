@@ -120,7 +120,7 @@ in
       homepage = "https://github.com/ow-mods/ow-mod-man/tree/main/owmods_gui";
       downloadPage = "https://github.com/ow-mods/ow-mod-man/releases/tag/gui_v${version}";
       changelog = "https://github.com/ow-mods/ow-mod-man/releases/tag/gui_v${version}";
-      mainProgram = "outer-wilds-mod-manager";
+      mainProgram = "owmods_gui";
       platforms = platforms.linux ++ platforms.darwin;
       license = licenses.gpl3;
       maintainers = with maintainers; [

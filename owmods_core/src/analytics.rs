@@ -1,5 +1,3 @@
-use std::time::{SystemTime, UNIX_EPOCH};
-
 use lazy_static::lazy_static;
 use log::{debug, warn};
 use reqwest::Client;
@@ -7,16 +5,15 @@ use serde::Serialize;
 
 use crate::config::Config;
 
-const MEASUREMENT_ID: &str = "G-2QQN7V5WE1";
-const API_KEY: Option<&str> = option_env!("ANALYTICS_API_KEY");
+/// If the analytics server is broken, pls ask Rai about it.
+const COLLECT_URL: &str = "https://events.raicuparta.com/ow-mod-man/collect";
 
 lazy_static! {
     static ref ANALYTICS_ID: String = uuid::Uuid::new_v4().hyphenated().to_string();
 }
 
-/// Represents an event sent to GAnalytics when an action is performed on a mod
+/// Represents an event sent to the analytics server when an action is performed on a mod
 #[derive(Serialize, Debug, Clone)]
-#[serde(rename_all = "snake_case")]
 pub enum AnalyticsEventName {
     /// A mod was installed
     ModInstall,
@@ -37,31 +34,28 @@ struct AnalyticsEventParams {
 }
 
 #[derive(Debug, Serialize)]
+#[serde(rename_all = "camelCase")]
 struct AnalyticsEvent {
-    name: AnalyticsEventName,
-    params: AnalyticsEventParams,
+    id: AnalyticsEventName,
+    data: AnalyticsEventParams,
 }
 
 #[derive(Debug, Serialize)]
+#[serde(rename_all = "camelCase")]
 struct AnalyticsPayload {
-    client_id: String,
-    timestamp_micros: u128,
-    non_personalized_ads: bool,
+    client_id: Option<String>,
+    session_id: Option<String>,
     events: Vec<AnalyticsEvent>,
 }
 
 impl AnalyticsPayload {
     pub fn new(event_name: &AnalyticsEventName, unique_name: &str) -> Self {
         Self {
-            client_id: ANALYTICS_ID.to_string(),
-            timestamp_micros: SystemTime::now()
-                .duration_since(UNIX_EPOCH)
-                .unwrap()
-                .as_micros(),
-            non_personalized_ads: true,
+            client_id: None,
+            session_id: Some(ANALYTICS_ID.to_string()),
             events: vec![AnalyticsEvent {
-                name: event_name.to_owned(),
-                params: AnalyticsEventParams {
+                id: event_name.to_owned(),
+                data: AnalyticsEventParams {
                     mod_unique_name: unique_name.to_string(),
                     manager_version: env!("CARGO_PKG_VERSION").to_string(),
                 },
@@ -75,12 +69,10 @@ impl AnalyticsPayload {
 
 /// Send an analytics event with the given [AnalyticsEventName] for the given mod's `unique_name`
 ///
-/// **Please note that unless an `ANALYTICS_API_KEY` env variable is specified at build time this function does nothing.**
-///
 /// ## Examples
 ///
 /// ```no_run
-/// use owmods_core::{config::Config,analytics::{send_analytics_event, AnalyticsEventName}};
+/// use owmods_core::{config::Config, analytics::{send_analytics_event, AnalyticsEventName}};
 ///
 /// # tokio_test::block_on(async {
 /// // Time saver is the best mod!
@@ -100,34 +92,28 @@ pub async fn send_analytics_event(
         debug!("Skipping Analytics As It's Disabled");
         return;
     }
-    if let Some(api_key) = API_KEY {
-        let url = format!(
-            "https://www.google-analytics.com/mp/collect?measurement_id={MEASUREMENT_ID}&api_secret={api_key}"
-        );
-        let client = Client::new();
-        let payload = AnalyticsPayload::new(&event_name, unique_name);
-        debug!("Sending {payload:?}");
-        let resp = client.post(url).json(&payload).send().await;
-        match resp {
-            Ok(resp) => {
-                if resp.status().is_success() {
-                    debug!("Successfully Sent Analytics Event {event_name:?} for {unique_name}");
-                } else {
-                    warn!(
-                        "Couldn't Send Analytics Event For {}! {}",
-                        unique_name,
-                        resp.status()
-                    )
-                }
-            }
-            Err(why) => {
-                let err_text = format!("Couldn't Send Analytics Event For {unique_name}! {why:?}")
-                    .replace(api_key, "***");
-                warn!("{err_text}");
+
+    let payload = AnalyticsPayload::new(&event_name, unique_name);
+
+    debug!("Sending {payload:?}");
+    let client = Client::new();
+    let resp = client.post(COLLECT_URL).json(&payload).send().await;
+
+    match resp {
+        Ok(resp) => {
+            if resp.status().is_success() {
+                debug!("Successfully Sent Analytics Event {event_name:?} for {unique_name}");
+            } else {
+                warn!(
+                    "Couldn't Send Analytics Event For {}! {}",
+                    unique_name,
+                    resp.status()
+                )
             }
         }
-    } else {
-        debug!("Skipping Analytics As The ANALYTICS_API_KEY Is Null ({event_name:?})");
+        Err(err) => {
+            warn!("Couldn't Send Analytics Event For {unique_name}! {err:?}");
+        }
     }
 }
 

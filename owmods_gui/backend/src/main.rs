@@ -185,6 +185,13 @@ fn main() -> Result<(), Box<dyn Error>> {
 
     let url = std::env::args().nth(1).map(|s| ProtocolPayload::parse(&s));
 
+    #[cfg(target_os = "linux")]
+    unsafe {
+        // Workaround for this error:
+        // Error 71 (Protocol error) dispatching to Wayland display.
+        std::env::set_var("__NV_DISABLE_EXPLICIT_SYNC", "1");
+    }
+
     let res = tauri::Builder::default()
         .manage(State {
             local_db: manage(local_db),

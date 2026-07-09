@@ -1,13 +1,13 @@
 [package]
-name = "xtask"
+name    = "xtask"
 version = "0.15.5"
 edition = "2024"
 
 [dependencies]
-anyhow = "1.0.102"
-clap = { version = "4.6.1", features = ["derive", "string"] }
-clap_complete = "4.6.3"
-clap_mangen = "0.3.0"
-regex = "1.12.3"
-serde = "1.0.228"
-serde_json = "1.0.149"
+anyhow        = "1.0.103"
+clap          = { version = "4.6.1", features = ["derive", "string"] }
+clap_complete = "4.6.7"
+clap_mangen   = "0.3.0"
+regex         = "1.13.0"
+serde         = "1.0.228"
+serde_json    = "1.0.150"

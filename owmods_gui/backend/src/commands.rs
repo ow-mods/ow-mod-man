@@ -180,7 +180,7 @@ pub async fn get_local_mod(
     if unique_name == OWML_UNIQUE_NAME {
         let config = state.config.read().await;
         let owml = LocalDatabase::get_owml(&config.owml_path)
-            .with_context(|| format!("Couldn't Find OWML at path {}", &config.owml_path))?;
+            .with_context(|| format!("Couldn't Find OWML at path {}", config.owml_path))?;
         Ok(Some(UnsafeLocalMod::Valid(Box::new(owml))))
     } else {
         Ok(state

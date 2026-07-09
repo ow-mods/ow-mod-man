@@ -164,10 +164,10 @@ async fn run_from_cli(cli: BaseCli) -> Result<()> {
                         local_mod.manifest.name,
                         local_mod.manifest.version,
                         local_mod.manifest.author,
-                        &local_mod.manifest.unique_name.to_string().bold()
+                        local_mod.manifest.unique_name.to_string().bold()
                     );
                 }
-                info!("{}", &output);
+                info!("{output}");
             }
             Some(ModListTypes::Remote) => {
                 let db = RemoteDatabase::fetch(&config.database_url).await?;
@@ -186,10 +186,10 @@ async fn run_from_cli(cli: BaseCli) -> Result<()> {
                             .author_display
                             .as_ref()
                             .unwrap_or(&remote_mod.author),
-                        &remote_mod.unique_name.to_string().bold()
+                        remote_mod.unique_name.to_string().bold()
                     )
                 }
-                info!("{}", &output);
+                info!("{output}");
             }
         },
         Commands::Tags => {

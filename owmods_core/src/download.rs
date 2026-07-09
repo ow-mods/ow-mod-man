@@ -569,7 +569,7 @@ pub async fn install_mods_parallel(
 /// Install mod from the database with the given unique name.
 /// This should be the preferred method when installing a specific mod.
 /// It can also install prereleases and auto-install dependencies (recursively) as well.
-/// This will also send analytics events given you set `ANALYTICS_API_KEY`.
+/// This will also send analytics events.
 ///
 /// ## Errors
 ///

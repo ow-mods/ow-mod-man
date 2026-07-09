@@ -33,21 +33,15 @@ jobs:
 
       - name: Build CLI
         run: cargo build -p owmods_cli --release
-        env:
-          ANALYTICS_API_KEY: ${{ secrets.ANALYTICS_API_KEY }}
 
       - name: Get Version
         id: get_version
         run: echo "version=$(cargo run --release -q -p owmods_cli version)" >> $GITHUB_OUTPUT
         shell: bash
-        env:
-          ANALYTICS_API_KEY: ${{ secrets.ANALYTICS_API_KEY }}
 
       - name: Generate Dist Folder
         if: startsWith(matrix.platform, 'ubuntu')
         run: cargo xtask dist_cli
-        env:
-          ANALYTICS_API_KEY: ${{ secrets.ANALYTICS_API_KEY }}
 
       - name: Archive Dist Files
         if: startsWith(matrix.platform, 'ubuntu')
@@ -56,8 +50,6 @@ jobs:
       - name: Generate Deb File
         if: startsWith(matrix.platform, 'ubuntu')
         run: cargo deb -p owmods_cli -o owmods_cli_${{ steps.get_version.outputs.version }}_amd64.deb
-        env:
-          ANALYTICS_API_KEY: ${{ secrets.ANALYTICS_API_KEY }}
 
       - name: Upload CLI (Ubuntu)
         if: startsWith(matrix.platform, 'ubuntu')

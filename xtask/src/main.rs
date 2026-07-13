@@ -19,7 +19,7 @@ pub fn get_out_dir() -> Result<PathBuf> {
 }
 
 pub fn get_pkg_version(in_str: &str) -> &str {
-    let re = RegexBuilder::new(r#"^version = "(.*?)"$"#)
+    let re = RegexBuilder::new(r#"^version\s+?=\s+?"(.*?)"$"#)
         .multi_line(true)
         .build()
         .unwrap();

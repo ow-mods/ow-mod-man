@@ -18,7 +18,7 @@
   mono,
   wrapWithMono ? true,
 }: let
-  version = "0.15.6";
+  version = "0.15.7";
   frontend = let
     src = ../../owmods_gui/frontend;
   in

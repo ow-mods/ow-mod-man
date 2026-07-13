@@ -24,10 +24,6 @@ The core library for the [Outer Wilds Mod Manager](https://github.com/ow-mods/ow
 
 `cargo add owmods_core`
 
-### Analytics
-
-In order to send analytics events you'll need to set the `ANALYTICS_API_KEY` environment variable before compilation.
-
 ### Configuration
 
 This package operates using the global manager configuration located in `~/.local/share/ow-mod-man` (and similar on other OSs).

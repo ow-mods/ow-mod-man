@@ -24,7 +24,7 @@ pub fn generate_man_files() -> Result<()> {
         let man = Man::new(subcommand.clone().name(&subcommand_name));
         man.render(&mut buffer)?;
         std::fs::write(
-            std::path::PathBuf::from(&out_dir).join(format!("{}.1", &subcommand_name)),
+            std::path::PathBuf::from(&out_dir).join(format!("{}.1", subcommand_name)),
             buffer,
         )?;
     }

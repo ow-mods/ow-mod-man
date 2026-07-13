@@ -6,10 +6,10 @@ import {
     BuildRounded,
     FavoriteRounded,
     FolderOpenRounded,
-    GamepadRounded,
     HelpRounded,
     MoreHorizRounded,
-    ReceiptRounded
+    ReceiptRounded,
+    SnippetFolderRounded
 } from "@mui/icons-material";
 import { ListItemIcon, ListItemText, MenuItem } from "@mui/material";
 import IconButton from "@mui/material/IconButton";
@@ -109,7 +109,7 @@ const OverflowMenu = () => {
                 </MenuItem>
                 <MenuItem onClick={onOpenOwmlLogs}>
                     <ListItemIcon>
-                        <GamepadRounded fontSize="small" />
+                        <SnippetFolderRounded fontSize="small" />
                     </ListItemIcon>
                     <ListItemText>{getTranslation("OWML_LOGS")}</ListItemText>
                 </MenuItem>

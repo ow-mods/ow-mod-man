@@ -256,12 +256,11 @@ This is a weird way to do this and will probably be changed in the future.
 
 ### Analytics Behavior
 
-- The mod manager can send analytics events to the google analytics API.
-- This is to help rank mods on the website and keep track of engagement
+- The mod manager can send analytics events to a secret magic analytics server.
+- This is to help rank mods on the website and keep track of engagement.
 - **No personal information is sent**, only the mod unique name, the event name, and a unique ID generated for your session, this ID changes every time you open the manager.
 - For a list of all events see [AnalyticsEventName](https://docs.rs/owmods_core/latest/owmods_core/analytics/enum.AnalyticsEventName.html)
 - Events are sent with `install_mod_from_db` and `update_all`, other functions are up to the GUI/CLI to implement.
-- If the `ANALYTICS_API_KEY` env var is empty at compile time, analytics will be disabled.
 
 ### Progress Bar Behavior
 

@@ -1,0 +1,33 @@
+name: Update WinGet Package
+
+on:
+  release:
+    types: [released]
+  workflow_dispatch:
+    inputs:
+      release_tag:
+        description: "The release tag to submit to WinGet"
+        required: true
+
+jobs:
+  winget:
+    runs-on: ubuntu-slim
+    if: startsWith(github.event.release.tag_name || github.event.inputs.release_tag, 'gui_v')
+
+    env:
+      TAG: ${{ github.event.release.tag_name || github.event.inputs.release_tag }}
+
+    steps:
+      - name: Extract version from tag
+        id: extract_version
+        run: |
+          echo "version=${TAG#*v}" >> "$GITHUB_OUTPUT"
+
+      - uses: vedantmgoyal9/winget-releaser@7bd472be23763def6e16bd06cc8b1cdfab0e2fd5
+        with:
+          identifier: OuterWildsMods.OuterWildsModManager
+          installers-regex: '\.msi$'
+          fork-user: Raicuparta
+          token: ${{ secrets.WINGET_GH_TOKEN }}
+          version: ${{ steps.extract_version.outputs.version }}
+          release-tag: ${{ env.TAG }}

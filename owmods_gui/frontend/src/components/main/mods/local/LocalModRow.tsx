@@ -101,7 +101,7 @@ const LocalModRow = memo(function LocalModRow(props: LocalModRowProps) {
           })
         : "";
 
-    const onPrerelease = () => {
+    const onPrerelease = useCallback(() => {
         const task = async () => {
             const result = await dialog.ask(getTranslation("PRERELEASE_WARNING"), {
                 title: prereleaseLabel
@@ -116,7 +116,7 @@ const LocalModRow = memo(function LocalModRow(props: LocalModRowProps) {
             }
         };
         task();
-    };
+    }, [prereleaseLabel, props.uniqueName, getTranslation]);
 
     // Event Handlers
     const onReadme = useCallback(
@@ -235,7 +235,10 @@ const LocalModRow = memo(function LocalModRow(props: LocalModRowProps) {
             onFolder,
             onUninstall,
             onGithub,
-            onReinstall
+            onReinstall,
+            hasPrerelease,
+            prereleaseLabel,
+            onPrerelease
         ]
     );
 

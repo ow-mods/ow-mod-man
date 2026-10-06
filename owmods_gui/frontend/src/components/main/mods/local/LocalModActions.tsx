@@ -83,7 +83,7 @@ const LocalModActions = memo(function LocalModTools(props: LocalModActionsProps)
                 tabId="local"
                 uniqueName={props.uniqueName}
                 ref={overflowRef}
-                busy={isBusy}
+                busy={isBusy ?? false}
             >
                 {props.canFix && (
                     <ModActionOverflowItem

@@ -1,4 +1,4 @@
-import { DownloadRounded, DescriptionRounded, GitHub, ScienceRounded } from "@mui/icons-material";
+import { DownloadRounded, DescriptionRounded, GitHub } from "@mui/icons-material";
 import { memo, useRef } from "react";
 import ModActionOverflow, { ModActionOverflowItem } from "../ModActionOverflow";
 import { useGetTranslation } from "@hooks";
@@ -31,7 +31,14 @@ const RemoteModActions = memo(function RemoteModToolbar(props: RemoteModActionsP
                 onClick={props.onInstall}
                 uniqueName={props.uniqueName}
             />
-            <ModActionOverflow tabId="remote" uniqueName={props.uniqueName} ref={overflowRef}>
+            <ModActionOverflow
+                showPrerelease={props.showPrerelease}
+                prereleaseLabel={props.prereleaseLabel}
+                onPrerelease={props.onPrerelease}
+                tabId="remote"
+                uniqueName={props.uniqueName}
+                ref={overflowRef}
+            >
                 <ModActionOverflowItem
                     label={getTranslation("OPEN_README")}
                     icon={<DescriptionRounded />}
@@ -44,15 +51,6 @@ const RemoteModActions = memo(function RemoteModToolbar(props: RemoteModActionsP
                     onClick={props.onGithub}
                     onClose={onClose}
                 />
-                {props.showPrerelease && (
-                    <ModActionOverflowItem
-                        label={props.prereleaseLabel}
-                        icon={<ScienceRounded />}
-                        onClick={props.onPrerelease}
-                        disabled={props.busy ?? false}
-                        onClose={onClose}
-                    />
-                )}
             </ModActionOverflow>
         </>
     );

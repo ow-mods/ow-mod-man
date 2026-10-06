@@ -79,6 +79,7 @@ const LocalModRow = memo(function LocalModRow(props: LocalModRowProps) {
     const autoDisableDeps = guiConfig?.autoDisableDeps ?? false;
 
     const remote = (remoteOpt?.type === "err" ? null : remoteOpt?.data) as RemoteMod | null;
+    const hasPrerelease = remote?.prerelease !== undefined && remote?.prerelease !== null;
 
     // Transform data
     const { name, slug, author, description, version, outdated, enabled } = useUnifiedMod(
@@ -93,6 +94,29 @@ const LocalModRow = memo(function LocalModRow(props: LocalModRowProps) {
         [local, getTranslation]
     );
     const hasRemote = remote !== null;
+
+    const prereleaseLabel = hasPrerelease
+        ? getTranslation("USE_PRERELEASE", {
+              version: remote?.prerelease?.version ?? ""
+          })
+        : "";
+
+    const onPrerelease = () => {
+        const task = async () => {
+            const result = await dialog.ask(getTranslation("PRERELEASE_WARNING"), {
+                title: prereleaseLabel
+            });
+            if (result) {
+                commands
+                    .installMod({ uniqueName: props.uniqueName, prerelease: true })
+                    .then(() => {
+                        commands.refreshLocalDb().catch(simpleOnError);
+                    })
+                    .catch(simpleOnError);
+            }
+        };
+        task();
+    };
 
     // Event Handlers
     const onReadme = useCallback(
@@ -184,6 +208,8 @@ const LocalModRow = memo(function LocalModRow(props: LocalModRowProps) {
                 enabled={enabled}
                 isErr={isErr}
                 hasRemote={hasRemote}
+                showPrerelease={hasPrerelease}
+                prereleaseLabel={prereleaseLabel}
                 donateLinks={donateLinks}
                 canFix={canFixWarn}
                 onToggle={onToggle}
@@ -193,6 +219,7 @@ const LocalModRow = memo(function LocalModRow(props: LocalModRowProps) {
                 onUninstall={onUninstall}
                 onGithub={onGithub}
                 onReinstall={onReinstall}
+                onPrerelease={onPrerelease}
             />
         ),
         [

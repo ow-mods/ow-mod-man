@@ -11,24 +11,24 @@ repository  = "https://github.com/ow-mods/ow-mod-man/"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-serde = { version = "1.0.228", features = ["derive"] }
-serde_json = "1.0.150"
-opener = "0.8.5"
+serde = { version = "1.0.229", features = ["derive"] }
+serde_json = "1.0.151"
+opener = "0.9.0"
 directories = "6.0.0"
-reqwest = { version = "0.13.4", default-features = false, features = [
+reqwest = { version = "0.13.5", default-features = false, features = [
     "blocking",
     "json",
     "rustls",
 ] }
-glob = "0.3.3"
-anyhow = "1.0.103"
+glob = "0.3.4"
+anyhow = "1.0.104"
 zip = { version = "8.6.0", default-features = false, features = [
     "deflate",
     "zstd",
 ] }
-futures = "0.3.32"
-log = "0.4.33"
-tokio = { version = "1.52.3", features = [
+futures = "0.3.34"
+log = "0.4.34"
+tokio = { version = "1.53.2", features = [
     "net",
     "time",
     "process",
@@ -36,14 +36,14 @@ tokio = { version = "1.52.3", features = [
     "sync",
     "io-util",
 ] }
-serde_repr = "0.1.20"
-uuid = { version = "1.23.4", features = ["v4", "fast-rng"] }
+serde_repr = "0.1.21"
+uuid = { version = "1.27.0", features = ["v4", "fast-rng"] }
 typeshare = "1.0.5"
-lazy_static = "1.5.0"
+lazy_static = "1.5.1"
 tempfile = "3.27.0"
 unicode-normalization = "0.1.25"
-regex = "1.13.0"
-versions = "7.0.0"
+regex = "1.13.1"
+versions = "8.0.1"
 
 [dev-dependencies]
-tokio-test = "0.4.5"
+tokio-test = "0.4.6"

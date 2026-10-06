@@ -20,6 +20,7 @@ export interface ModActionOverflowProps {
     prereleaseLabel: string;
     children: ReactNode;
     onPrerelease: () => void;
+    busy: boolean;
 }
 
 export interface ModActionOverflowItemProps {

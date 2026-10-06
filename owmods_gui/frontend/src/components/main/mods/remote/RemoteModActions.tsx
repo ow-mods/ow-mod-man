@@ -37,6 +37,7 @@ const RemoteModActions = memo(function RemoteModToolbar(props: RemoteModActionsP
                 onPrerelease={props.onPrerelease}
                 tabId="remote"
                 uniqueName={props.uniqueName}
+                busy={props.busy}
                 ref={overflowRef}
             >
                 <ModActionOverflowItem

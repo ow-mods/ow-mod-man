@@ -35,9 +35,9 @@ jobs:
               target/release/bundle/**/*.deb
               target/release/bundle/**/*.rpm
               target/release/bundle/**/*.AppImage
-          - platform: "ubuntu-latest-arm"
+          - platform: "ubuntu-26.04-arm"
             target: "aarch64-unknown-linux-gnu"
-            args: "appimage deb rpm"
+            args: "deb rpm"
             bundle-name: Linux-aarch64
             bundle-path: |
               target/release/bundle/**/*.deb

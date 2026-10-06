@@ -19,6 +19,8 @@ export interface LocalModActionsProps {
     enabled: boolean;
     isErr: boolean;
     hasRemote: boolean;
+    showPrerelease: boolean;
+    prereleaseLabel: string;
     canFix: boolean;
     donateLinks?: string[];
     onToggle: (newVal: boolean) => void;
@@ -28,6 +30,7 @@ export interface LocalModActionsProps {
     onGithub: () => void;
     onUninstall: () => void;
     onReinstall: () => void;
+    onPrerelease: () => void;
 }
 
 const LocalModActions = memo(function LocalModTools(props: LocalModActionsProps) {
@@ -73,7 +76,15 @@ const LocalModActions = memo(function LocalModTools(props: LocalModActionsProps)
                     icon={<DescriptionRounded />}
                 />
             )}
-            <ModActionOverflow tabId="local" uniqueName={props.uniqueName} ref={overflowRef}>
+            <ModActionOverflow
+                showPrerelease={props.showPrerelease}
+                prereleaseLabel={props.prereleaseLabel}
+                onPrerelease={props.onPrerelease}
+                tabId="local"
+                uniqueName={props.uniqueName}
+                ref={overflowRef}
+                busy={isBusy ?? false}
+            >
                 {props.canFix && (
                     <ModActionOverflowItem
                         label={getTranslation("OPEN_README")}

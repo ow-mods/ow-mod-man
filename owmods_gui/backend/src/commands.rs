@@ -338,7 +338,9 @@ pub async fn install_mod(
     let remote_db = remote_db.try_get()?;
     let conf = state.config.read().await.clone();
     let mut should_install = true;
-    if let Some(current_mod) = local_db.get_mod(unique_name) {
+    if let Some(current_mod) = local_db.get_mod(unique_name)
+        && !prerelease.unwrap_or_default()
+    {
         should_install = window
             .dialog()
             .message(format!(

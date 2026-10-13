@@ -20,7 +20,7 @@ const AppTabs = memo(function AppTabs({ onChange }: AppTabsProps) {
     const countText = count === 0 ? "" : `(${count})`;
 
     return (
-        <AppBar position="static">
+        <AppBar color="transparent" position="static">
             <TabList
                 sx={{ margin: `0 ${theme.spacing(3)}` }}
                 onChange={(_, newVal) => onChange(newVal)}

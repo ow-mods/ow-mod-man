@@ -1,7 +1,11 @@
 body {
-    /* Try to reduce white screen */
-    background-color: #121212;
     height: 100vh;
+}
+
+@media (prefers-color-scheme: dark) {
+    body {
+        background-color: #121212;
+    }
 }
 
 #root {
@@ -63,32 +67,32 @@ body {
     max-height: 150px;
 }
 
-.scroll-shadows {
-    --glow-color: 256, 256, 256;
-    --glow-intensity: 0.3;
-    --cover-color: 31, 31, 31;
-
-    background:
-        linear-gradient(90deg, rgb(var(--cover-color)) 30%, rgba(var(--cover-color), 0)) left,
-        linear-gradient(90deg, rgba(var(--cover-color), 0), rgb(var(--cover-color)) 70%) right,
-        radial-gradient(
-                farthest-side at 0% 50%,
-                rgba(var(--glow-color), var(--glow-intensity)),
-                rgba(var(--glow-color), 0)
-            )
-            left,
-        radial-gradient(
-                farthest-side at 100% 50%,
-                rgba(var(--glow-color), var(--glow-intensity)),
-                rgba(var(--glow-color), 0)
-            )
-            right;
-
-    background-repeat: no-repeat;
-    background-size:
-        100px 100px,
-        100px 100px,
-        50px 100px,
-        50px 100px;
-    background-attachment: local, local, scroll, scroll;
-}
+/* .scroll-shadows { */
+/*     --glow-color: 256, 256, 256; */
+/*     --glow-intensity: 0.3; */
+/*     --cover-color: 60, 60, 60; */
+/**/
+/*     background: */
+/*         linear-gradient(90deg, rgb(var(--cover-color)) 30%, rgba(var(--cover-color), 0)) left, */
+/*         linear-gradient(90deg, rgba(var(--cover-color), 0), rgb(var(--cover-color)) 70%) right, */
+/*         radial-gradient( */
+/*                 farthest-side at 0% 50%, */
+/*                 rgba(var(--glow-color), var(--glow-intensity)), */
+/*                 rgba(var(--glow-color), 0) */
+/*             ) */
+/*             left, */
+/*         radial-gradient( */
+/*                 farthest-side at 100% 50%, */
+/*                 rgba(var(--glow-color), var(--glow-intensity)), */
+/*                 rgba(var(--glow-color), 0) */
+/*             ) */
+/*             right; */
+/**/
+/*     background-repeat: no-repeat; */
+/*     background-size: */
+/*         100px 100px, */
+/*         100px 100px, */
+/*         50px 100px, */
+/*         50px 100px; */
+/*     background-attachment: local, local, scroll, scroll; */
+/* } */

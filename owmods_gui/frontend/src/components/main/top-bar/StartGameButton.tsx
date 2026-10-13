@@ -1,4 +1,4 @@
-import { Button } from "@mui/material";
+import { Button, useTheme } from "@mui/material";
 import { PlayArrow as PlayIcon } from "@mui/icons-material";
 import { useCallback, useEffect, useState } from "react";
 import { commands } from "@commands";
@@ -9,6 +9,7 @@ import { listen } from "@events";
 
 const StartGameButton = () => {
     const getTranslation = useGetTranslation();
+    const theme = useTheme();
     const [areLogsStarting, setLogsStarting] = useState(false);
 
     const onPlay = useCallback(() => {
@@ -66,7 +67,7 @@ const StartGameButton = () => {
                 onClick={onPlay}
                 size="large"
                 variant="contained"
-                color="primary"
+                color={theme.palette.mode === "dark" ? "primary" : "secondary"}
                 disabled={areLogsStarting}
                 startIcon={<PlayIcon />}
             >

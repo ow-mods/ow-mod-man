@@ -1,4 +1,5 @@
-import { PaletteColorOptions, createTheme } from "@mui/material";
+import { PaletteColorOptions } from "@mui/material";
+import { createTheme } from "@mui/material/styles";
 import { green, grey, blue, red } from "@mui/material/colors";
 import { Theme } from "@types";
 
@@ -121,23 +122,25 @@ const themeMap: Record<Theme, UserTheme> = {
 };
 
 export const getMuiTheme = (selectedTheme: Theme) => {
-    const baseTheme = themeMap[selectedTheme];
+    const basePalette = (dark: boolean) => ({
+        ...themeMap[selectedTheme],
+        neutral: {
+            main: dark ? grey[400] : grey[600],
+            contrastText: "#1c1c1c"
+        },
+        error: {
+            main: red[500],
+            dark: "#7e1e1e"
+        }
+    });
     return createTheme({
-        palette: {
-            mode: "dark",
-            ...baseTheme,
-            neutral: {
-                main: grey[400],
-                contrastText: "#1c1c1c"
-            },
-            error: {
-                main: red[500],
-                dark: "#7e1e1e"
-            }
+        colorSchemes: {
+            light: { palette: basePalette(false) },
+            dark: { palette: basePalette(true) }
         },
         components: {
             MuiCssBaseline: {
-                styleOverrides: {
+                styleOverrides: (theme) => ({
                     body: {
                         innerHeight: "100vh",
                         overflowY: "hidden"
@@ -146,19 +149,19 @@ export const getMuiTheme = (selectedTheme: Theme) => {
                         width: "1em",
                         cursor: "pointer"
                     },
-                    "*::-webkit-scrollbar-track": {
-                        background: grey[800],
+                    "::-webkit-scrollbar-track": {
+                        background: grey[theme.palette.mode === "dark" ? 800 : 200],
                         borderRadius: "5px"
                     },
                     "*::-webkit-scrollbar-thumb": {
-                        background: grey[600],
-                        border: `2px solid ${grey[800]}`,
+                        background: grey[theme.palette.mode === "dark" ? 600 : 400],
+                        border: `2px solid ${grey[theme.palette.mode === "dark" ? 800 : 100]}`,
                         borderRadius: "5px",
                         "&:hover": {
-                            background: grey[600]
+                            background: grey[theme.palette.mode === "dark" ? 600 : 500]
                         }
                     }
-                }
+                })
             },
             MuiTab: {
                 styleOverrides: {

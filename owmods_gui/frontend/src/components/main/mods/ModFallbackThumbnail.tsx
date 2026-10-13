@@ -41,7 +41,7 @@ const ModFallbackThumbnail = memo(function ModFallbackThumbnail(props: ModFallba
                     textAlign: "center"
                 }}
             >
-                <p>{props.modName}</p>
+                <p style={{ color: "white" }}>{props.modName}</p>
             </Box>
             <img
                 width="450"

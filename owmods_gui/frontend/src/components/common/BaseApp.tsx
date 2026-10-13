@@ -1,5 +1,5 @@
-import { ThemeProvider } from "@emotion/react";
 import { Box, CircularProgress, CssBaseline } from "@mui/material";
+import { ThemeProvider } from "@mui/material/styles";
 import { TranslationContext } from "./TranslationContext";
 import { Language, Theme } from "@types";
 import { memo, ReactNode, useEffect } from "react";
@@ -28,8 +28,8 @@ const BaseApp = memo(function BaseApp(props: BaseAppProps) {
     }, [props.usesRainbow]);
 
     return (
-        <ThemeProvider theme={getMuiTheme(props.theme ?? Theme.Green)}>
-            <CssBaseline>
+        <ThemeProvider theme={getMuiTheme(props.theme ?? Theme.Green)} defaultMode="system">
+            <CssBaseline enableColorScheme>
                 {props.isLoading ? (
                     <Box
                         sx={{

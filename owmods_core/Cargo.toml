@@ -12,7 +12,7 @@ repository  = "https://github.com/ow-mods/ow-mod-man/"
 
 [dependencies]
 serde = { version = "1.0.229", features = ["derive"] }
-serde_json = "1.0.151"
+serde_json = "1.0.154"
 opener = "0.9.0"
 directories = "6.0.0"
 reqwest = { version = "0.13.5", default-features = false, features = [
@@ -22,13 +22,13 @@ reqwest = { version = "0.13.5", default-features = false, features = [
 ] }
 glob = "0.3.4"
 anyhow = "1.0.104"
-zip = { version = "8.6.0", default-features = false, features = [
+zip = { version = "9.0.5", default-features = false, features = [
     "deflate",
     "zstd",
 ] }
 futures = "0.3.34"
 log = "0.4.34"
-tokio = { version = "1.53.2", features = [
+tokio = { version = "1.54.0", features = [
     "net",
     "time",
     "process",
@@ -37,11 +37,11 @@ tokio = { version = "1.53.2", features = [
     "io-util",
 ] }
 serde_repr = "0.1.21"
-uuid = { version = "1.27.0", features = ["v4", "fast-rng"] }
+uuid = { version = "1.28.0", features = ["v4", "fast-rng"] }
 typeshare = "1.0.5"
 lazy_static = "1.5.1"
 tempfile = "3.27.0"
-unicode-normalization = "0.1.25"
+unicode-normalization = "0.1.26"
 regex = "1.13.1"
 versions = "8.0.1"
 

@@ -69,7 +69,9 @@ const ModsPage = memo(function ModsPage(props: ModsPageProps) {
                     </Box>
                 </Paper>
             ) : props.uniqueNames.length !== 0 ? (
-                <ModsTable ref={virtuosoRef} {...props} />
+                <Paper sx={{ flexGrow: 1, height: "100%" }}>
+                    <ModsTable ref={virtuosoRef} {...props} />
+                </Paper>
             ) : (
                 <Paper sx={{ flexGrow: 1, height: "100%" }}>
                     <Box

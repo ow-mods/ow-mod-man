@@ -1,4 +1,4 @@
-import { CopyAllRounded, MoreVertRounded } from "@mui/icons-material";
+import { CopyAllRounded, MoreVertRounded, ScienceRounded } from "@mui/icons-material";
 import { Menu, MenuItem, ListItemIcon } from "@mui/material";
 import {
     ReactNode,
@@ -16,7 +16,11 @@ import * as clipboard from "@tauri-apps/plugin-clipboard-manager";
 export interface ModActionOverflowProps {
     tabId: string;
     uniqueName: string;
+    showPrerelease: boolean;
+    prereleaseLabel: string;
     children: ReactNode;
+    onPrerelease: () => void;
+    busy: boolean;
 }
 
 export interface ModActionOverflowItemProps {
@@ -95,6 +99,15 @@ const ModActionOverflow = forwardRef(function ModActionOverflow(
                 }}
             >
                 {props.children}
+                {props.showPrerelease && (
+                    <ModActionOverflowItem
+                        label={props.prereleaseLabel}
+                        icon={<ScienceRounded />}
+                        onClick={props.onPrerelease}
+                        disabled={props.busy ?? false}
+                        onClose={onClose}
+                    />
+                )}
                 <ModActionOverflowItem
                     label={getTranslation("COPY_UNIQUE_NAME")}
                     icon={<CopyAllRounded />}

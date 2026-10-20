@@ -13,8 +13,7 @@ import {
     TableProps,
     TableRow,
     TableRowProps,
-    useMediaQuery,
-    useTheme
+    useMediaQuery
 } from "@mui/material";
 import { forwardRef, ReactNode } from "react";
 import {
@@ -36,7 +35,11 @@ const ScrollerComp = forwardRef<HTMLDivElement, ScrollerProps>(function TScrolle
     return <TableContainer sx={{ flexGrow: 1 }} component={Paper} {...props} ref={ref} />;
 });
 const TableComp = (props: TableProps) => (
-    <Table {...props} style={{ borderCollapse: "separate", tableLayout: "fixed" }} />
+    <Table
+        {...props}
+        stickyHeader={true}
+        style={{ borderCollapse: "separate", tableLayout: "fixed" }}
+    />
 );
 const BodyComp = forwardRef<HTMLTableSectionElement, TableBodyProps>(function TBody(props, ref) {
     return <TableBody {...props} ref={ref} />;
@@ -59,7 +62,6 @@ const ModsTable = forwardRef<TableVirtuosoHandle, ModsTableProps>(function ModsT
 ) {
     const getTranslation = useGetTranslation();
     const guiConfig = hooks.getGuiConfig("guiConfigReload")[1];
-    const theme = useTheme();
 
     const imagesEnabled = !(guiConfig?.hideModThumbnails ?? false);
     const enoughWidth = useMediaQuery("(min-width:800px)", {});
@@ -73,7 +75,7 @@ const ModsTable = forwardRef<TableVirtuosoHandle, ModsTableProps>(function ModsT
             increaseViewportBy={{ top: 200, bottom: 0 }}
             data={props.uniqueNames}
             fixedHeaderContent={() => (
-                <TableRow sx={{ background: theme.palette.grey[900] }}>
+                <TableRow>
                     <>
                         {showImages && (
                             <TableCell width="220px">

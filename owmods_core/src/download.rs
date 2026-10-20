@@ -105,7 +105,10 @@ fn get_manifest_path_from_zip(zip_path: &PathBuf) -> Result<(String, PathBuf)> {
             let name = path.file_name();
             if name == Some(OsStr::new("manifest.json")) {
                 return Ok((
-                    zip_file.name().to_string(),
+                    zip_file
+                        .name()
+                        .context("Error reading zip file")?
+                        .to_string(),
                     zip_file
                         .enclosed_name()
                         .context("Error reading zip file")?

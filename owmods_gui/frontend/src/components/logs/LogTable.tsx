@@ -1,4 +1,4 @@
-import { TableCell, useTheme } from "@mui/material";
+import { TableCell } from "@mui/material";
 import { TableContainer, Paper, Table, TableBody, TableHead, TableRow } from "@mui/material";
 import { forwardRef, memo, useCallback, useMemo, useRef } from "react";
 import {
@@ -17,12 +17,10 @@ const ScrollerComp = forwardRef<HTMLDivElement, ScrollerProps>(function TScrolle
     return <TableContainer component={Paper} {...props} ref={ref} />;
 });
 const TableComp = (props: TableProps) => {
-    const theme = useTheme();
     return (
         <Table
             {...props}
             style={{
-                backgroundColor: theme.palette.grey[900],
                 borderCollapse: "separate",
                 tableLayout: "fixed"
             }}
@@ -48,23 +46,20 @@ export interface LogTableProps {
 
 const LogTable = memo(function LogTable(props: LogTableProps) {
     const getTranslation = useGetTranslation();
-    const theme = useTheme();
 
     const virtuoso = useRef<VirtuosoHandle>(null);
-
-    const grey = theme.palette.grey[900];
 
     const header = useMemo(
         () =>
             function HeaderRow() {
                 return (
-                    <TableRow sx={{ background: grey }}>
+                    <TableRow>
                         <TableCell width="150px">{getTranslation("SENDER")}</TableCell>
                         <TableCell>{getTranslation("LOG_MESSAGE")}</TableCell>
                     </TableRow>
                 );
             },
-        [getTranslation, grey]
+        [getTranslation]
     );
 
     const onRowLoaded = useCallback(() => {

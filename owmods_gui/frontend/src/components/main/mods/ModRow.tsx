@@ -33,11 +33,11 @@ export const formatNumber = (value: number, digits = 1) => {
 
 const getBgColorFromErrorLevel = (theme: Theme, level?: "warn" | "err") => {
     if (level === "warn") {
-        return theme.palette.secondary.dark;
+        return theme.palette.secondary;
     } else if (level === "err") {
-        return theme.palette.error.dark;
+        return theme.palette.error;
     } else {
-        return theme.palette.grey[900];
+        return undefined;
     }
 };
 
@@ -79,7 +79,7 @@ const ModRow = memo(function GenericModRow(props: ModRowProps) {
     const isErr = props.errorLevel === "err";
 
     const cellStyle = {
-        backgroundColor: bgColor,
+        backgroundColor: bgColor?.[theme.palette.mode],
         paddingTop: theme.spacing(1),
         paddingBottom: theme.spacing(1)
     };

@@ -31,8 +31,8 @@ export default defineConfig({
     build: {
         rollupOptions: {
             input: {
-                main: path.resolve(__dirname, "./index.html"),
-                logs: path.resolve(__dirname, "./logs/index.html")
+                main: path.resolve(import.meta.dirname, "./index.html"),
+                logs: path.resolve(import.meta.dirname, "./logs/index.html")
             }
         },
         outDir: "../dist",
@@ -41,13 +41,19 @@ export default defineConfig({
     },
     resolve: {
         alias: [
-            { find: "@components", replacement: path.resolve(__dirname, "./src/components") },
-            { find: "@styles", replacement: path.resolve(__dirname, "./src/styles") },
-            { find: "@assets", replacement: path.resolve(__dirname, "./src/assets") },
-            { find: "@types", replacement: path.resolve(__dirname, "./src/types.d.ts") },
-            { find: "@hooks", replacement: path.resolve(__dirname, "./src/hooks.ts") },
-            { find: "@commands", replacement: path.resolve(__dirname, "./src/commands.ts") },
-            { find: "@events", replacement: path.resolve(__dirname, "./src/events.ts") }
+            {
+                find: "@components",
+                replacement: path.resolve(import.meta.dirname, "./src/components")
+            },
+            { find: "@styles", replacement: path.resolve(import.meta.dirname, "./src/styles") },
+            { find: "@assets", replacement: path.resolve(import.meta.dirname, "./src/assets") },
+            { find: "@types", replacement: path.resolve(import.meta.dirname, "./src/types.d.ts") },
+            { find: "@hooks", replacement: path.resolve(import.meta.dirname, "./src/hooks.ts") },
+            {
+                find: "@commands",
+                replacement: path.resolve(import.meta.dirname, "./src/commands.ts")
+            },
+            { find: "@events", replacement: path.resolve(import.meta.dirname, "./src/events.ts") }
         ]
     }
 });

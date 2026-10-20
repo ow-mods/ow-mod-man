@@ -19,7 +19,6 @@
 
       withOverlays = [inputs.rust-overlay.overlays.default];
 
-      flakelight.builtinFormatters = false;
       formatters = pkgs: let
         prettier = "${pkgs.prettier}/bin/prettier --write .";
         alejandra = "${pkgs.alejandra}/bin/alejandra .";

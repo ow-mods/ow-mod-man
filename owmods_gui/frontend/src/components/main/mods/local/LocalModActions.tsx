@@ -6,7 +6,7 @@ import {
     FolderRounded,
     GitHub
 } from "@mui/icons-material";
-import { Checkbox, useTheme } from "@mui/material";
+import { Checkbox } from "@mui/material";
 import { memo, useRef } from "react";
 import ModActionIcon from "../ModActionIcon";
 import ModActionOverflow, { ModActionOverflowItem } from "../ModActionOverflow";
@@ -19,6 +19,8 @@ export interface LocalModActionsProps {
     enabled: boolean;
     isErr: boolean;
     hasRemote: boolean;
+    showPrerelease: boolean;
+    prereleaseLabel: string;
     canFix: boolean;
     donateLinks?: string[];
     onToggle: (newVal: boolean) => void;
@@ -28,10 +30,10 @@ export interface LocalModActionsProps {
     onGithub: () => void;
     onUninstall: () => void;
     onReinstall: () => void;
+    onPrerelease: () => void;
 }
 
 const LocalModActions = memo(function LocalModTools(props: LocalModActionsProps) {
-    const theme = useTheme();
     const getTranslation = useGetTranslation();
     const guiConfig = hooks.getGuiConfig("guiConfigReload")[1];
     const overflowRef = useRef<{ onClose: () => void }>({
@@ -52,8 +54,7 @@ const LocalModActions = memo(function LocalModTools(props: LocalModActionsProps)
                 <LocalModDonateIcon uniqueName={props.uniqueName} links={props.donateLinks} />
             )}
             <Checkbox
-                sx={{ color: theme.palette.grey[200] }}
-                color={props.isErr || isBusy ? "primary" : "default"}
+                color="default"
                 onChange={(e) => props.onToggle(e.target.checked)}
                 disabled={props.isErr || (isBusy ?? false)}
                 checked={props.enabled}
@@ -73,7 +74,15 @@ const LocalModActions = memo(function LocalModTools(props: LocalModActionsProps)
                     icon={<DescriptionRounded />}
                 />
             )}
-            <ModActionOverflow tabId="local" uniqueName={props.uniqueName} ref={overflowRef}>
+            <ModActionOverflow
+                showPrerelease={props.showPrerelease}
+                prereleaseLabel={props.prereleaseLabel}
+                onPrerelease={props.onPrerelease}
+                tabId="local"
+                uniqueName={props.uniqueName}
+                ref={overflowRef}
+                busy={isBusy ?? false}
+            >
                 {props.canFix && (
                     <ModActionOverflowItem
                         label={getTranslation("OPEN_README")}

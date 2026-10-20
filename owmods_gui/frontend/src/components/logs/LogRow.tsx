@@ -50,7 +50,6 @@ const InnerLogRow = memo(function LogRow(props: LogRowProps) {
     }, [logLine?.message.messageType]);
 
     const cellStyle = {
-        backgroundColor: theme.palette.grey[900],
         paddingTop: theme.spacing(1),
         paddingBottom: theme.spacing(1)
     };

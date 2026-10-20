@@ -6,6 +6,7 @@ import { TranslationNameMap } from "@components/common/TranslationContext";
 import ODTooltip from "@components/common/ODTooltip";
 import * as os from "@tauri-apps/plugin-os";
 import { Box, Button, useTheme } from "@mui/material";
+import { useColorScheme } from "@mui/material/styles";
 import SettingsFolder from "./SettingsFolder";
 import SettingsSelect from "./SettingsSelect";
 import SettingsText from "./SettingsText";
@@ -41,6 +42,7 @@ const SettingsForm = forwardRef(function SettingsForm(props: SettingsFormProps, 
     const [config, setConfig] = useState<Config>(props.initialConfig);
     const [owmlConfig, setOwmlConfig] = useState<OWMLConfig>(props.initialOwmlConfig);
     const [guiConfig, setGuiConfig] = useState<GuiConfig>(props.initialGuiConfig);
+    const { mode, setMode } = useColorScheme();
     const getTranslation = useGetTranslation();
     const theme = useTheme();
 
@@ -111,6 +113,16 @@ const SettingsForm = forwardRef(function SettingsForm(props: SettingsFormProps, 
 
     const colTemplate = `repeat(auto-fit, minmax(${theme.spacing(40)}, 1fr))`;
 
+    if (!mode) {
+        return;
+    }
+
+    const schemeMap = {
+        light: getTranslation("SCHEME_LIGHT"),
+        dark: getTranslation("SCHEME_DARK"),
+        system: getTranslation("SCHEME_SYSTEM")
+    };
+
     return (
         <Box
             sx={{
@@ -143,6 +155,17 @@ const SettingsForm = forwardRef(function SettingsForm(props: SettingsFormProps, 
                     label={getTranslation("THEME")}
                     options={ThemeArr}
                     id="theme"
+                />
+                <SettingsSelect
+                    onChange={(_, v) => {
+                        setMode(v as Parameters<typeof setMode>[0]);
+                    }}
+                    value={mode ?? "system"}
+                    translate={false}
+                    label="Color Scheme"
+                    options={["system", "light", "dark"]}
+                    nameMap={schemeMap}
+                    id="color-scheme"
                 />
             </Box>
             <Box

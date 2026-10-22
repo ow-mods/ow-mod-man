@@ -22,7 +22,7 @@ use owmods_core::{
         local::{LocalMod, UnsafeLocalMod},
         remote::RemoteMod,
     },
-    open::{open_github, open_owml_logs, open_readme, open_shortcut},
+    open::{open_detached, open_github, open_owml_logs, open_readme, open_shortcut},
     owml::OWMLConfig,
     progress::bars::{ProgressBar, ProgressBars},
     protocol::{ProtocolPayload, ProtocolVerb},
@@ -864,7 +864,7 @@ pub async fn export_mods(path: String, state: tauri::State<'_, State>) -> Result
     let file = File::create(&path).map_err(|e| anyhow!("Error Saving File: {:?}", e))?;
     let mut writer = BufWriter::new(file);
     write!(&mut writer, "{output}").map_err(|e| anyhow!("Error Saving File: {:?}", e))?;
-    opener::open(path).ok();
+    open_detached(path).ok();
     Ok(())
 }
 
@@ -1145,6 +1145,6 @@ pub async fn open_mod_github(unique_name: &str, state: tauri::State<'_, State>) 
 #[tauri::command]
 pub async fn show_log_folder() -> Result {
     let path = get_app_path()?;
-    opener::open(path.join("logs")).ok();
+    open_detached(path.join("logs")).ok();
     Ok(())
 }

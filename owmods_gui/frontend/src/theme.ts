@@ -126,7 +126,7 @@ export const getMuiTheme = (selectedTheme: Theme) => {
         ...themeMap[selectedTheme],
         neutral: {
             main: dark ? grey[400] : grey[600],
-            contrastText: "#1c1c1c"
+            contrastText: dark ? "#1c1c1c" : grey[100]
         },
         error: {
             main: red[500],

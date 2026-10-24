@@ -15,6 +15,7 @@ use owmods_core::{
     config::Config,
     db::{LocalDatabase, RemoteDatabase},
     file::get_app_path,
+    open::open_detached,
     progress::bars::ProgressBars,
     protocol::ProtocolPayload,
 };
@@ -341,7 +342,7 @@ fn main() -> Result<(), Box<dyn Error>> {
             format!("The manager encountered a fatal error when starting: {why:?}").as_bytes(),
         )?;
         drop(file);
-        opener::open(&log_path)?;
+        open_detached(&log_path)?;
         std::process::exit(1);
     }
 

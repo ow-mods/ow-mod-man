@@ -25,7 +25,6 @@ notify = { version = "8.2.0", default-features = false, features = [
 ] }
 regex = "1.13.1"
 time = { version = "0.3.55", features = ["macros", "local-offset"] }
-opener = "0.9.0"
 tauri-plugin-deep-link = "=2.6.1" # Pinned because of https://github.com/tauri-apps/plugins-workspace/issues/3710
 tauri-plugin-single-instance = { version = "2.5.3", features = ["deep-link"] }
 tauri-plugin-dialog = "2.8.3"

@@ -2,7 +2,7 @@ import { useGetTranslation } from "@hooks";
 import ODTooltip from "@components/common/ODTooltip";
 import { Box, Chip, Skeleton, TableCell, Theme, Typography, useTheme } from "@mui/material";
 import { memo, ReactNode, useMemo } from "react";
-import { ExtensionRounded } from "@mui/icons-material";
+import { ExtensionRounded, ArrowDownward } from "@mui/icons-material";
 import ModThumbnail from "./ModThumbnail";
 
 // Stolen from mods website, Rai will never catch me!
@@ -210,11 +210,14 @@ const ModRow = memo(function GenericModRow(props: ModRowProps) {
                 </Box>
             </TableCell>
             <TableCell sx={cellStyle} align="left">
-                {props.isLoading || props.remoteIsLoading ? (
-                    <Skeleton width={70} />
-                ) : (
-                    formattedDownloads
-                )}
+                <Box sx={{ display: "flex", alignItems: "center" }}>
+                    <ArrowDownward sx={{ fontSize: 12 }} color="disabled" />
+                    {props.isLoading || props.remoteIsLoading ? (
+                        <Skeleton width={70} />
+                    ) : (
+                        formattedDownloads
+                    )}
+                </Box>
             </TableCell>
             <TableCell sx={cellStyle} align="center">
                 <Chip

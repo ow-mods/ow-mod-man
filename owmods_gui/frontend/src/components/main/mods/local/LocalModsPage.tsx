@@ -35,7 +35,7 @@ const LocalModsPage = memo(
         const renderRow = useCallback(
             (uniqueName: string, showThumbnail: boolean) => {
                 return uniqueName === "~~SEPARATOR~~" ? (
-                    <TableCell colSpan={showThumbnail ? 5 : 4}>
+                    <TableCell colSpan={showThumbnail ? 3 : 2}>
                         <Typography>{getTranslation("DISABLED_MODS")}</Typography>
                     </TableCell>
                 ) : (

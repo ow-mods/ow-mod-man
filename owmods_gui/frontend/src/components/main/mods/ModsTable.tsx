@@ -37,15 +37,10 @@ const TableComp = ({ children, context, ...props }: TableProps & { context: Tabl
     const { showImages, actionsSize } = context;
 
     return (
-        <Table
-            {...props}
-            style={{ borderCollapse: "separate", tableLayout: "fixed" }}
-        >
+        <Table {...props} style={{ borderCollapse: "separate", tableLayout: "fixed" }}>
             <colgroup>
                 {showImages && <col style={{ width: 220 }} />}
                 <col />
-                <col style={{ width: 70 }} />
-                <col style={{ width: 110 }} />
                 <col style={{ width: actionsSize }} />
             </colgroup>
             {children}

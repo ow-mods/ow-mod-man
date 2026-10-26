@@ -253,6 +253,7 @@ const LocalModRow = memo(function LocalModRow(props: LocalModRowProps) {
             author={author}
             version={version}
             showThumbnail={props.showThumbnail}
+            showStatusIcon
             requiresDlc={remote?.tags?.includes("requires-dlc") ?? false}
             isOutdated={outdated}
             isLoading={status1 === "Loading" && local === null}

@@ -49,6 +49,7 @@ const UpdateModRow = memo(function UpdateModRow(props: UpdateModRowProps) {
             version={version}
             thumbnailUrl={remote?.thumbnail?.openGraph ?? remote?.thumbnail.main}
             showThumbnail={props.showThumbnail}
+            showStatusIcon
             isOutdated={outdated || props.uniqueName === "Alek.OWML"}
             isLoading={status1 === "Loading" && local === null}
             remoteIsLoading={(remoteOpt?.type ?? "loading") === "loading"}

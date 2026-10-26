@@ -1,9 +1,17 @@
 import { useGetTranslation } from "@hooks";
-import ODTooltip from "@components/common/ODTooltip";
-import { Box, Chip, Skeleton, TableCell, Theme, Typography, useTheme } from "@mui/material";
+import { Box, Paper, Skeleton, TableCell, Theme, Typography, useTheme } from "@mui/material";
 import { memo, ReactNode, useMemo } from "react";
-import { ExtensionRounded, ArrowDownward } from "@mui/icons-material";
+import {
+    ExtensionRounded,
+    Download,
+    Person,
+    Label,
+    Warning,
+    Error,
+    CheckCircle
+} from "@mui/icons-material";
 import ModThumbnail from "./ModThumbnail";
+import ModDetailItem from "./ModDetailItem";
 
 // Stolen from mods website, Rai will never catch me!
 const magnitudeMap = [
@@ -31,16 +39,6 @@ export const formatNumber = (value: number, digits = 1) => {
         : "0";
 };
 
-const getBgColorFromErrorLevel = (theme: Theme, level?: "warn" | "err") => {
-    if (level === "warn") {
-        return theme.palette.secondary;
-    } else if (level === "err") {
-        return theme.palette.error;
-    } else {
-        return undefined;
-    }
-};
-
 export interface OverflowMenuItem {
     icon: ReactNode;
     label: string;
@@ -55,6 +53,7 @@ export interface ModRowProps {
     downloads: number;
     version: string;
     showThumbnail: boolean;
+    showStatusIcon: boolean;
     slug?: string;
     alignActions?: "center" | "start" | "end";
     thumbnailUrl?: string;
@@ -71,15 +70,9 @@ const ModRow = memo(function GenericModRow(props: ModRowProps) {
     const getTranslation = useGetTranslation();
     const theme = useTheme();
 
-    const bgColor = useMemo(
-        () => getBgColorFromErrorLevel(theme, props.errorLevel),
-        [theme, props.errorLevel]
-    );
-
     const isErr = props.errorLevel === "err";
 
     const cellStyle = {
-        backgroundColor: bgColor?.[theme.palette.mode],
         paddingTop: theme.spacing(1),
         paddingBottom: theme.spacing(1)
     };
@@ -112,135 +105,101 @@ const ModRow = memo(function GenericModRow(props: ModRowProps) {
                 </TableCell>
             )}
             <TableCell sx={cellStyle}>
-                <Typography
-                    variant="subtitle1"
+                <Box
                     sx={{
                         display: "flex",
                         alignItems: "center",
                         maxWidth: "100%",
                         whiteSpace: "nowrap",
-                        overflow: "hidden"
+                        overflow: "hidden",
+                        gap: 1
                     }}
                 >
-                    {props.requiresDlc && (
-                        <Box
-                            sx={{
-                                display: "inline-block",
-                                mr: 0.5
-                            }}
-                        >
-                            <ODTooltip title={getTranslation("REQUIRES_DLC")}>
-                                <Typography>
-                                    <ExtensionRounded
-                                        sx={{
-                                            fontSize: "1.2rem"
-                                        }}
-                                    />
-                                </Typography>
-                            </ODTooltip>
-                        </Box>
-                    )}
-                    <Box
-                        sx={{
-                            overflow: "hidden",
-                            display: "inline-block",
-                            mr: 1
-                        }}
-                    >
-                        <Typography
-                            noWrap
-                            sx={{
-                                display: "block",
-                                fontWeight: theme.typography.fontWeightBold
-                            }}
-                        >
-                            {props.isLoading ? <Skeleton width={300} /> : props.name}
-                        </Typography>
-                    </Box>
-                    <Box
-                        sx={{
-                            flexShrink: 1,
-                            flexBasis: 0,
-                            flexGrow: 1,
-                            maxWidth: "min-content",
-                            overflow: "hidden",
-                            display: "inline-block",
-                            mr: 1
-                        }}
-                    >
-                        <Typography
-                            noWrap
-                            variant="caption"
-                            color={theme.palette.text.disabled}
-                            sx={{
-                                overflow: "hidden",
-                                display: "block"
-                            }}
-                        >
-                            {props.isLoading ? (
-                                <></>
-                            ) : (
-                                getTranslation("BY", {
-                                    author: props.author
-                                })
-                            )}
-                        </Typography>
-                    </Box>
-                </Typography>
-                <Box>
-                    <Typography
-                        color={isErr ? theme.palette.secondary.light : theme.palette.text.secondary}
-                        variant="caption"
-                    >
-                        {props.isLoading || props.remoteIsLoading ? (
-                            <>
-                                <Skeleton width={350} />
-                                <Skeleton width={275} />
-                            </>
-                        ) : props.errorLevel ? (
-                            <ul>
-                                {errorList.map((e) => (
-                                    <li key={e}>{e}</li>
-                                ))}
-                            </ul>
+                    {props.showStatusIcon &&
+                        (isErr ? (
+                            <Error color="error" />
+                        ) : props.isOutdated || props.errorLevel ? (
+                            <Warning color="warning" />
                         ) : (
-                            props.description
-                        )}
+                            <CheckCircle color="success" />
+                        ))}
+                    <Typography
+                        noWrap
+                        sx={{
+                            display: "block",
+                            fontWeight: theme.typography.fontWeightBold
+                        }}
+                    >
+                        {props.isLoading ? <Skeleton width={300} /> : props.name}
                     </Typography>
                 </Box>
-            </TableCell>
-            <TableCell sx={cellStyle} align="left">
-                <Box sx={{ display: "flex", alignItems: "center" }}>
-                    <ArrowDownward sx={{ fontSize: 12 }} color="disabled" />
+                {props.isLoading || props.remoteIsLoading ? (
+                    <Skeleton width={45} />
+                ) : (
+                    <Typography noWrap variant="caption" color="textDisabled">
+                        <Box
+                            sx={{
+                                display: "flex",
+                                alignItems: "center",
+                                columnGap: 1,
+                                flexWrap: "wrap"
+                            }}
+                        >
+                            <ModDetailItem icon={<Label fontSize="inherit" />}>
+                                {props.version}
+                            </ModDetailItem>
+                            <ModDetailItem icon={<Person fontSize="inherit" />}>
+                                {props.author}
+                            </ModDetailItem>
+                            {props.requiresDlc && (
+                                <ModDetailItem icon={<ExtensionRounded fontSize="inherit" />}>
+                                    {getTranslation("REQUIRES_DLC")}
+                                </ModDetailItem>
+                            )}
+                            <ModDetailItem icon={<Download fontSize="inherit" />}>
+                                {formattedDownloads}
+                            </ModDetailItem>
+                        </Box>
+                    </Typography>
+                )}
+                <Typography variant="caption" sx={{ lineHeight: 1 }}>
                     {props.isLoading || props.remoteIsLoading ? (
-                        <Skeleton width={70} />
+                        <>
+                            <Skeleton width={350} />
+                            <Skeleton width={275} />
+                        </>
+                    ) : props.errorLevel ? (
+                        <Paper
+                            sx={{
+                                bgcolor:
+                                    theme.palette[isErr ? "error" : "warning"][theme.palette.mode],
+                                color: theme.palette.getContrastText(
+                                    theme.palette[isErr ? "error" : "warning"][theme.palette.mode]
+                                ),
+                                padding: 1,
+                                display: "flex",
+                                flexDirection: "column",
+                                gap: 1
+                            }}
+                        >
+                            {errorList.map((e) => (
+                                <Box
+                                    sx={{
+                                        display: "flex",
+                                        alignItems: "center",
+                                        gap: 0.5
+                                    }}
+                                    key={e}
+                                >
+                                    <Warning fontSize="inherit" />
+                                    {e}
+                                </Box>
+                            ))}
+                        </Paper>
                     ) : (
-                        formattedDownloads
+                        props.description
                     )}
-                </Box>
-            </TableCell>
-            <TableCell sx={cellStyle} align="center">
-                <Chip
-                    color={isErr ? "default" : props.isOutdated ? "secondary" : "primary"}
-                    sx={{
-                        width: "100%",
-                        minHeight: "100%",
-                        padding: theme.spacing(2.5),
-                        paddingLeft: 0,
-                        paddingRight: 0,
-                        "& span": {
-                            paddingLeft: 0,
-                            paddingRight: 0
-                        }
-                    }}
-                    label={
-                        <span>
-                            {props.version}
-                            <br />
-                            {props.isOutdated && getTranslation("OUTDATED")}
-                        </span>
-                    }
-                />
+                </Typography>
             </TableCell>
             <TableCell sx={cellStyle} align="right">
                 <Box

@@ -20,7 +20,6 @@ import {
 
 export interface ModsTableProps {
     uniqueNames: string[];
-    actionsSize: number;
     renderRow: (uniqueName: string, hideModThumbnails: boolean) => ReactNode;
 }
 
@@ -30,18 +29,16 @@ const ScrollerComp = forwardRef<HTMLDivElement, ScrollerProps>(function TScrolle
 
 interface TableColumns {
     showImages: boolean;
-    actionsSize: number;
 }
 
 const TableComp = ({ children, context, ...props }: TableProps & { context: TableColumns }) => {
-    const { showImages, actionsSize } = context;
+    const { showImages } = context;
 
     return (
         <Table {...props} style={{ borderCollapse: "separate", tableLayout: "fixed" }}>
             <colgroup>
                 {showImages && <col style={{ width: 220 }} />}
                 <col />
-                <col style={{ width: actionsSize }} />
             </colgroup>
             {children}
         </Table>
@@ -74,7 +71,7 @@ const ModsTable = forwardRef<TableVirtuosoHandle, ModsTableProps>(function ModsT
     return (
         <TableVirtuoso
             ref={ref}
-            context={{ showImages, actionsSize: props.actionsSize }}
+            context={{ showImages }}
             components={ModsTableComponents as TableComponents<string, unknown>}
             computeItemKey={(index) => `${index}-${props.uniqueNames[index]}`}
             increaseViewportBy={{ top: 200, bottom: 0 }}

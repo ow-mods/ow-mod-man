@@ -3,7 +3,7 @@ import { memo, ReactNode } from "react";
 
 export interface ModDetailItemProps {
     icon: ReactNode;
-    children?: ReactNode;
+    children: ReactNode;
 }
 
 const ModDetailItem = memo(function ModDetailItem(props: ModDetailItemProps) {

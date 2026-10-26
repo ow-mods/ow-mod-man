@@ -80,7 +80,6 @@ const RemoteModRow = memo(function RemoteModRow(props: RemoteModRowProps) {
             version={remote?.version ?? "0.0.0"}
             thumbnailUrl={remote?.thumbnail?.openGraph ?? remote?.thumbnail.main}
             showThumbnail={props.showThumbnail}
-            showStatusIcon={false}
         >
             <RemoteModActions
                 uniqueName={props.uniqueName}

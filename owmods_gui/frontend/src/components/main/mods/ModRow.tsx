@@ -1,15 +1,7 @@
 import { useGetTranslation } from "@hooks";
 import { Box, Paper, Skeleton, TableCell, Typography, useTheme } from "@mui/material";
 import { memo, ReactNode, useMemo } from "react";
-import {
-    ExtensionRounded,
-    Download,
-    Person,
-    Label,
-    Warning,
-    Error,
-    CheckCircle
-} from "@mui/icons-material";
+import { ExtensionRounded, Download, Person, Label, Warning, Error } from "@mui/icons-material";
 import ModThumbnail from "./ModThumbnail";
 import ModDetailItem from "./ModDetailItem";
 
@@ -53,7 +45,6 @@ export interface ModRowProps {
     downloads: number;
     version: string;
     showThumbnail: boolean;
-    showStatusIcon: boolean;
     slug?: string;
     alignActions?: "center" | "start" | "end";
     thumbnailUrl?: string;
@@ -113,13 +104,7 @@ const ModRow = memo(function GenericModRow(props: ModRowProps) {
                         gap: 1
                     }}
                 >
-                    <Box
-                        sx={
-                            {
-                                // flex: 1
-                            }
-                        }
-                    >
+                    <Box>
                         <Box
                             sx={{
                                 display: "flex",
@@ -130,14 +115,13 @@ const ModRow = memo(function GenericModRow(props: ModRowProps) {
                                 gap: 1
                             }}
                         >
-                            {props.showStatusIcon &&
-                                (isErr ? (
-                                    <Error color="error" />
-                                ) : props.isOutdated || props.errorLevel ? (
+                            {isErr ? (
+                                <Error color="error" />
+                            ) : (
+                                (props.isOutdated || props.errorLevel) && (
                                     <Warning color="warning" />
-                                ) : (
-                                    <CheckCircle color="success" />
-                                ))}
+                                )
+                            )}
                             <Typography
                                 noWrap
                                 sx={{

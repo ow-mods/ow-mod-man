@@ -1,8 +1,8 @@
-import { Paper, Toolbar } from "@mui/material";
+import { Box, Stack, Toolbar } from "@mui/material";
 import FilterInput from "@components/common/FilterInput";
 import { ReactNode, memo } from "react";
 import { useGetTranslation } from "@hooks";
-import ModsTagsChips from "./ModsTagChips";
+import ModsTagsFilter from "./ModsTagsFilter";
 
 export interface ModsToolbarProps {
     filter: string;
@@ -17,30 +17,33 @@ const ModsToolbar = memo(function GenericModsToolbar(props: ModsToolbarProps) {
     const getTranslation = useGetTranslation();
 
     return (
-        <Paper sx={{ padding: 1, display: "flex", flexDirection: "column", gap: 1 }}>
+        <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
             <Toolbar
                 disableGutters
                 variant="dense"
                 sx={{
                     justifyContent: "space-between",
-                    minHeight: 0
+                    minHeight: 0,
+                    gap: 1
                 }}
             >
-                <FilterInput
-                    value={props.filter}
-                    onChange={props.onFilterChanged}
-                    label={getTranslation("SEARCH")}
-                />
+                <Stack direction="row" sx={{ gap: 1, alignItems: "center", minWidth: 0 }}>
+                    <FilterInput
+                        value={props.filter}
+                        onChange={props.onFilterChanged}
+                        label={getTranslation("SEARCH")}
+                    />
+                    {props.selectedTags && props.onSelectedTagsChanged && (
+                        <ModsTagsFilter
+                            selectedTags={props.selectedTags}
+                            hideTags={props.hideTags}
+                            onTagsChanged={props.onSelectedTagsChanged}
+                        />
+                    )}
+                </Stack>
                 {props.children}
             </Toolbar>
-            {props.selectedTags && props.onSelectedTagsChanged && (
-                <ModsTagsChips
-                    selectedTags={props.selectedTags}
-                    hideTags={props.hideTags}
-                    onTagsChanged={props.onSelectedTagsChanged}
-                />
-            )}
-        </Paper>
+        </Box>
     );
 });
 

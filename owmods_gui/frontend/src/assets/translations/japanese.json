@@ -114,6 +114,8 @@
     "RAINBOW": "レインボーモード(てんかん注意)",
     "REFRESH": "再読み込み",
     "REINSTALL": "再インストール",
+    "RECOMMENDED": "おすすめ",
+    "RECOMMENDED_BECAUSE": "$mods$を使用しているため",
     "RESET": "リセット",
     "REQUIRES_DLC": "DLCが必要です",
     "RUN_GAME": "ゲームを起動",

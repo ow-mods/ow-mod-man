@@ -116,6 +116,8 @@
     "RAINBOW": "Rainbow Mode (Epilepsy Warning)",
     "REFRESH": "Refresh",
     "REINSTALL": "Reinstall",
+    "RECOMMENDED": "Recommended",
+    "RECOMMENDED_BECAUSE": "Because you use $mods$",
     "RESET": "Reset",
     "REQUIRES_DLC": "Requires DLC",
     "RUN_GAME": "Run Game",

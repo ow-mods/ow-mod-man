@@ -270,6 +270,7 @@ fn main() -> Result<(), Box<dyn Error>> {
             initial_setup,
             refresh_local_db,
             get_local_mods,
+            get_recommended_mods,
             get_local_mod,
             refresh_remote_db,
             get_remote_mods,

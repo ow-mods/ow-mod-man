@@ -383,6 +383,14 @@ export interface ProtocolPayload {
     payload: string;
 }
 
+/** Represents a mod recommended by an installed and enabled mod */
+export interface RecommendedMod {
+    /** The unique name of the recommended mod */
+    uniqueName: string;
+    /** The names of the installed and enabled mods that recommend this mod */
+    recommendedBy: string[];
+}
+
 /** Represents a mod in the remote database */
 export interface RemoteMod {
     /** The URL to download the mod from, always GitHub */
@@ -419,6 +427,8 @@ export interface RemoteMod {
     alpha?: boolean;
     /** The tags for the mod, these are manually set in the database */
     tags?: string[];
+    /** The unique names of mods recommended by this mod, manually set in the database */
+    recommendedMods?: string[];
 }
 
 export type Event =

@@ -1,66 +1,49 @@
 import { hooks } from "@commands";
-import ODTooltip from "@components/common/ODTooltip";
-import { useGetTranslation } from "@hooks";
-import { DownloadRounded as DownloadsIcon, ImageRounded } from "@mui/icons-material";
-import {
-    Box,
-    Paper,
-    Table,
-    TableBody,
-    TableCell,
-    TableContainer,
-    TableHead,
-    TableProps,
-    TableRow,
-    TableRowProps,
-    useMediaQuery
-} from "@mui/material";
+import { Paper, Table, TableBody, TableContainer, TableRow, useMediaQuery } from "@mui/material";
 import { forwardRef, ReactNode } from "react";
 import {
     ScrollerProps,
-    TableBodyProps,
     TableComponents,
+    TableProps,
     TableVirtuoso,
     TableVirtuosoHandle
 } from "react-virtuoso";
 
 export interface ModsTableProps {
     uniqueNames: string[];
-    actionsSize: number;
     renderRow: (uniqueName: string, hideModThumbnails: boolean) => ReactNode;
-    addToToolbar?: ReactNode;
 }
 
 const ScrollerComp = forwardRef<HTMLDivElement, ScrollerProps>(function TScroller(props, ref) {
     return <TableContainer sx={{ flexGrow: 1 }} component={Paper} {...props} ref={ref} />;
 });
-const TableComp = (props: TableProps) => (
-    <Table
-        {...props}
-        stickyHeader={true}
-        style={{ borderCollapse: "separate", tableLayout: "fixed" }}
-    />
+
+interface TableColumns {
+    showImages: boolean;
+}
+
+const TableComp = ({ children, context, style }: TableProps & { context: TableColumns }) => (
+    <Table style={{ borderCollapse: "separate", tableLayout: "fixed", ...style }}>
+        {context.showImages && (
+            <colgroup>
+                <col style={{ width: 220 }} />
+            </colgroup>
+        )}
+        {children}
+    </Table>
 );
-const BodyComp = forwardRef<HTMLTableSectionElement, TableBodyProps>(function TBody(props, ref) {
-    return <TableBody {...props} ref={ref} />;
-});
-const RowComp = forwardRef<HTMLTableRowElement, TableRowProps>(function TRow(props, ref) {
-    return <TableRow {...props} ref={ref} />;
-});
 
 const ModsTableComponents = {
     Scroller: ScrollerComp,
     Table: TableComp,
-    TableHead: TableHead,
-    TableRow: RowComp,
-    TableBody: BodyComp
+    TableRow,
+    TableBody
 };
 
 const ModsTable = forwardRef<TableVirtuosoHandle, ModsTableProps>(function ModsTable(
     props: ModsTableProps,
     ref
 ) {
-    const getTranslation = useGetTranslation();
     const guiConfig = hooks.getGuiConfig("guiConfigReload")[1];
 
     const imagesEnabled = !(guiConfig?.hideModThumbnails ?? false);
@@ -70,47 +53,11 @@ const ModsTable = forwardRef<TableVirtuosoHandle, ModsTableProps>(function ModsT
     return (
         <TableVirtuoso
             ref={ref}
+            context={{ showImages }}
             components={ModsTableComponents as TableComponents<string, unknown>}
             computeItemKey={(index) => `${index}-${props.uniqueNames[index]}`}
             increaseViewportBy={{ top: 200, bottom: 0 }}
             data={props.uniqueNames}
-            fixedHeaderContent={() => (
-                <TableRow>
-                    <>
-                        {showImages && (
-                            <TableCell width="220px">
-                                <Box
-                                    sx={{
-                                        display: "flex",
-                                        alignItems: "center"
-                                    }}
-                                >
-                                    <ImageRounded />
-                                </Box>
-                            </TableCell>
-                        )}
-                        <TableCell>{getTranslation("NAME")}</TableCell>
-                        <TableCell width="50px" align="right">
-                            <ODTooltip title={getTranslation("DOWNLOAD_COUNT")}>
-                                <Box
-                                    sx={{
-                                        display: "flex",
-                                        alignItems: "center"
-                                    }}
-                                >
-                                    <DownloadsIcon />
-                                </Box>
-                            </ODTooltip>
-                        </TableCell>
-                        <TableCell width="110px" align="center">
-                            {getTranslation("VERSION")}
-                        </TableCell>
-                        <TableCell width={props.actionsSize} align="center">
-                            {getTranslation("ACTIONS")}
-                        </TableCell>
-                    </>
-                </TableRow>
-            )}
             itemContent={(_, uniqueName) => props.renderRow(uniqueName, showImages)}
         />
     );

@@ -1,19 +1,10 @@
 import { hooks } from "@commands";
-import {
-    Paper,
-    Table,
-    TableBody,
-    TableContainer,
-    TableProps,
-    TableRow,
-    TableRowProps,
-    useMediaQuery
-} from "@mui/material";
+import { Paper, Table, TableBody, TableContainer, TableRow, useMediaQuery } from "@mui/material";
 import { forwardRef, ReactNode } from "react";
 import {
     ScrollerProps,
-    TableBodyProps,
     TableComponents,
+    TableProps,
     TableVirtuoso,
     TableVirtuosoHandle
 } from "react-virtuoso";
@@ -31,31 +22,22 @@ interface TableColumns {
     showImages: boolean;
 }
 
-const TableComp = ({ children, context, ...props }: TableProps & { context: TableColumns }) => {
-    const { showImages } = context;
-
-    return (
-        <Table {...props} style={{ borderCollapse: "separate", tableLayout: "fixed" }}>
+const TableComp = ({ children, context, style }: TableProps & { context: TableColumns }) => (
+    <Table style={{ borderCollapse: "separate", tableLayout: "fixed", ...style }}>
+        {context.showImages && (
             <colgroup>
-                {showImages && <col style={{ width: 220 }} />}
-                <col />
+                <col style={{ width: 220 }} />
             </colgroup>
-            {children}
-        </Table>
-    );
-};
-const BodyComp = forwardRef<HTMLTableSectionElement, TableBodyProps>(function TBody(props, ref) {
-    return <TableBody {...props} ref={ref} />;
-});
-const RowComp = forwardRef<HTMLTableRowElement, TableRowProps>(function TRow(props, ref) {
-    return <TableRow {...props} ref={ref} />;
-});
+        )}
+        {children}
+    </Table>
+);
 
 const ModsTableComponents = {
     Scroller: ScrollerComp,
     Table: TableComp,
-    TableRow: RowComp,
-    TableBody: BodyComp
+    TableRow,
+    TableBody
 };
 
 const ModsTable = forwardRef<TableVirtuosoHandle, ModsTableProps>(function ModsTable(

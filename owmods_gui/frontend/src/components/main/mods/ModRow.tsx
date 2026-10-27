@@ -114,11 +114,10 @@ const ModRow = memo(function GenericModRow(props: ModRowProps) {
                     }}
                 >
                     <Box
-                        sx={
-                            {
-                                // flex: 1
-                            }
-                        }
+                        sx={{
+                            flex: 1,
+                            minWidth: 0
+                        }}
                     >
                         <Box
                             sx={{
@@ -156,14 +155,13 @@ const ModRow = memo(function GenericModRow(props: ModRowProps) {
                                     sx={{
                                         display: "flex",
                                         alignItems: "center",
-                                        columnGap: 1,
-                                        flexWrap: "wrap"
+                                        columnGap: 1
                                     }}
                                 >
-                                    <ModDetailItem icon={<Label fontSize="inherit" />}>
+                                    <ModDetailItem icon={<Label fontSize="inherit" />} truncate>
                                         {props.version}
                                     </ModDetailItem>
-                                    <ModDetailItem icon={<Person fontSize="inherit" />}>
+                                    <ModDetailItem icon={<Person fontSize="inherit" />} truncate>
                                         {props.author}
                                     </ModDetailItem>
                                     {props.requiresDlc && (

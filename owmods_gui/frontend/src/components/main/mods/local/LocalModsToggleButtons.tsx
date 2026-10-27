@@ -11,7 +11,7 @@ const LocalModsToggleButtons = memo(function LocalModsToolbar(props: LocalModsTo
     const getTranslation = useGetTranslation();
 
     return (
-        <ButtonGroup>
+        <ButtonGroup size="small">
             <Button
                 color="neutral"
                 startIcon={<DoneAllRounded />}

@@ -114,6 +114,8 @@
     "RAINBOW": "彩虹模式（癫痫警告）",
     "REINSTALL": "重新安装",
     "REFRESH": "刷新",
+    "RECOMMENDED": "推荐",
+    "RECOMMENDED_BECAUSE": "因为您使用了 $mods$",
     "RESET": "重置",
     "REQUIRES_DLC": "需要DLC",
     "RUN_GAME": "运行游戏",

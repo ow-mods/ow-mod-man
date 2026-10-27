@@ -114,6 +114,8 @@
     "RAINBOW": "Mode arc-en-ciel (Avertissement épilepsie)",
     "REFRESH": "Rafraîchir",
     "REINSTALL": "Réinstaller",
+    "RECOMMENDED": "Recommandé",
+    "RECOMMENDED_BECAUSE": "Parce que vous utilisez $mods$",
     "RESET": "Réinitialiser",
     "REQUIRES_DLC": "Nécessite le DLC",
     "RUN_GAME": "Démarrer le jeu",

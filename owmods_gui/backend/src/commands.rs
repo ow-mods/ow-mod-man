@@ -1,4 +1,5 @@
 use std::{
+    collections::HashMap,
     fs::File,
     io::{BufWriter, Write},
     path::PathBuf,
@@ -170,6 +171,58 @@ pub async fn get_local_mods(
     }
 
     Ok(unique_names)
+}
+
+#[typeshare]
+#[derive(Debug, Serialize, Clone)]
+#[serde(rename_all = "camelCase")]
+pub struct RecommendedMod {
+    /// The unique name of the recommended mod
+    pub unique_name: String,
+    /// The names of the installed and enabled mods that recommend this mod
+    pub recommended_by: Vec<String>,
+}
+
+#[tauri::command]
+pub async fn get_recommended_mods(state: tauri::State<'_, State>) -> Result<Vec<RecommendedMod>> {
+    let local_db = state.local_db.read().await.clone();
+    let remote_db_opt = state.remote_db.read().await.clone();
+    let Some(remote_db) = remote_db_opt.get() else {
+        return Ok(vec![]);
+    };
+
+    let mut recommended: HashMap<String, Vec<String>> = HashMap::new();
+    for local_mod in local_db.active() {
+        let Some(remote_mod) = remote_db.get_mod(&local_mod.manifest.unique_name) else {
+            continue;
+        };
+        let Some(recommended_mods) = remote_mod.recommended_mods.as_ref() else {
+            continue;
+        };
+        for unique_name in recommended_mods {
+            if unique_name == OWML_UNIQUE_NAME
+                || local_db.get_mod_unsafe(unique_name).is_some()
+                || remote_db.get_mod(unique_name).is_none()
+            {
+                continue;
+            }
+            let recommended_by = recommended.entry(unique_name.clone()).or_default();
+            if !recommended_by.contains(&local_mod.manifest.name) {
+                recommended_by.push(local_mod.manifest.name.clone());
+            }
+        }
+    }
+
+    Ok(recommended
+        .into_iter()
+        .map(|(unique_name, mut recommended_by)| {
+            recommended_by.sort();
+            RecommendedMod {
+                unique_name,
+                recommended_by,
+            }
+        })
+        .collect())
 }
 
 #[tauri::command]

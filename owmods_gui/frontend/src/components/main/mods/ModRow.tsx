@@ -5,6 +5,7 @@ import { ExtensionRounded, Download, Person, Label, Warning, Error } from "@mui/
 import ModThumbnail from "./ModThumbnail";
 import ModDetailItem from "./ModDetailItem";
 import ModDescription from "./ModDescription";
+import RecommendedModBadge from "./RecommendedModBadge";
 
 // Stolen from mods website, Rai will never catch me!
 const magnitudeMap = [
@@ -51,6 +52,7 @@ export interface ModRowProps {
     thumbnailUrl?: string;
     thumbnailClasses?: string;
     description?: string;
+    recommendedBy?: string[];
     remoteIsLoading?: boolean;
     children?: ReactNode;
     requiresDlc?: boolean;
@@ -133,11 +135,15 @@ const ModRow = memo(function GenericModRow(props: ModRowProps) {
                                 noWrap
                                 sx={{
                                     display: "block",
+                                    minWidth: 0,
                                     fontWeight: theme.typography.fontWeightBold
                                 }}
                             >
                                 {props.isLoading ? <Skeleton width={300} /> : props.name}
                             </Typography>
+                            {props.recommendedBy && props.recommendedBy.length > 0 && (
+                                <RecommendedModBadge recommendedBy={props.recommendedBy} />
+                            )}
                         </Box>
                         <Typography noWrap variant="caption" color="textDisabled">
                             {props.isLoading || props.remoteIsLoading ? (

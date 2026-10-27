@@ -43,6 +43,7 @@ const RemoteModsPage = memo(
         const modsWebsiteButton = useMemo(
             () => (
                 <Button
+                    size="small"
                     color="neutral"
                     onClick={() => shell.open("https://outerwildsmods.com/mods")}
                     startIcon={<PublicRounded />}
@@ -55,7 +56,6 @@ const RemoteModsPage = memo(
 
         return (
             <ModsPage
-                actionsSize={100}
                 noModsText={getTranslation("NO_REMOTE_MODS")}
                 isLoading={
                     (status === "Loading" && remoteMods === null) || remoteMods === undefined

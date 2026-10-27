@@ -19,8 +19,6 @@ const LocalModsPage = memo(
             commands.refreshLocalDb();
         }, []);
 
-        const guiConfig = hooks.getGuiConfig("guiConfigReload")[1];
-
         const getTranslation = useGetTranslation();
 
         const [status, localMods] = hooks.getLocalMods("localRefresh", {
@@ -35,7 +33,7 @@ const LocalModsPage = memo(
         const renderRow = useCallback(
             (uniqueName: string, showThumbnail: boolean) => {
                 return uniqueName === "~~SEPARATOR~~" ? (
-                    <TableCell colSpan={showThumbnail ? 5 : 4}>
+                    <TableCell colSpan={showThumbnail ? 3 : 2}>
                         <Typography>{getTranslation("DISABLED_MODS")}</Typography>
                     </TableCell>
                 ) : (
@@ -53,7 +51,6 @@ const LocalModsPage = memo(
         return (
             <ModsPage
                 isLoading={status === "Loading" && localMods === null}
-                actionsSize={guiConfig?.hideDonate ? 130 : 170}
                 noModsText={getTranslation("NO_MODS")}
                 filter={props.filter}
                 onFilterChange={props.onFilterChanged}

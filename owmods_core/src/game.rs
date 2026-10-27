@@ -139,10 +139,24 @@ fn get_default_mono_binary() -> String {
 }
 
 #[cfg(unix)]
+fn get_bundled_mono_binary() -> Option<PathBuf> {
+    let exe = std::env::current_exe().ok()?;
+    let exe_dir = exe.parent()?;
+    let mut candidates = vec![exe_dir.join("../lib/owmods/mono/mono")];
+
+    if let Some(app_dir) = std::env::var_os("APPDIR") {
+        candidates.push(PathBuf::from(app_dir).join("usr/lib/owmods/mono/mono"));
+    }
+
+    candidates.into_iter().find(|path| path.is_file())
+}
+
+#[cfg(unix)]
 fn get_cmd(config: &Config, _: bool) -> Result<Command> {
-    let mono = std::env::var("MONO_BINARY")
-        .ok()
-        .unwrap_or_else(get_default_mono_binary);
+    let mono = std::env::var_os("MONO_BINARY")
+        .map(PathBuf::from)
+        .or_else(get_bundled_mono_binary)
+        .unwrap_or_else(|| PathBuf::from(get_default_mono_binary()));
 
     let owml_path = PathBuf::from(&config.owml_path).join(OWML_EXE_NAME);
     let exe_path = owml_path.to_str().unwrap();

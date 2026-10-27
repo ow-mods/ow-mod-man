@@ -1,5 +1,5 @@
 import { useGetTranslation } from "@hooks";
-import { Box, Paper, Skeleton, TableCell, Typography, useTheme } from "@mui/material";
+import { Box, Paper, Skeleton, TableCell, Typography, Stack, useTheme } from "@mui/material";
 import { memo, ReactNode, useMemo } from "react";
 import {
     ExtensionRounded,
@@ -12,6 +12,7 @@ import {
 } from "@mui/icons-material";
 import ModThumbnail from "./ModThumbnail";
 import ModDetailItem from "./ModDetailItem";
+import ModDescription from "./ModDescription";
 
 // Stolen from mods website, Rai will never catch me!
 const magnitudeMap = [
@@ -113,10 +114,11 @@ const ModRow = memo(function GenericModRow(props: ModRowProps) {
                         gap: 1
                     }}
                 >
-                    <Box
+                    <Stack
                         sx={{
                             flex: 1,
-                            minWidth: 0
+                            minWidth: 0,
+                            gap: 0.3
                         }}
                     >
                         <Box
@@ -147,10 +149,10 @@ const ModRow = memo(function GenericModRow(props: ModRowProps) {
                                 {props.isLoading ? <Skeleton width={300} /> : props.name}
                             </Typography>
                         </Box>
-                        {props.isLoading || props.remoteIsLoading ? (
-                            <Skeleton width={45} />
-                        ) : (
-                            <Typography noWrap variant="caption" color="textDisabled">
+                        <Typography noWrap variant="caption" color="textDisabled">
+                            {props.isLoading || props.remoteIsLoading ? (
+                                <Skeleton width={250} />
+                            ) : (
                                 <Box
                                     sx={{
                                         display: "flex",
@@ -175,15 +177,10 @@ const ModRow = memo(function GenericModRow(props: ModRowProps) {
                                         {formattedDownloads}
                                     </ModDetailItem>
                                 </Box>
-                            </Typography>
-                        )}
-                        <Typography variant="caption" sx={{ lineHeight: 1 }}>
-                            {props.isLoading || props.remoteIsLoading ? (
-                                <>
-                                    <Skeleton width={350} />
-                                    <Skeleton width={275} />
-                                </>
-                            ) : props.errorLevel ? (
+                            )}
+                        </Typography>
+                        {props.errorLevel ? (
+                            <Typography variant="caption" sx={{ lineHeight: 1 }}>
                                 <Paper
                                     sx={{
                                         bgcolor:
@@ -215,11 +212,13 @@ const ModRow = memo(function GenericModRow(props: ModRowProps) {
                                         </Box>
                                     ))}
                                 </Paper>
-                            ) : (
-                                props.description
-                            )}
-                        </Typography>
-                    </Box>
+                            </Typography>
+                        ) : (
+                            <ModDescription isLoading={props.isLoading || props.remoteIsLoading}>
+                                {props.description}
+                            </ModDescription>
+                        )}
+                    </Stack>
                     <Box
                         sx={{
                             display: "flex",

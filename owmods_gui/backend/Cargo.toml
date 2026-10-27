@@ -30,7 +30,6 @@ tauri-plugin-single-instance = { version = "2.5.3", features = ["deep-link"] }
 tauri-plugin-dialog = "2.8.3"
 tauri-plugin-updater = { version = "2.14.0", optional = true }
 tauri-plugin-os = "2.4.0"
-tauri-plugin-shell = "2.5.0"
 tauri-plugin-process = "2.4.0"
 tauri-plugin-clipboard-manager = "2.5.0"
 tauri-plugin-window-state = "2.5.0"

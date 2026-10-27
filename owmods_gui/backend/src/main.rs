@@ -15,6 +15,7 @@ use owmods_core::{
     config::Config,
     db::{LocalDatabase, RemoteDatabase},
     file::get_app_path,
+    open::open_detached,
     progress::bars::ProgressBars,
     protocol::ProtocolPayload,
 };
@@ -264,7 +265,6 @@ fn main() -> Result<(), Box<dyn Error>> {
         })
         .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_os::init())
-        .plugin(tauri_plugin_shell::init())
         .plugin(tauri_plugin_clipboard_manager::init())
         .invoke_handler(tauri::generate_handler![
             initial_setup,
@@ -284,6 +284,7 @@ fn main() -> Result<(), Box<dyn Error>> {
             install_zip,
             open_mod_readme,
             open_owml,
+            open_url,
             save_config,
             get_config,
             save_gui_config,
@@ -341,7 +342,7 @@ fn main() -> Result<(), Box<dyn Error>> {
             format!("The manager encountered a fatal error when starting: {why:?}").as_bytes(),
         )?;
         drop(file);
-        opener::open(&log_path)?;
+        open_detached(&log_path)?;
         std::process::exit(1);
     }
 

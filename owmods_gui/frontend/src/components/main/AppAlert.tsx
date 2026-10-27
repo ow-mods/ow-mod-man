@@ -3,7 +3,6 @@ import { withStyledErrorBoundary } from "@components/common/StyledErrorBoundary"
 import { useGetTranslation } from "@hooks";
 import { ErrorRounded, InfoRounded, LaunchRounded, WarningRounded } from "@mui/icons-material";
 import { Box, Link, Button, Palette, Typography, useTheme } from "@mui/material";
-import * as shell from "@tauri-apps/plugin-shell";
 import { Alert } from "@types";
 import { memo } from "react";
 
@@ -46,7 +45,7 @@ const AppAlert = memo(function AppAlert() {
     const severity = (alert?.severity ?? "info") as AlertSeverity;
 
     const onClick = () => {
-        shell.open(alert?.url ?? "");
+        commands.openUrl({ url: alert?.url ?? "" });
     };
 
     const onDismiss = () => {

@@ -2,6 +2,7 @@ use std::{
     fs::File,
     io::{BufWriter, Write},
     path::PathBuf,
+    sync::LazyLock,
 };
 
 use anyhow::{Context, anyhow};
@@ -22,7 +23,7 @@ use owmods_core::{
         local::{LocalMod, UnsafeLocalMod},
         remote::RemoteMod,
     },
-    open::{open_github, open_owml_logs, open_readme, open_shortcut},
+    open::{open_detached, open_github, open_owml_logs, open_readme, open_shortcut},
     owml::OWMLConfig,
     progress::bars::{ProgressBar, ProgressBars},
     protocol::{ProtocolPayload, ProtocolVerb},
@@ -31,6 +32,7 @@ use owmods_core::{
     updates::{check_mod_needs_update, fix_version_post_update},
     validate::fix_deps,
 };
+use regex::Regex;
 use serde::Serialize;
 use tauri::{AppHandle, DragDropEvent, Manager, WindowEvent, async_runtime};
 use tauri_plugin_dialog::{DialogExt, MessageDialogButtons, MessageDialogKind};
@@ -50,6 +52,13 @@ use crate::{
 };
 use crate::{events::CustomEventListener, game::LogData};
 //use crate::events::CustomEventTriggerGlobal;
+
+static OPEN_URL_SCOPE: LazyLock<Regex> = LazyLock::new(|| {
+    Regex::new(
+        r"(^https://(www\.)?(github.com|outerwildsmods.com|paypal.me|patreon.com|buymeacoffee.com|cash.app|ko-fi.com)/)|(^https://(www\.)?discord.gg/wusTQYbYTc$)",
+    )
+    .unwrap()
+});
 
 pub async fn mark_mod_busy(
     unique_name: &str,
@@ -453,6 +462,15 @@ pub async fn open_owml(state: tauri::State<'_, State>) -> Result {
     let config = state.config.read().await;
     let local_db = state.local_db.read().await;
     open_shortcut("owml", &config, &local_db)?;
+    Ok(())
+}
+
+#[tauri::command]
+pub async fn open_url(url: String) -> Result {
+    if !OPEN_URL_SCOPE.is_match(&url) {
+        return Err(Error(anyhow!("URL not allowed: {url}")));
+    }
+    open_detached(url)?;
     Ok(())
 }
 
@@ -864,7 +882,7 @@ pub async fn export_mods(path: String, state: tauri::State<'_, State>) -> Result
     let file = File::create(&path).map_err(|e| anyhow!("Error Saving File: {:?}", e))?;
     let mut writer = BufWriter::new(file);
     write!(&mut writer, "{output}").map_err(|e| anyhow!("Error Saving File: {:?}", e))?;
-    opener::open(path).ok();
+    open_detached(path).ok();
     Ok(())
 }
 
@@ -1145,6 +1163,6 @@ pub async fn open_mod_github(unique_name: &str, state: tauri::State<'_, State>) 
 #[tauri::command]
 pub async fn show_log_folder() -> Result {
     let path = get_app_path()?;
-    opener::open(path.join("logs")).ok();
+    open_detached(path.join("logs")).ok();
     Ok(())
 }

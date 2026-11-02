@@ -66,6 +66,11 @@
     "shortDescription": "A manager for Outer Wilds mods",
     "targets": "all",
     "linux": {
+      "appimage": {
+        "files": {
+          "/usr/lib/owmods/mono": "appimage-mono"
+        }
+      },
       "deb": {
         "desktopTemplate": "template.desktop"
       },

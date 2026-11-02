@@ -9,7 +9,14 @@ use std::os::unix::fs::PermissionsExt;
 
 use anyhow::{Context, Result, bail};
 
-const NATIVE_LIB_PREFIXES: &[&str] = &["libmono", "libMono", "libgdiplus", "libssl", "libcrypto"];
+const NATIVE_LIB_PREFIXES: &[&str] = &[
+    "libmono",
+    "libMono",
+    "libgdiplus",
+    "libgpg-error",
+    "libssl",
+    "libcrypto",
+];
 
 /// Prepares a Mono runtime tree for the GUI AppImage.
 ///
@@ -66,7 +73,7 @@ pub fn bundle_appimage_mono() -> Result<()> {
         }
     }
 
-    fs::write(&wrapper, include_str!("mono_templates/mono"))?;
+    fs::write(&wrapper, include_str!("appimage_templates/mono"))?;
     #[cfg(unix)]
     {
         let mut permissions = fs::metadata(&wrapper)?.permissions();

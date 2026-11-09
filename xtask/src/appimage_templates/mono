@@ -1,0 +1,16 @@
+#!/bin/sh
+# Wrapper for the Mono runtime bundled inside the AppImage.
+set -eu
+
+MONO_ROOT=$(CDPATH= cd "$(dirname "$0")" && pwd)
+MONO_PREFIX="$MONO_ROOT/usr"
+MONO_LIB="$MONO_PREFIX/lib"
+
+export MONO_PATH="$MONO_LIB/mono/4.5:$MONO_LIB/mono/4.0:$MONO_LIB/mono/3.5:$MONO_LIB/mono/2.0${MONO_PATH:+:$MONO_PATH}"
+export MONO_CFG_DIR="$MONO_ROOT/etc"
+export MONO_CONFIG="$MONO_ROOT/etc/mono/config"
+export MONO_GAC_PREFIX="$MONO_PREFIX"
+export PATH="$MONO_PREFIX/bin${PATH:+:$PATH}"
+export LD_LIBRARY_PATH="$MONO_LIB:$MONO_LIB/mono/4.5${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
+
+exec "$MONO_PREFIX/bin/mono" "$@"

@@ -81,6 +81,11 @@ jobs:
         uses: Swatinem/rust-cache@v2
         with:
           shared-key: v1-gui-${{ matrix.platform }}-${{ matrix.target }}-rust-cache-${{ hashFiles('Cargo.lock') }}
+      - name: Bundle Mono for AppImage
+        if: startsWith(matrix.platform, 'ubuntu')
+        run: |
+          sudo apt-get install -y --no-install-recommends mono-devel libgdiplus
+          cargo xtask bundle_appimage_mono
       - name: Setup Node
         uses: actions/setup-node@v6
         with:

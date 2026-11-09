@@ -5,6 +5,7 @@ use cli_tasks::{generate_cli_pkg_build, generate_completions, generate_man_files
 use gui_tasks::generate_gui_pkg_build;
 use regex::RegexBuilder;
 
+mod appimage_tasks;
 mod cli_tasks;
 mod gui_tasks;
 mod log_client;
@@ -41,6 +42,7 @@ fn main() -> Result<()> {
         }
         "cli_pkg_build" => generate_cli_pkg_build()?,
         "gui_pkg_build" => generate_gui_pkg_build()?,
+        "bundle_appimage_mono" => appimage_tasks::bundle_appimage_mono()?,
         "cli_version" => print_version()?,
         "log_client" => log_client::log_client()?,
         "spam_logs" => log_spammer::spam_logs(

@@ -1,6 +1,6 @@
-use std::path::Path;
+use std::{ffi::OsStr, path::Path, process::Stdio};
 
-use anyhow::{Context, Result, bail};
+use anyhow::{Context, Result, anyhow, bail};
 
 use crate::{
     config::Config,
@@ -8,6 +8,33 @@ use crate::{
     db::{LocalDatabase, RemoteDatabase},
     mods::local::UnsafeLocalMod,
 };
+
+/// Open a path or URL with the system's default handler.
+///
+/// Strips AppImage environment to prevent failures in those builds.
+pub fn open_detached(path: impl AsRef<OsStr>) -> Result<()> {
+    let path = path.as_ref();
+    let mut last_error = anyhow!("No command found to open {path:?}");
+
+    for mut cmd in open::commands(path) {
+        // Workaround for AppImage builds.
+        cmd.env_remove("LD_LIBRARY_PATH");
+        cmd.env_remove("QT_PLUGIN_PATH");
+        cmd.env_remove("APPDIR");
+        cmd.env_remove("APPIMAGE");
+
+        cmd.stdin(Stdio::null())
+            .stdout(Stdio::null())
+            .stderr(Stdio::null());
+
+        match cmd.spawn() {
+            Ok(_) => return Ok(()),
+            Err(e) => last_error = anyhow::Error::from(e),
+        }
+    }
+
+    Err(last_error)
+}
 
 /// Open a shortcut
 /// - "db", "website", "owml_docs", or "owml" are special
@@ -58,9 +85,9 @@ pub fn open_shortcut(identifier: &str, conf: &Config, local_db: &LocalDatabase) 
                 UnsafeLocalMod::Valid(m) => &m.mod_path,
             })
             .with_context(|| format!("Mod {identifier} not found"))?;
-        opener::open(path)?;
+        open_detached(path)?;
     } else {
-        opener::open(target)?;
+        open_detached(target)?;
     }
 
     Ok(())
@@ -92,7 +119,7 @@ pub fn open_readme(unique_name: &str, db: &RemoteDatabase) -> Result<()> {
         .get_mod(unique_name)
         .with_context(|| format!("Mod {unique_name} not found"))?;
     let slug = &remote_mod.slug;
-    opener::open(format!("{WEBSITE_URL}/mods/{slug}/"))?;
+    open_detached(format!("{WEBSITE_URL}/mods/{slug}/"))?;
     Ok(())
 }
 
@@ -115,14 +142,14 @@ pub fn open_readme(unique_name: &str, db: &RemoteDatabase) -> Result<()> {
 ///
 /// open_github("Bwc9876.TimeSaver", &remote_db).unwrap();
 /// # });
-/// ```    
+/// ```
 ///
 pub fn open_github(unique_name: &str, db: &RemoteDatabase) -> Result<()> {
     let remote_mod = db
         .get_mod(unique_name)
         .with_context(|| format!("Mod {unique_name} not found"))?;
     let repo = &remote_mod.repo; // this is the entire link to the repo
-    opener::open(repo)?;
+    open_detached(repo)?;
     Ok(())
 }
 
@@ -130,7 +157,7 @@ pub fn open_github(unique_name: &str, db: &RemoteDatabase) -> Result<()> {
 pub fn open_owml_logs(config: &Config) -> Result<()> {
     let path = Path::new(&config.owml_path).join("Logs");
     if path.exists() {
-        opener::open(path).context("Failed to open OWML logs folder")
+        open_detached(path).context("Failed to open OWML logs folder")
     } else {
         bail!("No Logs from OWML yet");
     }

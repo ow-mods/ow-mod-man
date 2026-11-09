@@ -1,3 +1,4 @@
+import { commands } from "@commands";
 import { useGetTranslation } from "@hooks";
 import { ListItemIcon, Menu, MenuItem } from "@mui/material";
 import { memo, useCallback, useState, MouseEvent } from "react";
@@ -9,7 +10,6 @@ import {
     LocalParkingRounded
 } from "@mui/icons-material";
 import ModActionIcon from "../ModActionIcon";
-import * as shell from "@tauri-apps/plugin-shell";
 
 export interface LocalModDonateIconProps {
     uniqueName: string;
@@ -65,7 +65,7 @@ const LocalModDonateIcon = memo(function LocalModDonateIcon(props: LocalModDonat
                     <MenuItem
                         key={link}
                         onClick={() => {
-                            shell.open(link);
+                            commands.openUrl({ url: link });
                             onClose();
                         }}
                     >

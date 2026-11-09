@@ -50,6 +50,7 @@ const commandInfo = {
     openModGithub: $<ModAction>("open_mod_github"),
     openModReadme: $<ModAction>("open_mod_readme"),
     openOwml: $<EmptyCommand>("open_owml"),
+    openUrl: $<ActionCommand<{ url: string }>>("open_url"),
     uninstallMod: $<ModCommand<string[]>>("uninstall_mod"),
     uninstallBrokenMod: $<ActionCommand<{ modPath: string }>>("uninstall_broken_mod"),
     installMod: $<CommandInfo<{ uniqueName: string; prerelease?: boolean }, void>>("install_mod"),

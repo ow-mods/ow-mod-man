@@ -14,7 +14,6 @@ import {
 import { ListItemIcon, ListItemText, MenuItem } from "@mui/material";
 import IconButton from "@mui/material/IconButton";
 import Menu from "@mui/material/Menu";
-import * as shell from "@tauri-apps/plugin-shell";
 import { lazy, MouseEvent, Suspense, useCallback, useState } from "react";
 
 const About = lazy(() => import("./About"));
@@ -34,7 +33,9 @@ const OverflowMenu = () => {
     }, []);
 
     const onHelp = useCallback(() => {
-        shell.open("https://github.com/ow-mods/ow-mod-man/blob/main/owmods_gui/HELP.md");
+        commands.openUrl({
+            url: "https://github.com/ow-mods/ow-mod-man/blob/main/owmods_gui/HELP.md"
+        });
         onClose();
     }, [onClose]);
 
@@ -59,7 +60,7 @@ const OverflowMenu = () => {
     }, [onClose]);
 
     const onDonate = useCallback(() => {
-        shell.open("https://paypal.me/Bwc9876");
+        commands.openUrl({ url: "https://paypal.me/Bwc9876" });
         onClose();
     }, [onClose]);
 

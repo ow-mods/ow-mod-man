@@ -5,7 +5,6 @@ import RemoteModRow from "./RemoteModRow";
 import { Button } from "@mui/material";
 import { useGetTranslation } from "@hooks";
 import { PublicRounded } from "@mui/icons-material";
-import * as shell from "@tauri-apps/plugin-shell";
 import { useErrorBoundary } from "react-error-boundary";
 
 export interface RemoteModsPageProps {
@@ -44,7 +43,7 @@ const RemoteModsPage = memo(
             () => (
                 <Button
                     color="neutral"
-                    onClick={() => shell.open("https://outerwildsmods.com/mods")}
+                    onClick={() => commands.openUrl({ url: "https://outerwildsmods.com/mods" })}
                     startIcon={<PublicRounded />}
                 >
                     {getTranslation("OPEN_WEBSITE")}

@@ -15,7 +15,6 @@
     "core:event:default",
     "deep-link:default",
     "dialog:default",
-    "shell:allow-open",
     "clipboard-manager:allow-write-text"
   ]
 }

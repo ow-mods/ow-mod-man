@@ -43,8 +43,13 @@ const RemoteModsPage = memo(
             "localRefresh"
         ]);
 
+        const recommendationsDisabled = guiConfig?.disableModRecommendations ?? false;
+
         const uniqueNames = useMemo(() => {
             const allMods = remoteMods ?? [];
+            if (recommendationsDisabled) {
+                return allMods;
+            }
             const recommendedNames = new Set((recommendedMods ?? []).map((mod) => mod.uniqueName));
             if (recommendedNames.size === 0) {
                 return allMods;
@@ -55,12 +60,16 @@ const RemoteModsPage = memo(
                 (recommendedNames.has(uniqueName) ? recommended : others).push(uniqueName);
             }
             return [...recommended, ...others];
-        }, [remoteMods, recommendedMods]);
+        }, [remoteMods, recommendedMods, recommendationsDisabled]);
 
         const recommendedByMap = useMemo(
             () =>
-                new Map((recommendedMods ?? []).map((mod) => [mod.uniqueName, mod.recommendedBy])),
-            [recommendedMods]
+                recommendationsDisabled
+                    ? new Map<string, string[]>()
+                    : new Map(
+                          (recommendedMods ?? []).map((mod) => [mod.uniqueName, mod.recommendedBy])
+                      ),
+            [recommendedMods, recommendationsDisabled]
         );
 
         const renderRow = useCallback(
@@ -97,7 +106,9 @@ const RemoteModsPage = memo(
                 isLoading={
                     (status === "Loading" && remoteMods === null) ||
                     remoteMods === undefined ||
-                    (recommendedStatus === "Loading" && recommendedMods === null)
+                    (!recommendationsDisabled &&
+                        recommendedStatus === "Loading" &&
+                        recommendedMods === null)
                 }
                 filter={props.filter}
                 onFilterChange={props.onFilterChanged}

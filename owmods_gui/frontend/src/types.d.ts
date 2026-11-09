@@ -136,6 +136,7 @@ export interface GuiConfig {
     hideModThumbnails: boolean;
     hideDlc: boolean;
     hideDonate: boolean;
+    disableModRecommendations: boolean;
     rainbow: boolean;
 }
 

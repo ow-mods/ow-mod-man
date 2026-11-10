@@ -1,5 +1,5 @@
 import { commands, hooks } from "@commands";
-import { memo, useEffect, useMemo } from "react";
+import { memo, useCallback, useEffect, useMemo } from "react";
 import ModsPage from "../ModsPage";
 import RemoteModRow from "./RemoteModRow";
 import { Button } from "@mui/material";
@@ -38,6 +38,53 @@ const RemoteModsPage = memo(
                 tags: tags
             }
         );
+        const [recommendedStatus, recommendedMods] = hooks.getRecommendedMods([
+            "remoteRefresh",
+            "localRefresh"
+        ]);
+
+        const recommendationsDisabled = guiConfig?.disableModRecommendations ?? false;
+
+        const uniqueNames = useMemo(() => {
+            const allMods = remoteMods ?? [];
+            if (recommendationsDisabled) {
+                return allMods;
+            }
+            const recommendedNames = new Set((recommendedMods ?? []).map((mod) => mod.uniqueName));
+            if (recommendedNames.size === 0) {
+                return allMods;
+            }
+            const recommended: string[] = [];
+            const others: string[] = [];
+            for (const uniqueName of allMods) {
+                (recommendedNames.has(uniqueName) ? recommended : others).push(uniqueName);
+            }
+            return [...recommended, ...others];
+        }, [remoteMods, recommendedMods, recommendationsDisabled]);
+
+        const recommendedByMap = useMemo(
+            () =>
+                recommendationsDisabled
+                    ? new Map<string, string[]>()
+                    : new Map(
+                          (recommendedMods ?? []).map((mod) => [mod.uniqueName, mod.recommendedBy])
+                      ),
+            [recommendedMods, recommendationsDisabled]
+        );
+
+        const renderRow = useCallback(
+            (uniqueName: string, showThumbnail: boolean) => {
+                const recommendedBy = recommendedByMap.get(uniqueName);
+                return (
+                    <RemoteModRow
+                        showThumbnail={showThumbnail}
+                        uniqueName={uniqueName}
+                        recommendedBy={recommendedBy}
+                    />
+                );
+            },
+            [recommendedByMap]
+        );
 
         const modsWebsiteButton = useMemo(
             () => (
@@ -57,14 +104,16 @@ const RemoteModsPage = memo(
             <ModsPage
                 noModsText={getTranslation("NO_REMOTE_MODS")}
                 isLoading={
-                    (status === "Loading" && remoteMods === null) || remoteMods === undefined
+                    (status === "Loading" && remoteMods === null) ||
+                    remoteMods === undefined ||
+                    (!recommendationsDisabled &&
+                        recommendedStatus === "Loading" &&
+                        recommendedMods === null)
                 }
                 filter={props.filter}
                 onFilterChange={props.onFilterChanged}
-                uniqueNames={remoteMods ?? []}
-                renderRow={(uniqueName, showThumbnail) => (
-                    <RemoteModRow showThumbnail={showThumbnail} uniqueName={uniqueName} />
-                )}
+                uniqueNames={uniqueNames}
+                renderRow={renderRow}
                 selectedTags={tags}
                 hideTags={guiConfig?.hideDlc ? ["requires-dlc"] : []}
                 onSelectedTagsChanged={props.onTagsChanged}

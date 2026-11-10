@@ -74,6 +74,8 @@ pub struct GuiConfig {
     #[serde(default = "_default_false")]
     pub hide_donate: bool,
     #[serde(default = "_default_false")]
+    pub disable_mod_recommendations: bool,
+    #[serde(default = "_default_false")]
     rainbow: bool,
 }
 
@@ -94,6 +96,7 @@ impl Default for GuiConfig {
             hide_donate: false,
             no_log_server: false,
             hide_dlc: false,
+            disable_mod_recommendations: false,
         }
     }
 }

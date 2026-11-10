@@ -42,6 +42,8 @@ pub struct RemoteMod {
     alpha: Option<bool>,
     /// The tags for the mod, these are manually set in the database
     pub tags: Option<Vec<String>>,
+    /// The unique names of mods recommended by this mod, manually set in the database
+    pub recommended_mods: Option<Vec<String>>,
 }
 
 impl RemoteMod {

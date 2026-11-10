@@ -61,7 +61,7 @@ const LocalModActions = memo(function LocalModTools(props: LocalModActionsProps)
             />
             {props.canFix ? (
                 <ModActionIcon
-                    icon={<ConstructionRounded />}
+                    icon={<ConstructionRounded color="warning" />}
                     onClick={props.onFix}
                     label={getTranslation("FIX")}
                     disabled={isAnyBusy ?? false}

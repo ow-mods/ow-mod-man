@@ -54,7 +54,6 @@ const RemoteModsPage = memo(
 
         return (
             <ModsPage
-                actionsSize={100}
                 noModsText={getTranslation("NO_REMOTE_MODS")}
                 isLoading={
                     (status === "Loading" && remoteMods === null) || remoteMods === undefined

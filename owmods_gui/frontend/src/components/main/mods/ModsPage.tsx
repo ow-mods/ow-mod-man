@@ -7,7 +7,6 @@ import { useGetTranslation } from "@hooks";
 
 export interface ModsPageProps {
     isLoading: boolean;
-    actionsSize: number;
     filter: string;
     noModsText: string;
     onFilterChange: (newVal: string) => void;

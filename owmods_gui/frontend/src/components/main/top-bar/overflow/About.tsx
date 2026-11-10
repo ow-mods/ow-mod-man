@@ -1,3 +1,4 @@
+import { commands } from "@commands";
 import { useGetTranslation } from "@hooks";
 import { ChatBubbleRounded, GitHub, InfoRounded } from "@mui/icons-material";
 import {
@@ -15,7 +16,6 @@ import {
 } from "@mui/material";
 import * as os from "@tauri-apps/plugin-os";
 import * as app from "@tauri-apps/api/app";
-import * as shell from "@tauri-apps/plugin-shell";
 import { memo, useCallback, useEffect, useState } from "react";
 import logo from "@assets/images/logo.png?w=256&h=256&format=webp&imagetools";
 import ODTooltip from "@components/common/ODTooltip";
@@ -57,11 +57,11 @@ const About = memo(function About({ onClick }: ModalProps) {
     }, []);
 
     const onGithub = useCallback(() => {
-        shell.open("https://github.com/ow-mods/ow-mod-man/");
+        commands.openUrl({ url: "https://github.com/ow-mods/ow-mod-man/" });
     }, []);
 
     const onDiscord = useCallback(() => {
-        shell.open("https://discord.gg/wusTQYbYTc");
+        commands.openUrl({ url: "https://discord.gg/wusTQYbYTc" });
     }, []);
 
     return (

@@ -11,7 +11,8 @@ import {
     ProgressBars,
     ProgressBar,
     Event,
-    RemoteModOption
+    RemoteModOption,
+    RecommendedMod
 } from "@types";
 
 type CommandInfo<P, R> = [P, R];
@@ -35,6 +36,7 @@ const commandInfo = {
     getOwmlConfig: $<GetCommand<OWMLConfig>>("get_owml_config"),
     getDefaultConfigs: $<GetCommand<[Config, GuiConfig, OWMLConfig]>>("get_defaults"),
     getLocalMods: $<CommandInfo<{ filter: string; tags: string[] }, string[]>>("get_local_mods"),
+    getRecommendedMods: $<GetCommand<RecommendedMod[]>>("get_recommended_mods"),
     getRemoteMods:
         $<CommandInfo<{ filter: string; tags: string[] }, string[] | undefined>>("get_remote_mods"),
     getUpdatableMods: $<CommandInfo<{ filter: string }, string[]>>("get_updatable_mods"),
@@ -50,6 +52,7 @@ const commandInfo = {
     openModGithub: $<ModAction>("open_mod_github"),
     openModReadme: $<ModAction>("open_mod_readme"),
     openOwml: $<EmptyCommand>("open_owml"),
+    openUrl: $<ActionCommand<{ url: string }>>("open_url"),
     uninstallMod: $<ModCommand<string[]>>("uninstall_mod"),
     uninstallBrokenMod: $<ActionCommand<{ modPath: string }>>("uninstall_broken_mod"),
     installMod: $<CommandInfo<{ uniqueName: string; prerelease?: boolean }, void>>("install_mod"),

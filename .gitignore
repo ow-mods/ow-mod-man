@@ -20,6 +20,7 @@ node_modules
 dist
 dist-ssr
 *.local
+.direnv
 
 # Editor directories and files
 .idea

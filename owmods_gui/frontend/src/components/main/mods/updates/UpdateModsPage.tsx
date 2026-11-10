@@ -35,6 +35,7 @@ const UpdateModsPage = memo(function UpdateModsPage(props: UpdateModsPageProps) 
     const updateAllButton = useMemo(
         () => (
             <Button
+                size="small"
                 color="neutral"
                 disabled={updateMods?.length === 0 || updatingAll}
                 onClick={onUpdateAll}
@@ -49,7 +50,6 @@ const UpdateModsPage = memo(function UpdateModsPage(props: UpdateModsPageProps) 
     return (
         <ModsPage
             isLoading={status === "Loading" && updateMods === null}
-            actionsSize={130}
             noModsText={getTranslation("NO_UPDATES")}
             filter={props.filter}
             onFilterChange={props.onFilterChange}

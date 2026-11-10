@@ -1,7 +1,9 @@
 use std::{
+    collections::HashMap,
     fs::File,
     io::{BufWriter, Write},
     path::PathBuf,
+    sync::LazyLock,
 };
 
 use anyhow::{Context, anyhow};
@@ -22,7 +24,7 @@ use owmods_core::{
         local::{LocalMod, UnsafeLocalMod},
         remote::RemoteMod,
     },
-    open::{open_github, open_owml_logs, open_readme, open_shortcut},
+    open::{open_detached, open_github, open_owml_logs, open_readme, open_shortcut},
     owml::OWMLConfig,
     progress::bars::{ProgressBar, ProgressBars},
     protocol::{ProtocolPayload, ProtocolVerb},
@@ -31,6 +33,7 @@ use owmods_core::{
     updates::{check_mod_needs_update, fix_version_post_update},
     validate::fix_deps,
 };
+use regex::Regex;
 use serde::Serialize;
 use tauri::{AppHandle, DragDropEvent, Manager, WindowEvent, async_runtime};
 use tauri_plugin_dialog::{DialogExt, MessageDialogButtons, MessageDialogKind};
@@ -50,6 +53,13 @@ use crate::{
 };
 use crate::{events::CustomEventListener, game::LogData};
 //use crate::events::CustomEventTriggerGlobal;
+
+static OPEN_URL_SCOPE: LazyLock<Regex> = LazyLock::new(|| {
+    Regex::new(
+        r"(^https://(www\.)?(github.com|outerwildsmods.com|paypal.me|patreon.com|buymeacoffee.com|cash.app|ko-fi.com)/)|(^https://(www\.)?discord.gg/wusTQYbYTc$)",
+    )
+    .unwrap()
+});
 
 pub async fn mark_mod_busy(
     unique_name: &str,
@@ -170,6 +180,58 @@ pub async fn get_local_mods(
     }
 
     Ok(unique_names)
+}
+
+#[typeshare]
+#[derive(Debug, Serialize, Clone)]
+#[serde(rename_all = "camelCase")]
+pub struct RecommendedMod {
+    /// The unique name of the recommended mod
+    pub unique_name: String,
+    /// The names of the installed and enabled mods that recommend this mod
+    pub recommended_by: Vec<String>,
+}
+
+#[tauri::command]
+pub async fn get_recommended_mods(state: tauri::State<'_, State>) -> Result<Vec<RecommendedMod>> {
+    let local_db = state.local_db.read().await.clone();
+    let remote_db_opt = state.remote_db.read().await.clone();
+    let Some(remote_db) = remote_db_opt.get() else {
+        return Ok(vec![]);
+    };
+
+    let mut recommended: HashMap<String, Vec<String>> = HashMap::new();
+    for local_mod in local_db.active() {
+        let Some(remote_mod) = remote_db.get_mod(&local_mod.manifest.unique_name) else {
+            continue;
+        };
+        let Some(recommended_mods) = remote_mod.recommended_mods.as_ref() else {
+            continue;
+        };
+        for unique_name in recommended_mods {
+            if unique_name == OWML_UNIQUE_NAME
+                || local_db.get_mod_unsafe(unique_name).is_some()
+                || remote_db.get_mod(unique_name).is_none()
+            {
+                continue;
+            }
+            let recommended_by = recommended.entry(unique_name.clone()).or_default();
+            if !recommended_by.contains(&local_mod.manifest.name) {
+                recommended_by.push(local_mod.manifest.name.clone());
+            }
+        }
+    }
+
+    Ok(recommended
+        .into_iter()
+        .map(|(unique_name, mut recommended_by)| {
+            recommended_by.sort();
+            RecommendedMod {
+                unique_name,
+                recommended_by,
+            }
+        })
+        .collect())
 }
 
 #[tauri::command]
@@ -453,6 +515,15 @@ pub async fn open_owml(state: tauri::State<'_, State>) -> Result {
     let config = state.config.read().await;
     let local_db = state.local_db.read().await;
     open_shortcut("owml", &config, &local_db)?;
+    Ok(())
+}
+
+#[tauri::command]
+pub async fn open_url(url: String) -> Result {
+    if !OPEN_URL_SCOPE.is_match(&url) {
+        return Err(Error(anyhow!("URL not allowed: {url}")));
+    }
+    open_detached(url)?;
     Ok(())
 }
 
@@ -864,7 +935,7 @@ pub async fn export_mods(path: String, state: tauri::State<'_, State>) -> Result
     let file = File::create(&path).map_err(|e| anyhow!("Error Saving File: {:?}", e))?;
     let mut writer = BufWriter::new(file);
     write!(&mut writer, "{output}").map_err(|e| anyhow!("Error Saving File: {:?}", e))?;
-    opener::open(path).ok();
+    open_detached(path).ok();
     Ok(())
 }
 
@@ -1145,6 +1216,6 @@ pub async fn open_mod_github(unique_name: &str, state: tauri::State<'_, State>) 
 #[tauri::command]
 pub async fn show_log_folder() -> Result {
     let path = get_app_path()?;
-    opener::open(path.join("logs")).ok();
+    open_detached(path.join("logs")).ok();
     Ok(())
 }

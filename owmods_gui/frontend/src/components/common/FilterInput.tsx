@@ -34,6 +34,11 @@ const FilterInput: React.FunctionComponent<FilterInputProps> = memo(function Fil
         <TextField
             margin="none"
             size="small"
+            sx={{
+                input: {
+                    padding: 0.6
+                }
+            }}
             onChange={({ currentTarget }) => {
                 setText(currentTarget.value);
             }}

@@ -42,6 +42,7 @@ const RemoteModsPage = memo(
         const modsWebsiteButton = useMemo(
             () => (
                 <Button
+                    size="small"
                     color="neutral"
                     onClick={() => commands.openUrl({ url: "https://outerwildsmods.com/mods" })}
                     startIcon={<PublicRounded />}
